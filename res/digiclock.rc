@@ -1,0 +1,224 @@
+/*
+ * $Id$
+ * 
+ * Resource definition file for DIGICLOCK.EXE
+ * 
+ * Copyright (C) 2008 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ */
+#include "os.h"
+#include "digiclock-res.h"
+
+// The main icon resource for the application.
+IDI_APP_ICON ICON  "bvr20983.ico"
+
+IDI_STATE_0 ICON  "world.ico"
+IDI_STATE_1 ICON  "lock.ico"
+IDI_STATE_2 ICON  "unlocked.ico"
+
+// About Dialog.
+IDD_ABOUTBOX DIALOG  67, 46, 196, 53
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Digiclock"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  ICON            IDI_STATE_2,-1,6,7,18,20
+  LTEXT           "Digiclock Version 1.0",-1,32,7,155,8,NOT WS_GROUP
+  LTEXT           "Copyright 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  PUSHBUTTON      "OK",IDOK,75,32,40,14
+END
+
+// About Dialog.
+IDD_ABOUTBOX DIALOG  67, 46, 196, 53
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Über Digiclock"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  ICON            IDI_STATE_2,-1,6,7,18,20
+  LTEXT           "Digiclock Version 1.0",-1,32,7,155,8,NOT WS_GROUP
+  LTEXT           "Urheberrecht 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  PUSHBUTTON      "OK",IDOK,75,32,40,14
+END
+
+// Error Box String Resources.
+STRINGTABLE 
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  IDS_ASSERT_FAIL                                    "BVR20983: Assertion failed."
+  IDS_NOTIFY_TIP1                                    "Bla Fasel"
+  IDS_NOTIFY_TIP2                                    "Hugo Egon Balder"
+  IDS_NOTIFY_TIP3                                    "The quick brown fox jumps\nover the lazy dog..."
+END
+
+STRINGTABLE 
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  IDS_ASSERT_FAIL                                    "BVR20983: Annahme wurde nicht erfüllt."
+  IDS_NOTIFY_TIP1                                    "Bla Fasel"
+  IDS_NOTIFY_TIP2                                    "Hugo Egon Balder"
+  IDS_NOTIFY_TIP3                                    "Das ist das Haus vom Nikolaus\nund nebendran vom Weihnachtsmann"
+END
+
+
+IDM_APP MENU
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  POPUP "&File"
+  BEGIN
+    MENUITEM SEPARATOR
+    MENUITEM "Exit"          IDM_APP_EXIT
+  END
+
+  POPUP "&Edit"
+  BEGIN
+    MENUITEM "&Copy\tCtrl+C" IDM_EDIT_COPY
+  END
+
+  POPUP "&Windows"
+  BEGIN
+    MENUITEM "&1 Window"   IDM_WND_1
+    MENUITEM "&2 Windows"  IDM_WND_2
+    MENUITEM "&4 Windows"  IDM_WND_4
+    MENUITEM "&6 Windows"  IDM_WND_6
+    MENUITEM "Transparent" IDM_TRANSPARENT
+    MENUITEM SEPARATOR
+    MENUITEM "&Start"      IDM_STARTCLOCK
+    MENUITEM "S&top"       IDM_STOPCLOCK
+  END
+
+  POPUP "&Help"
+  BEGIN
+    MENUITEM "&Help"         IDM_APP_HELP
+    MENUITEM "&About"        IDM_APP_ABOUT
+  END
+END
+
+IDM_APP MENU
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  POPUP "&Datei"
+  BEGIN
+    MENUITEM SEPARATOR
+    MENUITEM "Beenden"      IDM_APP_EXIT
+  END
+
+  POPUP "&Bearbeiten"
+  BEGIN
+    MENUITEM "&Kopieren\tStrg+C" IDM_EDIT_COPY
+  END
+
+  POPUP "&Fenster"
+  BEGIN
+    MENUITEM "&1 Fenster"  IDM_WND_1
+    MENUITEM "&2 Fenster"  IDM_WND_2
+    MENUITEM "&4 Fenster"  IDM_WND_4
+    MENUITEM "&6 Fenster"  IDM_WND_6
+    MENUITEM "Transparent" IDM_TRANSPARENT
+    MENUITEM SEPARATOR
+    MENUITEM "&Starten"   IDM_STARTCLOCK
+    MENUITEM "S&toppen"   IDM_STOPCLOCK
+  END
+
+  POPUP "&Hilfe"
+  BEGIN
+    MENUITEM "&Hilfe"       IDM_APP_HELP
+    MENUITEM "&Info"        IDM_APP_ABOUT
+  END
+END
+
+IDM_POPUP_DIGICLOCK MENU
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  POPUP "&Digiclock Window"
+  BEGIN
+    MENUITEM "&1 Window"  IDM_WND_1
+    MENUITEM "&2 Windows" IDM_WND_2
+    MENUITEM "&4 Windows" IDM_WND_4
+    MENUITEM "&6 Windows" IDM_WND_6
+    MENUITEM SEPARATOR
+    MENUITEM "&About"     IDM_APP_ABOUT
+    MENUITEM "Exit"       IDM_APP_EXIT
+  END
+END
+
+IDM_POPUP_DIGICLOCK MENU
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  POPUP "&Digiclock Fenster"
+  BEGIN
+    MENUITEM "&1 Fenster" IDM_WND_1
+    MENUITEM "&2 Fenster" IDM_WND_2
+    MENUITEM "&4 Fenster" IDM_WND_4
+    MENUITEM "&6 Fenster" IDM_WND_6
+    MENUITEM SEPARATOR
+    MENUITEM "&Info"      IDM_APP_ABOUT
+    MENUITEM "Beenden"    IDM_APP_EXIT
+  END
+END
+
+IDA_ACC ACCELERATORS
+BEGIN
+  "^C", IDM_EDIT_COPY
+END
+
+// If being read in by AppStudio we don't confuse it with this Version Info.
+#ifndef APSTUDIO_INVOKED
+
+// The version information for the binary.
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifndef DEBUG
+  FILEFLAGS    0
+#else
+  FILEFLAGS    VS_FF_DEBUG | VS_FF_PRERELEASE
+#endif
+FILEOS         VOS_NT_WINDOWS32
+FILETYPE       VFT_APP
+FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      BLOCK "040904B0" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=Unicode
+    #else
+      BLOCK "040904E4" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=MultiLang
+    #endif
+    BEGIN
+      VALUE "CompanyName",     "Dorothea Wachmann"
+      VALUE "FileDescription", "digiclock: a digital clock"
+      VALUE "FileVersion",     "1.00"
+      VALUE "InternalName",    "digiclock"
+      VALUE "LegalCopyright",  "Copyright \251 2007 Dorothea Wachmann"
+      VALUE "OriginalFilename","digiclock.exe"
+      VALUE "ProductName",     "BVR20983 Suite"
+      VALUE "ProductVersion",  "1.00"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      VALUE "Translation", 0x409, 1200  //English (0x409), Unicode (1200)
+    #else
+      VALUE "Translation", 0x409, 1252  //English (0x409), ANSI (1252)
+    #endif
+  END
+END
+
+#endif

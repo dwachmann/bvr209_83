@@ -1,0 +1,329 @@
+/*
+ * $Id$
+ * 
+ * Copyright (C) 2008 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ *
+ * GUID SCHEMA
+ * <prefix>                <  suffix  >
+ * 7dc6e86d-aaaa-bbbb-cccc-425652200983
+ *
+ * Typelib                 aaaa-0000-0000
+ *   Types                 aaaa-bbbb-xxxx
+ *     Interface                0001
+ *     Interface,dual           0002
+ *     DispInterface            0003
+ *     DispInterface,Source     0004
+ *     Coclass                  0010
+ *     Coclass Control          0011
+ *     Coclass noncreatable     0012
+ *     Enum                     0020
+ *     Custom GUID              1000
+ *
+ * xxxx: serial number
+ *
+ * BVR Global custom GUIDs
+ *
+ * CUST_MISCSTATUS    = 7dc6e86d-0000-1000-0001-425652200983
+ * CUST_TOOLBOXBITMAP = 7dc6e86d-0000-1000-0002-425652200983
+ * CUST_CATID         = 7dc6e86d-0000-1000-1xxx-425652200983
+ *
+ * CATID_Insertable                      = 0x00
+ * CATID_Control                         = 0x01
+ * CATID_Programmable                    = 0x02
+ * CATID_IsShortcut                      = 0x03
+ * CATID_NeverShowExt                    = 0x04
+ * CATID_DocObject                       = 0x05
+ * CATID_Printable                       = 0x06
+ * CATID_RequiresDataPathHost            = 0x07
+ * CATID_PersistsToMoniker               = 0x08
+ * CATID_PersistsToStorage               = 0x09
+ * CATID_PersistsToStreamInit            = 0x0a
+ * CATID_PersistsToStream                = 0x0b
+ * CATID_PersistsToMemory                = 0x0c
+ * CATID_PersistsToFile                  = 0x0d
+ * CATID_PersistsToPropertyBag           = 0x0e
+ * CATID_InternetAware                   = 0x0f
+ * CATID_DesignTimeUIActivatableControl  = 0x10
+ * CATID_SafeForInitializing             = 0x11
+ * CATID_SafeForScripting                = 0x12
+ * CATID_PropertyNotifyControl           = 0x13
+ * CATID_SimpleFrameControl              = 0x14
+*/
+#include "bvr20983-dispid.h"
+
+ 
+[ uuid(7dc6e86d-0001-0000-0000-425652200983), 
+  helpstring("BVR20983 Type Library"), 
+  lcid(0x0000), 
+  version(1.0)
+]
+library BVR20983
+{
+  importlib("STDOLE32.TLB");
+
+  #define DISPID_LISTITEM     0
+  #define DISPID_LISTCOUNT    (-531)
+  #define DISPID_NEWENUM      (-4)
+
+  /**
+   * Event Interface
+   */
+  [ uuid(7dc6e86d-0001-0004-0001-425652200983), 
+    helpstring("Definition of Dispatch ISmartcard event interface")
+  ]
+  dispinterface DISmartcardEvent
+  { properties:
+    methods:
+      [id(DISPID_ONINSERTED),helpstring("Card was inserted")]
+      void OnInserted();
+  
+      [id(DISPID_ONREMOVED),helpstring("Card was removed")]
+      void OnRemoved();
+
+      [id(DISPID_ONRECEIVED),helpstring("Response to Command")]
+      void OnReceived(IUnknown* pAPDU);
+  }
+
+  [ uuid(7dc6e86d-0001-0002-0002-425652200983),
+    helpstring("ApplicationProtocolDataUnit Type"),
+    oleautomation,
+    dual
+  ]
+  interface IAPDU : IDispatch                         
+  { 
+    typedef
+    [ uuid(7dc6e86d-0001-0020-0001-425652200983),
+      helpstring("Constants for Resonse Type")
+    ]
+    enum ResponseType 
+    { [helpstring("Raw response")]           RAW_RESPONSE =0x01,
+      [helpstring("TagLengthValue respone")] TLV_RESPONSE =0x02
+    } ResponseType;
+    
+    [propget, id(0), helpstring("Get class Byte")]
+    HRESULT Class([out, retval] byte *pCls);
+    [propput, id(0), helpstring("Set class Byte")]
+    HRESULT Class([in] byte cls);
+
+    [propget, helpstring("get instruction Byte")]
+    HRESULT Ins([out, retval] byte *pIns);
+    [propput, helpstring("set instruction Byte")]
+    HRESULT Ins([in] byte ins);
+
+    [propget, helpstring("get p1 Byte")]
+    HRESULT P1([out, retval] byte *pP1);
+    [propput, helpstring("set p1 Byte")]
+    HRESULT P1([in] byte p1);
+
+    [propget, helpstring("get p2 Byte")]
+    HRESULT P2([out, retval] byte *pP2);
+    [propput, helpstring("set p2 Byte")]
+    HRESULT P2([in] byte p2);
+
+    [propget, helpstring("get expected length")]
+    HRESULT Le([out, retval] byte *pLe);
+    [propput, helpstring("set expected length")]
+    HRESULT Le([in] byte le);
+
+    [propget, helpstring("get responsetype")]
+    HRESULT ResponseType([out, retval] ResponseType *pResonseType);
+    [propput, helpstring("set responsetype")]
+    HRESULT ResponseType([in] ResponseType resonseType);
+
+    [propget, helpstring("get responsecode")]
+    HRESULT ResponseCode([out, retval] unsigned short *pResponseCode);
+
+    [propget, helpstring("Returns a collection of response blocks.")]
+    HRESULT Response([out, retval] IUnknown** ppResonse);    
+  }
+
+  [ uuid(7dc6e86d-0001-0002-0003-425652200983),
+    helpstring("AnswerToReset Type"),
+    oleautomation,
+    dual
+  ]
+  interface IATR : IDispatch                         
+  { [propget, id(0), helpstring("Raw information")]
+    HRESULT Raw([out, retval] BSTR *pBSTRHistory);
+
+    [propget, helpstring("History Information")]
+    HRESULT History([out, retval] BSTR *pBSTRHistory);
+
+    [propget, helpstring("F ATR Info")]
+    HRESULT F([out, retval] unsigned long *pF);
+
+    [propget, helpstring("FMax ATR Info")]
+    HRESULT FMax([out, retval] unsigned long *pFMax);
+
+    [propget, helpstring("D ATR Info")]
+    HRESULT D([out, retval] unsigned long *pD);
+  }
+
+  [ uuid(7dc6e86d-0001-0002-0000-425652200983), 
+    helpstring("ISmartcard Type"), 
+    oleautomation, 
+    dual
+  ]
+  interface ISmartcard : IDispatch
+  { typedef
+    [ uuid(7dc6e86d-0001-0020-0002-425652200983),
+      helpstring("Constants for terminal features")
+    ]
+    enum Features 
+    { [helpstring("Verify a PIN start")]  FEATURE_VERIFY_PIN_START =0x01, /* OMNIKEY Proposal    */
+      [helpstring("Verify a PIN finish")] FEATURE_VERIFY_PIN_FINISH=0x02, /* OMNIKEY Proposal    */
+      [helpstring("Modify a PIN start")]  FEATURE_MODIFY_PIN_START =0x03, /* OMNIKEY Proposal    */
+      [helpstring("Modify a PIN finish")] FEATURE_MODIFY_PIN_FINISH=0x04, /* OMNIKEY Proposal    */
+      [helpstring("Get Key Pressed")]     FEATURE_GET_KEY_PRESSED  =0x05, /* OMNIKEY Proposal    */
+      [helpstring("Verify PIN direct")]   FEATURE_VERIFY_PIN_DIRECT=0x06, /* USB CCID PIN Verify */
+      [helpstring("Modify PIN direct")]   FEATURE_MODIFY_PIN_DIRECT=0x07, /* USB CCID PIN Modify */
+      [helpstring("MCT Reader direct")]   FEATURE_MCT_READERDIRECT =0x08, /* KOBIL Proposal      */
+      [helpstring("MCT Universal")]       FEATURE_MCT_UNIVERSAL    =0x09, /* KOBIL Proposal      */
+      [helpstring("IFD PIN Proposal")]    FEATURE_IFD_PIN_PROP     =0x0A, /* Gemplus Proposal    */
+      [helpstring("Abort")]               FEATURE_ABORT            =0x0B  /* SCM Proposal        */
+    } Features;
+
+    typedef
+    [ uuid(7dc6e86d-0001-0020-0003-425652200983),
+      helpstring("Constants for terminal features")
+    ]
+    enum PinCoding 
+    { [helpstring("BCD PIN coding for verification/modification")]   BCD  =0x01,
+      [helpstring("ASCII PIN coding for verification/modification")] ASCII=0x02
+    } PinCoding;
+
+    typedef
+    [ uuid(7dc6e86d-0001-0020-0004-425652200983),
+      helpstring("Constants for terminal features")
+    ]
+    enum Attributes 
+    { [helpstring("ATR STRING")]            ATR_STRING            = 0x01,
+      [helpstring("CHARACTERISTICS")]       CHARACTERISTICS       = 0x02,
+      [helpstring("CURRENT IFSC")]          CURRENT_IFSC          = 0x03,
+      [helpstring("CURRENT IFSD")]          CURRENT_IFSD          = 0x04,
+      [helpstring("CURRENT PROTOCOL TYPE")] CURRENT_PROTOCOL_TYPE = 0x05,
+      [helpstring("DEFAULT CLK")]           DEFAULT_CLK           = 0x06,
+      [helpstring("DEFAULT DATA RATE")]     DEFAULT_DATA_RATE     = 0x07,
+      [helpstring("DEVICE FRIENDLY NAME")]  DEVICE_FRIENDLY_NAME  = 0x08,
+      [helpstring("DEVICE IN USE")]         DEVICE_IN_USE         = 0x09,
+      [helpstring("DEVICE SYSTEM NAME")]    DEVICE_SYSTEM_NAME    = 0x00,
+      [helpstring("DEVICE UNIT")]           DEVICE_UNIT           = 0x0a,
+      [helpstring("ICC INTERFACE STATUS")]  ICC_INTERFACE_STATUS  = 0x0b,
+      [helpstring("ICC PRESENCE")]          ICC_PRESENCE          = 0x0c,
+      [helpstring("ICC TYPE PER ATR")]      ICC_TYPE_PER_ATR      = 0x0d,
+      [helpstring("MAX CLK")]               MAX_CLK               = 0x0e,
+      [helpstring("MAX DATA RATE")]         MAX_DATA_RATE         = 0x0f,
+      [helpstring("MAX IFSD")]              MAX_IFSD              = 0x10,
+      [helpstring("POWER MGMT SUPPORT")]    POWER_MGMT_SUPPORT    = 0x11,
+      [helpstring("PROTOCOL TYPES")]        PROTOCOL_TYPES        = 0x12,
+      [helpstring("CHANNEL ID")]            CHANNEL_ID            = 0x13,
+      [helpstring("VENDOR IFD SERIAL NO")]  VENDOR_IFD_SERIAL_NO  = 0x14,
+      [helpstring("VENDOR IFD TYPE")]       VENDOR_IFD_TYPE       = 0x15,
+      [helpstring("VENDOR IFD VERSION")]    VENDOR_IFD_VERSION    = 0x16,
+      [helpstring("VENDOR NAME")]           VENDOR_NAME           = 0x17
+    } Attributes;
+
+    [propget, helpstring("get the smartcard ATR")]
+    HRESULT ATR([out, retval] IUnknown** ppATR);
+
+    [propget, helpstring("Test, if a smartcard is present")]
+    HRESULT CardPresent([out, retval] VARIANT_BOOL* pIsCardPresent);
+
+    [propget, helpstring("Returns a collection of all applications on smartcard.")]
+    HRESULT Applications([out, retval] IUnknown** retval);    
+
+    [propget, helpstring("Returns a collection of all registered smartcards.")]
+    HRESULT RegisteredCards([out, retval] IUnknown** retval);    
+
+    [propget, helpstring("Returns a collection of all known readers.")]
+    HRESULT Readers([out, retval] IUnknown** retval);    
+
+    [helpstring("Test, if attribute is supported.")]
+    HRESULT Attribute([in] Attributes attrib,[out, retval] BSTR* pAttribute);    
+
+    [helpstring("Test, if terminal has feature")]
+    HRESULT Feature([in] Features feature,[out, retval] VARIANT_BOOL* pHasFeature);
+
+    [helpstring("Wait for Card Insert Event")]
+    HRESULT WaitForInsertEvent([in, defaultvalue(0)] unsigned short timeInSeconds);
+
+    [helpstring("Wait for Card Remove Event")]
+    HRESULT WaitForRemoveEvent([in, defaultvalue(0)] unsigned short timeInSeconds);
+
+    [helpstring("Output text on terminal")]
+    HRESULT OutputText([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
+
+    [helpstring("Input text on terminal")]
+    HRESULT InputText([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
+
+    [helpstring("Transmit APDU to smartcard")]
+    HRESULT Transmit([in] IUnknown* pAPDU,
+                     [out] unsigned long* pCmdNo,
+                     [in, defaultvalue(0)] VARIANT_BOOL async,
+                     [in, defaultvalue(0)] VARIANT_BOOL genMac
+                    );
+  }
+
+  [ uuid(7dc6e86d-0001-0010-0000-425652200983), 
+    helpstring("BVR20983 Smartcard Type"),
+    version(1.0)
+  ]
+  coclass Smartcard
+  { [default]         interface     ISmartcard;
+    [default, source] dispinterface DISmartcardEvent;
+  }
+
+  /**
+   * Smartcard Application Interfaces
+   */
+  [ uuid(7dc6e86d-0001-0002-0005-425652200983), 
+    helpstring("Wallet Application"), 
+    oleautomation, 
+    dual
+  ]
+  interface IWallet : IDispatch
+  { [propget, helpstring("The Wallet Balance")]
+    HRESULT Balance([out, retval] short* pBalance);
+
+    [helpstring("Add money to wallet")]
+    HRESULT Credit([in] short amount);
+
+    [helpstring("withdraw money from wallet")]
+    HRESULT Debit([in] short amount);
+
+    [helpstring("verify the card holder")]
+    HRESULT Verify([in] BSTR pin);
+  }
+
+  [ uuid(7dc6e86d-0001-0012-0001-425652200983), 
+    helpstring("ATR Object"),
+    restricted,
+    noncreatable
+  ]
+  coclass ATR
+  { [default]         interface     IATR;
+  }
+
+  [ uuid(7dc6e86d-0001-0012-0002-425652200983), 
+    helpstring("Wallet Object"),
+    restricted,
+    noncreatable
+  ]
+  coclass Wallet
+  { [default]         interface     IWallet;
+  }
+};
+//============================END-OF-FILE=============================

@@ -1,0 +1,107 @@
+/*
+ * $Id$
+ * 
+ * Copyright (C) 2008 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ *
+ * GUID SCHEMA
+ * <prefix>                <  suffix  >
+ * 7dc6e86d-aaaa-bbbb-cccc-425652200983
+ *
+ * Typelib                 aaaa-0000-0000
+ *   Types                 aaaa-bbbb-xxxx
+ *     Interface                0001
+ *     Interface,dual           0002
+ *     DispInterface            0003
+ *     DispInterface,Source     0004
+ *     Coclass                  0010
+ *     Coclass Control          0011
+ *     Coclass noncreatable     0012
+ *     Enum                     0020
+ *     Custom GUID              1000
+ *
+ * xxxx: serial number
+ */
+
+[ uuid(7dc6e86d-0001-0000-0000-425652200983), 
+  lcid(1031), 
+  helpstring("BVR20983 Typenbibliothek"), 
+  version(1.0)
+]
+library BVR20983
+{
+  importlib("STDOLE32.TLB");
+
+  [ uuid(7dc6e86d-0001-0002-0000-425652200983), 
+    helpstring("Chipkarten-Schnittstellendefinition"), 
+    oleautomation, 
+    dual
+  ]
+  interface ISmartcard : IDispatch
+  {
+    [propget, helpstring("Die Chipkarten-ATR")]
+    HRESULT KartenID([out, retval] BSTR *pBSTRCardID);
+
+    [propget, helpstring("Testet, ob sich eine Chipkarte im Terminal befindet")]
+    HRESULT KarteVerfügbar([out, retval] VARIANT_BOOL* pIsCardPresent);
+
+    [helpstring("Wartet die angegebene Zeit auf das Einführen einer Chipkarte in das Terminal")]
+    HRESULT WarteAufKarte([in] short timeInSeconds);
+  }
+
+  [ uuid(7dc6e86d-0001-0004-0001-425652200983), 
+    helpstring("Definition of Dispatch ISmartcard event interface")
+  ]
+  dispinterface DISmartcardEvent
+  { 
+    properties:
+    methods:
+      [id(0x1),helpstring("Chipkarte wurde eingefuehrt")]
+      void WurdeEingeführt();
+  
+      [id(0x2),helpstring("Chipkarte wurde entfernt")]
+      void WurdeEntfernt();
+  }
+
+  [ uuid(7dc6e86d-0001-0010-0000-425652200983), 
+    helpstring("Chipkarten-Objekt Typinformation")
+  ]
+  coclass Smartcard
+  {
+    [default]         interface      ISmartcard;
+    [default, source] dispinterface DISmartcardEvent;
+  }
+ 
+  [ uuid(7dc6e86d-0001-0002-0005-425652200983), 
+    helpstring("Geldbörsen-Schnittstellendefinition"), 
+    oleautomation, 
+    dual
+  ]
+  interface IWallet : IDispatch
+  {
+    [propget, helpstring("Der Geldbörsensaldo")]
+    HRESULT Kontostand([out, retval] short* pBalance);
+
+    [helpstring("Fügt einen Geldbetrag der Geldbörse hinzu")]
+    HRESULT Gutschreiben([in] short amount);
+
+    [helpstring("Entnimmt einen Geldbetrag der Geldbörse")]
+    HRESULT Abbuchen([in] short amount);
+
+    [helpstring("Authentifiziert den Geldbörseninhaber")]
+    HRESULT Authentifizieren([in] BSTR pin);
+  }
+};
+//============================END-OF-FILE=============================

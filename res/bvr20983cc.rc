@@ -1,0 +1,185 @@
+/*
+ * $Id$
+ * 
+ * Resource definition file for BVR20983CC.DLL
+ * 
+ * Copyright (C) 2008 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ */
+#include "os.h"
+#include "bvr20983cc.h"
+#include "bvr20983cc-res.h"
+#include "bvr20983cc-ver.h"
+#include "bvr20983cc-dispid.h"
+#include <olectl.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+// The main icon resource for the application.
+IDI_APP_ICON ICON  "bvr20983.ico"
+IDI_STATE_0  ICON  "world.ico"
+IDI_STATE_1  ICON  "lock.ico"
+IDI_STATE_2  ICON  "unlocked.ico"
+
+IDB_TOOLBOX_BITMAP BITMAP "led-toolboxbitmap.bmp"
+
+IDT_TYPELIB_EN TYPELIB "ibvr20983cc-0000.tlb"
+
+// About Dialog.
+IDD_ABOUTBOX DIALOG  67, 46, 196, 53
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Digiclock"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  ICON            IDI_STATE_2,-1,6,7,18,20
+  LTEXT           "BVR20983 COM Control Library Version 1.0",-1,32,7,155,8,NOT WS_GROUP
+  LTEXT           "Copyright 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  PUSHBUTTON      "OK",IDOK,75,32,40,14
+END
+
+IDD_LEDPROPPAGE DIALOGEX 0,0,172,88
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+STYLE WS_CHILD
+FONT 8, "MS Shell Dlg"
+BEGIN
+  ICON            IDI_STATE_2,-1,6,7,18,20
+  LTEXT           "Text:",-1,6,40,40,14
+  EDITTEXT        DISPID_TEXT,46,40,80,12,WS_TABSTOP
+  AUTOCHECKBOX    "Clock",DISPID_LED_CLOCK,6,55,40,12,WS_TABSTOP
+END
+
+
+// Error Box String Resources.
+STRINGTABLE 
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  IDS_ASSERT_FAIL                                    "BVR20983: Assertion failed."
+  IDS_LED_PP_TITLE                                   "LED Control"
+END
+
+STRINGTABLE 
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  IDS_ASSERT_FAIL                                    "BVR20983: Annahme wurde nicht erfüllt."
+  IDS_LED_PP_TITLE                                   "LED Control"
+END
+
+IDM_POPUP_LEDWND MENU
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  POPUP "&LED Window"
+  BEGIN
+    MENUITEM "&Start"     IDM_LED_START
+    MENUITEM "S&top"      IDM_LED_STOP
+    MENUITEM SEPARATOR
+    MENUITEM "16 Segment" IDM_LED_16SEGMENT CHECKED
+    MENUITEM "Suppress"   IDM_LED_SUPPRESS CHECKED
+    MENUITEM "24 Hour"    IDM_LED_24HOUR CHECKED
+    MENUITEM SEPARATOR
+    MENUITEM "Foreground Color" IDM_LED_FGCOLOR
+    MENUITEM "Foreground1 Color" IDM_LED_FG1COLOR
+    MENUITEM "Background Color" IDM_LED_BGCOLOR
+  END
+END
+
+IDM_POPUP_LEDWND MENU
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  POPUP "&LED Fenster"
+  BEGIN
+    MENUITEM "&Starten"   IDM_LED_START
+    MENUITEM "S&toppen"   IDM_LED_STOP
+    MENUITEM SEPARATOR
+    MENUITEM "16 Segment" IDM_LED_16SEGMENT CHECKED
+    MENUITEM "Suppress"   IDM_LED_SUPPRESS CHECKED
+    MENUITEM "24 Hour"    IDM_LED_24HOUR CHECKED
+    MENUITEM SEPARATOR
+    MENUITEM "Vordergrundfarbe" IDM_LED_FGCOLOR
+    MENUITEM "Vordergrundfarbe 1" IDM_LED_FG1COLOR
+    MENUITEM "Hintergrundfarbe" IDM_LED_BGCOLOR
+  END
+END
+
+// String Resources for exceptions (english).
+STRINGTABLE 
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  (IDS_EXCEPTIONSRC_MIN+BVR_SOURCE_LED)              "BVR20983.LED"
+
+  (IDS_EXCEPTIONMSG_LED+BVR_LED_ISRUNNING)           "LED is running"
+  (IDS_EXCEPTIONMSG_LED+BVR_LED_ISNOTRUNNING)        "LED is not running"
+END
+
+// String Resources for exceptions (german).
+STRINGTABLE 
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  (IDS_EXCEPTIONSRC_MIN+BVR_SOURCE_LED)              "BVR20983.LED"
+
+  (IDS_EXCEPTIONMSG_LED+BVR_LED_ISRUNNING)           "LED läuft bereits"
+  (IDS_EXCEPTIONMSG_LED+BVR_LED_ISNOTRUNNING)        "LED läuft nicht"
+END
+
+
+// If being read in by AppStudio we don't confuse it with this Version Info.
+#ifndef APSTUDIO_INVOKED
+
+// The version information for the binary.
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    verFileVer
+PRODUCTVERSION verProdVer
+FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifndef DEBUG
+  FILEFLAGS    0
+#else
+  FILEFLAGS    VS_FF_DEBUG | VS_FF_PRERELEASE
+#endif
+FILEOS         VOS_NT_WINDOWS32
+FILETYPE       VFT_DLL
+FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      BLOCK "040904B0" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=Unicode
+    #else
+      BLOCK "040904E4" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=MultiLang
+    #endif
+    BEGIN
+      VALUE "CompanyName",     verCompName
+      VALUE "FileDescription", verFileDesc
+      VALUE "FileVersion",     verFileVer1
+      VALUE "InternalName",    verIntName
+      VALUE "LegalCopyright",  verCopyright
+      VALUE "OriginalFilename",verOrigName
+      VALUE "ProductName",     verProdName
+      VALUE "ProductVersion",  verProdVer1
+      VALUE "Comments",        verMakeDate
+      VALUE "OLESelfRegister", "\0"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      VALUE "Translation", 0x409, 1200  //English (0x409), Unicode (1200)
+    #else
+      VALUE "Translation", 0x409, 1252  //English (0x409), ANSI (1252)
+    #endif
+  END
+END
+
+#endif

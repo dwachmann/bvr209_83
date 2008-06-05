@@ -1,0 +1,260 @@
+/*
+ * $Id$
+ * 
+ * Copyright (C) 2008 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ *
+ * GUID SCHEMA
+ * <prefix>                <  suffix  >
+ * 7dc6e86d-aaaa-bbbb-cccc-425652200983
+ *
+ * Typelib                 aaaa-0000-0000
+ *   Types                 aaaa-bbbb-xxxx
+ *     Interface                0001
+ *     Interface,dual           0002
+ *     DispInterface            0003
+ *     DispInterface,Source     0004
+ *     Coclass                  0010
+ *     Coclass Control          0011
+ *     Coclass noncreatable     0012
+ *     PropertyPage             0013
+ *     Enum                     0020
+ *     Custom GUID              1000
+ *
+ * xxxx: serial number
+ *
+ * BVR Global custom GUIDs
+ *
+ * CUST_MISCSTATUS    = 7dc6e86d-0000-1000-0001-425652200983
+ * CUST_TOOLBOXBITMAP = 7dc6e86d-0000-1000-0002-425652200983
+ * CUST_DIALOGID      = 7dc6e86d-0000-1000-0003-425652200983
+ * CUST_DIALOGTITLE   = 7dc6e86d-0000-1000-0004-425652200983
+ * CUST_CATID         = 7dc6e86d-0000-1000-1xxx-425652200983
+ *
+ * CATID_Insertable                      = 0x00
+ * CATID_Control                         = 0x01
+ * CATID_Programmable                    = 0x02
+ * CATID_IsShortcut                      = 0x03
+ * CATID_NeverShowExt                    = 0x04
+ * CATID_DocObject                       = 0x05
+ * CATID_Printable                       = 0x06
+ * CATID_RequiresDataPathHost            = 0x07
+ * CATID_PersistsToMoniker               = 0x08
+ * CATID_PersistsToStorage               = 0x09
+ * CATID_PersistsToStreamInit            = 0x0a
+ * CATID_PersistsToStream                = 0x0b
+ * CATID_PersistsToMemory                = 0x0c
+ * CATID_PersistsToFile                  = 0x0d
+ * CATID_PersistsToPropertyBag           = 0x0e
+ * CATID_InternetAware                   = 0x0f
+ * CATID_DesignTimeUIActivatableControl  = 0x10
+ * CATID_SafeForInitializing             = 0x11
+ * CATID_SafeForScripting                = 0x12
+ * CATID_PropertyNotifyControl           = 0x13
+ * CATID_SimpleFrameControl              = 0x14
+ * CATID_InfoBand                        = 0x15
+ * CATID_CommBand                        = 0x16
+ * CATID_DeskBand                        = 0x17
+ * CATID_BrowsableShellExt               = 0x18
+ * CATID_BrowseInPlace                   = 0x19
+
+ */
+import "ocidl.idl";
+
+#include "bvr20983cc-dispid.h"
+#include "bvr20983cc-res.h"
+#include <olectl.h>
+
+[ uuid(7dc6e86d-0002-0000-0000-425652200983), 
+  helpstring("BVR20983 COM Control Type Library"), 
+  lcid(0x0000), 
+  version(1.0)
+]
+library BVR20983CC
+{
+  importlib("STDOLE32.TLB");
+
+  enum COMMISC
+  {	RECOMPOSEONRESIZE	            = 0x1,
+	  ONLYICONIC	                  = 0x2,
+	  INSERTNOTREPLACE	            = 0x4,
+	  STATIC	                      = 0x8,
+	  CANTLINKINSIDE  	            = 0x10,
+	  CANLINKBYOLE1	                = 0x20,
+	  ISLINKOBJECT	                = 0x40,
+	  INSIDEOUT	                    = 0x80,
+	  ACTIVATEWHENVISIBLE	          = 0x100,
+	  RENDERINGISDEVICEINDEPENDENT	= 0x200,
+	  INVISIBLEATRUNTIME	          = 0x400,
+	  ALWAYSRUN	                    = 0x800,
+	  ACTSLIKEBUTTON	              = 0x1000,
+	  ACTSLIKELABEL	                = 0x2000,
+	  NOUIACTIVATE	                = 0x4000,
+	  ALIGNABLE	                    = 0x8000,
+	  SIMPLEFRAME	                  = 0x10000,
+	  SETCLIENTSITEFIRST	          = 0x20000,
+	  IMEMODE	                      = 0x40000,
+	  IGNOREACTIVATEWHENVISIBLE	    = 0x80000,
+	  WANTSTOMENUMERGE	            = 0x100000,
+	  SUPPORTSMULTILEVELUNDO	      = 0x200000
+  };
+
+  /**
+   * Event Interface for LED control
+   */
+  [ uuid(7dc6e86d-0002-0004-0001-425652200983), 
+    helpstring("Event interface for LED control")
+  ]
+  dispinterface DLEDEvent
+  { 
+    properties:
+
+    methods:
+      [id(DISPID_READYSTATECHANGE),helpstring("Called when ready state changed")]
+      void OnReadyStateChange();
+
+      [id(DISPID_ONSTARTED),helpstring("LED was started")]
+      void OnStarted();
+  
+      [id(DISPID_ONSTOPPED),helpstring("LED was stopped")]
+      void OnStopped();
+
+      [id(DISPID_ONDIRTY),helpstring("LED should be repainted (called asynchron)")]
+      void OnDirty();
+  }
+
+  /**
+   * primary dispatch interface for LED control
+   */
+  [ uuid(7dc6e86d-0002-0002-0001-425652200983),
+    helpstring("LED Control"),
+    dual,
+    oleautomation
+  ]
+  interface ILED : IDispatch                         
+  { 
+    //
+    // Properties
+    //
+    [id(DISPID_TEXT),propget, helpstring("get text")]
+    HRESULT Text([out, retval] BSTR *pText);
+    [id(DISPID_TEXT),propput, helpstring("set text")]
+    HRESULT Text([in] BSTR text);
+
+    [id(DISPID_BACKCOLOR),propget, helpstring("get background color")]
+    HRESULT BackgroundColor([out, retval] OLE_COLOR *pColor);
+    [id(DISPID_BACKCOLOR),propput, helpstring("set background color")]
+    HRESULT BackgroundColor([in] OLE_COLOR color);
+
+    [id(DISPID_FORECOLOR),propget, helpstring("get foreground color")]
+    HRESULT ForegroundColor([out, retval] OLE_COLOR *pColor);
+    [id(DISPID_FORECOLOR),propput, helpstring("set foreground color")]
+    HRESULT ForegroundColor([in] OLE_COLOR color);
+
+    [id(DISPID_FILLCOLOR),propget, helpstring("get fill color")]
+    HRESULT FillColor([out, retval] OLE_COLOR *pColor);
+    [id(DISPID_FILLCOLOR),propput, helpstring("set fill color")]
+    HRESULT FillColor([in] OLE_COLOR color);
+
+    [id(DISPID_LED_RUN),propget, helpstring("Tests, if LED is running")]
+    HRESULT Run([out, retval] VARIANT_BOOL *pIsRunning);
+    [id(DISPID_LED_RUN),propput, helpstring("Starts or stops led")]
+    HRESULT Run([in] VARIANT_BOOL isRunning);
+
+    [id(DISPID_LED_CLOCK),propget, helpstring("Get clock property")]
+    HRESULT Clock([out, retval] VARIANT_BOOL *pClock);
+    [id(DISPID_LED_CLOCK),propput, helpstring("Set clock property")]
+    HRESULT Clock([in] VARIANT_BOOL clock);
+
+    [id(DISPID_LED_24HOUR),propget, helpstring("Get 24hour property")]
+    HRESULT Display24Hour([out, retval] VARIANT_BOOL *pDisplay24Hour);
+    [id(DISPID_LED_24HOUR),propput, helpstring("Set 24hour property")]
+    HRESULT Display24Hour([in] VARIANT_BOOL display24Hour);
+
+    [id(DISPID_LED_16SEGMENT),propget, helpstring("Get 16-segment property")]
+    HRESULT Display16Segment([out, retval] VARIANT_BOOL *pDisplay16Segment);
+    [id(DISPID_LED_16SEGMENT),propput, helpstring("Set 16-segment property")]
+    HRESULT Display16Segment([in] VARIANT_BOOL display16Segment);
+
+    [id(DISPID_LED_SUPPRESS0),propget, helpstring("Get suppress0 property")]
+    HRESULT Suppress0([out, retval] VARIANT_BOOL *pSuppress0);
+    [id(DISPID_LED_SUPPRESS0),propput, helpstring("Set suppress0 property")]
+    HRESULT Suppress0([in] VARIANT_BOOL suppress0);
+
+    //
+    // methods
+    //
+    [id(DISPID_REFRESH),helpstring("Repaints the LED")]
+    void Refresh(void);
+
+    [id(DISPID_ABOUTBOX)]
+    HRESULT AboutBox();
+
+    [id(DISPID_LED_PROPPAGE),helpstring("Show Property Pages")]
+    HRESULT PropertyPages();
+
+    [id(DISPID_READYSTATE), propget, helpstring("Tests, if LED is ready")]
+    HRESULT ReadyState([out, retval] VARIANT* pReady);
+  }
+
+  /**
+   * coclass for LED controls
+   */
+  [ uuid(7dc6e86d-0002-0011-0001-425652200983), 
+    helpstring("BVR20983 LED Control"),
+    control,
+
+    // MiscStatus
+    custom(7dc6e86d-0000-1000-0001-425652200983,SETCLIENTSITEFIRST|ACTIVATEWHENVISIBLE|RECOMPOSEONRESIZE|CANTLINKINSIDE|INSIDEOUT),
+    // ToolboxBitmap
+    custom(7dc6e86d-0000-1000-0002-425652200983,"#42"),
+
+    // Categories
+    // CATID_Control
+    custom(7dc6e86d-0000-1000-1001-425652200983,1),
+    // CATID_SafeForInitializing 
+    custom(7dc6e86d-0000-1000-1011-425652200983,1),
+    // CATID_SafeForScripting 
+    custom(7dc6e86d-0000-1000-1012-425652200983,1),
+
+    // CATID_PersistsToPropertyBag 
+    custom(7dc6e86d-0000-1000-100e-425652200983,1),
+    // CATID_PersistsToStorage 
+    custom(7dc6e86d-0000-1000-1009-425652200983,1),
+    // CATID_PersistsToStreamInit 
+    custom(7dc6e86d-0000-1000-100a-425652200983,1)
+  ]
+  coclass LED
+  { [default]         interface     ILED;
+    [default, source] dispinterface DLEDEvent;
+  }
+
+  /**
+   * coclass for LED PropertyPage
+   */
+  [ uuid(7dc6e86d-0002-0013-0001-425652200983), 
+    helpstring("BVR20983 LED Control PropertyPage"),
+
+    // CUST_DIALOGID
+    custom(7dc6e86d-0000-1000-0003-425652200983,IDD_LEDPROPPAGE),
+
+    // CUST_DIALOGTITLE
+    custom(7dc6e86d-0000-1000-0004-425652200983,IDS_LED_PP_TITLE),
+  ]
+  coclass LEDPropertyPage
+  { [default] interface IPropertyPage2;
+  }
+};
+//============================END-OF-FILE=============================

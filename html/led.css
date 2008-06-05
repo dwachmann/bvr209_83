@@ -1,0 +1,21 @@
+BODY
+{ background-color: white; 
+  margin: 1ex;
+  padding: 0px;
+
+  background-image: url(background.jpg);
+  background-repeat: repeat;
+
+}
+
+#led
+{ border: 1px dashed cyan;
+  width: 80%;
+  height: 60%;
+  text-align: center;
+  /* background-color: #2fe;*/
+  filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+  color: #f84;
+}
+
+

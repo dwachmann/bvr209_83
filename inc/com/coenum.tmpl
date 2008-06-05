@@ -1,0 +1,168 @@
+/*
+ * $Id$
+ * 
+ * Copyright (C) 2008 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ */
+#include "os.h"
+
+#include "com/coenum.h"
+
+namespace bvr20983
+{
+  namespace COM
+  {
+
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::COEnum(REFIID riid, int cElement, DataT* rgElements)
+      : m_riid(riid),
+        m_iCurrent(0)
+    { Add(cElement,rgElements); }
+
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::COEnum(COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>& coEnum) 
+      : m_riid(coEnum.m_riid),
+        m_iCurrent(coEnum.m_iCurrent)
+    { Add(coEnum.m_data); }
+    
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::~COEnum()
+    { DataV::iterator i;
+       
+      for( i=m_data.begin();i!=m_data.end();i++ )
+        m_freeF(*i);
+    }
+
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    HRESULT COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::InternalQueryInterface(REFIID riid,PPVOID ppv)
+    { HRESULT hr = NOERROR;
+    
+      if( NULL==ppv )
+        hr = E_POINTER;
+      else
+      { *ppv = NULL;
+
+        if( m_riid==riid )
+          *ppv = (IEnumIF*)this;
+      
+        if( NULL!=*ppv )
+          ((LPUNKNOWN)(*ppv))->AddRef();
+        else
+          hr = COUnknown::InternalQueryInterface(riid,ppv);
+      } // of else
+      
+      return hr;
+    }
+
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    STDMETHODIMP COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::Next(ULONG celt, DataT* rgelt, ULONG* pceltFetched)
+    { HRESULT hr               = NOERROR;
+      ULONG   cElementsFetched = 0;
+
+      if( celt>0 && NULL==rgelt )
+        hr = E_POINTER;
+      else
+      { ULONG s = m_data.size();
+        ULONG i = 0;
+
+        for( i=0;i<celt;i++,m_iCurrent++ )
+        { if( m_iCurrent>=s )
+          { hr = S_FALSE;
+
+            break;
+          } // of if
+
+          DataT& d = m_data[m_iCurrent];
+          
+          m_addrefF(d);
+
+          rgelt[i] = d;
+        } // of for
+
+        if( NULL!=pceltFetched )
+          *pceltFetched = i;
+      } // of else
+
+      return hr;
+    }
+
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    STDMETHODIMP COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::Skip(ULONG celt)
+    { HRESULT hr = NOERROR;
+      ULONG   s  = m_data.size();
+
+      if( m_iCurrent+celt > s ) 
+      { m_iCurrent = s;
+        
+        hr = S_FALSE;
+      }
+      else
+        m_iCurrent += celt;
+
+      return hr;
+    }
+    
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    STDMETHODIMP COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::Reset()
+    { m_iCurrent = 0;
+      
+      return S_OK;
+    }
+    
+    /**
+     *
+     */
+    template <class IEnumIF,class DataT,class AllocF,class FreeF,class AddrefF>
+    STDMETHODIMP COEnum<IEnumIF,DataT,AllocF,FreeF,AddrefF>::Clone(IEnumIF** ppEnumClone)
+    { HRESULT hr       = NOERROR;
+      COEnum* pNewEnum = NULL;
+
+      if( NULL==ppEnumClone )
+        hr = E_POINTER;
+      else
+      { pNewEnum = new COEnum(*this);
+
+        if( NULL==pNewEnum )
+          hr = E_OUTOFMEMORY;
+        else
+          *ppEnumClone = (IEnumIF *)pNewEnum;
+      } // of else
+
+      return S_OK;
+    }
+  } // of namespace COM
+} // of namespace bvr20983
+/*==========================END-OF-FILE===================================*/

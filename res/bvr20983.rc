@@ -1,0 +1,191 @@
+/*
+ * $Id$
+ * 
+ * Resource definition file for BVR20983.DLL
+ * 
+ * Copyright (C) 2008 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ */
+#include "os.h"
+#include "bvr20983.h"
+#include "bvr20983-res.h"
+#include "bvr20983-ver.h"
+
+// The main icon resource for the application.
+IDI_APP_ICON ICON  "bvr20983.ico"
+
+IDI_STATE_0 ICON  "world.ico"
+IDI_STATE_1 ICON  "lock.ico"
+IDI_STATE_2 ICON  "unlocked.ico"
+
+IDT_TYPELIB_EN TYPELIB "ibvr20983-0000.tlb"
+IDT_TYPELIB_DE TYPELIB "ibvr20983-0007.tlb"
+
+IDR_MANIFEST RT_MANIFEST "bvr20983.manifest"
+
+// About Dialog.
+IDD_ABOUTBOX DIALOG  67, 46, 196, 53
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About BVR20983"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  ICON            IDI_STATE_0,-1,6,7,18,20
+  LTEXT           "BVR20983 Version 1.0",-1,32,7,155,8,NOT WS_GROUP
+  LTEXT           "Copyright 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  PUSHBUTTON      "OK",IDOK,75,32,40,14
+END
+
+// About Dialog.
+IDD_ABOUTBOX DIALOG  67, 46, 196, 53
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Über BVR20983"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  ICON            IDI_STATE_0,-1,6,7,18,20
+  LTEXT           "BVR20983 Version 1.0",-1,32,7,155,8,NOT WS_GROUP
+  LTEXT           "Urheberrecht 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  PUSHBUTTON      "OK",IDOK,75,32,40,14
+END
+
+// Error Box String Resources.
+STRINGTABLE 
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  IDS_ASSERT_FAIL                                    "BVR20983: Assertion failed."
+END
+
+STRINGTABLE 
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  IDS_ASSERT_FAIL                                    "BVR20983: Annahme wurde nicht erfüllt."
+END
+
+// String Resources for exceptions (english).
+STRINGTABLE 
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  (IDS_EXCEPTIONSRC_MIN+BVR_SOURCE_SMARTCARD)        "BVR20983.Smartcard"
+  (IDS_EXCEPTIONSRC_MIN+BVR_SOURCE_WALLET)           "BVR20983.Wallet"
+
+  (IDS_EXCEPTIONMSG_SC+BVR_SC_NOTINITED)             "library not inited"
+  (IDS_EXCEPTIONMSG_SC+BVR_SC_NOTCONNECTED)          "not connected to smartcard terminal"
+  (IDS_EXCEPTIONMSG_SC+BVR_SC_NOCARD)                "no smartcard present"
+
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_INVALIDPIN)        "Validation failed"
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_INVALIDTRXAMOUNT)  "Transaction amount is invalid"
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_NEGATIVEBALANCE)   "Balance would become negative"
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_MAXIMUMBALANCE)    "Maximum balance would be exceeded"
+END
+
+// String Resources for exceptions (german).
+STRINGTABLE 
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  (IDS_EXCEPTIONSRC_MIN+BVR_SOURCE_SMARTCARD)        "BVR20983.Smartcard"
+  (IDS_EXCEPTIONSRC_MIN+BVR_SOURCE_WALLET)           "BVR20983.Geldboerse"
+
+  (IDS_EXCEPTIONMSG_SC+BVR_SC_NOTINITED)             "Bibliothek ist nicht initialisiert"
+  (IDS_EXCEPTIONMSG_SC+BVR_SC_NOTCONNECTED)          "keine Verbindung zum Kartenterminal"
+  (IDS_EXCEPTIONMSG_SC+BVR_SC_NOCARD)                "Keine Karte im Kartenterminal"
+
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_INVALIDPIN)        "Authentisierung fehlgeschlagen"
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_INVALIDTRXAMOUNT)  "Betrag ist zu gross"
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_NEGATIVEBALANCE)   "Kontostand würde negativ werden"
+  (IDS_EXCEPTIONMSG_WA+BVR_WALLET_MAXIMUMBALANCE)    "Maximaler Kontostand würde überschritten werden"
+END
+
+IDM_APP MENU
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+BEGIN
+  POPUP "&File"
+  BEGIN
+    MENUITEM SEPARATOR
+    MENUITEM "Exit"         IDM_APP_EXIT
+  END
+
+  POPUP "&Help"
+  BEGIN
+    MENUITEM "&Help"        IDM_APP_HELP
+    MENUITEM "&About"       IDM_APP_ABOUT
+  END
+END
+
+IDM_APP MENU
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+BEGIN
+  POPUP "&Datei"
+  BEGIN
+    MENUITEM SEPARATOR
+    MENUITEM "Beenden"      IDM_APP_EXIT
+  END
+
+  POPUP "&Hilfe"
+  BEGIN
+    MENUITEM "&Hilfe"       IDM_APP_HELP
+    MENUITEM "&Info"        IDM_APP_ABOUT
+  END
+END
+
+// If being read in by AppStudio we don't confuse it with this Version Info.
+#ifndef APSTUDIO_INVOKED
+
+// The version information for the binary.
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    verFileVer
+PRODUCTVERSION verProdVer
+FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifndef DEBUG
+  FILEFLAGS    0
+#else
+  FILEFLAGS    VS_FF_DEBUG | VS_FF_PRERELEASE
+#endif
+FILEOS         VOS_NT_WINDOWS32
+FILETYPE       VFT_DLL
+FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      BLOCK "040904B0" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=Unicode
+    #else
+      BLOCK "040904E4" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=MultiLang
+    #endif
+    BEGIN
+      VALUE "CompanyName",     verCompName
+      VALUE "FileDescription", verFileDesc
+      VALUE "FileVersion",     verFileVer1
+      VALUE "InternalName",    verIntName
+      VALUE "LegalCopyright",  verCopyright
+      VALUE "OriginalFilename",verOrigName
+      VALUE "ProductName",     verProdName
+      VALUE "ProductVersion",  verProdVer1
+      VALUE "Comments",        verMakeDate
+      VALUE "OLESelfRegister", "\0"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      VALUE "Translation", 0x409, 1200  //English (0x409), Unicode (1200)
+    #else
+      VALUE "Translation", 0x409, 1252  //English (0x409), ANSI (1252)
+    #endif
+  END
+END
+
+#endif

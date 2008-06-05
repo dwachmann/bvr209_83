@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>LED COM control</title>
+
+    <style type="text/css">
+      @import url("led.css"); 
+    </style>
+    <script type="text/javascript" src="led.js"></script>
+  </head>
+  <body >
+    <h1>LED COM control</h1>
+    <center>
+      <object classid="clsid:7dc6e86d-0002-0011-0001-425652200983" 
+              codebase="./bvr20983.cab#version=1,0,0,1"
+              id="led" 
+      >
+        <param name="16segment"          value="true">
+        <param name="24hour"             value="true">
+        <param name="suppress0"          value="true">
+        <param name="clock"              value="true">
+        <param name="transparent"        value="true">
+        <param name="windowless"         value="true">
+        <param name="usethread"          value="true">
+        <param name="drawdirectinthread" value="false">
+      </object>
+    </center>
+    <script language="JScript" for="led" event="onreadystatechange">
+      window.status="readystate="+led.readystate;
+      if( led.readystate==4 )
+        ledStopped();
+    </script>
+
+    <p>
+      <button id='startLED' disabled>Start LED</button>
+      <button id='stopLED'  disabled>Stop LED</button>
+      <hr/>
+      <input id='ledtext' type='text' value='LED'/>
+      <button id='settext'>Set Text</button>
+      <button id='gettext'>Get Text</button>
+      <button id='about'>About</button>
+      <button id='proppage'>Property Pages</button>
+      <hr/>
+      <fieldset>
+        <legend>Options</legend>
+        <label><input type='checkbox' id='isClock'   >Clock</label>
+        <label><input type='checkbox' id='24Hour'    >24 Hour</label>
+        <label><input type='checkbox' id='16Segment' >16 Segment</label>
+
+      </fieldset>
+    </p>
+  </body>
+</html>

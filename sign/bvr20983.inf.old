@@ -1,0 +1,89 @@
+
+[Version]
+Signature="$Chicago$"
+AdvancedINF=2.5
+
+[DefaultInstall]
+CopyFiles=SWFiles, inffile
+AddReg=SW.AddReg
+RegisterOCXs=RegisterOCXSection
+
+[DefaultUninstall]
+cleanup=1
+DelFiles=SWFiles, SWFiles
+DelReg=SW.DelReg
+UnRegisterOCXs=UnRegisterOCXSection
+
+[strings]
+VersionNumber = "1.0.0.0"
+VersionMajor = "1"
+VersionMinor = "0"
+DisplayVersion = "1"
+Publisher = "Dorothea Wachmann"
+ProductName = "BVR20983 Security Suite"
+GUID = "{D27CDB6E-AE6D-11CF-96B8-444553540000}"
+ComponentID = "BVR20983"
+HelpLink = "https://www.jondos.de/"
+URLUpdateInfo = "https://www.jondos.de/"
+LocaleID = "EN"
+
+[RegisterOCXSection]
+%11%\BVR20983\bvr20983.dll
+%11%\BVR20983\bvr20983cc.dll
+
+
+[UnRegisterOCXSection]
+%11%\BVR20983\bvr20983.dll
+%11%\BVR20983\bvr20983cc.dll
+
+[SW.AddReg]
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"DisplayName",,"%ProductName%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"UninstallString",,"%11%\Macromed\Flash\FlashUtil9c.exe -uninstallUnlock"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"RequiresIESysFile",,"4.70.0.1155"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"Publisher",,"%Publisher%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"DisplayVersion",,"%DisplayVersion%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"VersionMajor",,"%VersionMajor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"VersionMinor",,"%VersionMinor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"HelpLink",,"%HelpLink%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"URLUpdateInfo",,"%URLUpdateInfo%"
+
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%",,,"%ProductName%"
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","ComponentID",,"%ComponentID%"
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","IsInstalled",1,01,00,00,00
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","Version",,"%VersionNumber%"
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","Locale",,"%LocaleID%"
+
+[SW.DelReg]
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"DisplayName",,"%ProductName%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"UninstallString",,"%11%\Macromed\Flash\FlashUtil9d.exe -uninstallDelete"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"RequiresIESysFile",,"4.70.0.1155"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"Publisher",,"%Publisher%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"DisplayVersion",,"%DisplayVersion%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"VersionMajor",,"%VersionMajor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"VersionMinor",,"%VersionMinor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"HelpLink",,"%HelpLink%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BVR20983,"URLUpdateInfo",,"%URLUpdateInfo%"
+
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%",,,"%ProductName%"
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","ComponentID",,"%ComponentID%"
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","IsInstalled",1,01,00,00,00
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","Version",,"%VersionNumber%"
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%GUID%","Locale",,"%LocaleID%"
+
+
+[SourceDisksNames]
+1="BVR20983 Files","bvr20983.cab",1
+
+[SourceDisksFiles]
+Flash9d.ocx=1
+
+[SWFiles]
+bvr20983.dll,,,33
+bvr20983cc.dll,,,33
+
+[inffile]
+bvr20983.inf,,,33
+
+[DestinationDirs]
+SWFiles=11, BVR20983
+inffile=17
