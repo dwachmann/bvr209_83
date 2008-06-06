@@ -46,7 +46,7 @@ FONT 8, "MS Shell Dlg"
 BEGIN
   ICON            IDI_STATE_2,-1,6,7,18,20
   LTEXT           "BVR20983 COM Control Library Version 1.0",-1,32,7,155,8,NOT WS_GROUP
-  LTEXT           "Copyright 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  LTEXT           "Copyright 2008 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
   PUSHBUTTON      "OK",IDOK,75,32,40,14
 END
 
