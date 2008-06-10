@@ -135,9 +135,9 @@ $(OUTDIR)\coclassfactory.obj
 # /Gm /EHsc /RTC1 /MTd /Yu"os.h" /Fp"Debug\libbvr20983.pch" /Fo"Debug\\" /Fd"Debug\vc80.pdb" /W3 /c /ZI /TP
 # /Gm /EHsc /RTC1 /MTd /Yc"os.h" /Fp"Debug\libbvr20983.pch" /Fo"Debug\\" /Fd"Debug\vc80.pdb" /W3 /c /ZI /TP ..\src\os.cpp
 
-all: $(OUTDIR) $(OUTDIR)\libbvr20983.lib
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\libbvr20983.lib
 
-$(OUTDIR)\libbvr20983.lib: $(OBJS)
+$(SLNDIR)\libbvr20983.lib: $(OBJS)
   $(implib) /machine:$(CPU) /out:$@ $**
 
 !include <../inc/Makefile.rule>

@@ -29,9 +29,7 @@ $(OUTDIR)\coled.obj \
 $(OUTDIR)\ibvr20983ccguid.obj \
 $(OUTDIR)\bvr20983cc.res
 
-all: $(OUTDIR) $(OUTDIR)\bvr20983cc.dll
-
-$(SRCDIR)\bvr20983cc.cpp: $(OUTDIR)\ibvr20983cc.h
+all: $(OUTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983cc-0000.tlb $(SLNDIR)\bvr20983cc.dll
 
 $(OUTDIR)\ibvr20983cc.h $(OUTDIR)\ibvr20983ccguid.c $(OUTDIR)\ibvr20983cc-0000.tlb: $(INCDIR)\com\ibvr20983cc-0000.odl
   $(midl) $(MIDL_OPTIMIZATION) /out $(OUTDIR) /I $(INCDIR) /char signed /tlb ibvr20983cc-0000.tlb /h ibvr20983cc.h /iid ibvr20983ccguid.c $**
@@ -41,5 +39,9 @@ $(OUTDIR)\bvr20983cc.res: $(RESDIR)\bvr20983cc.rc $(OUTDIR)\ibvr20983cc-0000.tlb
 
 $(OUTDIR)\bvr20983cc.dll: $(OBJS) $(INCDIR)\bvr20983cc.def
   $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983cc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $(OBJS)
+
+$(SLNDIR)\bvr20983cc.dll $(SLNDIR)\bvr20983cc.lib: $(OUTDIR)\bvr20983cc.dll
+  @copy $(OUTDIR)\bvr20983cc.dll $(SLNDIR)
+  @copy $(OUTDIR)\bvr20983cc.lib $(SLNDIR)
 
 !include <../inc/Makefile.rule>

@@ -37,6 +37,9 @@ _MAKEFILE_RULE_ = 1
 {$(SRCDIR)\com\ocx}.cpp{$(OUTDIR)}.obj:
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
 
+{$(SRCDIR)\com\sc}.cpp{$(OUTDIR)}.obj:
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+
 {$(SRCDIR)}.cpp{$(OUTDIR)}.obj:
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
 
@@ -52,6 +55,9 @@ clean:
 
 $(OUTDIR):
  if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)
+
+$(SLNDIR):
+ if not exist "$(SLNDIR)/$(NULL)" mkdir $(SLNDIR)
 
 #ENDIF _MAKEFILE_RULE_
 !ENDIF

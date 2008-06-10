@@ -25,12 +25,15 @@ $(OUTDIR)\os.obj \
 $(OUTDIR)\digiclock.obj \
 $(OUTDIR)\digiclock.res
 
-all: $(OUTDIR) $(OUTDIR)\digiclock.exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\digiclock.exe
 
 $(OUTDIR)\digiclock.res: $(RESDIR)\digiclock.rc
     $(rc) $(rcflags) $(rcvars) /fo $@ $**
 
 $(OUTDIR)\digiclock.exe: $(OBJS)
   $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) bvr20983cc.lib libbvr20983.lib $**
+
+$(SLNDIR)\digiclock.exe: $(OUTDIR)\digiclock.exe
+  @copy $(OUTDIR)\digiclock.exe $(SLNDIR)
 
 !include <../inc/Makefile.rule>

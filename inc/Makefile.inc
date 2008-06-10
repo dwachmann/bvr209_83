@@ -566,8 +566,10 @@ OUTDIR=NT4
 #Set DEBUG
 !IF "$(NODEBUG)" == ""
 OUTDIR=$(OUTDIR)_DEBUG
+SLNDIR=..\debug
 !ELSE
 OUTDIR=$(OUTDIR)_RETAIL
+SLNDIR=..\release
 !ENDIF
 
 !IF "$(OS)" == "Windows_NT"
@@ -581,7 +583,7 @@ cuseprecompheader=/Yu"os.h" /Fp"$(OUTDIR)\precompiledheaders.pch"
 ccrtprecompheader=/Yc"os.h" /Fp"$(OUTDIR)\precompiledheaders.pch"
 cvars= $(cvars) /Gm /EHsc /RTC1 $(cinclude)
 
-lvars=/MANIFEST:NO /INCREMENTAL /LIBPATH:$(OUTDIR)
+lvars=/MANIFEST:NO /INCREMENTAL /LIBPATH:$(SLNDIR)
 
 #ENDIF _MAKEFILE_INC_
 !ENDIF
