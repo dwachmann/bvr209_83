@@ -35,5 +35,5 @@ prepare:
 sign: $(DISTDIR)\bvr20983.dll $(DISTDIR)\bvr20983cc.dll $(DISTDIR)\scc.exe $(DISTDIR)\digiclock.exe
 
 $(DISTDIR)\bvr20983.cab: $(DISTDIR)\bvr20983.dll $(DISTDIR)\bvr20983cc.dll $(SIGNDIR)\bvr20983.inf
-	@cabarc.exe -s 6144 N $@ $?
+	@$(CAB) -s 6144 N $@ $?
 	@$(SIGNTOOL) $(SIGNTOOL_PARAMS) /p $(PWD) $@

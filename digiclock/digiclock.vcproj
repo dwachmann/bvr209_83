@@ -27,7 +27,7 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				Description="Sign Exe"
-				CommandLine="SignTool sign /f bvr20983-01.pfx /d &quot;BVR20983 Security Suite&quot; /du &quot;https://www.jondos.de/&quot; /t http://timestamp.verisign.com/scripts/timstamp.dll /p HuGo012#  $(OutDir)\$(ProjectName).exe"
+				CommandLine="SignTool sign /f bvr20983-01.pfx /d &quot;BVR20983 Security Suite&quot; /du &quot;https://www.jondos.de/&quot; /t http://timestamp.verisign.com/scripts/timstamp.dll /p HuGo012#  $(OutDir)\$(ProjectName).exe&#x0D;&#x0A;"
 				Outputs="$(OutDir)\$(ProjectName).exe"
 			/>
 			<Tool
@@ -143,7 +143,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				GenerateDebugInformation="true"
+				AdditionalDependencies="ole32.lib uuid.lib oleaut32.lib ws2_32.lib mswsock.lib advapi32.lib bufferoverflowu.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winscard.lib shell32.lib libbvr20983.lib bvr20983cc.lib"
+				GenerateManifest="false"
+				GenerateDebugInformation="false"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"

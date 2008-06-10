@@ -106,8 +106,8 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="2"
+			ConfigurationType="2"
+			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -124,12 +124,22 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				AdditionalIncludeDirectories="$(SolutionDir)inc"
+				TypeLibraryName="$(IntDir)/$(ProjectName).tlb"
+				OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+				HeaderFileName="ibvr20983cc.h"
+				DLLDataFileName="bvr20983ccguid.c"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)\inc&quot;;&quot;$(OutDir)&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WIN32;_WINNT;CRTAPI1=_cdecl;CRTAPI2=_cdecl;_X86_=1;_MT"
 				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="os.h"
+				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -137,12 +147,16 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)res&quot;;&quot;$(SolutionDir)inc&quot;;&quot;$(OutDir)&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ole32.lib shell32.lib uuid.lib oleaut32.lib ws2_32.lib mswsock.lib advapi32.lib bufferoverflowu.lib user32.lib gdi32.lib comdlg32.lib libbvr20983.lib"
+				AdditionalLibraryDirectories="$(OutDir)"
+				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -205,12 +219,31 @@
 						InterfaceIdentifierFileName="ibvr20983ccguid.c"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCMIDLTool"
+						TypeLibraryName="$(InputName).tlb"
+						OutputDirectory="$(OutDir)"
+						DLLDataFileName=""
+						InterfaceIdentifierFileName="ibvr20983ccguid.c"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\debug\ibvr20983ccguid.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -227,6 +260,16 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="os.h"
+						PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
 					/>
 				</FileConfiguration>
 			</File>
