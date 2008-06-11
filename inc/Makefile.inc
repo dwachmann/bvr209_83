@@ -572,16 +572,10 @@ OUTDIR=$(OUTDIR)_RETAIL
 SLNDIR=..\release
 !ENDIF
 
-!IF "$(OS)" == "Windows_NT"
-CLEANUP=if exist $(OUTDIR)/$(NULL) rd /s /q $(OUTDIR)
-!ELSE
-CLEANUP=deltree /y $(OUTDIR)
-!ENDIF
-
 cinclude=-I$(INCDIR) -I$(OUTDIR)
 cuseprecompheader=/Yu"os.h" /Fp"$(OUTDIR)\precompiledheaders.pch"
 ccrtprecompheader=/Yc"os.h" /Fp"$(OUTDIR)\precompiledheaders.pch"
-cvars= $(cvars) /Gm /EHsc /RTC1 $(cinclude)
+cvars= $(cvars) /Gm /EHa /RTC1 $(cinclude)
 
 lvars=/MANIFEST:NO /INCREMENTAL /LIBPATH:$(SLNDIR)
 

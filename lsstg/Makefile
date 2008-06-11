@@ -19,22 +19,18 @@
 
 OBJS= \
 $(OUTDIR)\os.obj \
-$(OUTDIR)\digiclock.obj \
-$(OUTDIR)\digiclock.res
+$(OUTDIR)\lsstp.obj
 
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\digiclock.exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\lsstp.exe
 
-$(OUTDIR)\digiclock.res: $(RESDIR)\digiclock.rc
-    $(rc) $(rcflags) $(rcvars) /fo $@ $**
+$(OUTDIR)\lsstp.exe: $(OBJS)
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $**
 
-$(OUTDIR)\digiclock.exe: $(OBJS)
-  $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) bvr20983cc.lib libbvr20983.lib $**
-
-$(SLNDIR)\digiclock.exe: $(OUTDIR)\digiclock.exe
-  @copy $(OUTDIR)\digiclock.exe $(SLNDIR)
+$(SLNDIR)\lsstp.exe: $(OUTDIR)\lsstp.exe
+  @copy $(OUTDIR)\lsstp.exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\digiclock.exe del /q $(SLNDIR)\digiclock.exe
+  if exist $(SLNDIR)\lsstp.exe del /q $(SLNDIR)\lsstp.exe
 
 !include <../inc/Makefile.rule>

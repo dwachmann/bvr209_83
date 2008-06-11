@@ -17,11 +17,6 @@
 
 !include <../inc/Makefile.inc>
 
-SRCS= \
-$(SRCDIR)\com\ocx\coled.cpp \
-$(SRCDIR)\bvr20983cc.cpp \
-$(OUTDIR)\ibvr20983ccguid.c
-
 OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\bvr20983cc.obj \
@@ -43,5 +38,10 @@ $(OUTDIR)\bvr20983cc.dll: $(OBJS) $(INCDIR)\bvr20983cc.def
 $(SLNDIR)\bvr20983cc.dll $(SLNDIR)\bvr20983cc.lib: $(OUTDIR)\bvr20983cc.dll
   @copy $(OUTDIR)\bvr20983cc.dll $(SLNDIR)
   @copy $(OUTDIR)\bvr20983cc.lib $(SLNDIR)
+
+clean:
+  if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
+  if exist $(SLNDIR)\bvr20983cc.dll del /q $(SLNDIR)\bvr20983cc.dll
+  if exist $(SLNDIR)\bvr20983cc.lib del /q $(SLNDIR)\bvr20983cc.lib
 
 !include <../inc/Makefile.rule>

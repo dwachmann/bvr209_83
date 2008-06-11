@@ -17,13 +17,6 @@
 
 !include <../inc/Makefile.inc>
 
-SRCS= \
-$(SRCDIR)\com\sc\cowallet.cpp \
-$(SRCDIR)\com\sc\cosmartcard.cpp \
-$(SRCDIR)\com\sc\coatr.cpp \
-$(SRCDIR)\bvr20983.cpp \
-$(OUTDIR)\bvr20983guid.c
-
 OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\cowallet.obj \
@@ -50,5 +43,10 @@ $(OUTDIR)\bvr20983.dll: $(OBJS) $(INCDIR)\bvr20983.def
 $(SLNDIR)\bvr20983.dll $(SLNDIR)\bvr20983.lib: $(OUTDIR)\bvr20983.dll
   @copy $(OUTDIR)\bvr20983.dll $(SLNDIR)
   @copy $(OUTDIR)\bvr20983.lib $(SLNDIR)
+
+clean:
+  if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
+  if exist $(SLNDIR)\bvr20983.dll del /q $(SLNDIR)\bvr20983.dll
+  if exist $(SLNDIR)\bvr20983.lib del /q $(SLNDIR)\bvr20983.lib
 
 !include <../inc/Makefile.rule>

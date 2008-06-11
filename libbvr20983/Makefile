@@ -17,62 +17,6 @@
 
 !include <../inc/Makefile.inc>
 
-SRCS= \
-$(SRCDIR)\sc\tlv.cpp \
-$(SRCDIR)\sc\smartcard.cpp \
-$(SRCDIR)\sc\scardeventstate.cpp \
-$(SRCDIR)\sc\scardattribute.cpp \
-$(SRCDIR)\sc\desedecipher.cpp \
-$(SRCDIR)\sc\descipher.cpp \
-$(SRCDIR)\sc\cardfile.cpp \
-$(SRCDIR)\sc\bytebuffer.cpp \
-$(SRCDIR)\sc\blockcipher.cpp \
-$(SRCDIR)\sc\atr.cpp \
-$(SRCDIR)\sc\apdu.cpp \
-$(SRCDIR)\win\wndclass.cpp \
-$(SRCDIR)\win\wnd.cpp \
-$(SRCDIR)\win\tray.cpp \
-$(SRCDIR)\win\ledwnd.cpp \
-$(SRCDIR)\win\dialog.cpp \
-$(SRCDIR)\win\dc.cpp \
-$(SRCDIR)\win\colordialog.cpp \
-$(SRCDIR)\win\clipboard.cpp \
-$(SRCDIR)\win\app.cpp \
-$(SRCDIR)\util\thread.cpp \
-$(SRCDIR)\util\registry.cpp \
-$(SRCDIR)\util\logstreambuf.cpp \
-$(SRCDIR)\util\logstream.cpp \
-$(SRCDIR)\util\loglevel.cpp \
-$(SRCDIR)\util\logappender.cpp \
-$(SRCDIR)\util\hr.cpp \
-$(SRCDIR)\util\guid.cpp \
-$(SRCDIR)\util\dllregisterserver.cpp \
-$(SRCDIR)\util\comptrbase.cpp \
-$(SRCDIR)\util\comlogstream.cpp \
-$(SRCDIR)\util\apputil.cpp \
-$(SRCDIR)\exception\smartcardexception.cpp \
-$(SRCDIR)\exception\seexception.cpp \
-$(SRCDIR)\exception\scardexception.cpp \
-$(SRCDIR)\exception\scardapduexception.cpp \
-$(SRCDIR)\exception\memoryexception.cpp \
-$(SRCDIR)\exception\lasterrorexception.cpp \
-$(SRCDIR)\exception\comexception.cpp \
-$(SRCDIR)\exception\bvr20983exception.cpp \
-$(SRCDIR)\com\covariant.cpp \
-$(SRCDIR)\com\counknown.cpp \
-$(SRCDIR)\com\cotypeinfo.cpp \
-$(SRCDIR)\com\copropertyset.cpp \
-$(SRCDIR)\com\copropertypage.cpp \
-$(SRCDIR)\com\comserver.cpp \
-$(SRCDIR)\com\collection.cpp \
-$(SRCDIR)\com\coenumvariant.cpp \
-$(SRCDIR)\com\coenuminst.cpp \
-$(SRCDIR)\com\codispatch.cpp \
-$(SRCDIR)\com\cocontrol.cpp \
-$(SRCDIR)\com\coconnectionpoint.cpp \
-$(SRCDIR)\com\cocollection.cpp \
-$(SRCDIR)\com\coclassfactory.cpp
-
 OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\tlv.obj \
@@ -139,5 +83,9 @@ all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\libbvr20983.lib
 
 $(SLNDIR)\libbvr20983.lib: $(OBJS)
   $(implib) /machine:$(CPU) /out:$@ $**
+
+clean:
+  if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
+  if exist $(SLNDIR)\libbvr20983.lib del /q $(SLNDIR)\libbvr20983.lib
 
 !include <../inc/Makefile.rule>

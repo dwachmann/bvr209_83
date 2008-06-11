@@ -50,9 +50,6 @@ _MAKEFILE_RULE_ = 1
 $(OUTDIR)\os.obj: $(SRCDIR)\os.cpp
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(ccrtprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
 
-clean:
-  $(CLEANUP)
-
 $(OUTDIR):
  if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)
 
