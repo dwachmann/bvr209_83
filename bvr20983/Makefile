@@ -26,7 +26,11 @@ $(OUTDIR)\bvr20983.obj \
 $(OUTDIR)\bvr20983guid.obj \
 $(OUTDIR)\bvr20983.res
 
+!ifdef clean
+all: clean
+!else
 all: $(OUTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983-0007.tlb $(OUTDIR)\ibvr20983-0000.tlb $(SLNDIR)\bvr20983.dll
+!endif
 
 $(OUTDIR)\ibvr20983-0007.tlb: $(INCDIR)\com\ibvr20983-0007.odl
   $(midl) $(MIDL_OPTIMIZATION) /out $(OUTDIR) /I $(INCDIR) /char signed /tlb ibvr20983-0007.tlb $**

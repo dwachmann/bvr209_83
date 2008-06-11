@@ -579,5 +579,13 @@ cvars= $(cvars) /Gm /EHa /RTC1 $(cinclude)
 
 lvars=/MANIFEST:NO /INCREMENTAL /LIBPATH:$(SLNDIR)
 
+!ifdef clean
+makeopts = clean=1
+!endif # clean
+
+!ifdef nodebug
+makeopts = $(makeopts) nodebug=1
+!endif
+
 #ENDIF _MAKEFILE_INC_
 !ENDIF

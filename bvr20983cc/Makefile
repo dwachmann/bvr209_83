@@ -24,7 +24,11 @@ $(OUTDIR)\coled.obj \
 $(OUTDIR)\ibvr20983ccguid.obj \
 $(OUTDIR)\bvr20983cc.res
 
+!ifdef clean
+all: clean
+!else
 all: $(OUTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983cc-0000.tlb $(SLNDIR)\bvr20983cc.dll
+!endif
 
 $(OUTDIR)\ibvr20983cc.h $(OUTDIR)\ibvr20983ccguid.c $(OUTDIR)\ibvr20983cc-0000.tlb: $(INCDIR)\com\ibvr20983cc-0000.odl
   $(midl) $(MIDL_OPTIMIZATION) /out $(OUTDIR) /I $(INCDIR) /char signed /tlb ibvr20983cc-0000.tlb /h ibvr20983cc.h /iid ibvr20983ccguid.c $**

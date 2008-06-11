@@ -21,7 +21,11 @@ OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\lsstp.obj
 
+!ifdef clean
+all: clean
+!else
 all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\lsstp.exe
+!endif
 
 $(OUTDIR)\lsstp.exe: $(OBJS)
   $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $**

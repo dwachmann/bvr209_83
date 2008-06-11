@@ -14,27 +14,10 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
-
-!include <../inc/Makefile.inc>
-
-OBJS= \
-$(OUTDIR)\os.obj \
-$(OUTDIR)\lstypeinfo.obj
-
-!ifdef clean
-all: clean
-!else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\lstypeinfo.exe
-!endif
-
-$(OUTDIR)\lstypeinfo.exe: $(OBJS)
-  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $**
-
-$(SLNDIR)\lstypeinfo.exe: $(OUTDIR)\lstypeinfo.exe
-  @copy $(OUTDIR)\lstypeinfo.exe $(SLNDIR)
-
-clean:
-  if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\lstypeinfo.exe del /q $(SLNDIR)\lstypeinfo.exe
-
-!include <../inc/Makefile.rule>
+#
+  @IF EXIST $(@D)\makefile <<nmaketmp.bat
+  @cd $(@D)
+  @echo *** $(@D) *** $(MAKE) /$(MAKEFLAGS) $(makeopts)
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) 
+  @cd ..
+<<

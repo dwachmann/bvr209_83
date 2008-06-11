@@ -74,12 +74,11 @@ $(OUTDIR)\coconnectionpoint.obj \
 $(OUTDIR)\cocollection.obj \
 $(OUTDIR)\coclassfactory.obj
 
-# /Od /I "C:\projects\bvr20983\trunk\inc" /I "C:\projects\bvr20983\trunk\Debug" 
-# /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_WIN32" /D "_WINNT" /D "CRTAPI1=_cdecl" /D "CRTAPI2=_cdecl" /D "_X86_=1" /D "_MT" /D "_UNICODE" /D "UNICODE" 
-# /Gm /EHsc /RTC1 /MTd /Yu"os.h" /Fp"Debug\libbvr20983.pch" /Fo"Debug\\" /Fd"Debug\vc80.pdb" /W3 /c /ZI /TP
-# /Gm /EHsc /RTC1 /MTd /Yc"os.h" /Fp"Debug\libbvr20983.pch" /Fo"Debug\\" /Fd"Debug\vc80.pdb" /W3 /c /ZI /TP ..\src\os.cpp
-
+!ifdef clean
+all: clean
+!else
 all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\libbvr20983.lib
+!endif
 
 $(SLNDIR)\libbvr20983.lib: $(OBJS)
   $(implib) /machine:$(CPU) /out:$@ $**

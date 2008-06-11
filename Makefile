@@ -15,30 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-!include <../inc/Makefile.inc>
+!include <./inc/Makefile.inc>
 
-OBJS= \
-$(OUTDIR)\os.obj \
-$(OUTDIR)\digiclock.obj \
-$(OUTDIR)\digiclock.res
+PROJECTS =    \
+libbvr20983\~ \
+bvr20983cc\~  \
+bvr20983\~    \
+digiclock\~   \
+lsstg\~       \
+lstypeinfo\~  \
 
+SLNDIR=.\debug
+    
 !ifdef clean
-all: clean
+all: $(PROJECTS) clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\digiclock.exe
+all: $(PROJECTS)
 !endif
 
-$(OUTDIR)\digiclock.res: $(RESDIR)\digiclock.rc
-    $(rc) $(rcflags) $(rcvars) /fo $@ $**
-
-$(OUTDIR)\digiclock.exe: $(OBJS)
-  $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) bvr20983cc.lib libbvr20983.lib $**
-
-$(SLNDIR)\digiclock.exe: $(OUTDIR)\digiclock.exe
-  @copy $(OUTDIR)\digiclock.exe $(SLNDIR)
-
 clean:
-  if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\digiclock.exe del /q $(SLNDIR)\digiclock.exe
+  if exist $(SLNDIR)/$(NULL) rd /s /q $(SLNDIR)
 
-!include <../inc/Makefile.rule>
+$(PROJECTS):
+!include <./inc/build.mak>
