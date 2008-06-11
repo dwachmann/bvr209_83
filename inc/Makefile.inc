@@ -193,8 +193,10 @@ midl   = midl
 rc     = Rc
 hc     = Start /Wait Hcrtf
 mc     = Mc
-
 hcvars = -xn
+sign   = SignTool
+cab    = cabarc
+
 
 # -------------------------------------------------------------------------
 # Platform Dependent Compile Flags - must be specified after $(cc)
