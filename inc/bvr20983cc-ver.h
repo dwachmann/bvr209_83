@@ -1,6 +1,7 @@
 /*
  * $Id$
  * $Revision$
+ * $Date$
  * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 
