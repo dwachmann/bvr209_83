@@ -1,5 +1,7 @@
 /*
  * $Id$
+ * $Revision$
+ * $Date$
  * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 
@@ -23,15 +25,15 @@
 #define verProdVer     1,0,0,0
 #define verProdVer1    "1.0.0.0"
 
-#define verFileVer     1,0,0,1
-#define verFileVer1    "1.0.0.1"
+#define verFileVer     1,0,1,1
+#define verFileVer1    "1.0.1.1"
 
 #define verCompName    "Dorothea Wachmann"
 #define verFileDesc    "A Smartcard COM Wrapper"
 #define verIntName     "BVR20983"
 #define verOrigName    "BVR20983.DLL"
 
-#define verMakeDate    "October 10, 2007"
-#define verCopyright   "Copyright \251 2007 Dorothea Wachmann"
+#define verMakeDate    "October 10, 2008"
+#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
 
 #endif // BVR20983VER_H

@@ -18,52 +18,88 @@
 ' along with this program.  If not, see http://www.gnu.org/licenses/.
 option explicit
 
-Dim re,re1,objArgs,fso,f,r,Matches,Match
+Dim objArgs,fso,f0,f1,f2,r0
+Dim reProdVer,reFileVer,reMakeDate,reRev,reDate
+Dim svnRevision,svnDate
 
 Const ForReading = 1
 
 '
-' Init
+' Usage
 '
-Sub Init()
-'  on error resume next
-
-  Set re  = New RegExp
-  Set re1 = New RegExp
-  
-  re.Pattern = "verFileVer1"
-  re.Global = True
-
-  re1.Pattern = "[0-9]\.[0-9]\.[0-9]\.[0-9]"
-  re1.Global  = True
+Sub Usage()
+  WScript.Echo "getrevision <filename> <globalrevision>"
 End Sub
 
 
-Init
+'
+' Init
+'
+Sub Init(p)
+'  on error resume next
+
+  Set reProdVer = New RegExp
+  Set reFileVer = New RegExp
+  Set reRev     = New RegExp
+  Set reDate    = New RegExp
+  Set reMakeDate= New RegExp
+  
+  reProdVer.Pattern = "(^#define.+verProdVer.+" & "[0-9]+[\.,][0-9]+[\.,][0-9]+[\.,])([0-9]+)(.*)"
+  reProdVer.Global  = True
+
+  reFileVer.Pattern = "(^#define.+verFileVer.+" & "[0-9]+[\.,][0-9]+[\.,][0-9]+[\.,])([0-9]+)(.*)"
+  reFileVer.Global  = True
+
+  reMakeDate.Pattern= "(^#define.+verMakeDate.+"")(.+)("")"
+  reMakeDate.Global = True
+
+  reRev.Pattern     = "\$Revision:[ \t]+([0-9]+)[ \t]+\$"
+  reRev.Global      = True
+
+  reDate.Pattern    = "\$Date:[ \t]+(.+)[ \t]+\$"
+  reDate.Global     = True
+End Sub
 
 Set objArgs = WScript.Arguments
 
-If objArgs.Count>0 Then
+If objArgs.Count>=2 Then
   Set fso = CreateObject("Scripting.FileSystemObject")
   
   If fso.FileExists( objArgs(0) ) Then
-    Set f = fso.OpenTextFile(objArgs(0), ForReading)
+  	
+  	Init(objArgs(1))
+  	
+    Set f0 = fso.OpenTextFile(objArgs(0), ForReading)
+    Set f1 = fso.CreateTextFile(objArgs(0)&".new",True)
     
-    Do While Not f.AtEndOfStream 
-      r = f.ReadLine
+    Do While Not f0.AtEndOfStream 
+      r0 = f0.ReadLine
       
-      If re.Test(r) Then
-        Set Matches = re1.Execute(r)
-
-        For Each Match in Matches      
-          WScript.Echo Match.Value
-          
-          WScript.Quit(0)
-        Next
+      If reRev.Test(r0) Then
+      	svnRevision = reRev.Execute(r0)(0).SubMatches(0)
       End If
+
+      If reDate.Test(r0) Then
+      	svnDate = reDate.Execute(r0)(0).SubMatches(0)
+      End If
+      
+      r0 = reProdVer.Replace(r0,"$1" & objArgs(1) & "$3")
+      r0 = reFileVer.Replace(r0,"$1" & svnRevision & "$3")
+      r0 = reMakeDate.Replace(r0,"$1" & svnDate & "$3")
+      
+      f1.WriteLine(r0)
     Loop
 
-    f.Close
+    f0.Close
+    f1.Close
+    
+    Set f2 = fso.GetFile(objArgs(0))
+    f2.Delete(True)
+    
+    Set f2 = fso.GetFile(objArgs(0) & ".new")
+    f2.Move(objArgs(0))
   End If
+Else
+  Usage
 End If
 '=======================================END-OF-FILE==========================
