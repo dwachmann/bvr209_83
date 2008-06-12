@@ -19,8 +19,9 @@
 option explicit
 
 Dim objArgs,fso,f0,f1,f2,r0
-Dim reProdVer,reFileVer,reMakeDate,reRev,reDate
-Dim svnRevision,svnDate
+Dim reProdVer,reFileVer,reMakeDate,reRev,reDate,reGlobalRev
+Dim svnRevision,svnDate,svnVersion
+Dim WshShell, oExec
 
 Const ForReading = 1
 
@@ -28,47 +29,74 @@ Const ForReading = 1
 ' Usage
 '
 Sub Usage()
-  WScript.Echo "getrevision <filename> <globalrevision>"
+  WScript.Echo "getrevision <filename>"
 End Sub
 
 
 '
 ' Init
 '
-Sub Init(p)
+Sub Init
 '  on error resume next
 
-  Set reProdVer = New RegExp
-  Set reFileVer = New RegExp
-  Set reRev     = New RegExp
-  Set reDate    = New RegExp
-  Set reMakeDate= New RegExp
+  Set reProdVer   = New RegExp
+  Set reFileVer   = New RegExp
+  Set reRev       = New RegExp
+  Set reDate      = New RegExp
+  Set reMakeDate  = New RegExp
+  Set reGlobalRev = New RegExp
   
-  reProdVer.Pattern = "(^#define.+verProdVer.+" & "[0-9]+[\.,][0-9]+[\.,][0-9]+[\.,])([0-9]+)(.*)"
-  reProdVer.Global  = True
+  reProdVer.Pattern   = "(^#define.+verProdVer.+" & "[0-9]+[\.,][0-9]+[\.,][0-9]+[\.,])([0-9]+)(.*)"
+  reProdVer.Global    = True
 
-  reFileVer.Pattern = "(^#define.+verFileVer.+" & "[0-9]+[\.,][0-9]+[\.,][0-9]+[\.,])([0-9]+)(.*)"
-  reFileVer.Global  = True
+  reFileVer.Pattern   = "(^#define.+verFileVer.+" & "[0-9]+[\.,][0-9]+[\.,][0-9]+[\.,])([0-9]+)(.*)"
+  reFileVer.Global    = True
 
-  reMakeDate.Pattern= "(^#define.+verMakeDate.+"")(.+)("")"
-  reMakeDate.Global = True
+  reMakeDate.Pattern  = "(^#define.+verMakeDate.+"")(.+)("")"
+  reMakeDate.Global   = True
 
-  reRev.Pattern     = "\$Revision:[ \t]+([0-9]+)[ \t]+\$"
-  reRev.Global      = True
+  reRev.Pattern       = "\$Revision:[ \t]+([0-9]+)[ \t]+\$"
+  reRev.Global        = True
 
-  reDate.Pattern    = "\$Date:[ \t]+(.+)[ \t]+\$"
-  reDate.Global     = True
+  reDate.Pattern      = "\$Date:[ \t]+(.+)[ \t]+\$"
+  reDate.Global       = True
+
+  reGlobalRev.Pattern = "([0-9]+[MS]?)(:[0-9]+[MS]?)?"
+  reGlobalRev.Global  = True
+  
+  Set WshShell = CreateObject("WScript.Shell")
+  Set oExec    = WshShell.Exec("svnversion")
+
+  svnVersion = ""
+  
+  Do While True
+    If Not oExec.StdOut.AtEndOfStream Then
+      svnVersion = svnVersion & oExec.StdOut.Read(1)
+    Else
+      Exit Do
+    End If
+
+    WScript.Sleep 10
+  Loop
+  
+  Do While oExec.Status = 0
+    WScript.Sleep 100
+  Loop
+  
+  WScript.Echo "svnVersion=" & svnVersion
+  
+  svnVersion = reGlobalRev.Execute(svnVersion)(0).SubMatches(0)
 End Sub
 
 Set objArgs = WScript.Arguments
 
-If objArgs.Count>=2 Then
+If objArgs.Count>=1 Then
   Set fso = CreateObject("Scripting.FileSystemObject")
   
   If fso.FileExists( objArgs(0) ) Then
-  	
-  	Init(objArgs(1))
-  	
+    
+    Init
+    
     Set f0 = fso.OpenTextFile(objArgs(0), ForReading)
     Set f1 = fso.CreateTextFile(objArgs(0)&".new",True)
     
@@ -76,14 +104,14 @@ If objArgs.Count>=2 Then
       r0 = f0.ReadLine
       
       If reRev.Test(r0) Then
-      	svnRevision = reRev.Execute(r0)(0).SubMatches(0)
+        svnRevision = reRev.Execute(r0)(0).SubMatches(0)
       End If
 
       If reDate.Test(r0) Then
-      	svnDate = reDate.Execute(r0)(0).SubMatches(0)
+        svnDate = reDate.Execute(r0)(0).SubMatches(0)
       End If
       
-      r0 = reProdVer.Replace(r0,"$1" & objArgs(1) & "$3")
+      r0 = reProdVer.Replace(r0,"$1" & svnVersion & "$3")
       r0 = reFileVer.Replace(r0,"$1" & svnRevision & "$3")
       r0 = reMakeDate.Replace(r0,"$1" & svnDate & "$3")
       
