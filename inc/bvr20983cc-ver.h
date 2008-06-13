@@ -24,11 +24,11 @@
 #define verProdVer     1,0,0,18
 #define verProdVer1    "1.0.0.18"
 
-#define verFileVer     1,0,1,18
-#define verFileVer1    "1.0.1.18"
+#define verFileVer     1,0,1,19
+#define verFileVer1    "1.0.1.19"
 #define verFileDesc    "A COM Control Library"
 #define verIntName     "BVR20983CC"
 #define verOrigName    "BVR20983CC.DLL"
-#define verMakeDate    "2008-06-13T18:42:45.558425Z"
+#define verMakeDate    "2008-06-13T18:43:43.710874Z"
 
 #endif // BVR20983CCVER_H
