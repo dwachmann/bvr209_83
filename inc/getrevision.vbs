@@ -20,7 +20,7 @@ option explicit
 
 Dim objArgs,fso
 Dim reProdVer,reFileVer,reMakeDate
-Dim svnRevision,svnDate,svnVersion
+Dim prodRev,fileRev,fileDate
 Dim xmlDoc
 
 Const ForReading = 1
@@ -29,7 +29,7 @@ Const ForReading = 1
 ' Usage
 '
 Sub Usage()
-  WScript.Echo "getrevision <filename> <globalrev> <filerev> <filedate>"
+  WScript.Echo "getrevision <filename> <prodrev> <filerev> <filedate>"
 End Sub
 
 '
@@ -111,9 +111,9 @@ Sub Init(f0,f1,f2)
   reMakeDate.Pattern  = "(^#define.+verMakeDate.+"")(.+)("")"
   reMakeDate.Global   = True
 
-  svnRevision         = GetXmlInfo(f0,"/info/entry/@revision")
-  svnVersion          = GetXmlInfo(f1,"/info/entry/commit/@revision")
-  svnDate             = GetXmlInfo(f2,"/info/entry/commit/date/text()")
+  prodRev             = GetXmlInfo(f0,"/info/entry/commit/@revision")
+  fileRev             = GetXmlInfo(f1,"/info/entry/@revision")
+  fileDate            = GetXmlInfo(f2,"/info/entry/commit/date/text()")
 End Sub
 
 '
@@ -127,9 +127,9 @@ Sub PatchFile(f)
   
   Do While Not f0.AtEndOfStream 
     r0 = f0.ReadLine
-    r0 = reProdVer.Replace(r0,"$1" & svnVersion & "$3")
-    r0 = reFileVer.Replace(r0,"$1" & svnRevision & "$3")
-    r0 = reMakeDate.Replace(r0,"$1" & svnDate & "$3")
+    r0 = reProdVer.Replace(r0,"$1" & prodRev & "$3")
+    r0 = reFileVer.Replace(r0,"$1" & fileRev & "$3")
+    r0 = reMakeDate.Replace(r0,"$1" & fileDate & "$3")
     
     f1.WriteLine(r0)
   Loop

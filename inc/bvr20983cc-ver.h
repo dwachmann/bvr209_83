@@ -1,7 +1,5 @@
 /*
  * $Id$
- * $Revision$
- * $Date$
  * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 
@@ -21,19 +19,16 @@
 #if !defined(BVR20983CCVER_H)
 #define BVR20983CCVER_H
 
-#define verProdName    "BVR20983 Smartcard Suite"
-#define verProdVer     1,0,0,16
-#define verProdVer1    "1.0.0.16"
+#include "bvr20983-prod.h"
+
+#define verProdVer     1,0,0,9
+#define verProdVer1    "1.0.0.9"
 
 #define verFileVer     1,0,1,15
 #define verFileVer1    "1.0.1.15"
-
-#define verCompName    "Dorothea Wachmann"
 #define verFileDesc    "A COM Control Library"
 #define verIntName     "BVR20983CC"
 #define verOrigName    "BVR20983CC.DLL"
-
-#define verMakeDate    "2008-06-12T18:11:07.832235Z"
-#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
+#define verMakeDate    "2008-06-13T18:25:51.226037Z"
 
 #endif // BVR20983CCVER_H

@@ -16,19 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983VER_H)
-#define BVR20983VER_H
+#if !defined(BVR20983_PROD_H)
+#define BVR20983_PROD_H
 
-#include "bvr20983-prod.h"
+#define verProdName    "BVR20983 Smartcard Suite"
+#define verCompName    "Dorothea Wachmann"
+#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
 
-#define verProdVer     1,0,0,9
-#define verProdVer1    "1.0.0.9"
-
-#define verFileVer     1,0,1,15
-#define verFileVer1    "1.0.1.15"
-#define verFileDesc    "A Smartcard COM Wrapper"
-#define verIntName     "BVR20983"
-#define verOrigName    "BVR20983.DLL"
-#define verMakeDate    "2008-06-12T18:11:07.832235Z"
-
-#endif // BVR20983VER_H
+#endif // BVR20983_PROD_H
