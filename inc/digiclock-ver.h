@@ -24,11 +24,11 @@
 #define verProdVer     1,0,0,21
 #define verProdVer1    "1.0.0.21"
 
-#define verFileVer     1,0,0,21
-#define verFileVer1    "1.0.0.21"
+#define verFileVer     1,0,0,22
+#define verFileVer1    "1.0.0.22"
 #define verFileDesc    "A digital clock"
 #define verIntName     "DIGICLOCK"
 #define verOrigName    "DIGICLOCK.EXE"
-#define verMakeDate    "2008-06-13T22:46:24.174469Z"
+#define verMakeDate    "2008-06-13T22:53:45.999507Z"
 
 #endif // DIGICLOCKVER_H
