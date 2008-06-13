@@ -22,8 +22,8 @@
 #define BVR20983CCVER_H
 
 #define verProdName    "BVR20983 Smartcard Suite"
-#define verProdVer     1,0,0,15
-#define verProdVer1    "1.0.0.15"
+#define verProdVer     1,0,0,16
+#define verProdVer1    "1.0.0.16"
 
 #define verFileVer     1,0,1,15
 #define verFileVer1    "1.0.1.15"
@@ -33,7 +33,7 @@
 #define verIntName     "BVR20983CC"
 #define verOrigName    "BVR20983CC.DLL"
 
-#define verMakeDate    "2008-06-12 20:07:57 +0200 (Thu, 12 Jun 2008)"
+#define verMakeDate    "2008-06-12T18:11:07.832235Z"
 #define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
 
 #endif // BVR20983CCVER_H
