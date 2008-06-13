@@ -37,8 +37,9 @@ CAPTION "About Digiclock"
 FONT 8, "MS Shell Dlg"
 BEGIN
   ICON            IDI_STATE_2,-1,6,7,18,20
-  LTEXT           "Digiclock Version 1.0",-1,32,7,155,8,NOT WS_GROUP
-  LTEXT           "Copyright 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  LTEXT           "Digiclock Version",-1,32,7,68,8,NOT WS_GROUP
+  LTEXT           verFileVer1,-1,90,7,155,8,NOT WS_GROUP
+  LTEXT           verCopyright,-1,32,18,155,8,NOT WS_GROUP
   PUSHBUTTON      "OK",IDOK,75,32,40,14
 END
 
@@ -50,8 +51,9 @@ CAPTION "Über Digiclock"
 FONT 8, "MS Shell Dlg"
 BEGIN
   ICON            IDI_STATE_2,-1,6,7,18,20
-  LTEXT           "Digiclock Version 1.0",-1,32,7,155,8,NOT WS_GROUP
-  LTEXT           "Urheberrecht 2007 Dorothea Wachmann",-1,32,18,155,8,NOT WS_GROUP
+  LTEXT           "Digiclock Version",-1,32,7,68,8,NOT WS_GROUP
+  LTEXT           verFileVer1,-1,90,7,155,8,NOT WS_GROUP
+  LTEXT           verCopyright,-1,32,18,155,8,NOT WS_GROUP
   PUSHBUTTON      "OK",IDOK,75,32,40,14
 END
 
