@@ -20,6 +20,7 @@
  */
 #include "os.h"
 #include "digiclock-res.h"
+#include "digiclock-ver.h"
 
 // The main icon resource for the application.
 IDI_APP_ICON ICON  "bvr20983.ico"
@@ -200,14 +201,15 @@ BEGIN
       BLOCK "040904E4" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=MultiLang
     #endif
     BEGIN
-      VALUE "CompanyName",     "Dorothea Wachmann"
-      VALUE "FileDescription", "digiclock: a digital clock"
-      VALUE "FileVersion",     "1.00"
-      VALUE "InternalName",    "digiclock"
-      VALUE "LegalCopyright",  "Copyright \251 2007 Dorothea Wachmann"
-      VALUE "OriginalFilename","digiclock.exe"
-      VALUE "ProductName",     "BVR20983 Suite"
-      VALUE "ProductVersion",  "1.00"
+      VALUE "CompanyName",     verCompName
+      VALUE "FileDescription", verFileDesc
+      VALUE "FileVersion",     verFileVer1
+      VALUE "InternalName",    verIntName
+      VALUE "LegalCopyright",  verCopyright
+      VALUE "OriginalFilename",verOrigName
+      VALUE "ProductName",     verProdName
+      VALUE "ProductVersion",  verProdVer1
+      VALUE "Comments",        verMakeDate
     END
   END
 

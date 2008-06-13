@@ -19,7 +19,7 @@
 #if !defined(BVR20983_PROD_H)
 #define BVR20983_PROD_H
 
-#define verProdName    "BVR20983 Smartcard Suite"
+#define verProdName    "BVR20983 Suite"
 #define verCompName    "Dorothea Wachmann"
 #define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
 

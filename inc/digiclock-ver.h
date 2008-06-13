@@ -16,19 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983CCVER_H)
-#define BVR20983CCVER_H
+#if !defined(DIGICLOCKVER_H)
+#define DIGICLOCKVER_H
 
 #include "bvr20983-prod.h"
 
 #define verProdVer     1,0,0,18
 #define verProdVer1    "1.0.0.18"
 
-#define verFileVer     1,0,1,20
-#define verFileVer1    "1.0.1.20"
-#define verFileDesc    "A COM Control Library"
-#define verIntName     "BVR20983CC"
-#define verOrigName    "BVR20983CC.DLL"
+#define verFileVer     1,0,0,20
+#define verFileVer1    "1.0.0.20"
+#define verFileDesc    "digiclock: a digital clock"
+#define verIntName     "DIGICLOCK"
+#define verOrigName    "DIGICLOCK.EXE"
 #define verMakeDate    "2008-06-13T18:44:38.716033Z"
 
-#endif // BVR20983CCVER_H
+#endif // DIGICLOCKVER_H
