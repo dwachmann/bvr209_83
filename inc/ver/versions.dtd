@@ -1,0 +1,27 @@
+<!-- $Id$ -->
+
+<!ELEMENT versions ( product,guid+,filename+ ) >
+
+<!ELEMENT product (name?,company?,copyright?,version?) >
+
+<!ELEMENT name      (#PCDATA)>
+<!ELEMENT company   (#PCDATA)>
+<!ELEMENT copyright (#PCDATA)>
+
+
+<!ELEMENT version EMPTY >
+<!ATTLIST version major CDATA #REQUIRED >
+<!ATTLIST version minor CDATA #REQUIRED >
+<!ATTLIST version fix   CDATA #REQUIRED >
+<!ATTLIST version rev   CDATA #REQUIRED >
+
+<!ELEMENT guid EMPTY >
+<!ATTLIST guid id ID    #REQUIRED >
+<!ATTLIST guid g0 CDATA #REQUIRED >
+<!ATTLIST guid g1 CDATA #REQUIRED >
+<!ATTLIST guid g2 CDATA #REQUIRED >
+<!ATTLIST guid g3 CDATA #REQUIRED >
+<!ATTLIST guid g4 CDATA #REQUIRED >
+
+<!ELEMENT filename (name,version?) >
+<!ATTLIST filename type ( dll | exe | cab ) #REQUIRED >
