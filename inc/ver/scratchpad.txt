@@ -1,0 +1,105 @@
+Product:
+  Name: BVR20983 --> entspricht Subversion Project Name
+  Version: 
+    Major: Major Features, incompatible changes
+    Minor: Minor Features, compatible changes
+    Fix  : Bug Fixes
+    Rev  : Revision Number in Subversion
+           --> define file for revision
+
+   ProdId: 10 hex digits used in GUID, i.e. BFE20983 for BVR20983
+           
+Components:
+  Name: sc (Smartcard Library)
+  Version:
+    Major: Major Features, incompatible changes
+    Minor: Minor Features, compatible changes
+    Fix  : Bug Fixes
+    Rev  : Revision Number in Subversion
+           --> define file for revision
+           
+   CompId: 4 hex digits, i.e. 0001 for sc
+   
+   VersionIndependentProgId: ProdId.ProdMajorVersion.CompId.CompMajorVersion.Typename
+                     ProgId: ProdId.ProdMajorVersion.CompId.CompMajorVersion.Typename.TypeMajorVersion
+   
+   every component in one DLL
+   +---------------
+   | Component DLL
+   | +------------+
+   | |  COM1 Type |
+   | +------------+
+   |
+   | +------------+
+   | |  COM2 Type |
+   | +------------+
+   |
+   | +------------+
+   | | TypeLib    |
+   | +------------+
+   |
+   +---------------
+   
+Types:
+   Name: LED Control
+  Major: 1   
+
+GUID Schema for components:
+<Comp|MajV|Type|No  |MajV|ProdId  |MajV>
+ 0001|0001-0001-0001-0001-BFE20983|0000
+
+  Types:
+    Typelib                  0000
+    Interface                0001
+    Interface,dual           0002
+    DispInterface            0003
+    DispInterface,Source     0004
+    Coclass                  0010
+    Coclass Control          0011
+    Coclass noncreatable     0012
+    Enum                     0020
+    Custom GUID              1000
+
+GUID Schema for type libraries:
+<Comp|MajV|    |Res |Res |ProdId  |MajV>
+ 0001|0001-0000-FFFF-FFFF-BFE20983|0000
+
+Filename Convention:
+  DLL Name: Productname.ProductMajorVersion.ComponentName.ComponentMajorVersion.dll
+  
+            e.g. BVR20983.1.CC.1.DLL
+            
+            
+Usage-Cases:
+1. Bug Fix in COM Type without change of interface
+   --> change of DLL Version: major.minor.FIX.REV
+   
+2. tiny feature with new method in COM type and compatible changes
+   --> change of DLL Version: major.MINOR.0.REV
+           change of typelib: major.MINOR
+           
+3. add new COM type to component           
+   --> change of DLL Version: major.MINOR.0.REV
+           change of typelib: major.MINOR
+
+4. major feature with change of API of COM type
+   --> change of COM type GUID: <comp|majv|type|no  |MAJV|prodid  |majv>
+             change of typelib: MAJOR.0
+         change of DLL Version: MAJOR.0.0.REV
+
+5. Refactoring of Components
+   --> change of typelib major versions
+       change of DLL major versions
+
+Wieviele verschiedene Versionen können koexistieren ?            
+???
+
+Installation and Deinstallation:
+- Installation Directory per product
+- Data Directory per product.component
+- Registry in LOCAL_COMPUTER and CURRENT_USER per product
+
+- Deinstallation per product.productmajorversion
+
+
+            
