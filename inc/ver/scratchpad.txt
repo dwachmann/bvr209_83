@@ -7,7 +7,7 @@ Product:
     Rev  : Revision Number in Subversion
            --> define file for revision
 
-   ProdId: 10 hex digits used in GUID, i.e. BFE20983 for BVR20983
+   ProdId: 8 hex digits used in GUID, i.e. BFE20983 for BVR20983
            
 Components:
   Name: sc (Smartcard Library)
@@ -20,25 +20,29 @@ Components:
            
    CompId: 4 hex digits, i.e. 0001 for sc
    
-   VersionIndependentProgId: ProdId.ProdMajorVersion.CompId.CompMajorVersion.Typename
-                     ProgId: ProdId.ProdMajorVersion.CompId.CompMajorVersion.Typename.TypeMajorVersion
+   VersionIndependentProg: ProdId.ProdMajorVersion.Comp.CompMajorVersion.Typename
+                     Prog: ProdId.ProdMajorVersion.Comp.CompMajorVersion.Typename.TypeMajorVersion
+                     
+                     e.g.: BVR20983.1.SC.1.Smardcard
+                           BVR20983.1.SC.1.Smardcard.1
+                     
    
    every component in one DLL
-   +---------------
-   | Component DLL
-   | +------------+
-   | |  COM1 Type |
-   | +------------+
-   |
-   | +------------+
-   | |  COM2 Type |
-   | +------------+
-   |
-   | +------------+
-   | | TypeLib    |
-   | +------------+
-   |
-   +---------------
+   +----------------+
+   | Component DLL  |
+   | +------------+ |
+   | |  COM1 Type | |
+   | +------------+ |
+   |                |
+   | +------------+ |
+   | |  COM2 Type | |
+   | +------------+ |
+   |                |
+   | +------------+ |
+   | | TypeLib    | |
+   | +------------+ |
+   |                |
+   +----------------+
    
 Types:
    Name: LED Control

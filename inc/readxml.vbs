@@ -29,7 +29,7 @@ Const ForReading = 1
 ' Usage
 '
 Sub Usage()
-  WScript.Echo "readxml <filename>"
+  WScript.Echo "readxml <filename> <select criteria>"
 End Sub
 
 '

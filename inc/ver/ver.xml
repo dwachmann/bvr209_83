@@ -19,37 +19,65 @@
   -->
 <!DOCTYPE versions SYSTEM "versions.dtd" [
   <!ENTITY product SYSTEM "product.xml" >
+  
+  <!ENTITY dllname "${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}" >
+  <!ENTITY comguid "${../../../guidid/text()}${format-number(../../../version/@major,'0000')}-${../../@typeid}-${../../guidid/text()}-${format-number(../../version/@major,'0000')}-${../../../../guidid/text()}${format-number(../../../../version/@major,'0000')}">
 ]>
 <versions>
   <product id="BVR20983">
     <version major="1" minor="0" fix="0" rev="0"/>
     <name>BVR2098 Suite</name>
+    <guidid>BFE20983</guidid>
     <company>Dorothea Wachmann</company>
     <copyright>Copyright \251 2008 Dorothea Wachmann</copyright>
     
-    <component id="sc">
+    <component id="sc" type="dll">
       <version major="1" minor="0" fix="0" rev="0"/>
-      <info>
-        <name>Smartcard Library</name>
-      </info>
+      <name>Smartcard Library</name>
+      <guidid>0001</guidid>
+      <filename>&dllname;</filename>
+
+      <type id="Smartcard" typeid="0010">
+        <version major="1"/>
+        <guidid>0001</guidid>
+        <guid>&comguid;</guid>
+      </type>
+
+      <type id="ATR" typeid="0010">
+        <version major="1"/>
+        <guidid>0002</guidid>
+        <guid>&comguid;</guid>
+      </type>
+
+      <type id="Wallet" typeid="0010">
+        <version major="1"/>
+        <guidid>0002</guidid>
+        <guid>&comguid;</guid>
+      </type>
+      
+      <typelib id="BVR20983">
+        <version major="1" minor="0"/>
+        
+        <patch filename="ibvr20983-0000.odl">
+          <pattern><key>@version</key>       <value>${../../../../version/@major}.${../../../../version/@minor}</value></pattern>
+          <pattern><key>@smardcardGUID</key> <value>${../../../../../type[@id="Smardcard"]/guid/text()}</value>        </pattern>
+          <pattern><key>@atrGUID</key>       <value>${../../../../../type[@id="ATR"]/guid/text()}</value>              </pattern>
+          <pattern><key>@walletGUID</key>    <value>${../../../../../type[@id="Wallet"]/guid/text()}</value>           </pattern>
+        </patch>
+      </typelib>
     </component>
 
     <component id="cc" type="dll">
       <version major="1" minor="0" fix="0" rev="0"/>
-      <info>
-        <name>Custom Control Library</name>
-      </info>
-
-      <filename> 
-        <name>BVR20983.DLL</name>
-      </filename>
+      <name>Custom Control Library</name>
+      <filename>&dllname;</filename>
       
       <type id="LED">
-        <guid id="a1" g0="7dc6e86d" g1="aaaa" g2="bbbb" g3="cccc" g4="425652200983"/>
       </type>
+
+      <typelib id="BVR20983CC">
+        <version major="1" minor="0"/>
+      </typelib>
     </component>
-
   </product>
-
 </versions>
-
