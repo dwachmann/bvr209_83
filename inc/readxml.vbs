@@ -44,7 +44,7 @@ Sub ListXml(f,selectCriteria)
   If xmlDoc.parseError.errorCode<>0 Then
     WScript.Echo xmlDoc.parseError.reason
   Else
-    WScript.Echo xmlDoc.xml
+    'WScript.Echo xmlDoc.xml
   End If
   
   Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria)
@@ -67,7 +67,7 @@ Sub Init
   
   xmlDoc.validateOnParse = True
   xmlDoc.async = False
-  xmlDoc.setProperty "SelectionNamespaces", "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"
+  xmlDoc.setProperty "SelectionNamespaces", "xmlns:v='http://bvr20983.berlios.de'"
   xmlDoc.setProperty "SelectionLanguage", "XPath"
 End Sub
 
