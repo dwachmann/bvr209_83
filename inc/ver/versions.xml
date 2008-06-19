@@ -21,6 +21,9 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://bvr20983.berlios.de versions.xsd"
 >
+  <parameter name="filenamepattern">${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}</parameter>
+  <parameter name="guidpattern">${../../../guidid/text()}${zerofill(../../../version/@major)}-${../../@typeid}-${../../guidid/text()}-${zerofill(../../version/@major)}-${../../../../guidid/text()}${zerofill(../../../../version/@major)}</parameter>
+
   <product id="BVR20983">
     <version major="1" minor="0" fix="0" rev="0"/>
     <name>BVR2098 Suite</name>
@@ -32,24 +35,24 @@
       <version major="1" minor="0" fix="0" rev="0"/>
       <name>Smartcard Library</name>
       <guidid>0001</guidid>
-      <filename/>
+      <filename>${filenamepattern}</filename>
 
       <type id="Smartcard" typeid="0010">
         <version major="1"/>
         <guidid>0001</guidid>
-        <guid/>
+        <guid>${guidpattern}</guid>
       </type>
 
       <type id="ATR" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid/>
+        <guid>${guidpattern}</guid>
       </type>
 
       <type id="Wallet" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid/>
+        <guid>${guidpattern}</guid>
       </type>
       
       <typelib id="BVR20983SC">
@@ -68,12 +71,12 @@
       <version major="1" minor="0" fix="0" rev="0"/>
       <name>Custom Control Library</name>
       <guidid>0002</guidid>
-      <filename/>
+      <filename>${filenamepattern}</filename>
       
       <type id="LED" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid/>
+        <guid>${guidpattern}</guid>
       </type>
 
       <typelib id="BVR20983CC">

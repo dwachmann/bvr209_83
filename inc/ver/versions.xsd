@@ -33,10 +33,19 @@
   <xs:element name="versions">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="product" type="productType" minOccurs="1"/>
+        <xs:element name="parameter" type="parameterType" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="product"   type="productType" minOccurs="1"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+  <xs:complexType name="parameterType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
 
   <xs:complexType name="productType">
     <xs:sequence>
@@ -55,7 +64,7 @@
       <xs:element name="version"   type="versionType"/>
       <xs:element name="name"      type="xs:string"/>
       <xs:element name="guidid"    type="xs:string"/>
-      <xs:element name="filename"  type="xs:string" fixed="${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}"/>
+      <xs:element name="filename"  type="xs:string"/>
       <xs:element name="type"      type="typeType"    minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="typelib"   type="typelibType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
@@ -68,7 +77,7 @@
     <xs:sequence>
       <xs:element name="version"   type="versionType"/>
       <xs:element name="guidid"    type="xs:string"/>
-      <xs:element name="guid"      type="xs:string" default="${../../../guidid/text()}${format-number(../../../version/@major,'0000')}-${../../@typeid}-${../../guidid/text()}-${format-number(../../version/@major,'0000')}-${../../../../guidid/text()}${format-number(../../../../version/@major,'0000')}"/>
+      <xs:element name="guid"      type="xs:string"/>
     </xs:sequence>
 
     <xs:attribute name="id"     type="xs:ID"      use="required"/>
