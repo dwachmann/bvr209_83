@@ -55,7 +55,7 @@
       <xs:element name="version"   type="versionType"/>
       <xs:element name="name"      type="xs:string"/>
       <xs:element name="guidid"    type="xs:string"/>
-      <xs:element name="filename"  type="xs:string" default="${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}"/>
+      <xs:element name="filename"  type="xs:string" fixed="${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}"/>
       <xs:element name="type"      type="typeType"    minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="typelib"   type="typelibType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
