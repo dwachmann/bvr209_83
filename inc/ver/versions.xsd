@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!-- 
+     $Id$
+     
+     Copyright (C) 2008 Dorothea Wachmann
+     
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     
+     You should have received a copy of the GNU General Public License
+     along with this program.  If not, see http://www.gnu.org/licenses/.
+  -->
+
+<xs:schema xmlns="http://bvr20983.berlios.de" 
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           targetNamespace="http://bvr20983.berlios.de" 
+           elementFormDefault="qualified"
+>
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      documents the the relations between product, component and type
+      and the relation of the different versions.
+    </xs:documentation>
+  </xs:annotation>
+  
+  <xs:element name="versions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="product" type="productType" minOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="productType">
+    <xs:sequence>
+      <xs:element name="version"   type="versionType"/>
+      <xs:element name="name"      type="xs:string"/>
+      <xs:element name="guidid"    type="xs:string"/>
+      <xs:element name="company"   type="xs:string"/>
+      <xs:element name="copyright" type="xs:string"/>
+      <xs:element name="component" type="componentType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id"     type="xs:ID"      use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="componentType">
+    <xs:sequence>
+      <xs:element name="version"   type="versionType"/>
+      <xs:element name="name"      type="xs:string"/>
+      <xs:element name="guidid"    type="xs:string"/>
+      <xs:element name="filename"  type="xs:string" default="${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}"/>
+      <xs:element name="type"      type="typeType"    minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="typelib"   type="typelibType" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+
+    <xs:attribute name="id"   type="xs:ID"        use="required"/>
+    <xs:attribute name="type" type="comptypeType" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="typeType">
+    <xs:sequence>
+      <xs:element name="version"   type="versionType"/>
+      <xs:element name="guidid"    type="xs:string"/>
+      <xs:element name="guid"      type="xs:string" default="${../../../guidid/text()}${format-number(../../../version/@major,'0000')}-${../../@typeid}-${../../guidid/text()}-${format-number(../../version/@major,'0000')}-${../../../../guidid/text()}${format-number(../../../../version/@major,'0000')}"/>
+    </xs:sequence>
+
+    <xs:attribute name="id"     type="xs:ID"      use="required"/>
+    <xs:attribute name="typeid" type="xs:NMTOKEN" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="typelibType">
+    <xs:sequence>
+      <xs:element name="version"   type="versionType"/>
+      <xs:element name="patch"     type="patchType" minOccurs="0"/>
+    </xs:sequence>
+
+    <xs:attribute name="id"     type="xs:ID"      use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="patchType">
+    <xs:sequence>
+      <xs:element name="pattern"   type="patternType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+
+    <xs:attribute name="filename"  type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="patternType">
+    <xs:sequence>
+      <xs:element name="key"      type="xs:string"/>
+      <xs:element name="value"    type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="versionType">
+    <xs:attribute name="major" type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="minor" type="xs:nonNegativeInteger" />
+    <xs:attribute name="fix"   type="xs:nonNegativeInteger" />
+    <xs:attribute name="rev"   type="xs:nonNegativeInteger" />
+  </xs:complexType>
+
+
+  <xs:simpleType name="comptypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="dll"/>
+      <xs:enumeration value="exe"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="guidTYPE">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

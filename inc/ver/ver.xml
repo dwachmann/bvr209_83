@@ -17,13 +17,10 @@
      You should have received a copy of the GNU General Public License
      along with this program.  If not, see http://www.gnu.org/licenses/.
   -->
-<!DOCTYPE versions SYSTEM "versions.dtd" [
-  <!ENTITY product SYSTEM "product.xml" >
-  
-  <!ENTITY dllname "${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}" >
-  <!ENTITY comguid "${../../../guidid/text()}${format-number(../../../version/@major,'0000')}-${../../@typeid}-${../../guidid/text()}-${format-number(../../version/@major,'0000')}-${../../../../guidid/text()}${format-number(../../../../version/@major,'0000')}">
-]>
-<versions>
+<versions xmlns="http://bvr20983.berlios.de"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://bvr20983.berlios.de versions.xsd"
+>
   <product id="BVR20983">
     <version major="1" minor="0" fix="0" rev="0"/>
     <name>BVR2098 Suite</name>
@@ -35,27 +32,27 @@
       <version major="1" minor="0" fix="0" rev="0"/>
       <name>Smartcard Library</name>
       <guidid>0001</guidid>
-      <filename>&dllname;</filename>
+      <filename/>
 
       <type id="Smartcard" typeid="0010">
         <version major="1"/>
         <guidid>0001</guidid>
-        <guid>&comguid;</guid>
+        <guid/>
       </type>
 
       <type id="ATR" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid>&comguid;</guid>
+        <guid/>
       </type>
 
       <type id="Wallet" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid>&comguid;</guid>
+        <guid/>
       </type>
       
-      <typelib id="BVR20983">
+      <typelib id="BVR20983SC">
         <version major="1" minor="0"/>
         
         <patch filename="ibvr20983-0000.odl">
@@ -70,9 +67,13 @@
     <component id="cc" type="dll">
       <version major="1" minor="0" fix="0" rev="0"/>
       <name>Custom Control Library</name>
-      <filename>&dllname;</filename>
+      <guidid>0002</guidid>
+      <filename/>
       
-      <type id="LED">
+      <type id="LED" typeid="0010">
+        <version major="1"/>
+        <guidid>0002</guidid>
+        <guid/>
       </type>
 
       <typelib id="BVR20983CC">
