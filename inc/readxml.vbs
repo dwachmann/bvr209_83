@@ -21,7 +21,7 @@ option explicit
 Dim objArgs,fso
 Dim reProdVer,reFileVer,reMakeDate
 Dim prodRev,fileRev,fileDate
-Dim xmlDoc
+Dim xmlDoc,re
 
 Const ForReading = 1
 
@@ -51,11 +51,88 @@ Sub ListXml(f,selectCriteria)
   
   If objNodeList.length>0 Then
     For Each o in objNodeList
-      WScript.Echo "[" & TypeName(o) & "] " & o.xml
+      Select Case TypeName(o)
+        Case "IXMLDOMText"
+          WScript.Echo "[text   ] {" & GetValue(xmlDoc.documentElement,o.text) & "}"
+
+        Case "IXMLDOMElement"
+          WScript.Echo "[element] {" & o.xml & "}"
+
+        Case "IXMLDOMAttribute"
+          WScript.Echo "[attrib ] {" & o.value & "}"
+
+        Case else
+          WScript.Echo "[" & TypeName(o) & "] {" & o.xml & "}"
+      End Select
     Next
   End If
 End Sub
 
+Function GetValue(doc,s)
+  Dim s0,i,i0,i1,i2,v
+
+  WScript.Echo "GetValue(" & s & ")"
+  
+  If TypeName(s)="String" Then
+    s0 = ""
+    i0 = 0
+    i1 = 0
+    i2 = 0
+    
+    For i=1 to Len(s)
+      If Mid(s,i,2)="${" Then
+        If i0=0 Then
+          i0 = i+2
+        End If
+        
+        i2 = i2+1
+        i  = i+1
+      ElseIf Mid(s,i,1)="}" Then
+        i2 = i2-1
+
+        If i2<=0 and i0>0 Then
+          i1 = i-1
+          
+          v = Mid(s,i0,i1-i0+1)
+          
+          If InStr(v,"${")>0 Then
+            v = GetValue(doc,v)
+          End If
+
+          s0 = s0 & GetVarValue(doc,v)
+          
+          i0 = 0
+          i1 = 0
+        End If
+      ElseIf i2>0 Then
+      Else
+        s0 = s0 & Mid(s,i,1)
+      End If
+    Next
+
+    GetValue = s0
+  else
+    GetValue = s
+  End If
+End Function
+
+Function GetVarValue(doc,s)
+  Dim result,selectQuery,node
+  
+  result = s
+  
+  If TypeName(s)="String" Then
+    selectQuery = "/v:versions/v:parameter[@name='" & s &"']/text()"
+
+    Set node = doc.selectSingleNode(selectQuery)
+    
+    If not IsNull(node) and TypeName(node)="IXMLDOMText" Then
+      result = node.text
+    End If
+  End If
+
+  GetVarValue = result
+End Function
 
 '
 ' Init
@@ -69,6 +146,11 @@ Sub Init
   xmlDoc.async = False
   xmlDoc.setProperty "SelectionNamespaces", "xmlns:v='http://bvr20983.berlios.de'"
   xmlDoc.setProperty "SelectionLanguage", "XPath"
+
+  Set re = New RegExp
+
+  re.Pattern   = "\$\{([^}]*)}"
+  re.Global    = True
 End Sub
 
 Set objArgs = WScript.Arguments

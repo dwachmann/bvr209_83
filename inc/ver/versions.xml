@@ -40,19 +40,19 @@
       <type id="Smartcard" typeid="0010">
         <version major="1"/>
         <guidid>0001</guidid>
-        <guid>${guidpattern}</guid>
+        <guid>${filenamepattern}</guid>
       </type>
 
       <type id="ATR" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid>${guidpattern}</guid>
+        <guid> ${ab} ${guidpattern}</guid>
       </type>
 
       <type id="Wallet" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid>${guidpattern}</guid>
+        <guid>Hello World</guid>
       </type>
       
       <typelib id="BVR20983SC">
