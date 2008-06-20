@@ -53,7 +53,7 @@ Sub ListXml(f,selectCriteria)
     For Each o in objNodeList
       Select Case TypeName(o)
         Case "IXMLDOMText"
-          WScript.Echo "[text   ] {" & GetValue(xmlDoc.documentElement,o.text) & "}"
+          WScript.Echo "[text   ] {" & GetValue(o,o.text) & "}"
 
         Case "IXMLDOMElement"
           WScript.Echo "[element] {" & o.xml & "}"
@@ -119,19 +119,56 @@ End Function
 Function GetVarValue(doc,s)
   Dim result,selectQuery,node
   
-  result = s
+  'result = s
   
   If TypeName(s)="String" Then
     selectQuery = "/v:versions/v:parameter[@name='" & s &"']/text()"
 
     Set node = doc.selectSingleNode(selectQuery)
     
-    If not IsNull(node) and TypeName(node)="IXMLDOMText" Then
-      result = node.text
+    If Not IsNull(node) and TypeName(node)="IXMLDOMText" Then
+      result = GetValue(doc,node.text)
+    Else
+      selectQuery = s
+      
+      'WScript.Echo "selectQuery=" & selectQuery
+      
+      Set node = doc.selectSingleNode(selectQuery)
+      
+      If Not IsNull(node) Then
+        Select Case TypeName(node)
+          Case "IXMLDOMText"
+            result = GetValue(doc,node.text)
+  
+          Case "IXMLDOMElement"
+            result = GetValue(doc,node.xml)
+  
+          Case "IXMLDOMAttribute"
+            result = GetValue(doc,node.value)
+  
+          Case else
+            result = TypeName(node)
+        End Select
+      End If
     End If
   End If
 
-  GetVarValue = result
+  GetVarValue = Eval(result)
+
+  'GetVarValue = result
+End Function
+
+'
+' Padding a string with leading zeros
+'
+Function ZeroFill(s)
+  Dim result
+  
+  result = "000" & s
+  
+  WScript.Echo "ZeroFill(" & s & "):" & result
+  
+  ZeroFill = result
 End Function
 
 '
@@ -151,6 +188,7 @@ Sub Init
 
   re.Pattern   = "\$\{([^}]*)}"
   re.Global    = True
+  
 End Sub
 
 Set objArgs = WScript.Arguments

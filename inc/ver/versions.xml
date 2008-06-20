@@ -21,8 +21,10 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://bvr20983.berlios.de versions.xsd"
 >
-  <parameter name="filenamepattern">${../../../@id}.${../../../version/@major}.${../../@id}.${../../@major}.${../../@type}</parameter>
-  <parameter name="guidpattern">${../../../guidid/text()}${zerofill(../../../version/@major)}-${../../@typeid}-${../../guidid/text()}-${zerofill(../../version/@major)}-${../../../../guidid/text()}${zerofill(../../../../version/@major)}</parameter>
+  <parameter name="filenamepattern">${../../../@id}.${../../../v:version/@major}.${../../@id}.${../../v:version/@major}.${../../@type}</parameter>
+  <parameter name="guidpattern">"${../../../v:guidid/text()}" &amp; zerofill(${../../../v:version/@major}) &amp; "-${../../@typeid}-${../../v:guidid/text()}-${../../v:version/@major}-${../../../../v:guidid/text()}${../../../../v:version/@major}"</parameter>
+
+  <parameter name="guidpattern1">"001" &amp; zerofill(${../../../v:version/@major})</parameter>
 
   <product id="BVR20983">
     <version major="1" minor="0" fix="0" rev="0"/>
@@ -40,13 +42,13 @@
       <type id="Smartcard" typeid="0010">
         <version major="1"/>
         <guidid>0001</guidid>
-        <guid>${filenamepattern}</guid>
+        <guid>${guidpattern1}</guid>
       </type>
 
       <type id="ATR" typeid="0010">
         <version major="1"/>
         <guidid>0002</guidid>
-        <guid> ${ab} ${guidpattern}</guid>
+        <guid>${guidpattern}</guid>
       </type>
 
       <type id="Wallet" typeid="0010">
