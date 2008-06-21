@@ -21,7 +21,7 @@ option explicit
 Dim objArgs,fso
 Dim reProdVer,reFileVer,reMakeDate
 Dim prodRev,fileRev,fileDate
-Dim xmlDoc,re
+Dim xmlDoc
 
 Const ForReading = 1
 
@@ -68,10 +68,12 @@ Sub ListXml(f,selectCriteria)
   End If
 End Sub
 
-Function GetValue(doc,s)
-  Dim s0,i,i0,i1,i2,v
+Function GetValue(e,s)
+  Dim s0,i,i0,i1,i2,v,evalExp
 
-  WScript.Echo "GetValue(" & s & ")"
+  'WScript.Echo "GetValue(" & s & ")"
+  
+  evalExp = False
   
   If TypeName(s)="String" Then
     s0 = ""
@@ -80,7 +82,12 @@ Function GetValue(doc,s)
     i2 = 0
     
     For i=1 to Len(s)
-      If Mid(s,i,2)="${" Then
+      If Mid(s,i,2)="${" or Mid(s,i,2)="#{" Then
+        
+        If Mid(s,i,2)="#{" Then
+          evalExp = True
+        End If
+        
         If i0=0 Then
           i0 = i+2
         End If
@@ -95,14 +102,16 @@ Function GetValue(doc,s)
           
           v = Mid(s,i0,i1-i0+1)
           
-          If InStr(v,"${")>0 Then
-            v = GetValue(doc,v)
+          If InStr(v,"${")>0 or Mid(s,i,2)="#{" Then
+            v = GetValue(e,v)
           End If
 
-          s0 = s0 & GetVarValue(doc,v)
+          s0 = s0 & GetVarValue(e,v,evalExp)
           
           i0 = 0
           i1 = 0
+          
+          evalExp = False
         End If
       ElseIf i2>0 Then
       Else
@@ -116,58 +125,74 @@ Function GetValue(doc,s)
   End If
 End Function
 
-Function GetVarValue(doc,s)
+'
+' evaluate variable value
+' first using parameter elements in xml document
+' then, if not successful, use s as XPath expression
+'
+Function GetVarValue(e,s,evalExp)
+  on error resume next
   Dim result,selectQuery,node
-  
-  'result = s
   
   If TypeName(s)="String" Then
     selectQuery = "/v:versions/v:parameter[@name='" & s &"']/text()"
 
-    Set node = doc.selectSingleNode(selectQuery)
+    Set node = e.selectSingleNode(selectQuery)
     
     If Not IsNull(node) and TypeName(node)="IXMLDOMText" Then
-      result = GetValue(doc,node.text)
+      result = GetValue(e,node.text)
     Else
       selectQuery = s
       
       'WScript.Echo "selectQuery=" & selectQuery
       
-      Set node = doc.selectSingleNode(selectQuery)
+      Set node = e.selectSingleNode(selectQuery)
       
-      If Not IsNull(node) Then
+      If Not IsNull(node) and TypeName(node)<>"Nothing" Then
         Select Case TypeName(node)
           Case "IXMLDOMText"
-            result = GetValue(doc,node.text)
+            result = GetValue(e,node.text)
   
           Case "IXMLDOMElement"
-            result = GetValue(doc,node.xml)
+            result = GetValue(e,node.xml)
   
           Case "IXMLDOMAttribute"
-            result = GetValue(doc,node.value)
+            result = GetValue(e,node.value)
   
           Case else
-            result = TypeName(node)
+            WScript.Echo "Result of selectSingleNode(): " & TypeName(node)
         End Select
+      Else
+        result = selectQuery
       End If
     End If
   End If
+  
+  If evalExp Then
+    'WScript.Echo "Eval(" & result & ")"
 
-  GetVarValue = Eval(result)
+    result = Eval(result)
+  End If
 
-  'GetVarValue = result
+  GetVarValue = result
 End Function
 
 '
 ' Padding a string with leading zeros
 '
-Function ZeroFill(s)
-  Dim result
+Function ZeroFill(s,l)
+  Dim result,i
+
+  result = s
   
-  result = "000" & s
-  
-  WScript.Echo "ZeroFill(" & s & "):" & result
-  
+  If Not IsNull(s) Then
+    For i=Len(s)+1 to l
+      result = "0" & result
+    Next
+    
+    'WScript.Echo "ZeroFill(" & s & "," & l & "):" & result
+  End If
+    
   ZeroFill = result
 End Function
 
@@ -184,11 +209,6 @@ Sub Init
   xmlDoc.setProperty "SelectionNamespaces", "xmlns:v='http://bvr20983.berlios.de'"
   xmlDoc.setProperty "SelectionLanguage", "XPath"
 
-  Set re = New RegExp
-
-  re.Pattern   = "\$\{([^}]*)}"
-  re.Global    = True
-  
 End Sub
 
 Set objArgs = WScript.Arguments
