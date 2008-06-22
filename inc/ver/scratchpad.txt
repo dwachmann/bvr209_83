@@ -20,8 +20,8 @@ Components:
            
    CompId: 4 hex digits, i.e. 0001 for sc
    
-   VersionIndependentProg: ProdId.ProdMajorVersion.Comp.CompMajorVersion.Typename
-                     Prog: ProdId.ProdMajorVersion.Comp.CompMajorVersion.Typename.TypeMajorVersion
+   VersionIndependentProg: Prod.ProdMajorVersion.Comp.CompMajorVersion.Typename
+                     Prog: Prod.ProdMajorVersion.Comp.CompMajorVersion.Typename.TypeMajorVersion
                      
                      e.g.: BVR20983.1.SC.1.Smardcard
                            BVR20983.1.SC.1.Smardcard.1
@@ -49,8 +49,8 @@ Types:
   Major: 1   
 
 GUID Schema for components:
-<Comp|MajV|Type|No  |MajV|ProdId  |MajV>
- 0001|0001-0001-0001-0001-BFE20983|0000
+<ProdId  |MajV|Comp|MajV|Type|No  |MajV>
+ BFE20983-0000-0001-0001-0001|0001|0001
 
   Types:
     Typelib                  0000
@@ -65,13 +65,13 @@ GUID Schema for components:
     Custom GUID              1000
 
 GUID Schema for type libraries:
-<Comp|MajV|    |Res |Res |ProdId  |MajV>
- 0001|0001-0000-FFFF-FFFF-BFE20983|0000
+<ProdId  |MajV|Comp|MajV|Type|Maj |Res >
+ BFE20983-0000-0001-0001-0000|0001|FFFF
 
 Filename Convention:
   DLL Name: Productname.ProductMajorVersion.ComponentName.ComponentMajorVersion.dll
   
-            e.g. BVR20983.1.CC.1.DLL
+            e.g. bvr20983.1.cc.1.dll
             
             
 Usage-Cases:

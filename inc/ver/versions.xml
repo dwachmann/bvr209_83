@@ -22,7 +22,7 @@
           xsi:schemaLocation="http://bvr20983.berlios.de versions.xsd"
 >
   <parameter name="filenamepattern">#{LCase("${../../../@id}")}.${../../../v:version/@major}.${../../@id}.${../../v:version/@major}.${../../@type}</parameter>
-  <parameter name="guidpattern">${../../../v:guidid/text()}#{zerofill("${../../../v:version/@major}",4)}-${../../@typeid}-${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-${../../../../v:guidid/text()}#{zerofill("${../../../../v:version/@major}",4)}</parameter>
+  <parameter name="guidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../@typeid}-${../../v:guidid/text()}#{zerofill("${../../v:version/@major}",4)}</parameter>
 
   <product id="BVR20983">
     <version major="1" minor="0" fix="0" rev="0"/>
@@ -75,7 +75,7 @@
       
       <type id="LED" typeid="0010">
         <version major="1"/>
-        <guidid>0002</guidid>
+        <guidid>0001</guidid>
         <guid>${guidpattern}</guid>
       </type>
 

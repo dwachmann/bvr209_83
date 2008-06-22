@@ -1,7 +1,5 @@
 ' $Id$
 ' 
-' patch files according to description in xml file.
-' 
 ' Copyright (C) 2008 Dorothea Wachmann
 ' 
 ' This program is free software: you can redistribute it and/or modify
@@ -16,33 +14,22 @@
 ' 
 ' You should have received a copy of the GNU General Public License
 ' along with this program.  If not, see http://www.gnu.org/licenses/.
-option explicit
-
-Dim objArgs,fso
-Dim reProdVer,reFileVer,reMakeDate
-Dim prodRev,fileRev,fileDate
-Dim xmlDoc
+Option explicit
+Dim fso,xmlDoc
 
 Const ForReading = 1
 
 '
-' Usage
-'
-Sub Usage()
-  WScript.Echo "patchfile <filename> <select criteria>"
-End Sub
-
-'
 ' evaluate the patch element and patch file according to the defined regexp pattern
 '
-Sub PatchIt(args)
+Sub PatchIt(f,selectCriteria)
   Dim attrValue
   Dim objNodeList,o,objPatternList,o1
   Dim key,val
   Dim key1,val1
   Dim re(),va(),reI
   
-  xmlDoc.load(args(0))
+  xmlDoc.load(f)
   
   If xmlDoc.parseError.errorCode<>0 Then
     WScript.Echo xmlDoc.parseError.reason
@@ -50,7 +37,7 @@ Sub PatchIt(args)
     'WScript.Echo xmlDoc.xml
   End If
   
-  Set objNodeList = xmlDoc.documentElement.selectNodes(args(1) & ".//v:patch")
+  Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria & ".//v:patch")
   
   If objNodeList.length>0 Then
     For Each o in objNodeList
@@ -117,7 +104,44 @@ Sub PatchFile(f,re,va)
 End Sub
 
 '
-' implements variable substitution
+' ReadXml selects a xml NODE using a XPATH selection criteria
+'
+Sub ReadXml(f,selectCriteria)
+  Dim attrValue
+  Dim objNodeList,o
+  
+  xmlDoc.load(f)
+  
+  If xmlDoc.parseError.errorCode<>0 Then
+    WScript.Echo xmlDoc.parseError.reason
+  Else
+    'WScript.Echo xmlDoc.xml
+  End If
+  
+  Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria)
+  
+  If objNodeList.length>0 Then
+    For Each o in objNodeList
+      Select Case TypeName(o)
+        Case "IXMLDOMText"
+          WScript.Echo "[text   ] {" & GetValue(o,o.text) & "}"
+
+        Case "IXMLDOMElement"
+          WScript.Echo "[element] {" & o.xml & "}"
+
+        Case "IXMLDOMAttribute"
+          WScript.Echo "[attrib ] {" & GetValue(o,o.value) & "}"
+
+        Case else
+          WScript.Echo "[" & TypeName(o) & "] {" & o.xml & "}"
+      End Select
+    Next
+  End If
+End Sub
+
+'
+' implements value substitution 
+' e.g. "abc ${name} ${name1}"
 '
 Function GetValue(e,s)
   Dim s0,i,i0,i1,i2,v,evalExp
@@ -187,9 +211,9 @@ Function GetVarValue(e,s,evalExp)
   
   If TypeName(s)="String" Then
     
-    For i=2 to objArgs.length-1
-      If objArgs(i)=s and i+1<=objArgs.length-1 Then
-        GetVarValue = objArgs(i+1)
+    For i=0 to WScript.Arguments.Unnamed.length-1
+      If WScript.Arguments.Unnamed(i)=s and i+1<=WScript.Arguments.Unnamed.length-1 Then
+        GetVarValue = WScript.Arguments.Unnamed(i+1)
         Exit Function
       End If
     Next
@@ -259,8 +283,6 @@ End Function
 ' Init
 '
 Sub Init
-'  on error resume next
-
   Set xmlDoc = CreateObject("Msxml2.DOMDocument.5.0")
   
   xmlDoc.validateOnParse = True
@@ -268,21 +290,6 @@ Sub Init
   xmlDoc.setProperty "SelectionNamespaces", "xmlns:v='http://bvr20983.berlios.de'"
   xmlDoc.setProperty "SelectionLanguage", "XPath"
 
-End Sub
-
-Set objArgs = WScript.Arguments
-
-If objArgs.Count>=2 Then
   Set fso = CreateObject("Scripting.FileSystemObject")
-  
-  If fso.FileExists( objArgs(0) ) Then
-    Init
-    
-    PatchIt objArgs
-  Else
-    WScript.Echo "File " & objArgs(0) & " doesnt exist"
-  End If
-Else
-  Usage
-End If
+End Sub
 '=======================================END-OF-FILE==========================

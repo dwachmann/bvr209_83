@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!--
+     $Id$
+     
+     Copyright (C) 2008 Dorothea Wachmann
+     
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     
+     You should have received a copy of the GNU General Public License
+     along with this program.  If not, see http://www.gnu.org/licenses/.
+
+  -->
+  
+<package>
+   <job id="select">
+      <runtime>
+          <description>Testscript for XPATH selection of xml document using MSXML Parser</description>
+          <named name = "File"
+                 helpstring = "Name of the xml file that should be parsed"
+                 type = "string"
+                 required = "true"
+          />
+          <named name = "Select"
+                 helpstring = "XPath Selection Criteria"
+                 type = "string"
+                 required = "true"
+          />
+          <unnamed  name="parameter"
+                    helpstring="parameter"
+                    many="true"
+                    required="0"
+          />
+
+          <example>Example: patch.wsf /File:xmlfile /Select:select</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          If WScript.Arguments.Named.Exists("File") and WScript.Arguments.Named.Exists("Select") Then
+            Init
+            
+            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              ReadXml WScript.Arguments.Named.Item("File"),WScript.Arguments.Named.Item("Select")
+            Else
+              WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            End If
+          Else
+            WScript.Arguments.ShowUsage
+          End If
+        ]]>
+      </script>
+   </job>
+
+   <job id="patch">
+      <runtime>
+          <description>Evaluate the patch element and patch file according to the defined regexp pattern</description>
+          <named name = "File"
+                 helpstring = "Name of the xml file that should be parsed"
+                 type = "string"
+                 required = "true"
+          />
+          <named name = "Select"
+                 helpstring = "XPath Selection Criteria"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: patch.wsf /File:xmlfile /Select:select</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          If WScript.Arguments.Named.Exists("File") and WScript.Arguments.Named.Exists("Select") Then
+            Init
+
+            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              PatchIt WScript.Arguments.Named.Item("File"),WScript.Arguments.Named.Item("Select")
+            Else
+              WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            End If
+          Else
+            WScript.Arguments.ShowUsage
+          End If
+        ]]>
+      </script>
+   </job>
+</package>

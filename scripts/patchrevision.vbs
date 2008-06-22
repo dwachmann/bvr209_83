@@ -29,7 +29,7 @@ Const ForReading = 1
 ' Usage
 '
 Sub Usage()
-  WScript.Echo "getrevision <filename> <prodrev> <filerev> <filedate>"
+  WScript.Echo "patchrevision <filename> <prodrev> <filerev> <filedate>"
 End Sub
 
 '
