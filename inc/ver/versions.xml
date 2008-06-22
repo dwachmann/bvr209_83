@@ -25,7 +25,7 @@
   <parameter name="guidpattern">${../../../v:guidid/text()}#{zerofill("${../../../v:version/@major}",4)}-${../../@typeid}-${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-${../../../../v:guidid/text()}#{zerofill("${../../../../v:version/@major}",4)}</parameter>
 
   <product id="BVR20983">
-    <version major="42" minor="0" fix="0" rev="0"/>
+    <version major="1" minor="0" fix="0" rev="0"/>
     <name>BVR2098 Suite</name>
     <guidid>BFE20983</guidid>
     <company>Dorothea Wachmann</company>
@@ -51,24 +51,24 @@
 
       <type id="Wallet" typeid="0010">
         <version major="1"/>
-        <guidid>0002</guidid>
-        <guid>Hello World</guid>
+        <guidid>0003</guidid>
+        <guid>${guidpattern}</guid>
       </type>
       
       <typelib id="BVR20983SC">
-        <version major="1" minor="0"/>
+        <version major="3" minor="1"/>
         
         <patch filename="ibvr20983-0000.odl">
-          <pattern><key>@version</key>       <value>${../../../../version/@major}.${../../../../version/@minor}</value></pattern>
-          <pattern><key>@smardcardGUID</key> <value>${../../../../../type[@id="Smardcard"]/guid/text()}</value>        </pattern>
-          <pattern><key>@atrGUID</key>       <value>${../../../../../type[@id="ATR"]/guid/text()}</value>              </pattern>
-          <pattern><key>@walletGUID</key>    <value>${../../../../../type[@id="Wallet"]/guid/text()}</value>           </pattern>
+          <pattern><key>@version</key>       <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
+          <pattern><key>@smardcardGUID</key> <value>${../../../../../v:type[@id='Smartcard']/v:guid/text()}</value>        </pattern>
+          <pattern><key>@atrGUID</key>       <value>${../../../../../v:type[@id="ATR"]/v:guid/text()}</value>              </pattern>
+          <pattern><key>@walletGUID</key>    <value>${../../../../../v:type[@id="Wallet"]/v:guid/text()}</value>           </pattern>
         </patch>
       </typelib>
     </component>
 
     <component id="cc" type="dll">
-      <version major="1" minor="0" fix="0" rev="0"/>
+      <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Custom Control Library</name>
       <guidid>0002</guidid>
       <filename>${filenamepattern}</filename>
@@ -81,6 +81,11 @@
 
       <typelib id="BVR20983CC">
         <version major="1" minor="0"/>
+
+        <patch filename="ibvr20983cc-0000.odl">
+          <pattern><key>@version</key> <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
+          <pattern><key>@ledGUID</key> <value>${../../../../../v:type[@id='LED']/v:guid/text()}</value>              </pattern>
+        </patch>
       </typelib>
     </component>
   </product>

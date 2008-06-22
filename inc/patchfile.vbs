@@ -1,6 +1,6 @@
 ' $Id$
 ' 
-' Smartcard Test Script.
+' patch files according to description in xml file.
 ' 
 ' Copyright (C) 2008 Dorothea Wachmann
 ' 
@@ -29,15 +29,18 @@ Const ForReading = 1
 ' Usage
 '
 Sub Usage()
-  WScript.Echo "readxml <filename> <select criteria>"
+  WScript.Echo "patchfile <filename> <select criteria>"
 End Sub
 
 '
-' GetInfo
+' evaluate the patch element and patch file according to the defined regexp pattern
 '
-Sub ListXml(args)
+Sub PatchIt(args)
   Dim attrValue
-  Dim objNodeList,o
+  Dim objNodeList,o,objPatternList,o1
+  Dim key,val
+  Dim key1,val1
+  Dim re(),va(),reI
   
   xmlDoc.load(args(0))
   
@@ -47,27 +50,75 @@ Sub ListXml(args)
     'WScript.Echo xmlDoc.xml
   End If
   
-  Set objNodeList = xmlDoc.documentElement.selectNodes(args(1))
+  Set objNodeList = xmlDoc.documentElement.selectNodes(args(1) & ".//v:patch")
   
   If objNodeList.length>0 Then
     For Each o in objNodeList
-      Select Case TypeName(o)
-        Case "IXMLDOMText"
-          WScript.Echo "[text   ] {" & GetValue(o,o.text) & "}"
+    
+      If TypeName(o)="IXMLDOMElement" and Not IsNull(o.GetAttributeNode("filename")) Then
+        Set objPatternList = o.selectNodes(".//v:pattern")
+        
+        Redim re(objPatternList.length)
+        Redim va(objPatternList.length)
+        
+        reI = 0
+        
+        For Each o1 in objPatternList
+          Set key = o1.firstChild.firstChild
+          Set val = o1.firstChild.nextSibling.firstChild
+          
+          key1 = GetValue(key,key.text)
+          val1 = GetValue(val,val.text)
+          
+          Set re(reI) = New RegExp
+          
+          va(reI) = val1
+          
+          re(reI).Pattern   = "(" & key1 & ")"
+          re(reI).Global    = True
+          
+          reI = reI + 1
+        Next
 
-        Case "IXMLDOMElement"
-          WScript.Echo "[element] {" & o.xml & "}"
-
-        Case "IXMLDOMAttribute"
-          WScript.Echo "[attrib ] {" & GetValue(o,o.value) & "}"
-
-        Case else
-          WScript.Echo "[" & TypeName(o) & "] {" & o.xml & "}"
-      End Select
+        PatchFile o.GetAttributeNode("filename").value,re,va
+      End If
     Next
   End If
 End Sub
 
+'
+' Patch the file f0 using the regular expressions
+'
+Sub PatchFile(f,re,va)
+  Dim f0,f1,r0
+  Dim i
+
+  WScript.Echo "Patching file " & f & " ..."
+
+  For i=LBound(re) to UBound(re)-1
+    WScript.Echo "  |" & re(i).Pattern & "| --> |" & va(i) & "|"
+  Next
+
+  Set f0 = fso.OpenTextFile(f, ForReading)
+  Set f1 = fso.CreateTextFile(f&".new",True)
+  
+  Do While Not f0.AtEndOfStream 
+    r0 = f0.ReadLine
+    
+    For i=LBound(re) to UBound(re)-1
+      r0 = re(i).Replace(r0,va(i))
+    Next
+    
+    f1.WriteLine(r0)
+  Loop
+  
+  f0.Close
+  f1.Close
+End Sub
+
+'
+' implements variable substitution
+'
 Function GetValue(e,s)
   Dim s0,i,i0,i1,i2,v,evalExp
 
@@ -227,7 +278,7 @@ If objArgs.Count>=2 Then
   If fso.FileExists( objArgs(0) ) Then
     Init
     
-    ListXml objArgs
+    PatchIt objArgs
   Else
     WScript.Echo "File " & objArgs(0) & " doesnt exist"
   End If

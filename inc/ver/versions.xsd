@@ -112,7 +112,7 @@
     <xs:attribute name="major" type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="minor" type="xs:nonNegativeInteger" />
     <xs:attribute name="fix"   type="xs:nonNegativeInteger" />
-    <xs:attribute name="rev"   type="xs:nonNegativeInteger" />
+    <xs:attribute name="rev"   type="xs:string" />
   </xs:complexType>
 
 
