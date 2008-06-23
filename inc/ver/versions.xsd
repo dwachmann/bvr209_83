@@ -87,6 +87,7 @@
   <xs:complexType name="typelibType">
     <xs:sequence>
       <xs:element name="version"   type="versionType"/>
+      <xs:element name="guid"      type="xs:string"/>
       <xs:element name="patch"     type="patchType" minOccurs="0"/>
     </xs:sequence>
 
@@ -98,6 +99,7 @@
       <xs:element name="pattern"   type="patternType" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
 
+    <xs:attribute name="template"  type="xs:string" use="required"/>
     <xs:attribute name="filename"  type="xs:string" use="required"/>
   </xs:complexType>
 

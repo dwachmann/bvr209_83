@@ -16,6 +16,7 @@
 ' along with this program.  If not, see http://www.gnu.org/licenses/.
 Option explicit
 Dim fso,xmlDoc
+Dim projectPath,searchPath()
 
 Const ForReading = 1
 
@@ -42,7 +43,7 @@ Sub PatchIt(f,selectCriteria)
   If objNodeList.length>0 Then
     For Each o in objNodeList
     
-      If TypeName(o)="IXMLDOMElement" and Not IsNull(o.GetAttributeNode("filename")) Then
+      If TypeName(o)="IXMLDOMElement" and Not IsNull(o.GetAttributeNode("template")) and Not IsNull(o.GetAttributeNode("filename")) Then
         Set objPatternList = o.selectNodes(".//v:pattern")
         
         Redim re(objPatternList.length)
@@ -67,7 +68,7 @@ Sub PatchIt(f,selectCriteria)
           reI = reI + 1
         Next
 
-        PatchFile o.GetAttributeNode("filename").value,re,va
+        PatchFile o.GetAttributeNode("template").value,o.GetAttributeNode("filename").value,re,va
       End If
     Next
   End If
@@ -76,18 +77,25 @@ End Sub
 '
 ' Patch the file f0 using the regular expressions
 '
-Sub PatchFile(f,re,va)
+Sub PatchFile(tmpl,f,re,va)
   Dim f0,f1,r0
+  Dim fullTmplPath,fullPath
   Dim i
 
-  WScript.Echo "Patching file " & f & " ..."
+  fullTmplPath = FindFile(tmpl)
+  If IsNull(fullTmplPath) Then Exit Sub End If
+  
+  fullPath = Left(fullTmplPath,InStrRev(fullTmplPath,"\")) & f
+  If IsNull(fullPath) Then Exit Sub End If
+
+  WScript.Echo "Patching file " & tmpl & " --> " & f
 
   For i=LBound(re) to UBound(re)-1
     WScript.Echo "  |" & re(i).Pattern & "| --> |" & va(i) & "|"
   Next
 
-  Set f0 = fso.OpenTextFile(f, ForReading)
-  Set f1 = fso.CreateTextFile(f&".new",True)
+  Set f0 = fso.OpenTextFile(fullTmplPath, ForReading)
+  Set f1 = fso.CreateTextFile(fullPath,True)
   
   Do While Not f0.AtEndOfStream 
     r0 = f0.ReadLine
@@ -283,6 +291,7 @@ End Function
 ' Init
 '
 Sub Init
+  Dim f
   Set xmlDoc = CreateObject("Msxml2.DOMDocument.5.0")
   
   xmlDoc.validateOnParse = True
@@ -291,5 +300,37 @@ Sub Init
   xmlDoc.setProperty "SelectionLanguage", "XPath"
 
   Set fso = CreateObject("Scripting.FileSystemObject")
+  
+  projectPath = Left(WScript.ScriptFullName,InStrRev(WScript.ScriptFullName,"\")-1)
+  projectPath = Left(projectPath,InStrRev(projectPath,"\"))
+  
+  Redim searchPath(2)
+  
+  searchPath(0) = "inc\"
+  searchPath(1) = "inc\ver\"
+  searchPath(1) = "inc\com\"
 End Sub
+
+'
+'
+' 
+Function FindFile(filename)
+  Dim fullFileName,s,result
+  
+  result = null
+  
+  For Each s In searchPath
+    fullFileName = projectPath & s & filename
+    
+    'WScript.Echo fullFileName
+      
+    If fso.FileExists(fullFileName) Then
+      result = fullFileName
+      
+      Exit For
+    End If
+  Next
+  
+  FindFile = result
+End Function
 '=======================================END-OF-FILE==========================
