@@ -26,17 +26,27 @@
   <parameter name="guidpattern1">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-0000-#{zerofill("${../../v:version/@major}",4)}FFFF</parameter>
 
   <product id="BVR20983">
-    <version major="1" minor="0" fix="0" rev="0"/>
+    <version major="2" minor="33" fix="15" rev="${rev}"/>
     <name>BVR2098 Suite</name>
     <guidid>BFE20983</guidid>
     <company>Dorothea Wachmann</company>
     <copyright>Copyright \251 2008 Dorothea Wachmann</copyright>
     
     <component id="sc" type="dll">
-      <version major="1" minor="0" fix="0" rev="0"/>
+      <version major="110" minor="2" fix="3" rev="${rev}"/>
       <name>Smartcard Library</name>
       <guidid>0001</guidid>
       <filename>${filenamepattern}</filename>
+
+      <patch filename="bvr20983-ver.h">
+        <pattern><key>(^#define.+verProdVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.${../../../../../v:version/@fix}.${../../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verProdVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../../v:version/@major},${../../../../../v:version/@minor},${../../../../../v:version/@fix},${../../../../../v:version/@rev}$3</value></pattern>
+
+        <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
+
+        <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
+      </patch>
 
       <type id="IAPDU" typeid="0002">
         <version major="1"/>
@@ -117,18 +127,39 @@
         <patch template="ibvr20983-0000.tmpl" filename="ibvr20983-0000.odl">
           <pattern><key>@typelibVersion</key>      <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
           <pattern><key>@typelibGUID</key>         <value>${../../../../v:guid/text()}</value>                                   </pattern>
-          <pattern><key>@typelibName</key>         <value>${../../../../@id}</value>                                   </pattern>
+          <pattern><key>@typelibName</key>         <value>${../../../../@id}</value>                                             </pattern>
           
-          <pattern><key>@DISmartcardEventGUID</key><value>${../../../../../v:type[@id='DISmartcardEvent']/v:guid/text()}</value>        </pattern>
-          <pattern><key>@IAPDUGUID</key>           <value>${../../../../../v:type[@id='IAPDU']/v:guid/text()}</value>        </pattern>
-          <pattern><key>@IATRGUID</key>            <value>${../../../../../v:type[@id='IATR']/v:guid/text()}</value>        </pattern>
-          <pattern><key>@ISmartcardGUID</key>      <value>${../../../../../v:type[@id='ISmartcard']/v:guid/text()}</value>        </pattern>
-          <pattern><key>@IWalletGUID</key>         <value>${../../../../../v:type[@id='IWallet']/v:guid/text()}</value>        </pattern>
+          <pattern><key>@DISmartcardEventGUID</key><value>${../../../../../v:type[@id='DISmartcardEvent']/v:guid/text()}</value> </pattern>
+          <pattern><key>@IAPDUGUID</key>           <value>${../../../../../v:type[@id='IAPDU']/v:guid/text()}</value>            </pattern>
+          <pattern><key>@IATRGUID</key>            <value>${../../../../../v:type[@id='IATR']/v:guid/text()}</value>             </pattern>
+          <pattern><key>@ISmartcardGUID</key>      <value>${../../../../../v:type[@id='ISmartcard']/v:guid/text()}</value>       </pattern>
+          <pattern><key>@IWalletGUID</key>         <value>${../../../../../v:type[@id='IWallet']/v:guid/text()}</value>          </pattern>
 
-          <pattern><key>@ResponseEnumGUID</key>    <value>${../../../../../v:type[@id='ResponseEnum']/v:guid/text()}</value>        </pattern>
-          <pattern><key>@FeaturesEnumGUID</key>    <value>${../../../../../v:type[@id='FeaturesEnum']/v:guid/text()}</value>        </pattern>
-          <pattern><key>@PinCodingEnumGUID</key>   <value>${../../../../../v:type[@id='PinCodingEnum']/v:guid/text()}</value>        </pattern>
-          <pattern><key>@AttributesEnumGUID</key>  <value>${../../../../../v:type[@id='AttributesEnum']/v:guid/text()}</value>        </pattern>
+          <pattern><key>@ResponseEnumGUID</key>    <value>${../../../../../v:type[@id='ResponseEnum']/v:guid/text()}</value>     </pattern>
+          <pattern><key>@FeaturesEnumGUID</key>    <value>${../../../../../v:type[@id='FeaturesEnum']/v:guid/text()}</value>     </pattern>
+          <pattern><key>@PinCodingEnumGUID</key>   <value>${../../../../../v:type[@id='PinCodingEnum']/v:guid/text()}</value>    </pattern>
+          <pattern><key>@AttributesEnumGUID</key>  <value>${../../../../../v:type[@id='AttributesEnum']/v:guid/text()}</value>   </pattern>
+
+          <pattern><key>@smardcardGUID</key>       <value>${../../../../../v:type[@id='Smartcard']/v:guid/text()}</value>        </pattern>
+          <pattern><key>@atrGUID</key>             <value>${../../../../../v:type[@id="ATR"]/v:guid/text()}</value>              </pattern>
+          <pattern><key>@walletGUID</key>          <value>${../../../../../v:type[@id="Wallet"]/v:guid/text()}</value>           </pattern>
+        </patch>
+
+        <patch template="ibvr20983-0007.tmpl" filename="ibvr20983-0007.odl">
+          <pattern><key>@typelibVersion</key>      <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
+          <pattern><key>@typelibGUID</key>         <value>${../../../../v:guid/text()}</value>                                   </pattern>
+          <pattern><key>@typelibName</key>         <value>${../../../../@id}</value>                                             </pattern>
+          
+          <pattern><key>@DISmartcardEventGUID</key><value>${../../../../../v:type[@id='DISmartcardEvent']/v:guid/text()}</value> </pattern>
+          <pattern><key>@IAPDUGUID</key>           <value>${../../../../../v:type[@id='IAPDU']/v:guid/text()}</value>            </pattern>
+          <pattern><key>@IATRGUID</key>            <value>${../../../../../v:type[@id='IATR']/v:guid/text()}</value>             </pattern>
+          <pattern><key>@ISmartcardGUID</key>      <value>${../../../../../v:type[@id='ISmartcard']/v:guid/text()}</value>       </pattern>
+          <pattern><key>@IWalletGUID</key>         <value>${../../../../../v:type[@id='IWallet']/v:guid/text()}</value>          </pattern>
+
+          <pattern><key>@ResponseEnumGUID</key>    <value>${../../../../../v:type[@id='ResponseEnum']/v:guid/text()}</value>     </pattern>
+          <pattern><key>@FeaturesEnumGUID</key>    <value>${../../../../../v:type[@id='FeaturesEnum']/v:guid/text()}</value>     </pattern>
+          <pattern><key>@PinCodingEnumGUID</key>   <value>${../../../../../v:type[@id='PinCodingEnum']/v:guid/text()}</value>    </pattern>
+          <pattern><key>@AttributesEnumGUID</key>  <value>${../../../../../v:type[@id='AttributesEnum']/v:guid/text()}</value>   </pattern>
 
           <pattern><key>@smardcardGUID</key>       <value>${../../../../../v:type[@id='Smartcard']/v:guid/text()}</value>        </pattern>
           <pattern><key>@atrGUID</key>             <value>${../../../../../v:type[@id="ATR"]/v:guid/text()}</value>              </pattern>
@@ -142,6 +173,15 @@
       <name>Custom Control Library</name>
       <guidid>0002</guidid>
       <filename>${filenamepattern}</filename>
+      <patch filename="bvr20983cc-ver.h">
+        <pattern><key>(^#define.+verProdVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.${../../../../../v:version/@fix}.${../../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verProdVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../../v:version/@major},${../../../../../v:version/@minor},${../../../../../v:version/@fix},${../../../../../v:version/@rev}$3</value></pattern>
+
+        <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
+
+        <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
+      </patch>
       
       <type id="LED" typeid="0011">
         <version major="1"/>

@@ -17,6 +17,7 @@
 Option explicit
 Dim fso,xmlDoc
 Dim projectPath,searchPath()
+Dim argsKey(),argsValue()
 
 Const ForReading = 1
 
@@ -28,7 +29,7 @@ Sub PatchIt(f,selectCriteria)
   Dim objNodeList,o,objPatternList,o1
   Dim key,val
   Dim key1,val1
-  Dim re(),va(),reI
+  Dim re(),va(),reI,tmpl
   
   xmlDoc.load(f)
   
@@ -43,7 +44,7 @@ Sub PatchIt(f,selectCriteria)
   If objNodeList.length>0 Then
     For Each o in objNodeList
     
-      If TypeName(o)="IXMLDOMElement" and Not IsNull(o.GetAttributeNode("template")) and Not IsNull(o.GetAttributeNode("filename")) Then
+      If TypeName(o)="IXMLDOMElement" and TypeName(o.GetAttributeNode("filename"))<>"Nothing" Then
         Set objPatternList = o.selectNodes(".//v:pattern")
         
         Redim re(objPatternList.length)
@@ -62,13 +63,19 @@ Sub PatchIt(f,selectCriteria)
           
           va(reI) = val1
           
-          re(reI).Pattern   = "(" & key1 & ")"
+          re(reI).Pattern   = key1
           re(reI).Global    = True
           
           reI = reI + 1
         Next
-
-        PatchFile o.GetAttributeNode("template").value,o.GetAttributeNode("filename").value,re,va
+        
+        Set tmpl = o.GetAttributeNode("template")
+        
+        If TypeName(tmpl)<>"Nothing" Then
+          PatchFile tmpl.value,o.GetAttributeNode("filename").value,re,va
+        Else
+          PatchFile o.GetAttributeNode("filename").value,o.GetAttributeNode("filename").value & ".new",re,va
+        End If
       End If
     Next
   End If
@@ -226,6 +233,15 @@ Function GetVarValue(e,s,evalExp)
       End If
     Next
     
+    If TypeName(argsKey)<>"Nothing" and IsArray(argsKey) Then
+      For i=LBound(argsKey) to UBound(argsKey)-1
+        If argsKey(i)=s Then
+          GetVarValue = argsValue(i)
+          Exit Function
+        End If
+      Next
+    End If
+    
     selectQuery = "/v:versions/v:parameter[@name='" & s &"']/text()"
 
     Set node = e.selectSingleNode(selectQuery)
@@ -333,4 +349,65 @@ Function FindFile(filename)
   
   FindFile = result
 End Function
+
+'
+' GetInfo starts external program and returns stdout
+'
+Function ExecuteProgram(cmd)
+  Dim WshShell, oExec,cmdOut
+
+  Set WshShell = CreateObject("WScript.Shell")
+  Set oExec    = WshShell.Exec(cmd)
+
+  cmdOut = ""
+  
+  Do While True
+    If Not oExec.StdOut.AtEndOfStream Then
+      cmdOut = cmdOut & oExec.StdOut.ReadAll
+    Else
+      Exit Do
+    End If
+
+    WScript.Sleep 10
+  Loop
+  
+  Do While oExec.Status = 0
+    WScript.Sleep 100
+  Loop
+  
+  'WScript.Echo "cmdOut=" & cmdOut
+  
+  ExecuteProgram = cmdOut
+End Function
+
+'
+' GetSvnInfo
+'
+Function GetSvnInfo(f)
+  xmlDoc.loadXml(ExecuteProgram("svn info --xml " & f))
+  
+  Set GetSvnInfo = xmlDoc.documentElement
+End Function
+
+
+'
+' Get subversion revision of commit date of file f
+'
+Sub GetRevisionAndDate(f)
+  Dim doc,d,rev
+
+  Set doc = GetSvnInfo(WScript.Arguments.Named.Item("File"))
+  
+  rev = doc.selectSingleNode("/info/entry/commit/@revision").nodeValue
+  d   = doc.selectSingleNode("/info/entry/commit/date/text()").text
+  
+  Redim argsKey(2)
+  Redim argsValue(2)
+  
+  argsKey(0)   = "rev"
+  argsValue(0) = rev
+
+  argsKey(1)   = "builddate"
+  argsValue(1) = d
+End Sub
 '=======================================END-OF-FILE==========================

@@ -65,6 +65,7 @@
       <xs:element name="name"      type="xs:string"/>
       <xs:element name="guidid"    type="xs:string"/>
       <xs:element name="filename"  type="xs:string"/>
+      <xs:element name="patch"     type="patchType"   minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="type"      type="typeType"    minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="typelib"   type="typelibType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
@@ -88,7 +89,7 @@
     <xs:sequence>
       <xs:element name="version"   type="versionType"/>
       <xs:element name="guid"      type="xs:string"/>
-      <xs:element name="patch"     type="patchType" minOccurs="0"/>
+      <xs:element name="patch"     type="patchType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
 
     <xs:attribute name="id"     type="xs:ID"      use="required"/>
@@ -99,7 +100,7 @@
       <xs:element name="pattern"   type="patternType" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
 
-    <xs:attribute name="template"  type="xs:string" use="required"/>
+    <xs:attribute name="template"  type="xs:string"/>
     <xs:attribute name="filename"  type="xs:string" use="required"/>
   </xs:complexType>
 
@@ -114,7 +115,7 @@
     <xs:attribute name="major" type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="minor" type="xs:nonNegativeInteger" />
     <xs:attribute name="fix"   type="xs:nonNegativeInteger" />
-    <xs:attribute name="rev"   type="xs:string" />
+    <xs:attribute name="rev"   type="revType" />
   </xs:complexType>
 
 
@@ -128,6 +129,12 @@
   <xs:simpleType name="guidTYPE">
     <xs:restriction base="xs:string">
       <xs:pattern value="[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="revType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{1,10}|\$\{.*\}"/>
     </xs:restriction>
   </xs:simpleType>
 

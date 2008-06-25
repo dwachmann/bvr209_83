@@ -47,12 +47,12 @@
 #include "bvr20983-dispid.h"
 
  
-[ uuid(BFE20983-0002-0001-0110-0000-0001FFFF), 
+[ uuid(@typelibGUID), 
   helpstring("BVR20983 Type Library"), 
-  lcid(0x0000), 
-  version(1.0)
+  lcid(1031), 
+  version(@typelibVersion)
 ]
-library BVR20983SC
+library @typelibName
 {
   importlib("STDOLE32.TLB");
 
@@ -63,82 +63,82 @@ library BVR20983SC
   /**
    * Event Interface
    */
-  [ uuid(BFE20983-0002-0001-0110-0004-00010001), 
-    helpstring("Definition of Dispatch ISmartcard event interface")
+  [ uuid(@DISmartcardEventGUID), 
+    helpstring("Definition der ISmartcard Ereignisschnittstelle")
   ]
   dispinterface DISmartcardEvent
   { properties:
     methods:
-      [id(DISPID_ONINSERTED),helpstring("Card was inserted")]
-      void OnInserted();
+      [id(DISPID_ONINSERTED),helpstring("Karte wurde eingefuehrt")]
+      void WurdeEingefuehrt();
   
-      [id(DISPID_ONREMOVED),helpstring("Card was removed")]
-      void OnRemoved();
+      [id(DISPID_ONREMOVED),helpstring("Karte wurde entfernt")]
+      void WurdeEntfernt();
 
-      [id(DISPID_ONRECEIVED),helpstring("Response to Command")]
-      void OnReceived(IUnknown* pAPDU);
+      [id(DISPID_ONRECEIVED),helpstring("Kommando wurde empfangen")]
+      void WurdeEmpfangen(IUnknown* pAPDU);
   }
 
-  [ uuid(BFE20983-0002-0001-0110-0002-00010001),
-    helpstring("ApplicationProtocolDataUnit Type"),
+  [ uuid(@IAPDUGUID),
+    helpstring("ApplicationProtocolDataUnit Typ"),
     oleautomation,
     dual
   ]
   interface IAPDU : IDispatch                         
   { 
     typedef
-    [ uuid(BFE20983-0002-0001-0110-0020-00010001),
-      helpstring("Constants for Resonse Type")
+    [ uuid(@ResponseEnumGUID),
+      helpstring("Konstanten fure Antworttyp")
     ]
     enum ResponseType 
-    { [helpstring("Raw response")]           RAW_RESPONSE =0x01,
-      [helpstring("TagLengthValue respone")] TLV_RESPONSE =0x02
+    { [helpstring("Raw Antwort")]           RAW_RESPONSE =0x01,
+      [helpstring("TagLengthValue Antwort")] TLV_RESPONSE =0x02
     } ResponseType;
     
-    [propget, id(0), helpstring("Get class Byte")]
+    [propget, id(0), helpstring("Hole class Byte")]
     HRESULT Class([out, retval] byte *pCls);
-    [propput, id(0), helpstring("Set class Byte")]
+    [propput, id(0), helpstring("Setze class Byte")]
     HRESULT Class([in] byte cls);
 
-    [propget, helpstring("get instruction Byte")]
+    [propget, helpstring("Hole instruction Byte")]
     HRESULT Ins([out, retval] byte *pIns);
-    [propput, helpstring("set instruction Byte")]
+    [propput, helpstring("Setze instruction Byte")]
     HRESULT Ins([in] byte ins);
 
-    [propget, helpstring("get p1 Byte")]
+    [propget, helpstring("Hole p1 Byte")]
     HRESULT P1([out, retval] byte *pP1);
-    [propput, helpstring("set p1 Byte")]
+    [propput, helpstring("Setze p1 Byte")]
     HRESULT P1([in] byte p1);
 
-    [propget, helpstring("get p2 Byte")]
+    [propget, helpstring("Hole p2 Byte")]
     HRESULT P2([out, retval] byte *pP2);
-    [propput, helpstring("set p2 Byte")]
+    [propput, helpstring("Setze p2 Byte")]
     HRESULT P2([in] byte p2);
 
-    [propget, helpstring("get expected length")]
+    [propget, helpstring("Hole expected length")]
     HRESULT Le([out, retval] byte *pLe);
-    [propput, helpstring("set expected length")]
+    [propput, helpstring("Setze expected length")]
     HRESULT Le([in] byte le);
 
-    [propget, helpstring("get responsetype")]
+    [propget, helpstring("Hole responsetype")]
     HRESULT ResponseType([out, retval] ResponseType *pResonseType);
-    [propput, helpstring("set responsetype")]
+    [propput, helpstring("Setze responsetype")]
     HRESULT ResponseType([in] ResponseType resonseType);
 
-    [propget, helpstring("get responsecode")]
+    [propget, helpstring("Hole responsecode")]
     HRESULT ResponseCode([out, retval] unsigned short *pResponseCode);
 
-    [propget, helpstring("Returns a collection of response blocks.")]
+    [propget, helpstring("Gibt eine Antwortblock-Liste zurueck.")]
     HRESULT Response([out, retval] IUnknown** ppResonse);    
   }
 
-  [ uuid(BFE20983-0002-0001-0110-0002-00020001),
-    helpstring("AnswerToReset Type"),
+  [ uuid(@IATRGUID),
+    helpstring("AnswerToReset Typ"),
     oleautomation,
     dual
   ]
   interface IATR : IDispatch                         
-  { [propget, id(0), helpstring("Raw information")]
+  { [propget, id(0), helpstring("Raw Information")]
     HRESULT Raw([out, retval] BSTR *pBSTRHistory);
 
     [propget, helpstring("History Information")]
@@ -154,15 +154,15 @@ library BVR20983SC
     HRESULT D([out, retval] unsigned long *pD);
   }
 
-  [ uuid(BFE20983-0002-0001-0110-0002-00030001), 
+  [ uuid(@ISmartcardGUID), 
     helpstring("ISmartcard Type"), 
     oleautomation, 
     dual
   ]
   interface ISmartcard : IDispatch
   { typedef
-    [ uuid(BFE20983-0002-0001-0110-0020-00020001),
-      helpstring("Constants for terminal features")
+    [ uuid(@FeaturesEnumGUID),
+      helpstring("Konstanten fuer Terminal Funktionalitaeten")
     ]
     enum Features 
     { [helpstring("Verify a PIN start")]  FEATURE_VERIFY_PIN_START =0x01, /* OMNIKEY Proposal    */
@@ -179,17 +179,17 @@ library BVR20983SC
     } Features;
 
     typedef
-    [ uuid(BFE20983-0002-0001-0110-0020-00030001),
-      helpstring("Constants for terminal features")
+    [ uuid(@PinCodingEnumGUID),
+      helpstring("Konstanten fuer PIN Kodierung")
     ]
     enum PinCoding 
-    { [helpstring("BCD PIN coding for verification/modification")]   BCD  =0x01,
-      [helpstring("ASCII PIN coding for verification/modification")] ASCII=0x02
+    { [helpstring("BCD PIN Kodierung fuer verification/modification")]   BCD  =0x01,
+      [helpstring("ASCII PIN Kodierung fuer verification/modification")] ASCII=0x02
     } PinCoding;
 
     typedef
-    [ uuid(BFE20983-0002-0001-0110-0020-00040001),
-      helpstring("Constants for terminal features")
+    [ uuid(@AttributesEnumGUID),
+      helpstring("Konstanten fuer Attribute")
     ]
     enum Attributes 
     { [helpstring("ATR STRING")]            ATR_STRING            = 0x01,
@@ -218,49 +218,49 @@ library BVR20983SC
       [helpstring("VENDOR NAME")]           VENDOR_NAME           = 0x17
     } Attributes;
 
-    [propget, helpstring("get the smartcard ATR")]
+    [propget, helpstring("Hole Karten-ATR")]
     HRESULT ATR([out, retval] IUnknown** ppATR);
 
-    [propget, helpstring("Test, if a smartcard is present")]
-    HRESULT CardPresent([out, retval] VARIANT_BOOL* pIsCardPresent);
+    [propget, helpstring("Pruefe, ob Karte vorhanden ist")]
+    HRESULT KarteVerfuegbar([out, retval] VARIANT_BOOL* pIsCardPresent);
 
     [propget, helpstring("Returns a collection of all applications on smartcard.")]
-    HRESULT Applications([out, retval] IUnknown** retval);    
+    HRESULT Anwendungen([out, retval] IUnknown** retval);    
 
     [propget, helpstring("Returns a collection of all registered smartcards.")]
     HRESULT RegisteredCards([out, retval] IUnknown** retval);    
 
     [propget, helpstring("Returns a collection of all known readers.")]
-    HRESULT Readers([out, retval] IUnknown** retval);    
+    HRESULT Kartenleser([out, retval] IUnknown** retval);    
 
     [helpstring("Test, if attribute is supported.")]
     HRESULT Attribute([in] Attributes attrib,[out, retval] BSTR* pAttribute);    
 
     [helpstring("Test, if terminal has feature")]
-    HRESULT Feature([in] Features feature,[out, retval] VARIANT_BOOL* pHasFeature);
+    HRESULT Funktionalitaeten([in] Features feature,[out, retval] VARIANT_BOOL* pHasFeature);
 
     [helpstring("Wait for Card Insert Event")]
-    HRESULT WaitForInsertEvent([in, defaultvalue(0)] unsigned short timeInSeconds);
+    HRESULT WarteBisKarteEingefuehrtIst([in, defaultvalue(0)] unsigned short timeInSeconds);
 
     [helpstring("Wait for Card Remove Event")]
-    HRESULT WaitForRemoveEvent([in, defaultvalue(0)] unsigned short timeInSeconds);
+    HRESULT WarteBisKarteEntferntWurde([in, defaultvalue(0)] unsigned short timeInSeconds);
 
     [helpstring("Output text on terminal")]
-    HRESULT OutputText([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
+    HRESULT TextAusgabe([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
 
     [helpstring("Input text on terminal")]
-    HRESULT InputText([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
+    HRESULT TextEingabe([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
 
     [helpstring("Transmit APDU to smartcard")]
-    HRESULT Transmit([in] IUnknown* pAPDU,
-                     [out] unsigned long* pCmdNo,
-                     [in, defaultvalue(0)] VARIANT_BOOL async,
-                     [in, defaultvalue(0)] VARIANT_BOOL genMac
-                    );
+    HRESULT Uebertrage([in] IUnknown* pAPDU,
+                       [out] unsigned long* pCmdNo,
+                       [in, defaultvalue(0)] VARIANT_BOOL async,
+                       [in, defaultvalue(0)] VARIANT_BOOL genMac
+                      );
   }
 
-  [ uuid(BFE20983-0002-0001-0110-0010-00010001), 
-    helpstring("BVR20983 Smartcard Type"),
+  [ uuid(@smardcardGUID), 
+    helpstring("BVR20983 Smartcard Typ"),
     version(1.0)
   ]
   coclass Smartcard
@@ -271,26 +271,26 @@ library BVR20983SC
   /**
    * Wallet Application Interfaces
    */
-  [ uuid(BFE20983-0002-0001-0110-0002-00030001), 
-    helpstring("Wallet Application"), 
+  [ uuid(@IWalletGUID), 
+    helpstring("Geldboersenanwendung"), 
     oleautomation, 
     dual
   ]
   interface IWallet : IDispatch
-  { [propget, helpstring("The Wallet Balance")]
-    HRESULT Balance([out, retval] short* pBalance);
+  { [propget, helpstring("Kontostand")]
+    HRESULT Kontostand([out, retval] short* pBalance);
 
-    [helpstring("Add money to wallet")]
-    HRESULT Credit([in] short amount);
+    [helpstring("Schreibt einen Geldbetrag der Geldboerse gut")]
+    HRESULT Gutschreiben([in] short amount);
 
-    [helpstring("withdraw money from wallet")]
-    HRESULT Debit([in] short amount);
+    [helpstring("Hebt einen Geldbetrag von der Geldboerse ab")]
+    HRESULT Abhebung([in] short amount);
 
-    [helpstring("verify the card holder")]
-    HRESULT Verify([in] BSTR pin);
+    [helpstring("Authentifiziert des Geldboerseninhaber")]
+    HRESULT Authentifizieren([in] BSTR pin);
   }
 
-  [ uuid(BFE20983-0002-0001-0110-0010-00020001), 
+  [ uuid(@atrGUID), 
     helpstring("ATR Object"),
     restricted,
     noncreatable
@@ -299,7 +299,7 @@ library BVR20983SC
   { [default]         interface     IATR;
   }
 
-  [ uuid(BFE20983-0002-0001-0110-0012-00010001), 
+  [ uuid(@walletGUID), 
     helpstring("Wallet Object"),
     restricted,
     noncreatable

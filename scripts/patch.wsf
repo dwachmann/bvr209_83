@@ -46,6 +46,8 @@
       <script language="VBScript" src="libscript.vbs"/>
       <script language="VBScript">
         <![CDATA[
+          Option explicit
+          
           If WScript.Arguments.Named.Exists("File") and WScript.Arguments.Named.Exists("Select") Then
             Init
             
@@ -74,17 +76,68 @@
                  type = "string"
                  required = "true"
           />
-          <example>Example: patch.wsf /File:xmlfile /Select:select</example>
+          <example>Example: //job:patch patch.wsf /File:xmlfile /Select:select</example>
       </runtime>
 
       <script language="VBScript" src="libscript.vbs"/>
       <script language="VBScript">
         <![CDATA[
+          Option explicit
+          
           If WScript.Arguments.Named.Exists("File") and WScript.Arguments.Named.Exists("Select") Then
             Init
 
             If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              GetRevisionAndDate WScript.Arguments.Named.Item("File")
+              
               PatchIt WScript.Arguments.Named.Item("File"),WScript.Arguments.Named.Item("Select")
+            Else
+              WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            End If
+          Else
+            WScript.Arguments.ShowUsage
+          End If
+        ]]>
+      </script>
+   </job>
+
+   <job id="svninfo">
+      <runtime>
+          <description>Return subversion file information</description>
+          <named name = "File"
+                 helpstring = "Name of the file that should be used for the subversion query"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //job:svninfo patch.wsf /File:xmlfile /Select:select</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          
+          Dim doc,revision,d
+          
+          If WScript.Arguments.Named.Exists("File") Then
+            Init
+
+            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              Set doc = GetSvnInfo(WScript.Arguments.Named.Item("File"))
+              
+              revision = doc.selectSingleNode("/info/entry/commit/@revision").nodeValue
+              d        = doc.selectSingleNode("/info/entry/commit/date/text()").text
+              
+              Redim argsKey(2)
+              Redim argsValue(2)
+              
+              argsKey(0)   = "rev"
+              argsValue(0) = revision
+
+              argsKey(1)   = "builddate"
+              argsValue(1) = d
+
+              WScript.Echo "d=" & GetVarValue(doc,"builddate",False) & " rev=" & GetVarValue(doc,"rev",False)
             Else
               WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
             End If

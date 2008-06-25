@@ -16,92 +16,296 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  *
- * GUID SCHEMA
- * <prefix>                <  suffix  >
- * 7dc6e86d-aaaa-bbbb-cccc-425652200983
+ * BVR Global custom GUIDs
  *
- * Typelib                 aaaa-0000-0000
- *   Types                 aaaa-bbbb-xxxx
- *     Interface                0001
- *     Interface,dual           0002
- *     DispInterface            0003
- *     DispInterface,Source     0004
- *     Coclass                  0010
- *     Coclass Control          0011
- *     Coclass noncreatable     0012
- *     Enum                     0020
- *     Custom GUID              1000
+ * CUST_MISCSTATUS    = 7dc6e86d-0000-1000-0001-425652200983
+ * CUST_TOOLBOXBITMAP = 7dc6e86d-0000-1000-0002-425652200983
+ * CUST_CATID         = 7dc6e86d-0000-1000-1xxx-425652200983
  *
- * xxxx: serial number
- */
+ * CATID_Insertable                      = 0x00
+ * CATID_Control                         = 0x01
+ * CATID_Programmable                    = 0x02
+ * CATID_IsShortcut                      = 0x03
+ * CATID_NeverShowExt                    = 0x04
+ * CATID_DocObject                       = 0x05
+ * CATID_Printable                       = 0x06
+ * CATID_RequiresDataPathHost            = 0x07
+ * CATID_PersistsToMoniker               = 0x08
+ * CATID_PersistsToStorage               = 0x09
+ * CATID_PersistsToStreamInit            = 0x0a
+ * CATID_PersistsToStream                = 0x0b
+ * CATID_PersistsToMemory                = 0x0c
+ * CATID_PersistsToFile                  = 0x0d
+ * CATID_PersistsToPropertyBag           = 0x0e
+ * CATID_InternetAware                   = 0x0f
+ * CATID_DesignTimeUIActivatableControl  = 0x10
+ * CATID_SafeForInitializing             = 0x11
+ * CATID_SafeForScripting                = 0x12
+ * CATID_PropertyNotifyControl           = 0x13
+ * CATID_SimpleFrameControl              = 0x14
+*/
+#include "bvr20983-dispid.h"
 
-[ uuid(7dc6e86d-0001-0000-0000-425652200983), 
+ 
+[ uuid(BFE20983-0002-0001-0110-0000-0001FFFF), 
+  helpstring("BVR20983 Type Library"), 
   lcid(1031), 
-  helpstring("BVR20983 Typenbibliothek"), 
   version(1.0)
 ]
-library BVR20983
+library BVR20983SC
 {
   importlib("STDOLE32.TLB");
 
-  [ uuid(7dc6e86d-0001-0002-0000-425652200983), 
-    helpstring("Chipkarten-Schnittstellendefinition"), 
+  #define DISPID_LISTITEM     0
+  #define DISPID_LISTCOUNT    (-531)
+  #define DISPID_NEWENUM      (-4)
+
+  /**
+   * Event Interface
+   */
+  [ uuid(BFE20983-0002-0001-0110-0004-00010001), 
+    helpstring("Definition der ISmartcard Ereignisschnittstelle")
+  ]
+  dispinterface DISmartcardEvent
+  { properties:
+    methods:
+      [id(DISPID_ONINSERTED),helpstring("Karte wurde eingefuehrt")]
+      void WurdeEingefuehrt();
+  
+      [id(DISPID_ONREMOVED),helpstring("Karte wurde entfernt")]
+      void WurdeEntfernt();
+
+      [id(DISPID_ONRECEIVED),helpstring("Kommando wurde empfangen")]
+      void WurdeEmpfangen(IUnknown* pAPDU);
+  }
+
+  [ uuid(BFE20983-0002-0001-0110-0002-00010001),
+    helpstring("ApplicationProtocolDataUnit Typ"),
+    oleautomation,
+    dual
+  ]
+  interface IAPDU : IDispatch                         
+  { 
+    typedef
+    [ uuid(BFE20983-0002-0001-0110-0020-00010001),
+      helpstring("Konstanten fure Antworttyp")
+    ]
+    enum ResponseType 
+    { [helpstring("Raw Antwort")]           RAW_RESPONSE =0x01,
+      [helpstring("TagLengthValue Antwort")] TLV_RESPONSE =0x02
+    } ResponseType;
+    
+    [propget, id(0), helpstring("Hole class Byte")]
+    HRESULT Class([out, retval] byte *pCls);
+    [propput, id(0), helpstring("Setze class Byte")]
+    HRESULT Class([in] byte cls);
+
+    [propget, helpstring("Hole instruction Byte")]
+    HRESULT Ins([out, retval] byte *pIns);
+    [propput, helpstring("Setze instruction Byte")]
+    HRESULT Ins([in] byte ins);
+
+    [propget, helpstring("Hole p1 Byte")]
+    HRESULT P1([out, retval] byte *pP1);
+    [propput, helpstring("Setze p1 Byte")]
+    HRESULT P1([in] byte p1);
+
+    [propget, helpstring("Hole p2 Byte")]
+    HRESULT P2([out, retval] byte *pP2);
+    [propput, helpstring("Setze p2 Byte")]
+    HRESULT P2([in] byte p2);
+
+    [propget, helpstring("Hole expected length")]
+    HRESULT Le([out, retval] byte *pLe);
+    [propput, helpstring("Setze expected length")]
+    HRESULT Le([in] byte le);
+
+    [propget, helpstring("Hole responsetype")]
+    HRESULT ResponseType([out, retval] ResponseType *pResonseType);
+    [propput, helpstring("Setze responsetype")]
+    HRESULT ResponseType([in] ResponseType resonseType);
+
+    [propget, helpstring("Hole responsecode")]
+    HRESULT ResponseCode([out, retval] unsigned short *pResponseCode);
+
+    [propget, helpstring("Gibt eine Antwortblock-Liste zurueck.")]
+    HRESULT Response([out, retval] IUnknown** ppResonse);    
+  }
+
+  [ uuid(BFE20983-0002-0001-0110-0002-00020001),
+    helpstring("AnswerToReset Typ"),
+    oleautomation,
+    dual
+  ]
+  interface IATR : IDispatch                         
+  { [propget, id(0), helpstring("Raw Information")]
+    HRESULT Raw([out, retval] BSTR *pBSTRHistory);
+
+    [propget, helpstring("History Information")]
+    HRESULT History([out, retval] BSTR *pBSTRHistory);
+
+    [propget, helpstring("F ATR Info")]
+    HRESULT F([out, retval] unsigned long *pF);
+
+    [propget, helpstring("FMax ATR Info")]
+    HRESULT FMax([out, retval] unsigned long *pFMax);
+
+    [propget, helpstring("D ATR Info")]
+    HRESULT D([out, retval] unsigned long *pD);
+  }
+
+  [ uuid(BFE20983-0002-0001-0110-0002-00030001), 
+    helpstring("ISmartcard Type"), 
     oleautomation, 
     dual
   ]
   interface ISmartcard : IDispatch
-  {
-    [propget, helpstring("Die Chipkarten-ATR")]
-    HRESULT KartenID([out, retval] BSTR *pBSTRCardID);
+  { typedef
+    [ uuid(BFE20983-0002-0001-0110-0020-00020001),
+      helpstring("Konstanten fuer Terminal Funktionalitaeten")
+    ]
+    enum Features 
+    { [helpstring("Verify a PIN start")]  FEATURE_VERIFY_PIN_START =0x01, /* OMNIKEY Proposal    */
+      [helpstring("Verify a PIN finish")] FEATURE_VERIFY_PIN_FINISH=0x02, /* OMNIKEY Proposal    */
+      [helpstring("Modify a PIN start")]  FEATURE_MODIFY_PIN_START =0x03, /* OMNIKEY Proposal    */
+      [helpstring("Modify a PIN finish")] FEATURE_MODIFY_PIN_FINISH=0x04, /* OMNIKEY Proposal    */
+      [helpstring("Get Key Pressed")]     FEATURE_GET_KEY_PRESSED  =0x05, /* OMNIKEY Proposal    */
+      [helpstring("Verify PIN direct")]   FEATURE_VERIFY_PIN_DIRECT=0x06, /* USB CCID PIN Verify */
+      [helpstring("Modify PIN direct")]   FEATURE_MODIFY_PIN_DIRECT=0x07, /* USB CCID PIN Modify */
+      [helpstring("MCT Reader direct")]   FEATURE_MCT_READERDIRECT =0x08, /* KOBIL Proposal      */
+      [helpstring("MCT Universal")]       FEATURE_MCT_UNIVERSAL    =0x09, /* KOBIL Proposal      */
+      [helpstring("IFD PIN Proposal")]    FEATURE_IFD_PIN_PROP     =0x0A, /* Gemplus Proposal    */
+      [helpstring("Abort")]               FEATURE_ABORT            =0x0B  /* SCM Proposal        */
+    } Features;
 
-    [propget, helpstring("Testet, ob sich eine Chipkarte im Terminal befindet")]
-    HRESULT KarteVerfügbar([out, retval] VARIANT_BOOL* pIsCardPresent);
+    typedef
+    [ uuid(BFE20983-0002-0001-0110-0020-00030001),
+      helpstring("Konstanten fuer PIN Kodierung")
+    ]
+    enum PinCoding 
+    { [helpstring("BCD PIN Kodierung fuer verification/modification")]   BCD  =0x01,
+      [helpstring("ASCII PIN Kodierung fuer verification/modification")] ASCII=0x02
+    } PinCoding;
 
-    [helpstring("Wartet die angegebene Zeit auf das Einführen einer Chipkarte in das Terminal")]
-    HRESULT WarteAufKarte([in] short timeInSeconds);
+    typedef
+    [ uuid(BFE20983-0002-0001-0110-0020-00040001),
+      helpstring("Konstanten fuer Attribute")
+    ]
+    enum Attributes 
+    { [helpstring("ATR STRING")]            ATR_STRING            = 0x01,
+      [helpstring("CHARACTERISTICS")]       CHARACTERISTICS       = 0x02,
+      [helpstring("CURRENT IFSC")]          CURRENT_IFSC          = 0x03,
+      [helpstring("CURRENT IFSD")]          CURRENT_IFSD          = 0x04,
+      [helpstring("CURRENT PROTOCOL TYPE")] CURRENT_PROTOCOL_TYPE = 0x05,
+      [helpstring("DEFAULT CLK")]           DEFAULT_CLK           = 0x06,
+      [helpstring("DEFAULT DATA RATE")]     DEFAULT_DATA_RATE     = 0x07,
+      [helpstring("DEVICE FRIENDLY NAME")]  DEVICE_FRIENDLY_NAME  = 0x08,
+      [helpstring("DEVICE IN USE")]         DEVICE_IN_USE         = 0x09,
+      [helpstring("DEVICE SYSTEM NAME")]    DEVICE_SYSTEM_NAME    = 0x00,
+      [helpstring("DEVICE UNIT")]           DEVICE_UNIT           = 0x0a,
+      [helpstring("ICC INTERFACE STATUS")]  ICC_INTERFACE_STATUS  = 0x0b,
+      [helpstring("ICC PRESENCE")]          ICC_PRESENCE          = 0x0c,
+      [helpstring("ICC TYPE PER ATR")]      ICC_TYPE_PER_ATR      = 0x0d,
+      [helpstring("MAX CLK")]               MAX_CLK               = 0x0e,
+      [helpstring("MAX DATA RATE")]         MAX_DATA_RATE         = 0x0f,
+      [helpstring("MAX IFSD")]              MAX_IFSD              = 0x10,
+      [helpstring("POWER MGMT SUPPORT")]    POWER_MGMT_SUPPORT    = 0x11,
+      [helpstring("PROTOCOL TYPES")]        PROTOCOL_TYPES        = 0x12,
+      [helpstring("CHANNEL ID")]            CHANNEL_ID            = 0x13,
+      [helpstring("VENDOR IFD SERIAL NO")]  VENDOR_IFD_SERIAL_NO  = 0x14,
+      [helpstring("VENDOR IFD TYPE")]       VENDOR_IFD_TYPE       = 0x15,
+      [helpstring("VENDOR IFD VERSION")]    VENDOR_IFD_VERSION    = 0x16,
+      [helpstring("VENDOR NAME")]           VENDOR_NAME           = 0x17
+    } Attributes;
+
+    [propget, helpstring("Hole Karten-ATR")]
+    HRESULT ATR([out, retval] IUnknown** ppATR);
+
+    [propget, helpstring("Pruefe, ob Karte vorhanden ist")]
+    HRESULT KarteVerfuegbar([out, retval] VARIANT_BOOL* pIsCardPresent);
+
+    [propget, helpstring("Returns a collection of all applications on smartcard.")]
+    HRESULT Anwendungen([out, retval] IUnknown** retval);    
+
+    [propget, helpstring("Returns a collection of all registered smartcards.")]
+    HRESULT RegisteredCards([out, retval] IUnknown** retval);    
+
+    [propget, helpstring("Returns a collection of all known readers.")]
+    HRESULT Kartenleser([out, retval] IUnknown** retval);    
+
+    [helpstring("Test, if attribute is supported.")]
+    HRESULT Attribute([in] Attributes attrib,[out, retval] BSTR* pAttribute);    
+
+    [helpstring("Test, if terminal has feature")]
+    HRESULT Funktionalitaeten([in] Features feature,[out, retval] VARIANT_BOOL* pHasFeature);
+
+    [helpstring("Wait for Card Insert Event")]
+    HRESULT WarteBisKarteEingefuehrtIst([in, defaultvalue(0)] unsigned short timeInSeconds);
+
+    [helpstring("Wait for Card Remove Event")]
+    HRESULT WarteBisKarteEntferntWurde([in, defaultvalue(0)] unsigned short timeInSeconds);
+
+    [helpstring("Output text on terminal")]
+    HRESULT TextAusgabe([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
+
+    [helpstring("Input text on terminal")]
+    HRESULT TextEingabe([in] BSTR text,[in, defaultvalue(0)] byte timeInSeconds);
+
+    [helpstring("Transmit APDU to smartcard")]
+    HRESULT Uebertrage([in] IUnknown* pAPDU,
+                       [out] unsigned long* pCmdNo,
+                       [in, defaultvalue(0)] VARIANT_BOOL async,
+                       [in, defaultvalue(0)] VARIANT_BOOL genMac
+                      );
   }
 
-  [ uuid(7dc6e86d-0001-0004-0001-425652200983), 
-    helpstring("Definition of Dispatch ISmartcard event interface")
-  ]
-  dispinterface DISmartcardEvent
-  { 
-    properties:
-    methods:
-      [id(0x1),helpstring("Chipkarte wurde eingefuehrt")]
-      void WurdeEingeführt();
-  
-      [id(0x2),helpstring("Chipkarte wurde entfernt")]
-      void WurdeEntfernt();
-  }
-
-  [ uuid(7dc6e86d-0001-0010-0000-425652200983), 
-    helpstring("Chipkarten-Objekt Typinformation")
+  [ uuid(BFE20983-0002-0001-0110-0010-00010001), 
+    helpstring("BVR20983 Smartcard Typ"),
+    version(1.0)
   ]
   coclass Smartcard
-  {
-    [default]         interface      ISmartcard;
+  { [default]         interface     ISmartcard;
     [default, source] dispinterface DISmartcardEvent;
   }
- 
-  [ uuid(7dc6e86d-0001-0002-0005-425652200983), 
-    helpstring("Geldbörsen-Schnittstellendefinition"), 
+
+  /**
+   * Wallet Application Interfaces
+   */
+  [ uuid(BFE20983-0002-0001-0110-0002-00030001), 
+    helpstring("Geldboersenanwendung"), 
     oleautomation, 
     dual
   ]
   interface IWallet : IDispatch
-  {
-    [propget, helpstring("Der Geldbörsensaldo")]
+  { [propget, helpstring("Kontostand")]
     HRESULT Kontostand([out, retval] short* pBalance);
 
-    [helpstring("Fügt einen Geldbetrag der Geldbörse hinzu")]
+    [helpstring("Schreibt einen Geldbetrag der Geldboerse gut")]
     HRESULT Gutschreiben([in] short amount);
 
-    [helpstring("Entnimmt einen Geldbetrag der Geldbörse")]
-    HRESULT Abbuchen([in] short amount);
+    [helpstring("Hebt einen Geldbetrag von der Geldboerse ab")]
+    HRESULT Abhebung([in] short amount);
 
-    [helpstring("Authentifiziert den Geldbörseninhaber")]
+    [helpstring("Authentifiziert des Geldboerseninhaber")]
     HRESULT Authentifizieren([in] BSTR pin);
+  }
+
+  [ uuid(BFE20983-0002-0001-0110-0010-00020001), 
+    helpstring("ATR Object"),
+    restricted,
+    noncreatable
+  ]
+  coclass ATR
+  { [default]         interface     IATR;
+  }
+
+  [ uuid(BFE20983-0002-0001-0110-0012-00010001), 
+    helpstring("Wallet Object"),
+    restricted,
+    noncreatable
+  ]
+  coclass Wallet
+  { [default]         interface     IWallet;
   }
 };
 //============================END-OF-FILE=============================
