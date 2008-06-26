@@ -92,7 +92,7 @@ namespace bvr20983
      */
 #pragma warning(disable:4355)
     COSmartcard::COSmartcard(IUnknown* pUnkOuter) 
-      : CODispatch(pUnkOuter,(ISmartcard*)this,LIBID_BVR20983,IID_ISmartcard,CLSID_Smartcard,DIID_DISmartcardEvent),
+      : CODispatch(pUnkOuter,(ISmartcard*)this,LIBID_BVR20983SC,IID_ISmartcard,CLSID_Smartcard,DIID_DISmartcardEvent),
         m_workingThread(this,true)
     { m_pApplications         = NULL;
       m_pRegisteredCards      = NULL;

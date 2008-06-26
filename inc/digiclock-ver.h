@@ -19,16 +19,17 @@
 #if !defined(DIGICLOCKVER_H)
 #define DIGICLOCKVER_H
 
-#include "bvr20983-prod.h"
+#define verProdName    "BVR2098 Suite"
+#define verCompName    "Dorothea Wachmann"
+#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
+#define verProdVer     2,0,0,42
+#define verProdVer1    "2.0.0.42"
 
-#define verProdVer     1,0,0,21
-#define verProdVer1    "1.0.0.21"
-
-#define verFileVer     1,0,0,22
-#define verFileVer1    "1.0.0.22"
+#define verFileVer     1,0,0,42
+#define verFileVer1    "1.0.0.42"
 #define verFileDesc    "A digital clock"
-#define verIntName     "DIGICLOCK"
-#define verOrigName    "DIGICLOCK.EXE"
-#define verMakeDate    "2008-06-13T22:53:45.999507Z"
+#define verIntName     "digiclock"
+#define verOrigName    "bvr20983.2.digiclock.1.exe"
+#define verMakeDate    "2008-06-25T00:29:17.650083Z"
 
 #endif // DIGICLOCKVER_H

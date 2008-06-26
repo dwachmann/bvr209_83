@@ -19,16 +19,17 @@
 #if !defined(BVR20983CCVER_H)
 #define BVR20983CCVER_H
 
-#include "bvr20983-prod.h"
+#define verProdName    "BVR2098 Suite"
+#define verCompName    "Dorothea Wachmann"
+#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
+#define verProdVer     112,0,0,42
+#define verProdVer1    "2.0.0.42"
 
-#define verProdVer     1,0,0,18
-#define verProdVer1    "1.0.0.18"
-
-#define verFileVer     1,0,1,20
-#define verFileVer1    "1.0.1.20"
-#define verFileDesc    "A COM Control Library"
-#define verIntName     "BVR20983CC"
-#define verOrigName    "BVR20983CC.DLL"
-#define verMakeDate    "2008-06-13T18:44:38.716033Z"
+#define verFileVer     1,0,0,42
+#define verFileVer1    "1.0.0.42"
+#define verFileDesc    "Custom Control Library"
+#define verIntName     "cc"
+#define verOrigName    "bvr20983.2.cc.1.dll"
+#define verMakeDate    "2008-06-25T00:29:17.650083Z"
 
 #endif // BVR20983CCVER_H

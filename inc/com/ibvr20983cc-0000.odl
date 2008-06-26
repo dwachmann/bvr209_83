@@ -77,7 +77,7 @@ import "ocidl.idl";
 #include "bvr20983cc-res.h"
 #include <olectl.h>
 
-[ uuid(BFE20983-0002-0002-0001-0000-0001FFFF), 
+[ uuid(BFE20983-0002-0002-0001-00000001FFFF), 
   helpstring("BVR20983 COM Control Type Library"), 
   lcid(0x0000), 
   version(1.0)
@@ -114,7 +114,7 @@ library BVR20983CC
   /**
    * Event Interface for LED control
    */
-  [ uuid(BFE20983-0002-0002-0001-0004-00010001), 
+  [ uuid(BFE20983-0002-0002-0001-000400010001), 
     helpstring("Event interface for LED control")
   ]
   dispinterface DLEDEvent
@@ -138,7 +138,7 @@ library BVR20983CC
   /**
    * primary dispatch interface for LED control
    */
-  [ uuid(BFE20983-0002-0002-0001-0002-00010001),
+  [ uuid(BFE20983-0002-0002-0001-000200010001),
     helpstring("LED Control"),
     dual,
     oleautomation
@@ -212,7 +212,7 @@ library BVR20983CC
   /**
    * coclass for LED controls
    */
-  [ uuid(BFE20983-0002-0002-0001-0011-00010001), 
+  [ uuid(BFE20983-0002-0002-0001-001100010001), 
     helpstring("BVR20983 LED Control"),
     control,
 
@@ -244,7 +244,7 @@ library BVR20983CC
   /**
    * coclass for LED PropertyPage
    */
-  [ uuid(BFE20983-0002-0002-0001-0013-00010001), 
+  [ uuid(BFE20983-0002-0002-0001-001300010001), 
     helpstring("BVR20983 LED Control PropertyPage"),
 
     // CUST_DIALOGID

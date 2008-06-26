@@ -19,7 +19,8 @@ Dim fso,xmlDoc
 Dim projectPath,searchPath()
 Dim argsKey(),argsValue()
 
-Const ForReading = 1
+Const ForReading    = 1
+Const tmpFileSuffix = ".tmp"
 
 '
 ' evaluate the patch element and patch file according to the defined regexp pattern
@@ -29,7 +30,7 @@ Sub PatchIt(f,selectCriteria)
   Dim objNodeList,o,objPatternList,o1
   Dim key,val
   Dim key1,val1
-  Dim re(),va(),reI,tmpl
+  Dim re(),va(),reI,tmpl,filename
   
   xmlDoc.load(f)
   
@@ -69,12 +70,15 @@ Sub PatchIt(f,selectCriteria)
           reI = reI + 1
         Next
         
-        Set tmpl = o.GetAttributeNode("template")
+        Set tmpl     = o.GetAttributeNode("template")
+        Set filename = o.GetAttributeNode("filename")
         
         If TypeName(tmpl)<>"Nothing" Then
-          PatchFile tmpl.value,o.GetAttributeNode("filename").value,re,va
+          PatchFile tmpl.value,filename.value,re,va
         Else
-          PatchFile o.GetAttributeNode("filename").value,o.GetAttributeNode("filename").value & ".new",re,va
+          PatchFile filename.value,filename.value & tmpFileSuffix,re,va
+          
+          MoveFile filename.value
         End If
       End If
     Next
@@ -409,5 +413,22 @@ Sub GetRevisionAndDate(f)
 
   argsKey(1)   = "builddate"
   argsValue(1) = d
+End Sub
+
+'
+' Move File
+'
+Sub MoveFile(f)
+  Dim f0,filename
+  
+  filename = FindFile(f)
+  
+  WScript.Echo "MoveFile(f="&filename&")"
+
+  Set f0 = fso.GetFile(filename)
+  f0.Delete(True)
+  
+  Set f0 = fso.GetFile(filename & tmpFileSuffix)
+  f0.Move(filename)
 End Sub
 '=======================================END-OF-FILE==========================

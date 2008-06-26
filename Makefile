@@ -22,6 +22,7 @@ DISTDIR =.\dist
 SIGNDIR =.\sign
 INCDIR  =.\inc
 HTMLDIR =.\html
+SCRIPTSDIR = .\scripts
 signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://www.jondos.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll 
 
 PROJECTS =    \
@@ -35,16 +36,23 @@ lstypeinfo\~  \
 !ifdef clean
 all: $(PROJECTS) clean
 !else
-all: $(PROJECTS)
+all: $(PROJECTS) 
 !endif
 
-distribute: $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\digiclock.exe $(SIGNDIR)\bvr20983.cab
-  @copy $(HTMLDIR)\led.*        $(DISTDIR)
-  @copy $(HTMLDIR)\*.jpg        $(DISTDIR)
-  @copy $(SIGNDIR)\bvr20983.cab $(DISTDIR)
+distribute: $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\digiclock.exe $(SIGNDIR)\bvr20983.2.cab
+  @copy $(HTMLDIR)\led.*          $(DISTDIR)
+  @copy $(HTMLDIR)\*.jpg          $(DISTDIR)
+  @copy $(SIGNDIR)\bvr20983.2.cab $(DISTDIR)
 
-$(SIGNDIR)\bvr20983.cab: $(SIGNDIR)\bvr20983.dll $(SIGNDIR)\bvr20983cc.dll $(INCDIR)\bvr20983.inf
-	@$(cab) -s 6144 N $@ $?
+patch:
+  cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/"
+
+$(SIGNDIR)\bvr20983.2.cab: $(SIGNDIR)\bvr20983.dll $(SIGNDIR)\bvr20983cc.dll $(INCDIR)\bvr20983.inf
+  @REN $(SIGNDIR)\bvr20983cc.dll bvr20983.2.cc.1.dll
+  @REN $(SIGNDIR)\bvr20983.dll   bvr20983.2.sc.1.dll
+	@$(cab) -s 6144 N $@ $(SIGNDIR)\bvr20983.2.cc.1.dll $(SIGNDIR)\bvr20983.2.sc.1.dll $(INCDIR)\bvr20983.inf
 	@$(sign) $(signvars) /p $(signpwd) $@
+
+all1: patch $(PROJECTS) distribute $(SIGNDIR)\bvr20983.2.cab
 
 !include <./inc/bvr.inc>
