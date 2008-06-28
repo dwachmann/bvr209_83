@@ -27,7 +27,7 @@ $(OUTDIR)\bvr20983cc.res
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983cc-0000.tlb $(SLNDIR)\bvr20983cc.dll
+all: $(OUTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983cc-0000.tlb $(SLNDIR)\$(BVR20983CC_RESULT).dll
 !endif
 
 $(OUTDIR)\ibvr20983cc.h $(OUTDIR)\ibvr20983ccguid.c $(OUTDIR)\ibvr20983cc-0000.tlb: $(INCDIR)\com\ibvr20983cc-0000.odl
@@ -36,16 +36,16 @@ $(OUTDIR)\ibvr20983cc.h $(OUTDIR)\ibvr20983ccguid.c $(OUTDIR)\ibvr20983cc-0000.t
 $(OUTDIR)\bvr20983cc.res: $(RESDIR)\bvr20983cc.rc $(OUTDIR)\ibvr20983cc-0000.tlb
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983cc.rc
 
-$(OUTDIR)\bvr20983cc.dll: $(OBJS) $(INCDIR)\bvr20983cc.def
+$(OUTDIR)\$(BVR20983CC_RESULT).dll: $(OBJS) $(INCDIR)\bvr20983cc.def
   $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983cc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $(OBJS)
 
-$(SLNDIR)\bvr20983cc.dll $(SLNDIR)\bvr20983cc.lib: $(OUTDIR)\bvr20983cc.dll
-  @copy $(OUTDIR)\bvr20983cc.dll $(SLNDIR)
-  @copy $(OUTDIR)\bvr20983cc.lib $(SLNDIR)
+$(SLNDIR)\$(BVR20983CC_RESULT).dll $(SLNDIR)\$(BVR20983CC_RESULT).lib: $(OUTDIR)\$(BVR20983CC_RESULT).dll
+  @copy $(OUTDIR)\$(BVR20983CC_RESULT).dll $(SLNDIR)
+  @copy $(OUTDIR)\$(BVR20983CC_RESULT).lib $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\bvr20983cc.dll del /q $(SLNDIR)\bvr20983cc.dll
-  if exist $(SLNDIR)\bvr20983cc.lib del /q $(SLNDIR)\bvr20983cc.lib
+  if exist $(SLNDIR)\$(BVR20983CC_RESULT).dll del /q $(SLNDIR)\$(BVR20983CC_RESULT).dll
+  if exist $(SLNDIR)\$(BVR20983CC_RESULT).lib del /q $(SLNDIR)\$(BVR20983CC_RESULT).lib
 
 !include <../inc/Makefile.rule>

@@ -54,6 +54,8 @@
       <xs:element name="guidid"    type="xs:string"/>
       <xs:element name="company"   type="xs:string"/>
       <xs:element name="copyright" type="xs:string"/>
+      <xs:element name="filename"  type="xs:string"/>
+      <xs:element name="patch"     type="patchType"     minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="component" type="componentType" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="id"     type="xs:ID"      use="required"/>

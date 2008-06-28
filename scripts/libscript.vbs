@@ -17,7 +17,7 @@
 Option explicit
 Dim fso,xmlDoc
 Dim projectPath,searchPath()
-Dim argsKey(),argsValue()
+Dim argsKey,argsValue
 
 Const ForReading    = 1
 Const tmpFileSuffix = ".tmp"
@@ -237,7 +237,7 @@ Function GetVarValue(e,s,evalExp)
       End If
     Next
     
-    If TypeName(argsKey)<>"Nothing" and IsArray(argsKey) Then
+    If IsArray(argsKey) Then
       For i=LBound(argsKey) to UBound(argsKey)-1
         If argsKey(i)=s Then
           GetVarValue = argsValue(i)
@@ -329,6 +329,7 @@ Sub Init
   searchPath(0) = "inc\"
   searchPath(1) = "inc\ver\"
   searchPath(1) = "inc\com\"
+  searchPath(1) = "html\"
 End Sub
 
 '
@@ -405,14 +406,8 @@ Sub GetRevisionAndDate(f)
   rev = doc.selectSingleNode("/info/entry/commit/@revision").nodeValue
   d   = doc.selectSingleNode("/info/entry/commit/date/text()").text
   
-  Redim argsKey(2)
-  Redim argsValue(2)
-  
-  argsKey(0)   = "rev"
-  argsValue(0) = rev
-
-  argsKey(1)   = "builddate"
-  argsValue(1) = d
+  argsKey   = Array("rev","builddate")
+  argsValue = Array(rev,d)
 End Sub
 
 '

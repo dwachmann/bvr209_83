@@ -21,7 +21,8 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://bvr20983.berlios.de versions.xsd"
 >
-  <parameter name="filenamepattern">#{LCase("${../../../@id}")}.${../../../v:version/@major}.${../../@id}.${../../v:version/@major}.${../../@type}</parameter>
+  <parameter name="filenamepattern">#{LCase("${../../../@id}")}.${../../../v:version/@major}.${../../@id}.${../../v:version/@major}</parameter>
+  <parameter name="filenamepattern1">#{LCase("${../../@id}")}.${../../v:version/@major}</parameter>
   <parameter name="guidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../@typeid}${../../v:guidid/text()}#{zerofill("${../../v:version/@major}",4)}</parameter>
   <parameter name="guidpattern1">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-0000#{zerofill("${../../v:version/@major}",4)}FFFF</parameter>
 
@@ -31,7 +32,15 @@
     <guidid>BFE20983</guidid>
     <company>Dorothea Wachmann</company>
     <copyright>Copyright \251 2008 ${../../v:company/text()}</copyright>
-    
+    <filename>${filenamepattern1}</filename>
+
+    <patch template="Makefile.inc.tmpl" filename="Makefile.inc">
+      <pattern><key>@bvr20983ccresult</key><value>${../../../../v:component[@id='cc']/v:filename/text()}</value></pattern>
+      <pattern><key>@bvr20983scresult</key><value>${../../../../v:component[@id='sc']/v:filename/text()}</value></pattern>
+      <pattern><key>@digiclockresult</key><value>${../../../../v:component[@id='digiclock']/v:filename/text()}</value></pattern>
+      <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
+    </patch>
+
     <component id="sc" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Smartcard Library</name>
@@ -43,13 +52,13 @@
         <pattern><key>(^#define.+verCompName.+")(.+)(")</key>                                    <value>$1${../../../../../v:company/text()}$3</value></pattern>
         <pattern><key>(^#define.+verCopyright.+")(.+)(")</key>                                   <value>$1${../../../../../v:copyright/text()}$3</value></pattern>
         <pattern><key>(^#define.+verProdVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.${../../../../../v:version/@fix}.${../../../../../v:version/@rev}$3</value></pattern>
-        <pattern><key>(^#define.+verProdVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../../v:version/@major},${../../../../../v:version/@minor},${../../../../../v:version/@fix},${../../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verProdVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key> <value>$1${../../../../../v:version/@major},${../../../../../v:version/@minor},${../../../../../v:version/@fix},${../../../../../v:version/@rev}$3</value></pattern>
 
         <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
-        <pattern><key>(^#define.+verFileVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verFileVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key> <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
       </patch>
 
@@ -189,8 +198,12 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+      </patch>
+
+      <patch filename="led.html">
+        <pattern><key>(&lt;object id="led" classid="clsid:)(.*)</key><value>$1${../../../../v:type[@id='LED']/v:guid/text()}" codebase="./${../../../../../v:filename/text()}.cab#version=${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}"&gt;</value></pattern>
       </patch>
       
       <type id="LED" typeid="0011">
@@ -248,7 +261,7 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
       </patch>
     </component>

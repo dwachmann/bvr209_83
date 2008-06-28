@@ -25,20 +25,20 @@ $(OUTDIR)\digiclock.res
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\digiclock.exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(DIGICLOCK_RESULT).exe
 !endif
 
 $(OUTDIR)\digiclock.res: $(RESDIR)\digiclock.rc
     $(rc) $(rcflags) $(rcvars) /fo $@ $**
 
-$(OUTDIR)\digiclock.exe: $(OBJS)
-  $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) bvr20983cc.lib libbvr20983.lib $**
+$(OUTDIR)\$(DIGICLOCK_RESULT).exe: $(OBJS)
+  $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(BVR20983CC_RESULT).lib libbvr20983.lib $**
 
-$(SLNDIR)\digiclock.exe: $(OUTDIR)\digiclock.exe
-  @copy $(OUTDIR)\digiclock.exe $(SLNDIR)
+$(SLNDIR)\$(DIGICLOCK_RESULT).exe: $(OUTDIR)\$(DIGICLOCK_RESULT).exe
+  @copy $(OUTDIR)\$(DIGICLOCK_RESULT).exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\digiclock.exe del /q $(SLNDIR)\digiclock.exe
+  if exist $(SLNDIR)\$(DIGICLOCK_RESULT).exe del /q $(SLNDIR)\$(DIGICLOCK_RESULT).exe
 
 !include <../inc/Makefile.rule>

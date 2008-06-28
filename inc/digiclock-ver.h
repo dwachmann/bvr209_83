@@ -22,14 +22,14 @@
 #define verProdName    "BVR2098 Suite"
 #define verCompName    "Dorothea Wachmann"
 #define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
-#define verProdVer     2,0,0,42
-#define verProdVer1    "2.0.0.42"
+#define verProdVer     2,0,0,43
+#define verProdVer1    "2.0.0.43"
 
-#define verFileVer     1,0,0,42
-#define verFileVer1    "1.0.0.42"
+#define verFileVer     1,0,0,43
+#define verFileVer1    "1.0.0.43"
 #define verFileDesc    "A digital clock"
 #define verIntName     "digiclock"
 #define verOrigName    "bvr20983.2.digiclock.1.exe"
-#define verMakeDate    "2008-06-25T00:29:17.650083Z"
+#define verMakeDate    "builddate"
 
 #endif // DIGICLOCKVER_H

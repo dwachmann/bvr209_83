@@ -39,20 +39,18 @@ all: $(PROJECTS) clean
 all: $(PROJECTS) 
 !endif
 
-distribute: $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\digiclock.exe $(SIGNDIR)\bvr20983.2.cab
+distribute: $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\$(DIGICLOCK_RESULT).exe $(SIGNDIR)\$(BVR20983_RESULT).cab
   @copy $(HTMLDIR)\led.*          $(DISTDIR)
   @copy $(HTMLDIR)\*.jpg          $(DISTDIR)
-  @copy $(SIGNDIR)\bvr20983.2.cab $(DISTDIR)
+  @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
 
 patch:
   cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/"
 
-$(SIGNDIR)\bvr20983.2.cab: $(SIGNDIR)\bvr20983.dll $(SIGNDIR)\bvr20983cc.dll $(INCDIR)\bvr20983.inf
-  @REN $(SIGNDIR)\bvr20983cc.dll bvr20983.2.cc.1.dll
-  @REN $(SIGNDIR)\bvr20983.dll   bvr20983.2.sc.1.dll
-	@$(cab) -s 6144 N $@ $(SIGNDIR)\bvr20983.2.cc.1.dll $(SIGNDIR)\bvr20983.2.sc.1.dll $(INCDIR)\bvr20983.inf
+$(SIGNDIR)\$(BVR20983_RESULT).cab: $(SIGNDIR)\$(BVR20983SC_RESULT).dll $(SIGNDIR)\$(BVR20983CC_RESULT).dll $(INCDIR)\bvr20983.inf
+	@$(cab) -s 6144 N $@ $?
 	@$(sign) $(signvars) /p $(signpwd) $@
 
-all1: patch $(PROJECTS) distribute $(SIGNDIR)\bvr20983.2.cab
+all1: patch $(PROJECTS) distribute $(SIGNDIR)\$(BVR20983_RESULT).cab
 
 !include <./inc/bvr.inc>
