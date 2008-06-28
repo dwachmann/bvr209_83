@@ -25,6 +25,8 @@
 #include "bvr20983cc-dispid.h"
 #include <olectl.h>
 
+#include "bvr20983ccmc.rc"
+
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 // The main icon resource for the application.

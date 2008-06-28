@@ -38,7 +38,7 @@ clean:
 	@copy $< $@
 	@$(sign) $(signvars) /p $(signpwd) $@
 
-.SUFFIXES: .dll .exe
+.SUFFIXES: .dll .exe 
 
 $(PROJECTS):
 !include <./inc/build.inc>

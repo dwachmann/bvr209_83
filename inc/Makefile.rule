@@ -43,6 +43,9 @@ _MAKEFILE_RULE_ = 1
 {$(SRCDIR)}.cpp{$(OUTDIR)}.obj:
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
 
+{$(RESDIR)}.mc{$(OUTDIR)}.bin:
+  $(mc) -r $(OUTDIR) -h $(OUTDIR) -w $**
+
 .c.obj:
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
 

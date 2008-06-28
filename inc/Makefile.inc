@@ -1,4 +1,4 @@
-# $Id$
+# $Id: Makefile.inc.tmpl 44 2008-06-28 00:19:40Z dwachmann $
 # 
 # Copyright (C) 2008 Dorothea Wachmann
 # 

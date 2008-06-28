@@ -1,6 +1,8 @@
 /*
  * $Id$
  * 
+ * Install the product.
+ * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,20 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983CCVER_H)
-#define BVR20983CCVER_H
+#include "os.h"
 
-#define verProdName    "BVR2098 Suite"
-#define verCompName    "Dorothea Wachmann"
-#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
-#define verProdVer     112,0,0,44
-#define verProdVer1    "2.0.0.44"
-
-#define verFileVer     1,0,0,44
-#define verFileVer1    "1.0.0.44"
-#define verFileDesc    "Custom Control Library"
-#define verIntName     "cc"
-#define verOrigName    "bvr20983.2.cc.1.dll"
-#define verMakeDate    "builddate"
-
-#endif // BVR20983CCVER_H
+/**
+ *
+ */
+STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+{ MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
+} // of DllUninstallW()
+/*==========================END-OF-FILE===================================*/

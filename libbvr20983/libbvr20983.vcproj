@@ -290,6 +290,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\util\dlluninstall.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\util\guid.cpp"
 					>
 				</File>

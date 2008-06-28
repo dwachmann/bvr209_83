@@ -22,11 +22,11 @@
 #define verProdName    "BVR2098 Suite"
 #define verCompName    "Dorothea Wachmann"
 #define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
-#define verProdVer     2,0,0,43
-#define verProdVer1    "2.0.0.43"
+#define verProdVer     2,0,0,44
+#define verProdVer1    "2.0.0.44"
 
-#define verFileVer     1,0,0,43
-#define verFileVer1    "1.0.0.43"
+#define verFileVer     1,0,0,44
+#define verFileVer1    "1.0.0.44"
 #define verFileDesc    "Smartcard Library"
 #define verIntName     "sc"
 #define verOrigName    "bvr20983.2.sc.1.dll"

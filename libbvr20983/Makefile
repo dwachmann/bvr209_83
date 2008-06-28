@@ -72,6 +72,7 @@ $(OUTDIR)\codispatch.obj \
 $(OUTDIR)\cocontrol.obj \
 $(OUTDIR)\coconnectionpoint.obj \
 $(OUTDIR)\cocollection.obj \
+$(OUTDIR)\dlluninstall.obj \
 $(OUTDIR)\coclassfactory.obj
 
 !ifdef clean
@@ -86,5 +87,7 @@ $(SLNDIR)\libbvr20983.lib: $(OBJS)
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
   if exist $(SLNDIR)\libbvr20983.lib del /q $(SLNDIR)\libbvr20983.lib
+
+$(OUTDIR)\messages.bin: 
 
 !include <../inc/Makefile.rule>
