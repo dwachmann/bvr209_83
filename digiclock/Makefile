@@ -28,9 +28,6 @@ all: clean
 all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(DIGICLOCK_RESULT).exe
 !endif
 
-$(OUTDIR)\digiclock.res: $(RESDIR)\digiclock.rc
-    $(rc) $(rcflags) $(rcvars) /fo $@ $**
-
 $(OUTDIR)\$(DIGICLOCK_RESULT).exe: $(OBJS)
   $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(BVR20983CC_RESULT).lib libbvr20983.lib $**
 

@@ -46,6 +46,9 @@ _MAKEFILE_RULE_ = 1
 {$(RESDIR)}.mc{$(OUTDIR)}.bin:
   $(mc) -r $(OUTDIR) -h $(OUTDIR) -w $**
 
+{$(RESDIR)}.rc{$(OUTDIR)}.res:
+  $(rc) $(rcflags) $(rcvars) /fo $@ $**
+
 .c.obj:
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
 

@@ -19,22 +19,23 @@
 
 OBJS= \
 $(OUTDIR)\os.obj \
-$(OUTDIR)\lsstp.obj
+$(OUTDIR)\lsstp.obj \
+$(OUTDIR)\lsstg.res
 
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\lsstp.exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSSTG_RESULT).exe
 !endif
 
-$(OUTDIR)\lsstp.exe: $(OBJS)
+$(OUTDIR)\$(LSSTG_RESULT).exe: $(OBJS)
   $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $**
 
-$(SLNDIR)\lsstp.exe: $(OUTDIR)\lsstp.exe
-  @copy $(OUTDIR)\lsstp.exe $(SLNDIR)
+$(SLNDIR)\$(LSSTG_RESULT).exe: $(OUTDIR)\$(LSSTG_RESULT).exe
+  @copy $(OUTDIR)\$(LSSTG_RESULT).exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\lsstp.exe del /q $(SLNDIR)\lsstp.exe
+  if exist $(SLNDIR)\$(LSSTG_RESULT).exe del /q $(SLNDIR)\$(LSSTG_RESULT).exe
 
 !include <../inc/Makefile.rule>

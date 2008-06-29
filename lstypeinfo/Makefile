@@ -19,22 +19,23 @@
 
 OBJS= \
 $(OUTDIR)\os.obj \
-$(OUTDIR)\lstypeinfo.obj
+$(OUTDIR)\lstypeinfo.obj \
+$(OUTDIR)\lstypeinfo.res
 
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\lstypeinfo.exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
 !endif
 
-$(OUTDIR)\lstypeinfo.exe: $(OBJS)
+$(OUTDIR)\$(LSTYPEINFO_RESULT).exe: $(OBJS)
   $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $**
 
-$(SLNDIR)\lstypeinfo.exe: $(OUTDIR)\lstypeinfo.exe
-  @copy $(OUTDIR)\lstypeinfo.exe $(SLNDIR)
+$(SLNDIR)\$(LSTYPEINFO_RESULT).exe: $(OUTDIR)\$(LSTYPEINFO_RESULT).exe
+  @copy $(OUTDIR)\$(LSTYPEINFO_RESULT).exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\lstypeinfo.exe del /q $(SLNDIR)\lstypeinfo.exe
+  if exist $(SLNDIR)\$(LSTYPEINFO_RESULT).exe del /q $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
 
 !include <../inc/Makefile.rule>

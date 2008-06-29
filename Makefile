@@ -39,7 +39,7 @@ all: $(PROJECTS) clean
 all: $(PROJECTS) 
 !endif
 
-distribute: $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\$(DIGICLOCK_RESULT).exe $(SIGNDIR)\$(BVR20983_RESULT).cab
+distribute: $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\$(DIGICLOCK_RESULT).exe $(SIGNDIR)\$(LSSTG_RESULT).exe $(SIGNDIR)\$(LSTYPEINFO_RESULT).exe $(SIGNDIR)\$(BVR20983_RESULT).cab
   @copy $(HTMLDIR)\led.*          $(DISTDIR)
   @copy $(HTMLDIR)\*.jpg          $(DISTDIR)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
@@ -51,6 +51,6 @@ $(SIGNDIR)\$(BVR20983_RESULT).cab: $(SIGNDIR)\$(BVR20983SC_RESULT).dll $(SIGNDIR
 	@$(cab) -s 6144 N $@ $?
 	@$(sign) $(signvars) /p $(signpwd) $@
 
-all1: patch $(PROJECTS) distribute $(SIGNDIR)\$(BVR20983_RESULT).cab
+all1: patch $(PROJECTS) distribute
 
 !include <./inc/bvr.inc>
