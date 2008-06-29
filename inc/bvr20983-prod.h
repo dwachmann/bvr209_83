@@ -16,16 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(DIGICLOCKVER_H)
-#define DIGICLOCKVER_H
+#if !defined(BVR20983PROD_H)
+#define BVR20983PROD_H
 
-#include "bvr20983-prod.h"
+#define verProdName    "BVR2098 Suite"
+#define verCompName    "Dorothea Wachmann"
+#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
+#define verProdVer     2,0,0,47
+#define verProdVer1    "2.0.0.47"
+#define verProdPrefix  "bvr20983.2"
 
-#define verFileVer     1,0,0,47
-#define verFileVer1    "1.0.0.47"
-#define verFileDesc    "A digital clock"
-#define verIntName     "digiclock"
-#define verOrigName    "bvr20983.2.digiclock.1.exe"
-#define verMakeDate    "builddate"
 
-#endif // DIGICLOCKVER_H
+#endif // BVR20983PROD_H

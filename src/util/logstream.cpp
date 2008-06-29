@@ -24,6 +24,7 @@
 #include "util/registry.h"
 #include "exception/bvr20983exception.h"
 
+void OutputDebugFmt(LPTSTR pszFmt,...);
 
 namespace bvr20983
 {
@@ -89,7 +90,10 @@ namespace bvr20983
   template< class charT,class traits >
   LogLevel<charT,traits> Loggers<charT,traits>::GetLoggingLevel(LPCTSTR srcFileName)
   { LogLevel<charT,traits> result;
-    LPCTSTR regPath = _T("HKEY_CURRENT_USER\\Software\\BVR20983\\logging");
+
+    TString regPath(_T("HKEY_CURRENT_USER\\Software\\"));
+    regPath += _T(verProdPrefix);
+    regPath += _T("\\logging");
 
     try
     { RegistryKey regKey(regPath);
@@ -111,9 +115,24 @@ namespace bvr20983
    */
   template< class charT,class traits >
   void Loggers<charT,traits>::GetFilePath(LPTSTR path,UINT maxPathLen,LPCTSTR srcFileName)
-  { if( SUCCEEDED( ::SHGetFolderPath(NULL,CSIDL_LOCAL_APPDATA, NULL,0,path)) ) 
+  { if( SUCCEEDED( ::SHGetFolderPath(NULL,CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL,SHGFP_TYPE_CURRENT,path)) ) 
     { _tcscat_s(path,maxPathLen,_T("\\"));
-      _tcscat_s(path,maxPathLen,srcFileName);
+      _tcscat_s(path,maxPathLen,_T(verProdPrefix));
+      
+      DWORD fileAttribs = ::GetFileAttributes(path);
+      
+      //
+      // directory doesnt exist
+      //
+      if( (fileAttribs==INVALID_FILE_ATTRIBUTES && ::CreateDirectory(path,NULL)) ||
+          (fileAttribs!=INVALID_FILE_ATTRIBUTES && (fileAttribs&FILE_ATTRIBUTE_DIRECTORY))
+        )
+      { _tcscat_s(path,maxPathLen,_T("\\"));
+        _tcscat_s(path,maxPathLen,srcFileName);
+      } // of else
+      else
+        // if path is file and not directory, use plain path as path for logging      
+        _tcscpy_s(path,maxPathLen,srcFileName);
     } // of if
     else
       _tcscpy_s(path,maxPathLen,srcFileName);

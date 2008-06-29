@@ -19,14 +19,10 @@
 #if !defined(LSTYPEINFOVER_H)
 #define LSTYPEINFOVER_H
 
-#define verProdName    "BVR2098 Suite"
-#define verCompName    "Dorothea Wachmann"
-#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
-#define verProdVer     2,0,0,44
-#define verProdVer1    "2.0.0.44"
+#include "bvr20983-prod.h"
 
-#define verFileVer     1,0,0,44
-#define verFileVer1    "1.0.0.44"
+#define verFileVer     1,0,0,47
+#define verFileVer1    "1.0.0.47"
 #define verFileDesc    "list typeinfo of registered COM objects"
 #define verIntName     "lstypeinfo"
 #define verOrigName    "bvr20983.2.lstypeinfo.1.exe"

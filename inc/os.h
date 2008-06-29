@@ -74,6 +74,8 @@
 #include <map>
 #include <set>
 
+#include "bvr20983-prod.h"
+
 // Convenient typedefs.
 #ifndef PPVOID
 typedef LPVOID* PPVOID;

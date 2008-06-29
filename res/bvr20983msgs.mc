@@ -1,5 +1,5 @@
-LanguageNames=(English=0x409:bvr20983ccmc)
-LanguageNames=(German=0x407:bvr20983ccmc407)
+LanguageNames=(English=0x409:bvr20983msgs)
+LanguageNames=(German=0x407:bvr20983msgs407)
 
 MessageId=0x0001
 Severity=Informational

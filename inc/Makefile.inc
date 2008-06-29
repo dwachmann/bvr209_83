@@ -1,4 +1,4 @@
-# $Id: Makefile.inc.tmpl 44 2008-06-28 00:19:40Z dwachmann $
+# $Id: Makefile.inc.tmpl 47 2008-06-29 00:00:19Z dwachmann $
 # 
 # Copyright (C) 2008 Dorothea Wachmann
 # 
@@ -595,6 +595,7 @@ DIGICLOCK_RESULT=bvr20983.2.digiclock.1
 BVR20983_RESULT=bvr20983.2
 LSSTG_RESULT=bvr20983.2.lsstg.1
 LSTYPEINFO_RESULT=bvr20983.2.lstypeinfo.1
+BVR20983MSGS_RESULT=bvr20983.2.msgs.1
 
 #ENDIF _MAKEFILE_INC_
 !ENDIF

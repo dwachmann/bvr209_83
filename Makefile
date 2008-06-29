@@ -32,6 +32,7 @@ bvr20983\~    \
 digiclock\~   \
 lsstg\~       \
 lstypeinfo\~  \
+msgs\~        \
 
 !ifdef clean
 all: $(PROJECTS) clean

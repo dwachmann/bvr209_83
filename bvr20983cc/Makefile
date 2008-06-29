@@ -33,7 +33,7 @@ all: $(OUTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983cc-0000.tlb $(SLNDIR)\$(BVR20983CC_R
 $(OUTDIR)\ibvr20983cc.h $(OUTDIR)\ibvr20983ccguid.c $(OUTDIR)\ibvr20983cc-0000.tlb: $(INCDIR)\com\ibvr20983cc-0000.odl
   $(midl) $(MIDL_OPTIMIZATION) /out $(OUTDIR) /I $(INCDIR) /char signed /tlb ibvr20983cc-0000.tlb /h ibvr20983cc.h /iid ibvr20983ccguid.c $**
 
-$(OUTDIR)\bvr20983cc.res: $(RESDIR)\bvr20983cc.rc $(OUTDIR)\ibvr20983cc-0000.tlb $(OUTDIR)\bvr20983ccmc.bin
+$(OUTDIR)\bvr20983cc.res: $(RESDIR)\bvr20983cc.rc $(OUTDIR)\ibvr20983cc-0000.tlb
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983cc.rc
 
 $(OUTDIR)\$(BVR20983CC_RESULT).dll: $(OBJS) $(INCDIR)\bvr20983cc.def
@@ -47,7 +47,5 @@ clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
   if exist $(SLNDIR)\$(BVR20983CC_RESULT).dll del /q $(SLNDIR)\$(BVR20983CC_RESULT).dll
   if exist $(SLNDIR)\$(BVR20983CC_RESULT).lib del /q $(SLNDIR)\$(BVR20983CC_RESULT).lib
-
-.SUFFIXES: .mc .bin
 
 !include <../inc/Makefile.rule>
