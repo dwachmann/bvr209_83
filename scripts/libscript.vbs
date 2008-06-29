@@ -238,7 +238,7 @@ Function GetVarValue(e,s,evalExp)
     Next
     
     If IsArray(argsKey) Then
-      For i=LBound(argsKey) to UBound(argsKey)-1
+      For i=LBound(argsKey) to UBound(argsKey)
         If argsKey(i)=s Then
           GetVarValue = argsValue(i)
           Exit Function
@@ -405,6 +405,9 @@ Sub GetRevisionAndDate(f)
   
   rev = doc.selectSingleNode("/info/entry/commit/@revision").nodeValue
   d   = doc.selectSingleNode("/info/entry/commit/date/text()").text
+  
+  WScript.Echo "rev="       & rev
+  WScript.Echo "builddate=" & d
   
   argsKey   = Array("rev","builddate")
   argsValue = Array(rev,d)

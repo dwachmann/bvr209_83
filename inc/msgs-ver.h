@@ -25,12 +25,12 @@
 #define verProdVer     2,0,0,47
 #define verProdVer1    "2.0.0.47"
 
-#define verFileVer     1,0,0,47
-#define verFileVer1    "1.0.0.47"
+#define verFileVer     1,0,0,48
+#define verFileVer1    "1.0.0.48"
 #define verFileDesc    "Message Resource DLL"
 #define verIntName     "msgs"
 #define verOrigName    "bvr20983.2.msgs.1.dll"
-#define verMakeDate    "builddate"
+#define verMakeDate    "2008-06-29T16:06:07.769016Z"
 
 #endif // MSGSVER_H
 

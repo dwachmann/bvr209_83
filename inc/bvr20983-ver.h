@@ -21,11 +21,11 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer     1,0,0,47
-#define verFileVer1    "1.0.0.47"
+#define verFileVer     1,0,0,48
+#define verFileVer1    "1.0.0.48"
 #define verFileDesc    "Smartcard Library"
 #define verIntName     "sc"
 #define verOrigName    "bvr20983.2.sc.1.dll"
-#define verMakeDate    "builddate"
+#define verMakeDate    "2008-06-29T16:06:07.769016Z"
 
 #endif // BVR20983VER_H

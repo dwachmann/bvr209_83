@@ -104,7 +104,7 @@ namespace bvr20983
       result = LogLevel<charT,traits>(logLevel.c_str());
     }
     catch(BVR20983Exception& e)
-    { ::OutputDebugFmt(_T("Error reading registry %s: %s"),regPath,e.GetErrorMessage());
+    { ::OutputDebugFmt(_T("Error reading registry %s: %s"),regPath.c_str(),e.GetErrorMessage());
     }
 
     return result;
