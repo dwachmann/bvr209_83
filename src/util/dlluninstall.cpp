@@ -23,6 +23,13 @@
 /**
  *
  */
+STDAPI_(void) DllInstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+{ MessageBox(hwnd,lpszCmdLine,_T("DllInstall"),0);
+} // of DllInstallW()
+
+/**
+ *
+ */
 STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
 { MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
 } // of DllUninstallW()
