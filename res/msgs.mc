@@ -1,4 +1,4 @@
-LanguageNames=(English=0x409:msgs409)
+LanguageNames=(English=0x409:msgs)
 LanguageNames=(German=0x407:msgs407)
 
 MessageId=0x0001

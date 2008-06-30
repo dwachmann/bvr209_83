@@ -24,7 +24,7 @@ $(OUTDIR)\cosmartcard.obj \
 $(OUTDIR)\coatr.obj \
 $(OUTDIR)\bvr20983.obj \
 $(OUTDIR)\bvr20983guid.obj \
-$(OUTDIR)\bvr20983.res
+$(OUTDIR)\bvr20983sc.res
 
 !ifdef clean
 all: clean
@@ -38,11 +38,11 @@ $(OUTDIR)\ibvr20983-0007.tlb: $(INCDIR)\com\ibvr20983-0007.odl
 $(OUTDIR)\ibvr20983.h $(OUTDIR)\bvr20983guid.c $(OUTDIR)\ibvr20983-0000.tlb: $(INCDIR)\com\ibvr20983-0000.odl
   $(midl) $(MIDL_OPTIMIZATION) /out $(OUTDIR) /I $(INCDIR) /char signed /tlb ibvr20983-0000.tlb /h ibvr20983.h /iid bvr20983guid.c $**
 
-$(OUTDIR)\bvr20983.res: $(RESDIR)\bvr20983.rc $(OUTDIR)\ibvr20983-0000.tlb
-  $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983.rc
+$(OUTDIR)\bvr20983sc.res: $(RESDIR)\bvr20983sc.rc $(OUTDIR)\ibvr20983-0000.tlb
+  $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983sc.rc
 
-$(OUTDIR)\$(BVR20983SC_RESULT).dll: $(OBJS) $(INCDIR)\bvr20983.def
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) winscard.lib libbvr20983.lib $(OBJS)
+$(OUTDIR)\$(BVR20983SC_RESULT).dll: $(OBJS) $(INCDIR)\bvr20983sc.def
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983sc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) winscard.lib libbvr20983.lib $(OBJS)
 
 $(SLNDIR)\$(BVR20983SC_RESULT).dll $(SLNDIR)\$(BVR20983SC_RESULT).lib: $(OUTDIR)\$(BVR20983SC_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983SC_RESULT).dll $(SLNDIR)

@@ -26,11 +26,11 @@ all: clean
 all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(BVR20983MSGS_RESULT).dll
 !endif
 
-$(OUTDIR)\bvr20983msgs.res: $(OUTDIR)\bvr20983msgs.bin $(RESDIR)\msgs.rc
-  $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\msgs.rc
+$(OUTDIR)\bvr20983msgs.res: $(OUTDIR)\msgs.bin $(RESDIR)\bvr20983msgs.rc
+  $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983msgs.rc
 
 $(OUTDIR)\$(BVR20983MSGS_RESULT).dll: $(OBJS)
-  $(link) $(ldebug) -noentry -dll -machine:X86 -out:$@ $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983msgs.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) winscard.lib libbvr20983.lib $(OBJS)
 
 $(SLNDIR)\$(BVR20983MSGS_RESULT).dll: $(OUTDIR)\$(BVR20983MSGS_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983MSGS_RESULT).dll $(SLNDIR)

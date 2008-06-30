@@ -25,14 +25,14 @@ HTMLDIR =.\html
 SCRIPTSDIR = .\scripts
 signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://www.jondos.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll 
 
-PROJECTS =    \
-libbvr20983\~ \
-bvr20983cc\~  \
-bvr20983sc\~  \
-digiclock\~   \
-lsstg\~       \
-lstypeinfo\~  \
-bvr20983\~    \
+PROJECTS =     \
+libbvr20983\~  \
+bvr20983cc\~   \
+bvr20983sc\~   \
+digiclock\~    \
+lsstg\~        \
+lstypeinfo\~   \
+bvr20983msgs\~ \
 
 !ifdef clean
 all: $(PROJECTS) clean

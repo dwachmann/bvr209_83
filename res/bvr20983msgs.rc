@@ -19,9 +19,9 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #include "os.h"
-#include "msgs-ver.h"
+#include "bvr20983msgs-ver.h"
 
-#include "bvr20983msgs.rc"
+#include "msgs.rc"
 
 // If being read in by AppStudio we don't confuse it with this Version Info.
 #ifndef APSTUDIO_INVOKED

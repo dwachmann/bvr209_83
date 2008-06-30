@@ -19,7 +19,6 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #include "os.h"
-#include "bvr20983.h"
 #include "win/app.h"
 #include "win/wndclass.h"
 #include "win/wnd.h"

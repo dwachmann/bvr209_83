@@ -16,21 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(MSGSVER_H)
-#define MSGSVER_H
+#if !defined(BVR20983MSGSVER_H)
+#define BVR20983MSGSVER_H
 
-#define verProdName    "BVR2098 Suite"
-#define verCompName    "Dorothea Wachmann"
-#define verCopyright   "Copyright \251 2008 Dorothea Wachmann"
-#define verProdVer     2,0,0,47
-#define verProdVer1    "2.0.0.47"
+#include "bvr20983-prod.h"
 
-#define verFileVer     1,0,0,48
-#define verFileVer1    "1.0.0.48"
-#define verFileDesc    "Message Resource DLL"
+#define verFileVer     1,0,0,52
+#define verFileVer1    "1.0.0.52"
+#define verFileDesc    "Product installation and message component"
 #define verIntName     "msgs"
 #define verOrigName    "bvr20983.2.msgs.1.dll"
-#define verMakeDate    "2008-06-29T16:06:07.769016Z"
+#define verMakeDate    "2008-06-30T22:45:31.739344Z"
 
-#endif // MSGSVER_H
+#endif // BVR20983MSGSVER_H
 

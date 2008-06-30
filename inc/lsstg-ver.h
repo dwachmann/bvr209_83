@@ -25,11 +25,11 @@
 #define verProdVer     2,0,0,47
 #define verProdVer1    "2.0.0.47"
 
-#define verFileVer     1,0,0,48
-#define verFileVer1    "1.0.0.48"
+#define verFileVer     1,0,0,52
+#define verFileVer1    "1.0.0.52"
 #define verFileDesc    "list COM structure storage"
 #define verIntName     "lsstg"
 #define verOrigName    "bvr20983.2.lsstg.1.exe"
-#define verMakeDate    "2008-06-29T16:06:07.769016Z"
+#define verMakeDate    "2008-06-30T22:45:31.739344Z"
 
 #endif // LSSTGVER_H
