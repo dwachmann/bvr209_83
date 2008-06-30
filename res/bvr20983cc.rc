@@ -169,6 +169,8 @@ BEGIN
       VALUE "ProductVersion",  verProdVer1
       VALUE "Comments",        verMakeDate
       VALUE "OLESelfRegister", "\0"
+      VALUE "ProductPrefix",   verProdPrefix
+      VALUE "ComponentPrefix", verCompPrefix
     END
   END
 

@@ -67,6 +67,7 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
       </patch>
 
       <type id="IAPDU" typeid="0002">
@@ -201,6 +202,7 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
       </patch>
 
       <patch filename="led.html">
@@ -258,6 +260,7 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
       </patch>
     </component>
 
@@ -273,6 +276,7 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
       </patch>
     </component>
 
@@ -288,6 +292,7 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
       </patch>
     </component>
 
@@ -303,6 +308,7 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
       </patch>
     </component>
   </product>

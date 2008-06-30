@@ -487,7 +487,7 @@ EXEVER = $(APPVER)
 # for Windows applications
 conlflags = $(lflags) -subsystem:console,$(EXEVER) -machine:X86 
 guilflags = $(lflags) -subsystem:windows,$(EXEVER) -machine:X86 
-dlllflags = $(lflags) -entry:_DllMainCRTStartup$(DLLENTRY) -dll -machine:X86
+dlllflags = $(lflags) -entry:_DllMainCRTStartup$(DLLENTRY) -dll
 
 # For screen savers
 !IF "$(CPU)" == "i386"

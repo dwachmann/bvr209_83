@@ -60,6 +60,8 @@ BEGIN
       VALUE "ProductName",     verProdName
       VALUE "ProductVersion",  verProdVer1
       VALUE "Comments",        verMakeDate
+      VALUE "ProductPrefix",   verProdPrefix
+      VALUE "ComponentPrefix", verCompPrefix
     END
   END
 

@@ -27,5 +27,6 @@
 #define verIntName     "digiclock"
 #define verOrigName    "bvr20983.2.digiclock.1.exe"
 #define verMakeDate    "2008-06-30T22:45:31.739344Z"
+#define verCompPrefix  "digiclock.1"
 
 #endif // DIGICLOCKVER_H
