@@ -28,11 +28,11 @@ signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://www.jondos
 PROJECTS =    \
 libbvr20983\~ \
 bvr20983cc\~  \
-bvr20983\~    \
+bvr20983sc\~  \
 digiclock\~   \
 lsstg\~       \
 lstypeinfo\~  \
-msgs\~        \
+bvr20983\~    \
 
 !ifdef clean
 all: $(PROJECTS) clean
