@@ -16,16 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983VER_H)
-#define BVR20983VER_H
+#if !defined(BVR20983SCDISPID_H)
+#define BVR20983SCDISPID_H
 
-#include "bvr20983-prod.h"
+#define DISPID_ONINSERTED 0x1
+#define DISPID_ONREMOVED  0x2
+#define DISPID_ONRECEIVED 0x3
 
-#define verFileVer     1,0,0,48
-#define verFileVer1    "1.0.0.48"
-#define verFileDesc    "Smartcard Library"
-#define verIntName     "sc"
-#define verOrigName    "bvr20983.2.sc.1.dll"
-#define verMakeDate    "2008-06-29T16:06:07.769016Z"
-
-#endif // BVR20983VER_H
+#endif // BVR20983SCDISPID_H

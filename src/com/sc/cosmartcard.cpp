@@ -26,8 +26,8 @@
 #include "util/logstream.h"
 #include "util/comlogstream.h"
 #include "exception/bvr20983exception.h"
-#include "bvr20983-dispid.h"
-#include "bvr20983.h"
+#include "bvr20983sc-dispid.h"
+#include "bvr20983sc.h"
 
 #define LOGGER_INFO_THREAD  LogStreamT::GetLogger(_T("cosmartcardthread.cpp"))<<INF<<setlineno(__LINE__)
 #define LOGGER_DEBUG_THREAD LogStreamT::GetLogger(_T("cosmartcardthread.cpp"))<<DBG<<setlineno(__LINE__)

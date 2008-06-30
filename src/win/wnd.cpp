@@ -24,7 +24,6 @@
 #include "exception/windowsexception.h"
 #include "exception/lasterrorexception.h"
 #include "exception/comexception.h"
-#include "bvr20983.h"
 
 void OutputDebugFmt(LPTSTR pszFmt,...);
 

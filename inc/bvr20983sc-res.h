@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983RES_H)
-#define BVR20983RES_H
+#if !defined(BVR20983SCRES_H)
+#define BVR20983SCRES_H
 
 // Dialog IDs.
 #define IDD_ABOUTBOX                            1
@@ -49,4 +49,4 @@
 #define IDS_EXCEPTIONMSG_WA                     IDS_EXCEPTIONMSG_MIN+BVR_SOURCE_RC_WALLET
 
 
-#endif // BVR20983RES_H
+#endif // BVR20983SCRES_H

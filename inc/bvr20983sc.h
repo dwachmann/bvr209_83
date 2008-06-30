@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983_H)
-#define BVR20983_H
+#if !defined(BVR20983SC_H)
+#define BVR20983SC_H
 
 #define BVR_SOURCE_SMARTCARD         0
                                      /* 0*256 */
@@ -45,4 +45,4 @@
 #define BVR_DISP_WA_NEGATIVEBALANCE  MAKE_BVR_DISP(BVR_SOURCE_WALLET,BVR_WALLET_NEGATIVEBALANCE)
 #define BVR_DISP_WA_MAXIMUMBALANCE   MAKE_BVR_DISP(BVR_SOURCE_WALLET,BVR_WALLET_MAXIMUMBALANCE)
 
-#endif // BVR20983_H
+#endif // BVR20983SC_H

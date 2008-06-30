@@ -23,7 +23,6 @@
 #include "win/dialog.h"
 #include "exception/windowsexception.h"
 #include "exception/lasterrorexception.h"
-#include "bvr20983.h"
 
 using namespace bvr20983;
 

@@ -60,7 +60,7 @@
       <guidid>0001</guidid>
       <filename>${filenamepattern}</filename>
 
-      <patch filename="bvr20983-ver.h">
+      <patch filename="bvr20983sc-ver.h">
         <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
         <pattern><key>(^#define.+verFileVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key> <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
@@ -293,10 +293,10 @@
 
     <component id="msgs" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
-      <name>Message Resource DLL</name>
+      <name>Product installation and message component</name>
       <filename>${filenamepattern}</filename>
 
-      <patch filename="msgs-ver.h">
+      <patch filename="bvr20983msgs-ver.h">
         <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
