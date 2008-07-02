@@ -22,7 +22,8 @@ $(OUTDIR)\os.obj \
 $(OUTDIR)\bvr20983cc.obj \
 $(OUTDIR)\coled.obj \
 $(OUTDIR)\ibvr20983ccguid.obj \
-$(OUTDIR)\bvr20983cc.res
+$(OUTDIR)\bvr20983cc.res \
+$(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
@@ -37,7 +38,7 @@ $(OUTDIR)\bvr20983cc.res: $(RESDIR)\bvr20983cc.rc $(OUTDIR)\ibvr20983cc-0000.tlb
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983cc.rc
 
 $(OUTDIR)\$(BVR20983CC_RESULT).dll: $(OBJS) $(INCDIR)\bvr20983cc.def
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983cc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983cc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
 
 $(SLNDIR)\$(BVR20983CC_RESULT).dll $(SLNDIR)\$(BVR20983CC_RESULT).lib: $(OUTDIR)\$(BVR20983CC_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983CC_RESULT).dll $(SLNDIR)

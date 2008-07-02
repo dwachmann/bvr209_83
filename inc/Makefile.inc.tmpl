@@ -487,7 +487,7 @@ EXEVER = $(APPVER)
 # for Windows applications
 conlflags = $(lflags) -subsystem:console,$(EXEVER) -machine:X86 
 guilflags = $(lflags) -subsystem:windows,$(EXEVER) -machine:X86 
-dlllflags = $(lflags) -entry:_DllMainCRTStartup$(DLLENTRY) -dll
+dlllflags = $(lflags) -entry:_DllMainCRTStartup$(DLLENTRY) -dll -machine:X86 
 
 # For screen savers
 !IF "$(CPU)" == "i386"
@@ -519,7 +519,7 @@ optlibs =
 winsocklibs = ws2_32.lib mswsock.lib
 
 # basic subsystem specific libraries, less the C Run-Time
-baselibs    = kernel32.lib $(optlibs) $(winsocklibs) advapi32.lib bufferoverflowu.lib
+baselibs    = kernel32.lib $(optlibs) $(winsocklibs) advapi32.lib bufferoverflowu.lib version.lib
 winlibs     = $(baselibs) user32.lib gdi32.lib comdlg32.lib winspool.lib
 
 # for Windows applications that use the C Run-Time libraries

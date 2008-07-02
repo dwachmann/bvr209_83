@@ -1,8 +1,6 @@
 /*
  * $Id$
  * 
- * Install the product.
- * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -18,28 +16,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#include "os.h"
-#include "util/versioninfo.h"
-#include "com/comserver.h"
+#if !defined(VERSIONINFO_H)
+#define VERSIONINFO_H
 
-using namespace bvr20983;
-using namespace bvr20983::COM;
 
-/**
- *
- */
-STDAPI_(void) DllInstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ util::VersionInfo verInfo(COM::COMServer::GetInstanceHandle());
+namespace bvr20983
+{
+  namespace util
+  {
+    struct LANGANDCODEPAGE 
+    { WORD wLanguage;
+      WORD wCodePage;
+    };
 
-  verInfo.Dump();
+    /**
+     *
+     */
+    class VersionInfo
+    {
+      public:
+        VersionInfo(LPCTSTR fName=NULL);
+        VersionInfo(HMODULE hModule);
+        ~VersionInfo();
 
-  MessageBox(hwnd,lpszCmdLine,_T("DllInstall"),0);
-} // of DllInstallW()
+        void   Dump();
+        LPVOID GetStringInfo(LPCTSTR valName);
 
-/**
- *
- */
-STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
-} // of DllUninstallW()
+      private:
+        void   Init(LPCTSTR fName);
+
+        LPVOID            m_lpBuffer;
+        VS_FIXEDFILEINFO* m_pFileInfo;
+        LANGANDCODEPAGE*  m_lpTranslate;
+        UINT              m_cbTranslate;
+
+    }; // of class VersionInfo
+  } // of namespace util
+} // of namespace bvr20983
+#endif // VERSIONINFO_H
 /*==========================END-OF-FILE===================================*/

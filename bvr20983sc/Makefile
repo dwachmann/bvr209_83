@@ -24,7 +24,8 @@ $(OUTDIR)\cosmartcard.obj \
 $(OUTDIR)\coatr.obj \
 $(OUTDIR)\bvr20983.obj \
 $(OUTDIR)\bvr20983guid.obj \
-$(OUTDIR)\bvr20983sc.res
+$(OUTDIR)\bvr20983sc.res \
+$(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
@@ -42,7 +43,7 @@ $(OUTDIR)\bvr20983sc.res: $(RESDIR)\bvr20983sc.rc $(OUTDIR)\ibvr20983-0000.tlb
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983sc.rc
 
 $(OUTDIR)\$(BVR20983SC_RESULT).dll: $(OBJS) $(INCDIR)\bvr20983sc.def
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983sc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) winscard.lib libbvr20983.lib $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983sc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) winscard.lib $(OBJS)
 
 $(SLNDIR)\$(BVR20983SC_RESULT).dll $(SLNDIR)\$(BVR20983SC_RESULT).lib: $(OUTDIR)\$(BVR20983SC_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983SC_RESULT).dll $(SLNDIR)

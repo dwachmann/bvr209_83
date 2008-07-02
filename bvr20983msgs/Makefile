@@ -18,7 +18,11 @@
 !include <../inc/Makefile.inc>
 
 OBJS= \
-$(OUTDIR)\bvr20983msgs.res
+$(OUTDIR)\os.obj \
+$(OUTDIR)\bvr20983msgs.obj \
+$(OUTDIR)\bvr20983msgs.res \
+$(OUTDIR)\eventlogger.obj \
+$(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
@@ -30,7 +34,7 @@ $(OUTDIR)\bvr20983msgs.res: $(OUTDIR)\msgs.bin $(RESDIR)\bvr20983msgs.rc
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983msgs.rc
 
 $(OUTDIR)\$(BVR20983MSGS_RESULT).dll: $(OBJS)
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983msgs.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) winscard.lib libbvr20983.lib $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983msgs.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
 
 $(SLNDIR)\$(BVR20983MSGS_RESULT).dll: $(OUTDIR)\$(BVR20983MSGS_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983MSGS_RESULT).dll $(SLNDIR)

@@ -73,7 +73,9 @@ $(OUTDIR)\cocontrol.obj \
 $(OUTDIR)\coconnectionpoint.obj \
 $(OUTDIR)\cocollection.obj \
 $(OUTDIR)\dlluninstall.obj \
-$(OUTDIR)\coclassfactory.obj
+$(OUTDIR)\dllgetclass.obj \
+$(OUTDIR)\coclassfactory.obj \
+$(OUTDIR)\versioninfo.obj
 
 !ifdef clean
 all: clean

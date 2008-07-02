@@ -16,17 +16,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(LSSTGVER_H)
-#define LSSTGVER_H
 
-#include "bvr20983-prod.h"
+#include "os.h"
+#include "com/comserver.h"
 
-#define verFileVer     1,0,0,55
-#define verFileVer1    "1.0.0.55"
-#define verFileDesc    "list COM structure storage"
-#define verIntName     "lsstg"
-#define verOrigName    "bvr20983.2.lsstg.1.exe"
-#define verMakeDate    "2008-06-30T23:31:20.829969Z"
-#define verCompPrefix  "lsstg.1"
+using namespace bvr20983;
+using namespace bvr20983::COM;
 
-#endif // LSSTGVER_H
+/**
+ *
+ */
+BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
+{ BOOL bResult = TRUE;
+
+  switch( fdwReason )
+  { case DLL_PROCESS_ATTACH:
+
+      if( NULL==COMServer::CreateInstance(hDllInst) )
+        bResult = FALSE;
+      break;
+    case DLL_PROCESS_DETACH:
+      COMServer::DeleteInstance();
+      break;
+    case DLL_THREAD_ATTACH:
+      break;
+    case DLL_THREAD_DETACH:
+      break;
+    default:
+      break;
+  }
+
+  return bResult;
+} // of DllMain
+/*==========================END-OF-FILE===================================*/

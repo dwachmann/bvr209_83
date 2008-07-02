@@ -1,8 +1,6 @@
 /*
  * $Id$
  * 
- * Install the product.
- * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -18,28 +16,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#include "os.h"
-#include "util/versioninfo.h"
-#include "com/comserver.h"
+#ifndef EVENTLOGGER_H
+#define EVENTLOGGER_H
 
-using namespace bvr20983;
-using namespace bvr20983::COM;
+namespace bvr20983
+{
+  namespace util
+  {
+    class EventLogger
+    {
+      public:
+        EventLogger(LPCTSTR serviceName,bool registerInRegistry=false);
+        ~EventLogger();
 
-/**
- *
- */
-STDAPI_(void) DllInstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ util::VersionInfo verInfo(COM::COMServer::GetInstanceHandle());
+        void logMessage(LPCTSTR logText);
+        void logError(LPCTSTR errText);
+        void logError(LPCTSTR errText, LPCTSTR extraText);
+        void logEventMessage(LPCTSTR messageText, int messageType);
+        void logFunctionError(LPCTSTR functionName);
+        void logFunctionMessage(LPCTSTR functionName, LPCTSTR messageText);
 
-  verInfo.Dump();
-
-  MessageBox(hwnd,lpszCmdLine,_T("DllInstall"),0);
-} // of DllInstallW()
-
-/**
- *
- */
-STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
-} // of DllUninstallW()
+      private:
+        HANDLE m_hEventSource;
+    }; // of class EventLogger
+  } // of namespace util
+} // of namespace bvr20983
+#endif // __EVENT_LOGGER_H__
 /*==========================END-OF-FILE===================================*/

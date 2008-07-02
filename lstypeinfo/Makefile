@@ -20,7 +20,8 @@
 OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\lstypeinfo.obj \
-$(OUTDIR)\lstypeinfo.res
+$(OUTDIR)\lstypeinfo.res \
+$(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
@@ -29,7 +30,7 @@ all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
 !endif
 
 $(OUTDIR)\$(LSTYPEINFO_RESULT).exe: $(OBJS)
-  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $**
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
 
 $(SLNDIR)\$(LSTYPEINFO_RESULT).exe: $(OUTDIR)\$(LSTYPEINFO_RESULT).exe
   @copy $(OUTDIR)\$(LSTYPEINFO_RESULT).exe $(SLNDIR)

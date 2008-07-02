@@ -20,7 +20,8 @@
 OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\lsstp.obj \
-$(OUTDIR)\lsstg.res
+$(OUTDIR)\lsstg.res \
+$(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
@@ -29,7 +30,7 @@ all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSSTG_RESULT).exe
 !endif
 
 $(OUTDIR)\$(LSSTG_RESULT).exe: $(OBJS)
-  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) libbvr20983.lib $**
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
 
 $(SLNDIR)\$(LSSTG_RESULT).exe: $(OUTDIR)\$(LSSTG_RESULT).exe
   @copy $(OUTDIR)\$(LSSTG_RESULT).exe $(SLNDIR)

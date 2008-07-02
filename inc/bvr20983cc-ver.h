@@ -21,12 +21,12 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer     1,0,0,52
-#define verFileVer1    "1.0.0.52"
+#define verFileVer     1,0,0,55
+#define verFileVer1    "1.0.0.55"
 #define verFileDesc    "Custom Control Library"
 #define verIntName     "cc"
 #define verOrigName    "bvr20983.2.cc.1.dll"
-#define verMakeDate    "2008-06-30T22:45:31.739344Z"
+#define verMakeDate    "2008-06-30T23:31:20.829969Z"
 #define verCompPrefix  "cc.1"
 
 #endif // BVR20983CCVER_H

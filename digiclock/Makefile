@@ -20,7 +20,8 @@
 OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\digiclock.obj \
-$(OUTDIR)\digiclock.res
+$(OUTDIR)\digiclock.res \
+$(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
@@ -29,7 +30,7 @@ all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(DIGICLOCK_RESULT).exe
 !endif
 
 $(OUTDIR)\$(DIGICLOCK_RESULT).exe: $(OBJS)
-  $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(BVR20983CC_RESULT).lib libbvr20983.lib $**
+  $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(BVR20983CC_RESULT).lib $(OBJS)
 
 $(SLNDIR)\$(DIGICLOCK_RESULT).exe: $(OUTDIR)\$(DIGICLOCK_RESULT).exe
   @copy $(OUTDIR)\$(DIGICLOCK_RESULT).exe $(SLNDIR)

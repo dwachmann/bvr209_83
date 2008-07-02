@@ -21,12 +21,12 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer     1,0,0,52
-#define verFileVer1    "1.0.0.52"
+#define verFileVer     1,0,0,55
+#define verFileVer1    "1.0.0.55"
 #define verFileDesc    "A digital clock"
 #define verIntName     "digiclock"
 #define verOrigName    "bvr20983.2.digiclock.1.exe"
-#define verMakeDate    "2008-06-30T22:45:31.739344Z"
+#define verMakeDate    "2008-06-30T23:31:20.829969Z"
 #define verCompPrefix  "digiclock.1"
 
 #endif // DIGICLOCKVER_H

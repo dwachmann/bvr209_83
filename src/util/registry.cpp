@@ -213,6 +213,19 @@ namespace bvr20983
   /**
    *
    */
+  bool RegistryKey::Exists()
+  { HKEY key    = NULL;
+    bool result = ERROR_SUCCESS==::RegOpenKeyEx(m_mainKey,m_subpath.c_str(),0,KEY_READ,&key);
+
+    if( result )
+      ::RegCloseKey(key);
+
+    return result;
+  } // RegistryKey::Exists()
+
+  /**
+   *
+   */
   void RegistryKey::Open()
   { Close();
     

@@ -36,7 +36,8 @@ namespace bvr20983
       bool Create();
       void Open();
       void Delete(bool deep=false);
-      
+      bool Exists();
+
       void  SetValue(LPCTSTR name,LPCTSTR value);
       void  SetIntValue(LPCTSTR name,DWORD value);
 
