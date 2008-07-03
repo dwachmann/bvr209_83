@@ -30,6 +30,7 @@
 #include "win/tray.h"
 #include <sstream>
 #include <iomanip>
+#include "util/logstream.h"
 
 using namespace bvr20983;
 using namespace bvr20983::win;
@@ -632,7 +633,9 @@ namespace bvr20983
  * message loop.
  */
 int WINAPI ::WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
-{ DigiClockApp app(hInstance,lpCmdLine,nCmdShow);
+{ LogStreamT::ReadVersionInfo();
+
+  DigiClockApp app(hInstance,lpCmdLine,nCmdShow);
 
   gApp = &app;
 

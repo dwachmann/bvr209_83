@@ -144,18 +144,20 @@ bool ChangePropertySet(bool createPropSet,CommandType cmd,TCHAR* fileName,TCHAR*
  *
  */
 extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
-{ LONG             exHr = NOERROR;
+{ LogStreamT::ReadVersionInfo();
+
+  LONG             exHr = NOERROR;
   COMPtr<IStorage> pStg;
-
-  if( 1==argc || 0==_tcscmp(_T("-?"), argv[1]) || 0==_tcscmp( _T("/?"), argv[1]) )
-    printUsage(argv[0]);
-
+    
   try
   { _set_se_translator( SEException::throwException );
 
-    CommandType cmd           = LIST_CMD;
-    bool        createPropSet = false;
-    int         i             = 1;
+    if( 1==argc || 0==_tcscmp(_T("-?"), argv[1]) || 0==_tcscmp( _T("/?"), argv[1]) )
+      printUsage(argv[0]);
+
+    CommandType      cmd           = LIST_CMD;
+    bool             createPropSet = false;
+    int              i             = 1;
 
     for( ;i<argc;i++ )
     { if( _tcscmp(argv[i],_T("-a"))==0 )

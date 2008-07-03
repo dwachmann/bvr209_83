@@ -90,7 +90,7 @@ namespace bvr20983
       static LogStream<charT,traits>& GetLogger(LPCTSTR srcFileName=NULL)
       { return m_loggers.GetLogger(srcFileName); }
 
-      static void ReadVersionInfo(HMODULE hModule)
+      static void ReadVersionInfo(HMODULE hModule=NULL)
       { return m_loggers.ReadVersionInfo(hModule); }
 
       friend class Loggers<charT,traits>;

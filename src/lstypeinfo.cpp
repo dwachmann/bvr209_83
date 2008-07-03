@@ -816,7 +816,9 @@ void showTypeLibrary(LPCTSTR typeGUID)
  Return   : SCARD_S_SUCCESS or error code
 ------------------------------------------------------------------------------*/
 extern "C" int __cdecl _tmain (int argc, _TCHAR  * argv[])
-{ LONG    exHr           = NOERROR;
+{ LogStreamT::ReadVersionInfo();
+
+  LONG    exHr           = NOERROR;
   bool    onlyControls   = false;
   LPCTSTR comName        = NULL;
 

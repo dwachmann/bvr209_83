@@ -149,21 +149,42 @@ namespace bvr20983
   /**
    *
    */
+  bool CreateDirectory(LPCTSTR path)
+  { DWORD fileAttribs = ::GetFileAttributes(path);
+
+    return (fileAttribs==INVALID_FILE_ATTRIBUTES && ::CreateDirectory(path,NULL)) ||
+           (fileAttribs!=INVALID_FILE_ATTRIBUTES && (fileAttribs&FILE_ATTRIBUTE_DIRECTORY))
+           ;
+  } // of CreateDirectory()
+
+  /**
+   *
+   */
   template< class charT,class traits >
   void Loggers<charT,traits>::GetFilePath(LPTSTR path,UINT maxPathLen,LPCTSTR srcFileName)
   { if( SUCCEEDED( ::SHGetFolderPath(NULL,CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL,SHGFP_TYPE_CURRENT,path)) ) 
     { _tcscat_s(path,maxPathLen,_T("\\"));
-      _tcscat_s(path,maxPathLen,_T(verProdPrefix));
-      
-      DWORD fileAttribs = ::GetFileAttributes(path);
+
+      if( m_productPrefix[0]!=_T('\0') )
+        _tcscat_s(path,maxPathLen,m_productPrefix);
+      else
+        _tcscat_s(path,maxPathLen,_T(verProdPrefix));
       
       //
       // directory doesnt exist
       //
-      if( (fileAttribs==INVALID_FILE_ATTRIBUTES && ::CreateDirectory(path,NULL)) ||
-          (fileAttribs!=INVALID_FILE_ATTRIBUTES && (fileAttribs&FILE_ATTRIBUTE_DIRECTORY))
-        )
+      if( CreateDirectory(path) )
       { _tcscat_s(path,maxPathLen,_T("\\"));
+
+        if( m_componentPrefix[0]!=_T('\0') )
+        {  _tcscat_s(path,maxPathLen,m_componentPrefix);
+          
+          if( !CreateDirectory(path) )
+            _tcscpy_s(path,maxPathLen,srcFileName);
+          else
+            _tcscat_s(path,maxPathLen,_T("\\"));
+        } // of if
+
         _tcscat_s(path,maxPathLen,srcFileName);
       } // of else
       else
