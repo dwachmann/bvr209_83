@@ -21,6 +21,7 @@
 #include "os.h"
 #include "util/versioninfo.h"
 #include "exception/lasterrorexception.h"
+#include "com/comserver.h"
 
 #define DUMP_VERSION(a,b) HIWORD(a),LOWORD(a),HIWORD(b),LOWORD(b)
 
@@ -30,6 +31,16 @@ namespace bvr20983
 {
   namespace util
   {
+
+    /*
+     *
+     */
+    VersionInfo::VersionInfo() :
+      m_lpBuffer(NULL),
+      m_pFileInfo(NULL),
+      m_lpTranslate(NULL),
+      m_cbTranslate(0)
+    { Init(COM::COMServer::GetInstanceHandle()); }
 
     /*
      *
@@ -49,6 +60,12 @@ namespace bvr20983
       m_pFileInfo(NULL),
       m_lpTranslate(NULL),
       m_cbTranslate(0)
+    { Init(hModule); }
+
+    /*
+     *
+     */
+    void VersionInfo::Init(HMODULE hModule)
     { TCHAR szModulePath[MAX_PATH];
 
       szModulePath[0] = _T('0');
@@ -56,7 +73,7 @@ namespace bvr20983
       ::GetModuleFileName(hModule,szModulePath,ARRAYSIZE(szModulePath));
 
       Init(szModulePath);
-    } // of VersionInfo::VersionInfo()
+    } // of VersionInfo::Init()
 
     /*
      *

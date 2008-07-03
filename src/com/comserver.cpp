@@ -205,7 +205,7 @@ namespace bvr20983
       
         m_pMe = new COMServer(hDllInst);
 
-        
+        LogStreamT::ReadVersionInfo(hDllInst);
       } // of if
     
       return m_pMe; 

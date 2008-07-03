@@ -22,15 +22,19 @@
 #include <shlobj.h>
 #include "util/logstream.h"
 #include "util/registry.h"
+#include "util/versioninfo.h"
 #include "exception/bvr20983exception.h"
-
-void OutputDebugFmt(LPTSTR pszFmt,...);
 
 namespace bvr20983
 {
   template< class charT,class traits >
   Loggers<charT,traits> LogStream<charT,traits>::m_loggers=Loggers<charT,traits>();
 
+  template< class charT,class traits >
+  TCHAR Loggers<charT,traits>::m_productPrefix[];
+
+  template< class charT,class traits >
+  TCHAR Loggers<charT,traits>::m_componentPrefix[];
   
   /**
    *
@@ -88,12 +92,44 @@ namespace bvr20983
    *
    */
   template< class charT,class traits >
+  void Loggers<charT,traits>::ReadVersionInfo(HMODULE hModule)
+  { util::VersionInfo verInfo(hModule);
+
+    ::memset(m_productPrefix,'\0',sizeof(m_productPrefix));
+    ::memset(m_componentPrefix,'\0',sizeof(m_componentPrefix));
+
+    LPVOID prodPrefix = verInfo.GetStringInfo(_T("ProductPrefix"));
+    LPVOID compPrefix = verInfo.GetStringInfo(_T("ComponentPrefix"));
+
+    if( NULL!=prodPrefix )
+      _tcscpy_s(m_productPrefix,ARRAYSIZE(m_productPrefix),(LPCTSTR)prodPrefix);
+
+    if( NULL!=compPrefix )
+      _tcscpy_s(m_componentPrefix,ARRAYSIZE(m_productPrefix),(LPCTSTR)compPrefix);
+
+    OutputDebugFmt(_T("Loggers::ReadVersionInfo() Product:%s Component:%s\n"),m_productPrefix,m_componentPrefix);
+  } // of Loggers<charT,traits>::ReadVersionInfo()
+
+  /**
+   *
+   */
+  template< class charT,class traits >
   LogLevel<charT,traits> Loggers<charT,traits>::GetLoggingLevel(LPCTSTR srcFileName)
   { LogLevel<charT,traits> result;
 
     TString regPath(_T("HKEY_CURRENT_USER\\Software\\"));
-    regPath += _T(verProdPrefix);
+
+    if( m_productPrefix[0]!=_T('\0') && m_componentPrefix[0]!=_T('\0') )
+    { regPath += m_productPrefix;
+      regPath += _T("\\");
+      regPath += m_componentPrefix;
+    } // of if
+    else
+      regPath += _T("BVR20983");
+
     regPath += _T("\\logging");
+
+    ::OutputDebugFmt(_T("GetLoggingLevel() regpatch=<%s>\n"),regPath.c_str());
 
     try
     { RegistryKey regKey(regPath);

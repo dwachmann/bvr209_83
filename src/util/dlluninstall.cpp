@@ -21,6 +21,7 @@
 #include "os.h"
 #include "util/versioninfo.h"
 #include "com/comserver.h"
+#include "util/logstream.h"
 
 using namespace bvr20983;
 using namespace bvr20983::COM;
@@ -29,9 +30,7 @@ using namespace bvr20983::COM;
  *
  */
 STDAPI_(void) DllInstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ util::VersionInfo verInfo(COM::COMServer::GetInstanceHandle());
-
-  verInfo.Dump();
+{ LOGGER_INFO<<_T("DllInstall cmd=<")<<lpszCmdLine<<_T(">")<<endl;
 
   MessageBox(hwnd,lpszCmdLine,_T("DllInstall"),0);
 } // of DllInstallW()
@@ -40,6 +39,8 @@ STDAPI_(void) DllInstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCm
  *
  */
 STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
+{ LOGGER_INFO<<_T("DllUninstall cmd=<")<<lpszCmdLine<<_T(">")<<endl;
+  
+  MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
 } // of DllUninstallW()
 /*==========================END-OF-FILE===================================*/

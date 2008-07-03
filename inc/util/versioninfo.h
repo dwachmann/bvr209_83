@@ -35,7 +35,8 @@ namespace bvr20983
     class VersionInfo
     {
       public:
-        VersionInfo(LPCTSTR fName=NULL);
+        VersionInfo();
+        VersionInfo(LPCTSTR fName);
         VersionInfo(HMODULE hModule);
         ~VersionInfo();
 
@@ -44,6 +45,7 @@ namespace bvr20983
 
       private:
         void   Init(LPCTSTR fName);
+        void   Init(HMODULE hModule);
 
         LPVOID            m_lpBuffer;
         VS_FIXEDFILEINFO* m_pFileInfo;

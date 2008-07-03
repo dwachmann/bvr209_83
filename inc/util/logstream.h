@@ -90,6 +90,9 @@ namespace bvr20983
       static LogStream<charT,traits>& GetLogger(LPCTSTR srcFileName=NULL)
       { return m_loggers.GetLogger(srcFileName); }
 
+      static void ReadVersionInfo(HMODULE hModule)
+      { return m_loggers.ReadVersionInfo(hModule); }
+
       friend class Loggers<charT,traits>;
       
     private:
@@ -117,9 +120,13 @@ namespace bvr20983
       ~Loggers();
       
       LogStream<charT,traits>& GetLogger(LPCTSTR srcFileName=NULL);
+
+      void ReadVersionInfo(HMODULE hModule);
       
     private:
-      LogStreamsType m_logStreams;
+      LogStreamsType    m_logStreams;
+      static TCHAR      m_productPrefix[MAX_PATH];
+      static TCHAR      m_componentPrefix[MAX_PATH];
 
       static LogLevel<charT,traits> GetLoggingLevel(LPCTSTR srcFileName);
       static void                   GetFilePath(LPTSTR path,UINT maxPathLen,LPCTSTR srcFileName);
@@ -160,57 +167,6 @@ namespace bvr20983
 } // of namespace bvr20983
 
 
-#define MAXLOGST 128
-
 void OutputDebugFmt(LPTSTR pszFmt,...);
-
-#if defined(DEBUG)
-
-//Basic debug and logging macros
-
-// Output debug string; literal or variable.
-#define ODS(sMsg) \
-{\
-  TCHAR szDebug[MAXLOGST];\
-  OutputDebugFmt(_T("%s"),_T(sMsg));\
-  wsprintf(szDebug, _T(" [%s, %u]\r\n"), (LPTSTR) _T(__FILE__), __LINE__);\
-  OutputDebugString(szDebug);\
-}
-
-// Output debug string formatted; one argument.
-#define ODF1(sFmt,x) \
-{\
-  TCHAR szDebug[MAXLOGST];\
-  OutputDebugFmt(_T(sFmt),x);\
-  wsprintf(szDebug, _T(" [%s, %u]\r\n"), (LPTSTR) _T(__FILE__), __LINE__);\
-  OutputDebugString(szDebug);\
-}
-
-// Output debug string formatted; two argument.
-#define ODF2(sFmt,x,y) \
-{\
-  TCHAR szDebug[MAXLOGST];\
-  OutputDebugFmt(_T(sFmt),x,y);\
-  wsprintf(szDebug, _T(" [%s, %u]\r\n"), (LPTSTR) _T(__FILE__), __LINE__);\
-  OutputDebugString(szDebug);\
-}
-
-// Output debug string formatted; three argument.
-#define ODF3(sFmt,x,y,z) \
-{\
-  TCHAR szDebug[MAXLOGST];\
-  OutputDebugFmt(_T(sFmt),x,y,z);\
-  wsprintf(szDebug, _T(" [%s, %u]\r\n"), (LPTSTR) _T(__FILE__), __LINE__);\
-  OutputDebugString(szDebug);\
-}
-
-
-#else  // !defined(DEBUG)
-#define ODS(x)
-#define ODF1(sFmt,x)
-#define ODF2(sFmt,x,y)
-#define ODF3(sFmt,x,y,z)
-#endif // DEBUG
-
 #endif // LOGSTREAM_H
 //=================================END-OF-FILE==============================
