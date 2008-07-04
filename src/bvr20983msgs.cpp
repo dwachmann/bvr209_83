@@ -19,9 +19,12 @@
 
 #include "os.h"
 #include "com/comserver.h"
+#include "util/eventlogger.h"
+#include "util/versioninfo.h"
 
 using namespace bvr20983;
 using namespace bvr20983::COM;
+using namespace bvr20983::util;
 
 /**
  *
@@ -31,12 +34,17 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
 
   switch( fdwReason )
   { case DLL_PROCESS_ATTACH:
+      { VersionInfo verInfo((HMODULE)hDllInst);
 
-      if( NULL==COMServer::CreateInstance(hDllInst) )
-        bResult = FALSE;
+        LPVOID prodPrefix = verInfo.GetStringInfo(_T("ProductPrefix"));
+
+        if( NULL==COMServer::CreateInstance(hDllInst) || NULL==EventLogger::CreateInstance((LPCTSTR)prodPrefix) )
+          bResult = FALSE;
+      }
       break;
     case DLL_PROCESS_DETACH:
       COMServer::DeleteInstance();
+      EventLogger::DeleteInstance();
       break;
     case DLL_THREAD_ATTACH:
       break;

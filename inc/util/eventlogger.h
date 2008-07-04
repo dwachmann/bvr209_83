@@ -26,17 +26,27 @@ namespace bvr20983
     class EventLogger
     {
       public:
-        EventLogger(LPCTSTR serviceName,bool registerInRegistry=false);
-        ~EventLogger();
+        static EventLogger* CreateInstance(LPCTSTR serviceName);
+        static void         DeleteInstance();
+        static EventLogger* GetInstance()
+        { return m_pMe; }
 
-        void logMessage(LPCTSTR logText);
-        void logError(LPCTSTR errText);
-        void logError(LPCTSTR errText, LPCTSTR extraText);
-        void logEventMessage(LPCTSTR messageText, int messageType);
-        void logFunctionError(LPCTSTR functionName);
-        void logFunctionMessage(LPCTSTR functionName, LPCTSTR messageText);
+        static void RegisterInRegistry(LPCTSTR serviceName);
+        static void UnregisterInRegistry(LPCTSTR serviceName);
+
+        void LogMessage(LPCTSTR logText);
+        void LogError(LPCTSTR errText);
+        void LogError(LPCTSTR errText, LPCTSTR extraText);
+        void LogEventMessage(LPCTSTR messageText, int messageType);
+        void LogFunctionError(LPCTSTR functionName);
+        void LogFunctionMessage(LPCTSTR functionName, LPCTSTR messageText);
 
       private:
+        EventLogger(LPCTSTR serviceName);
+        ~EventLogger();
+
+        static EventLogger* m_pMe;
+
         HANDLE m_hEventSource;
     }; // of class EventLogger
   } // of namespace util

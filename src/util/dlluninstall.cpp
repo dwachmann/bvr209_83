@@ -21,26 +21,35 @@
 #include "os.h"
 #include "util/versioninfo.h"
 #include "com/comserver.h"
-#include "util/logstream.h"
+#include "util/eventlogger.h"
 
 using namespace bvr20983;
 using namespace bvr20983::COM;
+using namespace bvr20983::util;
 
 /**
  *
  */
 STDAPI_(void) DllInstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ LOGGER_INFO<<_T("DllInstall cmd=<")<<lpszCmdLine<<_T(">")<<endl;
+{ MessageBox(hwnd,lpszCmdLine,_T("DllInstall"),0);
 
-  MessageBox(hwnd,lpszCmdLine,_T("DllInstall"),0);
+  VersionInfo verInfo((HMODULE)hinst);
+
+  LPVOID prodPrefix = verInfo.GetStringInfo(_T("ProductPrefix"));
+
+  EventLogger::RegisterInRegistry((LPCTSTR)prodPrefix);
 } // of DllInstallW()
 
 /**
  *
  */
 STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ LOGGER_INFO<<_T("DllUninstall cmd=<")<<lpszCmdLine<<_T(">")<<endl;
-  
-  MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
+{ MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
+
+  VersionInfo verInfo((HMODULE)hinst);
+
+  LPVOID prodPrefix = verInfo.GetStringInfo(_T("ProductPrefix"));
+
+  EventLogger::UnegisterInRegistry((LPCTSTR)prodPrefix);
 } // of DllUninstallW()
 /*==========================END-OF-FILE===================================*/

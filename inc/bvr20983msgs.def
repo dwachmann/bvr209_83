@@ -15,5 +15,12 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see http://www.gnu.org/licenses/.
 EXPORTS
-  DllInstallW       PRIVATE
-  DllUninstallW     PRIVATE
+  DllInstallW           PRIVATE
+  DllUninstallW         PRIVATE
+  EvtLogMessage         PRIVATE
+  EvtLogError           PRIVATE
+  EvtLogError2          PRIVATE
+  EvtLogEventMessage    PRIVATE
+  EvtLogFunctionError   PRIVATE
+  EvtLogFunctionMessage PRIVATE
+  
