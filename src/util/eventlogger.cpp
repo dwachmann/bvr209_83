@@ -22,6 +22,7 @@
 #include "util/eventlogger.h"
 #include "util/registry.h"
 #include "com/comserver.h"
+#include "util/logstream.h"
 #include "msgs.h"
 
 namespace bvr20983
@@ -89,8 +90,13 @@ namespace bvr20983
         if( !k.Exists() )
         { Registry evtSrcRegKey(evtSrcRegKeyStr);
 
+          OutputDebugFmt(_T("EventLogger::RegisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
+
           evtSrcRegKey.SetKeyValue(NULL,_T("EventMessageFile"),szModulePath);
           evtSrcRegKey.SetKeyIntValue(NULL,_T("TypesSupported"),EVENTLOG_ERROR_TYPE|EVENTLOG_INFORMATION_TYPE|EVENTLOG_WARNING_TYPE);
+
+          evtSrcRegKey.SetKeyValue(NULL,_T("CategoryMessageFile"),szModulePath);
+          evtSrcRegKey.SetKeyIntValue(NULL,_T("CategoryCount"),3);
         } // of if
       } // of if
     } // of EventLogger::RegisterInRegistry()
@@ -106,7 +112,10 @@ namespace bvr20983
         RegistryKey k(evtSrcRegKeyStr);
 
         if( k.Exists() )
+        { OutputDebugFmt(_T("EventLogger::UnregisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
+
           k.Delete();
+        } // of if
       } // of if
     } // of EventLogger::UnregisterInRegistry()
 
@@ -121,7 +130,7 @@ namespace bvr20983
      *
      */
     void EventLogger::LogError(LPCTSTR errText)
-    { LogEventMessage( errText, EVENT_GENERIC_ERROR); }
+    { LogEventMessage( errText, EVENT_GENERIC_ERROR,EVENTLOG_ERROR_TYPE); }
 
     /**
      *
@@ -138,7 +147,7 @@ namespace bvr20983
       if( extraTextLen>0 )
 		    _tcscpy_s(fullText + errTextLen,extraTextLen,extraText);
 
-	    LogEventMessage( fullText, EVENT_GENERIC_ERROR);
+	    LogEventMessage( fullText, EVENT_GENERIC_ERROR,EVENTLOG_ERROR_TYPE);
 
 	    free(fullText);
     }
@@ -146,11 +155,11 @@ namespace bvr20983
     /**
      *
      */
-    void EventLogger::LogEventMessage(LPCTSTR messageText, int messageType)
+    void EventLogger::LogEventMessage(LPCTSTR messageText, int messageType, int eventlogType)
     { if( m_hEventSource!=NULL )
 	    { LPCTSTR messages[1] = { messageText };
 		    
-        ::ReportEvent(m_hEventSource, EVENTLOG_INFORMATION_TYPE, 0, messageType, NULL, 1, 0, messages, NULL);
+        ::ReportEvent(m_hEventSource, eventlogType, CAT_COMMON, messageType, NULL, 1, 0, messages, NULL);
 	    }
     }
 

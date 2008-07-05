@@ -37,7 +37,7 @@ namespace bvr20983
         void LogMessage(LPCTSTR logText);
         void LogError(LPCTSTR errText);
         void LogError(LPCTSTR errText, LPCTSTR extraText);
-        void LogEventMessage(LPCTSTR messageText, int messageType);
+        void LogEventMessage(LPCTSTR messageText, int messageType, int eventlogType=EVENTLOG_INFORMATION_TYPE);
         void LogFunctionError(LPCTSTR functionName);
         void LogFunctionMessage(LPCTSTR functionName, LPCTSTR messageText);
 

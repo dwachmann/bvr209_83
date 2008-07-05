@@ -1,7 +1,39 @@
 LanguageNames=(English=0x409:msgs)
 LanguageNames=(German=0x407:msgs407)
 
-MessageId=0x0001
+MessageIdTypedef=WORD
+
+MessageId=0x1
+SymbolicName=CAT_COMMON
+Language=English
+Common
+.
+Language=German
+Allgemein
+.
+
+MessageId=0x2
+SymbolicName=CAT_INSTALL
+Language=English
+Install
+.
+Language=German
+Installation
+.
+
+MessageId=0x3
+SymbolicName=CAT_COM
+Language=English
+COM
+.
+Language=German
+COM
+.
+
+
+MessageIdTypedef=DWORD
+
+MessageId=0x0010
 Severity=Informational
 Facility=Application
 SymbolicName=EVENT_GENERIC_INFORMATION
@@ -12,7 +44,7 @@ Language=German
 %1
 .
 
-MessageId=0x0002
+MessageId=0x0011
 Severity=Informational
 Facility=Application
 SymbolicName=EVENT_SERVICE_INSTALLED
@@ -23,7 +55,7 @@ Language=German
 Der %1 Java-Dienst wurde installiert.
 .
 
-MessageId=0x0003
+MessageId=0x0013
 Severity=Informational
 Facility=Application
 SymbolicName=EVENT_SERVICE_UNINSTALLED
@@ -34,7 +66,7 @@ Language=German
 Der %1 Java-Dienst wurde deinstalliert.
 .
 
-MessageId=0x0004
+MessageId=0x0014
 Severity=Informational
 Facility=Application
 SymbolicName=EVENT_SERVICE_STARTING
@@ -45,7 +77,7 @@ Language=German
 Der %1 Dienst wird gestartet.
 .
 
-MessageId=0x0005
+MessageId=0x0015
 Severity=Informational
 Facility=Application
 SymbolicName=EVENT_SERVICE_STARTED
@@ -56,7 +88,7 @@ Language=German
 Der %1 Dienst wurde gestartet.
 .
 
-MessageId=0x0006
+MessageId=0x0016
 Severity=Informational
 Facility=Application
 SymbolicName=EVENT_SERVICE_STOPPING
@@ -67,7 +99,7 @@ Language=German
 Der %1 Dienst wird beendet.
 .
 
-MessageId=0x0007
+MessageId=0x0017
 Severity=Informational
 Facility=Application
 SymbolicName=EVENT_SERVICE_STOPPED

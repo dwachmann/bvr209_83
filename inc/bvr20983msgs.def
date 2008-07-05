@@ -17,6 +17,8 @@
 EXPORTS
   DllInstallW           PRIVATE
   DllUninstallW         PRIVATE
+  DllLogW               PRIVATE
+  DllLogErrorW          PRIVATE
   EvtLogMessage         PRIVATE
   EvtLogError           PRIVATE
   EvtLogError2          PRIVATE
