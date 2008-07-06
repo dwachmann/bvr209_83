@@ -15,7 +15,7 @@ Allgemein
 MessageId=0x2
 SymbolicName=CAT_INSTALL
 Language=English
-Install
+Installation
 .
 Language=German
 Installation
@@ -47,70 +47,48 @@ Language=German
 MessageId=0x0011
 Severity=Informational
 Facility=Application
-SymbolicName=EVENT_SERVICE_INSTALLED
+SymbolicName=EVENT_COMPONENT_INSTALLED
 Language=English
-The %1 Java service has been installed.
+The component %2 of product %1 has been installed.
 .
 Language=German
-Der %1 Java-Dienst wurde installiert.
+Die Komponente %2 des Produktes %1 wurde installiert.
+.
+
+MessageId=0x0012
+Severity=Error
+Facility=Application
+SymbolicName=EVENT_COMPONENT_INSTALLATIONFAILED
+Language=English
+The installation of component %2 for product %1 failed for the following reason: %3.
+.
+Language=German
+Der Installation der Komponente %2 des Produktes %1 schlug aus folgendem Grund fehlt: %3.
 .
 
 MessageId=0x0013
 Severity=Informational
 Facility=Application
-SymbolicName=EVENT_SERVICE_UNINSTALLED
+SymbolicName=EVENT_COMPONENT_UNINSTALLED
 Language=English
-The %1 Java service has been uninstalled.
+The component %2 of product %1 has been removed.
 .
 Language=German
-Der %1 Java-Dienst wurde deinstalliert.
+Der Komponente %2 des Produktes %1 wurde entfernt.
 .
 
 MessageId=0x0014
-Severity=Informational
+Severity=Error
 Facility=Application
-SymbolicName=EVENT_SERVICE_STARTING
+SymbolicName=EVENT_COMPONENT_UNINSTALLATIONFAILED
 Language=English
-The %1 service is being started.
+The deinstallation of component %2 for product %1 failed for the following reason: %3.
 .
 Language=German
-Der %1 Dienst wird gestartet.
+Die Deinstallation der Komponente %2 des Produktes %1 schlug aus folgendem Grund fehlt: %3.
 .
 
 MessageId=0x0015
-Severity=Informational
-Facility=Application
-SymbolicName=EVENT_SERVICE_STARTED
-Language=English
-The %1 service has been started.
-.
-Language=German
-Der %1 Dienst wurde gestartet.
-.
-
-MessageId=0x0016
-Severity=Informational
-Facility=Application
-SymbolicName=EVENT_SERVICE_STOPPING
-Language=English
-The %1 service is being stopped.
-.
-Language=German
-Der %1 Dienst wird beendet.
-.
-
-MessageId=0x0017
-Severity=Informational
-Facility=Application
-SymbolicName=EVENT_SERVICE_STOPPED
-Language=English
-The %1 service has been stopped.
-.
-Language=German
-Der %1 Dienst wurde beendet.
-.
-
-MessageId=0x1000
 Severity=Error
 Facility=Application
 SymbolicName=EVENT_GENERIC_ERROR
@@ -121,7 +99,7 @@ Language=German
 %1
 .
 
-MessageId=0x1001
+MessageId=0x0016
 Severity=Error
 Facility=Application
 SymbolicName=EVENT_FUNCTION_FAILED
@@ -130,37 +108,4 @@ The %1 function failed for the following reason: %2.
 .
 Language=German
 Die %1 Funktion scheiterte aus folgendem Grund: %2.
-.
-
-MessageId=0x1002
-Severity=Error
-Facility=Application
-SymbolicName=EVENT_START_FAILED
-Language=English
-The %1 service failed to start.
-.
-Language=German
-Der %1 Dienst konnte nicht gestartet werden.
-.
-
-MessageId=0x1003
-Severity=Error
-Facility=Application
-SymbolicName=EVENT_STOP_FAILED
-Language=English
-The stop method of the %1 service failed to run, the service is being terminated.
-.
-Language=German
-Das Beenden des %1 Dienstes scheiterte, der Dienst wird liquidiert.
-.
-
-MessageId=0x1004
-Severity=Error
-Facility=Application
-SymbolicName=EVENT_STOP_TIMEDOUT
-Language=English
-The %1 service has timed out during a stop request and is being terminated.
-.
-Language=German
-Der %1 Dienst wird wegen einer Zeitueberschreitung waehrend des Beendens liquidiert.
 .

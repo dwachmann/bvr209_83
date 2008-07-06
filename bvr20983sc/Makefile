@@ -25,7 +25,8 @@ $(OUTDIR)\coatr.obj \
 $(OUTDIR)\bvr20983.obj \
 $(OUTDIR)\bvr20983guid.obj \
 $(OUTDIR)\bvr20983sc.res \
-$(SLNDIR)\libbvr20983.lib
+$(SLNDIR)\libbvr20983.lib \
+$(SLNDIR)\$(BVR20983MSGS_RESULT).lib
 
 !ifdef clean
 all: clean

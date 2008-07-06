@@ -88,7 +88,7 @@ namespace bvr20983
       else
         _tcscpy_s(szModulePath,ARRAYSIZE(szModulePath),fName);
 
-      OutputDebugFmt(_T("VersionInfo()::Init(fName=%s)\n"),fName);
+      //OutputDebugFmt(_T("VersionInfo()::Init(fName=%s)\n"),fName);
 
       DWORD hFileVersion = 0;
       DWORD verInfoSize  = ::GetFileVersionInfoSize(szModulePath,&hFileVersion);

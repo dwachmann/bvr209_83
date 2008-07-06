@@ -59,22 +59,4 @@ STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int n
   if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
     EventLogger::UnregisterInRegistry((LPCTSTR)prodPrefix);
 } // of DllUninstallW()
-
-/**
- *
- */
-STDAPI_(void) DllLogW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ MessageBox(hwnd,lpszCmdLine,_T("DllLog"),0);
-
-  EventLogger::GetInstance()->LogMessage(lpszCmdLine);
-} // of DllLogW()
-
-/**
- *
- */
-STDAPI_(void) DllLogErrorW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ MessageBox(hwnd,lpszCmdLine,_T("DllLogError"),0);
-
-  EventLogger::GetInstance()->LogError(lpszCmdLine);
-} // of DllLogErrorW()
 /*==========================END-OF-FILE===================================*/

@@ -150,17 +150,17 @@ namespace bvr20983
   LogAppenders<charT,traits>::GetInstance(typename LogAppenders<charT,traits>::AppenderT& result,typename AppenderType type,typename LogLevelT l,LPCTSTR fName)
   { AppenderList::iterator iter;
 
-    OutputDebugFmt(_T("LogAppenders::GetInstance(fname=%s)\n"),fName);
+    //OutputDebugFmt(_T("LogAppenders::GetInstance(fname=%s)\n"),fName);
   
     for( iter=m_appenderList.begin();iter!=m_appenderList.end();iter++ )
     { AppenderT& app = *iter;
 
-      OutputDebugFmt(_T("LogAppenders::GetInstance(): app->GetType()=%d app->GetFName()=%s\n"),app->GetType(),app->GetFName());
+      //OutputDebugFmt(_T("LogAppenders::GetInstance(): app->GetType()=%d app->GetFName()=%s\n"),app->GetType(),app->GetFName());
 
       if( app->GetType()==type && ((fName==NULL && app->GetFName()==NULL) || _tcscmp(fName,app->GetFName())==0) )
       { result = app;
 
-        OutputDebugFmt(_T("LogAppenders::GetInstance(fname=%s): found appender\n"),fName);
+        //OutputDebugFmt(_T("LogAppenders::GetInstance(fname=%s): found appender\n"),fName);
         
         break;
       } 
@@ -172,7 +172,7 @@ namespace bvr20983
       m_appenderList.push_back(result);
     } // of if
 
-    OutputDebugFmt(_T("LogAppenders::GetInstance(): 0x%lx\n"),&result);
+    //OutputDebugFmt(_T("LogAppenders::GetInstance(): 0x%lx\n"),&result);
   
     return result;
   } // of LogAppenders<charT,traits>::GetInstance()

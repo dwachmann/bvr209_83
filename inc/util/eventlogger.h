@@ -40,6 +40,7 @@ namespace bvr20983
         void LogEventMessage(LPCTSTR messageText, int messageType, int eventlogType=EVENTLOG_INFORMATION_TYPE);
         void LogFunctionError(LPCTSTR functionName);
         void LogFunctionMessage(LPCTSTR functionName, LPCTSTR messageText);
+        void LogInstall(LPCTSTR product,LPCTSTR component,BOOL install,HRESULT hr);
 
       private:
         EventLogger(LPCTSTR serviceName);
@@ -51,5 +52,14 @@ namespace bvr20983
     }; // of class EventLogger
   } // of namespace util
 } // of namespace bvr20983
+
+STDAPI_(void) EvtLogMessage(LPCTSTR logText);
+STDAPI_(void) EvtLogError(LPCTSTR logText);
+STDAPI_(void) EvtLogError2(LPCTSTR logText, LPCTSTR extraText);
+STDAPI_(void) EvtLogEventMessage(LPCTSTR messageText, int messageType);
+STDAPI_(void) EvtLogFunctionError(LPCTSTR functionName);
+STDAPI_(void) EvtLogFunctionMessage(LPCTSTR functionName, LPCTSTR messageText);
+STDAPI_(void) EvtLogInstall(LPCTSTR product,LPCTSTR component,BOOL install,HRESULT hr);
+
 #endif // __EVENT_LOGGER_H__
 /*==========================END-OF-FILE===================================*/

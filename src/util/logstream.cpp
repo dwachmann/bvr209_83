@@ -107,7 +107,7 @@ namespace bvr20983
     if( NULL!=compPrefix )
       _tcscpy_s(m_componentPrefix,ARRAYSIZE(m_productPrefix),(LPCTSTR)compPrefix);
 
-    OutputDebugFmt(_T("Loggers::ReadVersionInfo() Product:%s Component:%s\n"),m_productPrefix,m_componentPrefix);
+    //OutputDebugFmt(_T("Loggers::ReadVersionInfo() Product:%s Component:%s\n"),m_productPrefix,m_componentPrefix);
   } // of Loggers<charT,traits>::ReadVersionInfo()
 
   /**
@@ -129,7 +129,7 @@ namespace bvr20983
 
     regPath += _T("\\logging");
 
-    ::OutputDebugFmt(_T("GetLoggingLevel() regpatch=<%s>\n"),regPath.c_str());
+    ::OutputDebugFmt(_T("Loggers::GetLoggingLevel() registry <%s>\n"),regPath.c_str());
 
     try
     { RegistryKey regKey(regPath);

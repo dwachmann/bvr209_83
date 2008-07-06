@@ -185,12 +185,43 @@ namespace bvr20983
 	    if( m_hEventSource!=NULL )
         ::ReportEvent(m_hEventSource, EVENTLOG_ERROR_TYPE, 0, EVENT_FUNCTION_FAILED, NULL, 2, 0, messages, NULL);
     }
+
+    /**
+     *
+     */
+    void EventLogger::LogInstall(LPCTSTR product,LPCTSTR component,BOOL install,HRESULT hr)
+    { LPCTSTR messages[3] = { product,component,NULL };
+      LPTSTR  hrErrorText = NULL;
+      WORD    eventType   = SUCCEEDED(hr) ? EVENTLOG_SUCCESS : EVENTLOG_ERROR_TYPE;
+      DWORD   eventId     = EVENT_COMPONENT_INSTALLED;
+
+      if( install )
+        eventId = SUCCEEDED(hr) ? EVENT_COMPONENT_INSTALLED : EVENT_COMPONENT_INSTALLATIONFAILED;
+      else
+        eventId = SUCCEEDED(hr) ? EVENT_COMPONENT_UNINSTALLED : EVENT_COMPONENT_UNINSTALLATIONFAILED;
+
+      if( FAILED(hr) )
+      { TCHAR errorMsg[1024];
+        
+        ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, hr, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), (LPTSTR)&hrErrorText, 0, NULL);
+
+        _stprintf_s(errorMsg,sizeof(errorMsg)/sizeof(errorMsg[0]),_T("%s[0x%lx]"),hrErrorText,hr);
+
+        messages[2] = errorMsg;
+      } // of if
+
+      if( m_hEventSource!=NULL )
+        ::ReportEvent(m_hEventSource, eventType, CAT_INSTALL, eventId, NULL, 3, 0, messages, NULL);
+
+      if( NULL!=hrErrorText )
+        ::LocalFree(hrErrorText);
+    } // of LogInstall()
   } // of namespace util
 } // of namespace bvr20983
 
 
 /**
- *
+ * exportwrapper
  */
 STDAPI_(void) EvtLogMessage(LPCTSTR logText)
 { bvr20983::util::EventLogger::GetInstance()->LogMessage(logText); }
@@ -209,4 +240,7 @@ STDAPI_(void) EvtLogFunctionError(LPCTSTR functionName)
 
 STDAPI_(void) EvtLogFunctionMessage(LPCTSTR functionName, LPCTSTR messageText)
 { bvr20983::util::EventLogger::GetInstance()->LogFunctionMessage(functionName,messageText); }
+
+STDAPI_(void) EvtLogInstall(LPCTSTR product,LPCTSTR component,BOOL install,HRESULT hr)
+{ bvr20983::util::EventLogger::GetInstance()->LogInstall(product,component,install,hr); }
 /*==========================END-OF-FILE===================================*/

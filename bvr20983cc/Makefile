@@ -23,7 +23,8 @@ $(OUTDIR)\bvr20983cc.obj \
 $(OUTDIR)\coled.obj \
 $(OUTDIR)\ibvr20983ccguid.obj \
 $(OUTDIR)\bvr20983cc.res \
-$(SLNDIR)\libbvr20983.lib
+$(SLNDIR)\libbvr20983.lib \
+$(SLNDIR)\$(BVR20983MSGS_RESULT).lib
 
 !ifdef clean
 all: clean

@@ -17,12 +17,11 @@
 EXPORTS
   DllInstallW           PRIVATE
   DllUninstallW         PRIVATE
-  DllLogW               PRIVATE
-  DllLogErrorW          PRIVATE
-  EvtLogMessage         PRIVATE
-  EvtLogError           PRIVATE
-  EvtLogError2          PRIVATE
-  EvtLogEventMessage    PRIVATE
-  EvtLogFunctionError   PRIVATE
-  EvtLogFunctionMessage PRIVATE
+  EvtLogMessage
+  EvtLogError
+  EvtLogError2
+  EvtLogEventMessage
+  EvtLogFunctionError
+  EvtLogFunctionMessage
+  EvtLogInstall
   
