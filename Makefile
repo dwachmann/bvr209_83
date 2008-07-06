@@ -34,24 +34,37 @@ digiclock\~    \
 lsstg\~        \
 lstypeinfo\~
 
+CABCONTENT = \
+$(INCDIR)\$(BVR20983_RESULT).inf \
+$(SIGNDIR)\$(BVR20983MSGS_RESULT).dll \
+$(SIGNDIR)\$(BVR20983SC_RESULT).dll \
+$(SIGNDIR)\$(BVR20983CC_RESULT).dll \
+$(SIGNDIR)\$(DIGICLOCK_RESULT).exe \
+$(SIGNDIR)\$(LSSTG_RESULT).exe \
+$(SIGNDIR)\$(LSTYPEINFO_RESULT).exe
+
 !ifdef clean
 all: $(PROJECTS) clean
 !else
 all: $(PROJECTS) 
 !endif
 
-distribute: $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\$(DIGICLOCK_RESULT).exe $(SIGNDIR)\$(LSSTG_RESULT).exe $(SIGNDIR)\$(LSTYPEINFO_RESULT).exe $(SIGNDIR)\$(BVR20983_RESULT).cab
-  @copy $(HTMLDIR)\led.*          $(DISTDIR)
-  @copy $(HTMLDIR)\*.jpg          $(DISTDIR)
+distribute: patch $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\$(BVR20983_RESULT).cab
+  @copy $(HTMLDIR)\led.*                  $(DISTDIR)
+  @copy $(HTMLDIR)\*.jpg                  $(DISTDIR)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
 
 patch:
   cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/"
 
-$(SIGNDIR)\$(BVR20983_RESULT).cab: $(SIGNDIR)\$(BVR20983SC_RESULT).dll $(SIGNDIR)\$(BVR20983CC_RESULT).dll $(INCDIR)\bvr20983.inf
+$(SIGNDIR)\$(BVR20983_RESULT).cab: $(CABCONTENT)
 	@$(cab) -s 6144 N $@ $?
 	@$(sign) $(signvars) /p $(signpwd) $@
 
-all1: patch $(PROJECTS) distribute
+install:
+  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultInstall,C:\Projects\smartcard\applications\windows\bvr20983\dist\$(BVR20983_RESULT).cab,32
 
+uninstall:
+  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultUninstall,C:\Projects\smartcard\applications\windows\bvr20983\dist\$(BVR20983_RESULT).cab,32
+  
 !include <./inc/bvr.inc>

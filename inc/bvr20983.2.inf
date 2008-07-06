@@ -1,0 +1,123 @@
+; $Id: bvr20983.inf.tmpl 62 2008-07-06 17:20:17Z dwachmann $
+; 
+; Copyright (C) 2008 Dorothea Wachmann
+; 
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+; 
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see http://www.gnu.org/licenses/.
+;
+; related information
+; rundll32.exe advpack.dll,LaunchINFSectionEx myinf.inf,,c:\temp\mydata.cab,36
+; rundll32.exe advpack.dll,LaunchINFSection myinf.inf,,3
+; RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 C:\WINDOWS\INF\SHELL.INF
+; CoGetClassObjectFromURL
+;
+[Version]
+Signature="$Chicago$"
+AdvancedINF=2.5,%BadAdvpackVer%
+
+[DefaultInstall]
+CheckAdminRights=1
+CopyFiles=SWFiles.add
+AddReg=SW.AddReg
+RegisterOCXs=RegisterOCXSection
+
+[DefaultUninstall]
+Cleanup=1
+DelFiles=SWFiles.del
+DelReg=SW.DelReg
+UnRegisterOCXs=UnRegisterOCXSection
+
+[SourceDisksNames]
+1=%DiskDescription%,"bvr20983.2.cab",0
+
+[SourceDisksFiles]
+bvr20983.2.inf=1
+bvr20983.2.msgs.1.dll=1
+bvr20983.2.cc.1.dll=1
+bvr20983.2.sc.1.dll=1
+bvr20983.2.digiclock.1.dll=1
+bvr20983.2.lsstg.1.dll=1
+bvr20983.2.lstypeinfo.1.dll=1
+
+[SWFiles.add]
+bvr20983.2.msgs.1.dll,,,33
+bvr20983.2.cc.1.dll,,,33
+bvr20983.2.sc.1.dll,,,33
+bvr20983.2.digiclock.1.dll,,,33
+bvr20983.2.lsstg.1.dll,,,33
+bvr20983.2.lstypeinfo.1.dll,,,33
+
+[SWFiles.del]
+bvr20983.2.msgs.1.dll,,,1
+bvr20983.2.cc.1.dll,,,1
+bvr20983.2.sc.1.dll,,,1
+bvr20983.2.digiclock.1.dll,,,1
+bvr20983.2.lsstg.1.dll,,,1
+bvr20983.2.lstypeinfo.1.dll,,,1
+
+; DIRID_PROGRAM_FILES [16422]
+[DestinationDirs]
+SWFiles.add=16422, bvr20983.2
+SWFiles.del=16422, bvr20983.2
+
+[SW.AddReg]
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"DisplayName",,"%ProductName%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"UninstallString",,"RunDll32.exe advpack.dll, LaunchINFSection %16422%\bvr20983.2\bvr20983.2.inf,DefaultUninstall"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"Publisher",,"%Publisher%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"DisplayVersion",,"%DisplayVersion%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"VersionMajor",,"%VersionMajor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"VersionMinor",,"%VersionMinor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"HelpLink",,"%HelpLink%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"URLUpdateInfo",,"%URLUpdateInfo%"
+
+[SW.DelReg]
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"DisplayName"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"UninstallString"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"Publisher"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"DisplayVersion"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"VersionMajor"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"VersionMinor"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"HelpLink"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"URLUpdateInfo"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2
+
+[RegisterOCXSection]
+%16422%\bvr20983.2\bvr20983.2.cc.1.dll
+%16422%\bvr20983.2\bvr20983.2.sc.1.dll
+
+[UnRegisterOCXSection]
+%16422%\bvr20983.2\bvr20983.2.cc.1.dll
+%16422%\bvr20983.2\bvr20983.2.sc.1.dll
+
+[Strings]
+BadAdvpackVer="Incorrect version of advpack.dll. Please get new version from our web site."
+DiskDescription="BVR2098 Suite cabinet file"
+VersionMajor = "2"
+VersionMinor = "0"
+DisplayVersion = "2"
+Publisher = "Dorothea Wachmann"
+ProductName = "BVR2098 Suite"
+HelpLink = "https://www.jondos.de/"
+URLUpdateInfo = "https://www.jondos.de/"
+
+; German
+[Strings.0407]         
+BadAdvpackVer="Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
+DiskDescription="BVR2098 Suite Installationsdatei"
+VersionMajor = "2"
+VersionMinor = "0"
+DisplayVersion = "2"
+Publisher = "Dorothea Wachmann"
+ProductName = "BVR2098 Suite"
+HelpLink = "https://www.jondos.de/"
+URLUpdateInfo = "https://www.jondos.de/"

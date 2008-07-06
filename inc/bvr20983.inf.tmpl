@@ -14,6 +14,13 @@
 ; 
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see http://www.gnu.org/licenses/.
+;
+; related information
+; rundll32.exe advpack.dll,LaunchINFSectionEx myinf.inf,,c:\temp\mydata.cab,36
+; rundll32.exe advpack.dll,LaunchINFSection myinf.inf,,3
+; RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 C:\WINDOWS\INF\SHELL.INF
+; CoGetClassObjectFromURL
+;
 [Version]
 Signature="$Chicago$"
 AdvancedINF=2.5,%BadAdvpackVer%
@@ -30,13 +37,38 @@ DelFiles=SWFiles.del
 DelReg=SW.DelReg
 UnRegisterOCXs=UnRegisterOCXSection
 
-[RegisterOCXSection]
-%16422%\@productprefix\@bvr20983ccresult
-%16422%\@productprefix\@bvr20983scresult
+[SourceDisksNames]
+1=%DiskDescription%,"@bvr20983result",0
 
-[UnRegisterOCXSection]
-%16422%\@productprefix\@bvr20983ccresult
-%16422%\@productprefix\@bvr20983scresult
+[SourceDisksFiles]
+@productprefix.inf=1
+@bvr20983msgsresult=1
+@bvr20983ccresult=1
+@bvr20983scresult=1
+@digiclockresult=1
+@lsstgresult=1
+@lstypeinforesult=1
+
+[SWFiles.add]
+@bvr20983msgsresult,,,33
+@bvr20983ccresult,,,33
+@bvr20983scresult,,,33
+@digiclockresult,,,33
+@lsstgresult,,,33
+@lstypeinforesult,,,33
+
+[SWFiles.del]
+@bvr20983msgsresult,,,1
+@bvr20983ccresult,,,1
+@bvr20983scresult,,,1
+@digiclockresult,,,1
+@lsstgresult,,,1
+@lstypeinforesult,,,1
+
+; DIRID_PROGRAM_FILES [16422]
+[DestinationDirs]
+SWFiles.add=16422, @productprefix
+SWFiles.del=16422, @productprefix
 
 [SW.AddReg]
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"DisplayName",,"%ProductName%"
@@ -59,36 +91,17 @@ HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"HelpLin
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"URLUpdateInfo"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix
 
-[SourceDisksNames]
-1="@productid Files","@productid",1
+[RegisterOCXSection]
+%16422%\@productprefix\@bvr20983ccresult
+%16422%\@productprefix\@bvr20983scresult
 
-[SourceDisksFiles]
-@bvr20983result=1
+[UnRegisterOCXSection]
+%16422%\@productprefix\@bvr20983ccresult
+%16422%\@productprefix\@bvr20983scresult
 
-[SWFiles.add]
-@bvr20983msgsresult,,,33
-@bvr20983ccresult,,,33
-@bvr20983scresult,,,33
-@digiclockresult,,,33
-@lsstgresult,,,33
-@lstypeinforesult,,,33
-
-[SWFiles.del]
-@bvr20983msgsresult,,,1
-@bvr20983ccresult,,,1
-@bvr20983scresult,,,1
-@digiclockresult,,,1
-@lsstgresult,,,1
-@lstypeinforesult,,,1
-
-; DIRID_PROGRAM_FILES [16422]
-[DestinationDirs]
-SWFiles=16422, @productprefix
-
-[strings]
+[Strings]
 BadAdvpackVer="Incorrect version of advpack.dll. Please get new version from our web site."
-BadSetupapiVer="Setupapi.dll is required to install on this system."
-BadSetupEngineVer="Advpack.dll is required to install on this system."
+DiskDescription="@productname cabinet file"
 VersionMajor = "@productmajorversion"
 VersionMinor = "@productminorversion"
 DisplayVersion = "@productmajorversion"
@@ -97,6 +110,14 @@ ProductName = "@productname"
 HelpLink = "https://www.jondos.de/"
 URLUpdateInfo = "https://www.jondos.de/"
 
-; rundll32.exe advpack.dll,LaunchINFSectionEx myinf.inf,,c:\temp\mydata.cab,36
-; rundll32.exe advpack.dll,LaunchINFSection myinf.inf,,3
-; RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 C:\WINDOWS\INF\SHELL.INF
+; German
+[Strings.0407]         
+BadAdvpackVer="Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
+DiskDescription="@productname Installationsdatei"
+VersionMajor = "@productmajorversion"
+VersionMinor = "@productminorversion"
+DisplayVersion = "@productmajorversion"
+Publisher = "@publisher"
+ProductName = "@productname"
+HelpLink = "https://www.jondos.de/"
+URLUpdateInfo = "https://www.jondos.de/"
