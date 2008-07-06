@@ -45,6 +45,23 @@
       <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
     </patch>
 
+    <patch template="bvr20983.inf.tmpl" filename="bvr20983.2.inf">
+      <pattern><key>@bvr20983ccresult</key><value>${../../../../v:component[@id='cc']/v:filename/text()}.dll</value></pattern>
+      <pattern><key>@bvr20983scresult</key><value>${../../../../v:component[@id='sc']/v:filename/text()}.dll</value></pattern>
+      <pattern><key>@digiclockresult</key><value>${../../../../v:component[@id='digiclock']/v:filename/text()}.dll</value></pattern>
+      <pattern><key>@lsstgresult</key><value>${../../../../v:component[@id='lsstg']/v:filename/text()}.dll</value></pattern>
+      <pattern><key>@lstypeinforesult</key><value>${../../../../v:component[@id='lstypeinfo']/v:filename/text()}.dll</value></pattern>
+      <pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}.dll</value></pattern>
+      <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}.cab</value></pattern>
+
+      <pattern><key>@publisher</key><value>${../../../../v:company/text()}</value></pattern>
+      <pattern><key>@productprefix</key><value>${../../../../v:filename/text()}</value></pattern>
+      <pattern><key>@productname</key><value>${../../../../v:name/text()}</value></pattern>
+      <pattern><key>@productmajorversion</key><value>${../../../../v:version/@major}</value></pattern>
+      <pattern><key>@productminorversion</key><value>${../../../../v:version/@minor}</value></pattern>
+      <pattern><key>@productid</key><value>#{LCase("${../../../../@id}")}</value></pattern>
+    </patch>
+
     <patch filename="bvr20983-prod.h">
       <pattern><key>(^#define.+verProdName.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
       <pattern><key>(^#define.+verCompName.+")(.+)(")</key>                                    <value>$1${../../../../v:company/text()}$3</value></pattern>
