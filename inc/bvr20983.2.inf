@@ -1,4 +1,4 @@
-; $Id: bvr20983.inf.tmpl 62 2008-07-06 17:20:17Z dwachmann $
+; $Id: bvr20983.inf.tmpl 63 2008-07-06 23:39:12Z dwachmann $
 ; 
 ; Copyright (C) 2008 Dorothea Wachmann
 ; 
@@ -45,25 +45,26 @@ bvr20983.2.inf=1
 bvr20983.2.msgs.1.dll=1
 bvr20983.2.cc.1.dll=1
 bvr20983.2.sc.1.dll=1
-bvr20983.2.digiclock.1.dll=1
-bvr20983.2.lsstg.1.dll=1
-bvr20983.2.lstypeinfo.1.dll=1
+bvr20983.2.digiclock.1.exe=1
+bvr20983.2.lsstg.1.exe=1
+bvr20983.2.lstypeinfo.1.exe=1
 
 [SWFiles.add]
+bvr20983.2.inf,,,33
 bvr20983.2.msgs.1.dll,,,33
 bvr20983.2.cc.1.dll,,,33
 bvr20983.2.sc.1.dll,,,33
-bvr20983.2.digiclock.1.dll,,,33
-bvr20983.2.lsstg.1.dll,,,33
-bvr20983.2.lstypeinfo.1.dll,,,33
+bvr20983.2.digiclock.1.exe,,,33
+bvr20983.2.lsstg.1.exe,,,33
+bvr20983.2.lstypeinfo.1.exe,,,33
 
 [SWFiles.del]
 bvr20983.2.msgs.1.dll,,,1
 bvr20983.2.cc.1.dll,,,1
 bvr20983.2.sc.1.dll,,,1
-bvr20983.2.digiclock.1.dll,,,1
-bvr20983.2.lsstg.1.dll,,,1
-bvr20983.2.lstypeinfo.1.dll,,,1
+bvr20983.2.digiclock.1.exe,,,1
+bvr20983.2.lsstg.1.exe,,,1
+bvr20983.2.lstypeinfo.1.exe,,,1
 
 ; DIRID_PROGRAM_FILES [16422]
 [DestinationDirs]
@@ -72,7 +73,7 @@ SWFiles.del=16422, bvr20983.2
 
 [SW.AddReg]
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"DisplayName",,"%ProductName%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"UninstallString",,"RunDll32.exe advpack.dll, LaunchINFSection %16422%\bvr20983.2\bvr20983.2.inf,DefaultUninstall"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"UninstallString",,"RunDll32.exe advpack.dll,LaunchINFSection %16422%\bvr20983.2\bvr20983.2.inf,DefaultUninstall"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"Publisher",,"%Publisher%"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"DisplayVersion",,"%DisplayVersion%"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"VersionMajor",,"%VersionMajor%"
@@ -92,12 +93,14 @@ HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"URLUpdateIn
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2
 
 [RegisterOCXSection]
-%16422%\bvr20983.2\bvr20983.2.cc.1.dll
+%16422%\bvr20983.2\bvr20983.2.msgs.1.dll
 %16422%\bvr20983.2\bvr20983.2.sc.1.dll
+%16422%\bvr20983.2\bvr20983.2.cc.1.dll
 
 [UnRegisterOCXSection]
 %16422%\bvr20983.2\bvr20983.2.cc.1.dll
 %16422%\bvr20983.2\bvr20983.2.sc.1.dll
+%16422%\bvr20983.2\bvr20983.2.msgs.1.dll
 
 [Strings]
 BadAdvpackVer="Incorrect version of advpack.dll. Please get new version from our web site."

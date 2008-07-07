@@ -50,6 +50,7 @@ UnRegisterOCXs=UnRegisterOCXSection
 @lstypeinforesult=1
 
 [SWFiles.add]
+@productprefix.inf,,,33
 @bvr20983msgsresult,,,33
 @bvr20983ccresult,,,33
 @bvr20983scresult,,,33
@@ -72,7 +73,7 @@ SWFiles.del=16422, @productprefix
 
 [SW.AddReg]
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"DisplayName",,"%ProductName%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"UninstallString",,"RunDll32.exe advpack.dll, LaunchINFSection %16422%\@productprefix\@productprefix.inf,DefaultUninstall"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"UninstallString",,"RunDll32.exe advpack.dll,LaunchINFSection %16422%\@productprefix\@productprefix.inf,DefaultUninstall"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"Publisher",,"%Publisher%"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"DisplayVersion",,"%DisplayVersion%"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"VersionMajor",,"%VersionMajor%"
@@ -92,12 +93,14 @@ HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"URLUpda
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix
 
 [RegisterOCXSection]
-%16422%\@productprefix\@bvr20983ccresult
+%16422%\@productprefix\@bvr20983msgsresult
 %16422%\@productprefix\@bvr20983scresult
+%16422%\@productprefix\@bvr20983ccresult
 
 [UnRegisterOCXSection]
 %16422%\@productprefix\@bvr20983ccresult
 %16422%\@productprefix\@bvr20983scresult
+%16422%\@productprefix\@bvr20983msgsresult
 
 [Strings]
 BadAdvpackVer="Incorrect version of advpack.dll. Please get new version from our web site."

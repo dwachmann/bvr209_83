@@ -36,18 +36,9 @@ using namespace bvr20983;
 using namespace bvr20983::COM;
 using namespace bvr20983::util;
 
-
-/*F+F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F
-  Function: DllRegisterServer
-
-  Summary:  The standard exported function that can be called to command
-            this DLL server to register itself in the system registry.
-
-  Args:     void.
-
-  Returns:  HRESULT
-              NOERROR
-F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F-F*/
+/**
+ *
+ */
 STDAPI DllRegisterServer()
 { HRESULT hr         = S_OK;
   LPCTSTR prodPrefix = NULL;
@@ -87,22 +78,14 @@ STDAPI DllRegisterServer()
     hr = SELFREG_E_CLASS;
   }
 
-  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=prodPrefix ? compPrefix : _T("unknown"),TRUE,hr);
+  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=compPrefix ? compPrefix : _T("unknown"),TRUE,hr);
 
   return hr;
 } // of DllRegisterServer()
 
-/*F+F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F
-  Function: DllUnregisterServer
-
-  Summary:  The standard exported function that can be called to command
-            this DLL server to unregister itself from the system Registry.
-
-  Args:     void.
-
-  Returns:  HRESULT
-              NOERROR
-F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F-F*/
+/**
+ *
+ */
 STDAPI DllUnregisterServer()
 { HRESULT hr         = S_OK;
   LPCTSTR prodPrefix = NULL;
@@ -135,7 +118,7 @@ STDAPI DllUnregisterServer()
     hr = SELFREG_E_CLASS;
   }
 
-  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=prodPrefix ? compPrefix : _T("unknown"),FALSE,hr);
+  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=compPrefix ? compPrefix : _T("unknown"),FALSE,hr);
   
   return hr;
 } // of DllUnregisterServer()
