@@ -58,8 +58,8 @@ namespace bvr20983
       COVerbInfoV       m_customVerb;                  // custom verbs
     };
 
-    typedef std::pair<LPCTSTR, COControlClass> COControlClassP;
-    typedef std::map<LPCTSTR, COControlClass>  COControlClassM;
+    typedef std::pair<LPCTSTR, COControlClass>        COControlClassP;
+    typedef std::map<LPCTSTR, COControlClass,strless> COControlClassM;
 
     class COControl : public CODispatch,
                       public IOleObject, 

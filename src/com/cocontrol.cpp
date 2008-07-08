@@ -118,7 +118,7 @@ namespace bvr20983
       //m_cpPropNotify(SINK_TYPE_PROPNOTIFY),
       m_myControlClass(NULL),
       m_pWnd(NULL),
-      m_controlClassName(controlClassName),
+      m_controlClassName(controlClassName), 
       m_propertySet(propertySetFMTID,_T("BVR20983 COM Control Propery Set"))
     { COControlClassM::const_iterator i = m_controlClass.find(controlClassName);
 
