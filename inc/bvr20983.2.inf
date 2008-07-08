@@ -21,6 +21,12 @@
 ; RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 C:\WINDOWS\INF\SHELL.INF
 ; CoGetClassObjectFromURL
 ;
+; DIRID's defined in setupapi.h
+; special shell DIRID's are defined using the CSIDL's in shlobj.h
+; 16410 : <user name>\Application Data
+; 16412 : <user name>\Local Settings\Application Data (non roaming)
+; 16422 : DIRID_PROGRAM_FILES
+;
 [Version]
 Signature="$Chicago$"
 AdvancedINF=2.5,%BadAdvpackVer%
@@ -36,6 +42,11 @@ Cleanup=1
 DelFiles=SWFiles.del
 DelReg=SW.DelReg
 UnRegisterOCXs=UnRegisterOCXSection
+RunPostSetupCommands=DeleteDirs:4
+
+[DeleteDirs]
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16422%\bvr20983.2
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16412%\bvr20983.2
 
 [SourceDisksNames]
 1=%DiskDescription%,"bvr20983.2.cab",0
@@ -66,7 +77,6 @@ bvr20983.2.digiclock.1.exe,,,1
 bvr20983.2.lsstg.1.exe,,,1
 bvr20983.2.lstypeinfo.1.exe,,,1
 
-; DIRID_PROGRAM_FILES [16422]
 [DestinationDirs]
 SWFiles.add=16422, bvr20983.2
 SWFiles.del=16422, bvr20983.2
@@ -110,8 +120,8 @@ VersionMinor = "0"
 DisplayVersion = "2"
 Publisher = "Dorothea Wachmann"
 ProductName = "BVR2098 Suite"
-HelpLink = "https://www.jondos.de/"
-URLUpdateInfo = "https://www.jondos.de/"
+HelpLink = "http://bvr20983.berlios.de/"
+URLUpdateInfo = "http://bvr20983.berlios.de/update/"
 
 ; German
 [Strings.0407]         
@@ -122,5 +132,5 @@ VersionMinor = "0"
 DisplayVersion = "2"
 Publisher = "Dorothea Wachmann"
 ProductName = "BVR2098 Suite"
-HelpLink = "https://www.jondos.de/"
-URLUpdateInfo = "https://www.jondos.de/"
+HelpLink = "http://bvr20983.berlios.de/"
+URLUpdateInfo = "http://bvr20983.berlios.de/update/"

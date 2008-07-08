@@ -21,6 +21,12 @@
 ; RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 C:\WINDOWS\INF\SHELL.INF
 ; CoGetClassObjectFromURL
 ;
+; DIRID's defined in setupapi.h
+; special shell DIRID's are defined using the CSIDL's in shlobj.h
+; 16410 : <user name>\Application Data
+; 16412 : <user name>\Local Settings\Application Data (non roaming)
+; 16422 : DIRID_PROGRAM_FILES
+;
 [Version]
 Signature="$Chicago$"
 AdvancedINF=2.5,%BadAdvpackVer%
@@ -36,6 +42,11 @@ Cleanup=1
 DelFiles=SWFiles.del
 DelReg=SW.DelReg
 UnRegisterOCXs=UnRegisterOCXSection
+RunPostSetupCommands=DeleteDirs:4
+
+[DeleteDirs]
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16422%\@productprefix
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16412%\@productprefix
 
 [SourceDisksNames]
 1=%DiskDescription%,"@bvr20983result",0
@@ -66,7 +77,6 @@ UnRegisterOCXs=UnRegisterOCXSection
 @lsstgresult,,,1
 @lstypeinforesult,,,1
 
-; DIRID_PROGRAM_FILES [16422]
 [DestinationDirs]
 SWFiles.add=16422, @productprefix
 SWFiles.del=16422, @productprefix
@@ -110,8 +120,8 @@ VersionMinor = "@productminorversion"
 DisplayVersion = "@productmajorversion"
 Publisher = "@publisher"
 ProductName = "@productname"
-HelpLink = "https://www.jondos.de/"
-URLUpdateInfo = "https://www.jondos.de/"
+HelpLink = "http://@productid.berlios.de/"
+URLUpdateInfo = "http://@productid.berlios.de/update/"
 
 ; German
 [Strings.0407]         
@@ -122,5 +132,5 @@ VersionMinor = "@productminorversion"
 DisplayVersion = "@productmajorversion"
 Publisher = "@publisher"
 ProductName = "@productname"
-HelpLink = "https://www.jondos.de/"
-URLUpdateInfo = "https://www.jondos.de/"
+HelpLink = "http://@productid.berlios.de/"
+URLUpdateInfo = "http://@productid.berlios.de/update/"
