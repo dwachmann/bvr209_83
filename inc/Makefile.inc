@@ -1,4 +1,4 @@
-# $Id: Makefile.inc.tmpl 56 2008-07-02 23:46:35Z dwachmann $
+# $Id: Makefile.inc.tmpl 65 2008-07-08 00:00:38Z dwachmann $
 # 
 # Copyright (C) 2008 Dorothea Wachmann
 # 
@@ -102,9 +102,9 @@ _MAKEFILE_INC_ = 1
 APPVER=5.01
 _WIN32_IE=0x0600
 
-SRCDIR=$(MAKEDIR)\src
-INCDIR=$(MAKEDIR)\inc
-RESDIR=$(MAKEDIR)\res
+SRCDIR=..\src
+INCDIR=..\inc
+RESDIR=..\res
 
 # -------------------------------------------------------------------------
 # Get CPU Type - exit if CPU environment variable is not defined
@@ -180,11 +180,6 @@ _WIN32_IE = 0x0600
 !IFNDEF _WIN32_IE
 _WIN32_IE = 0x0400
 !ENDIF
-
-# -------------------------------------------------------------------------
-# Build tool declarations common to all platforms
-#    Check to see if Cole Porter is used, otherwise use C/C++ compiler
-# -------------------------------------------------------------------------
 
 cc     = cl
 link   = link
@@ -265,61 +260,19 @@ cdebug = -Zi -Gm -Od -DDEBUG -RTC1
 
 !ENDIF
 
-# -------------------------------------------------------------------------
-# Target Module & Subsystem Dependent Compile Defined Variables - must be
-#   specified after $(cc)
-#
-# The following table indicates the various acceptable combinations of
-# the C Run-Time libraries LIBC, LIBCMT, and MSVCRT respect to the creation
-# of a EXE and/or DLL target object.  The appropriate compiler flag macros
-# that should be used for each combination are also listed.
-#
-# Executable Type          C Runtime Lib        Compiler switch
-# -------------------------------------------------------------
-# Single threaded app      static CRT           CVARS       *
-# Single-threaded app      DLL CRT              CVARSDLL
-# Multi-threaded app       static CRT           CVARSMT     *
-# Multi-threaded app       DLL CRT              CVARSDLL    *
-#
-# Single threaded DLL      static CRT           CVARS
-# Single-threaded DLL      DLL CRT              CVARSDLL
-# Multi-threaded DLL       static CRT           CVARSMT     *
-# Multi-threaded DLL       DLL CRT              CVARSDLL    *
-#
-# * - Denotes the Recommended Configuration
-#
-# When building single-threaded applications you can link your executable
-# with either LIBC, LIBCMT, or MSVCRT, although LIBC will provide the best
-# performance.
-#
-# When building multi-threaded applications, either LIBCMT or MSVCRT can
-# be used as the C-Runtime library, as both are multi-thread safe.
-#
-# Note: Any executable which accesses a DLL linked with MSVCRT.LIB must
-#       also link with MSVCRT.LIB instead of LIBC.LIB or LIBCMT.LIB.
-#       When using DLLs, it is recommended that all of the modules be
-#       linked with MSVCRT.LIB.
-#
-# Note: The macros of the form xDLL are used when linking the object with
-#       the DLL version of the C Run-Time (that is, MSVCRT.LIB).  They are
-#       not used when the target object is itself a DLL.
-#
-# -------------------------------------------------------------------------
-
 !IFDEF NO_ANSI
 noansi = -DNULL=0
 !ENDIF
 
-
 # for Windows applications that use the C Run-Time libraries
 !IFDEF NODEBUG
 cvarsmt    = $(noansi) -D_MT -MT
-cvars      = $(noansi) $(cvarsmt)
 cvarsdll   = $(noansi) -D_MT -D_DLL -MD
+cvars      = $(noansi) $(cvarsmt)
 !ELSE
 cvarsmt    = $(noansi) -D_MT -MTd
-cvars      = $(noansi) $(cvarsmt)
 cvarsdll   = $(noansi) -D_MT -D_DLL -MDd
+cvars      = $(noansi) $(cvarsmt)
 !ENDIF
 
 # resource compiler
@@ -536,18 +489,11 @@ OUTDIR=NT4
 #Set DEBUG
 !IF "$(NODEBUG)" == ""
 OUTDIR=$(OUTDIR)_DEBUG
-SLNDIR=$(MAKEDIR)\debug
+SLNDIR=..\debug
 !ELSE
 OUTDIR=$(OUTDIR)_RETAIL
-SLNDIR=$(MAKEDIR)\release
+SLNDIR=..\release
 !ENDIF
-
-DISTDIR    = $(MAKEDIR)\dist
-SIGNDIR    = $(MAKEDIR)\sign
-INCDIR     = $(MAKEDIR)\inc
-HTMLDIR    = $(MAKEDIR)\html
-SCRIPTSDIR = $(MAKEDIR)\scripts
-
 
 cinclude=-I$(INCDIR) -I$(OUTDIR)
 cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"

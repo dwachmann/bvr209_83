@@ -17,6 +17,18 @@
 
 !include <./inc/Makefile.inc>
 
+!IF "$(NODEBUG)" == ""
+SLNDIR=.\debug
+!ELSE
+SLNDIR=.\release
+!ENDIF
+
+DISTDIR    = .\dist
+SIGNDIR    = .\sign
+INCDIR     = .\inc
+HTMLDIR    = .\html
+SCRIPTSDIR = .\scripts
+
 signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://www.jondos.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll 
 
 PROJECTS =     \
