@@ -32,21 +32,26 @@ Signature="$Chicago$"
 AdvancedINF=2.5,%BadAdvpackVer%
 
 [DefaultInstall]
+BeginPrompt=BeginPromptInstallSection
 CheckAdminRights=1
 CopyFiles=SWFiles.add
 AddReg=SW.AddReg
 RegisterOCXs=RegisterOCXSection
+EndPrompt=EndPromptInstallSection
+Uninstall=DefaultUninstall
 
 [DefaultUninstall]
-Cleanup=1
-DelFiles=SWFiles.del
-DelReg=SW.DelReg
+BeginPrompt=BeginPromptDeinstallSection
 UnRegisterOCXs=UnRegisterOCXSection
-RunPostSetupCommands=DeleteDirs:4
+DelReg=SW.DelReg
+DelFiles=SWFiles.del
+RunPostSetupCommands=DeleteSWDirs
+Cleanup=1
+EndPrompt=EndPromptDeinstallSection
 
-[DeleteDirs]
-RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16422%\bvr20983.2
-RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16412%\bvr20983.2
+[DeleteSWDirs]
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16422%\bvr20983.2"
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16412%\bvr20983.2"
 
 [SourceDisksNames]
 1=%DiskDescription%,"bvr20983.2.cab",0
@@ -112,25 +117,53 @@ HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2
 %16422%\bvr20983.2\bvr20983.2.sc.1.dll
 %16422%\bvr20983.2\bvr20983.2.msgs.1.dll
 
+[BeginPromptInstallSection]
+Prompt     = "%InstPrompt%"
+ButtonType = OKCANC
+Title      = "%BeginInstTitle%"
+
+[EndPromptInstallSection]
+Prompt="%EndInstTitle%"
+
+[BeginPromptDeinstallSection]
+Prompt     = "%DeinstPrompt%"
+ButtonType = OKCANC
+Title      = "%BeginDeinstTitle%"
+
+[EndPromptDeinstallSection]
+Prompt="%EndDeinstTitle%"
+
 [Strings]
-BadAdvpackVer="Incorrect version of advpack.dll. Please get new version from our web site."
-DiskDescription="BVR2098 Suite cabinet file"
-VersionMajor = "2"
-VersionMinor = "0"
-DisplayVersion = "2"
-Publisher = "Dorothea Wachmann"
-ProductName = "BVR2098 Suite"
-HelpLink = "http://bvr20983.berlios.de/"
-URLUpdateInfo = "http://bvr20983.berlios.de/update/"
+BadAdvpackVer   = "Incorrect version of advpack.dll. Please get new version from our web site."
+DiskDescription = "BVR2098 Suite cabinet file"
+VersionMajor    = "2"
+VersionMinor    = "0"
+DisplayVersion  = "2"
+Publisher       = "Dorothea Wachmann"
+ProductName     = "BVR2098 Suite"
+HelpLink        = "http://bvr20983.berlios.de/"
+URLUpdateInfo   = "http://bvr20983.berlios.de/update/"
+BeginInstTitle  = "Installing BVR2098 Suite ..."
+EndInstTitle    = "BVR2098 Suite installed."
+InstPrompt      = "Should BVR2098 Suite be installed ?"
+BeginDeinstTitle= "Deinstalling BVR2098 Suite ..."
+EndDeinstTitle  = "BVR2098 Suite deinstalled."
+DeinstPrompt    = "Should BVR2098 Suite be removed ?"
 
 ; German
 [Strings.0407]         
-BadAdvpackVer="Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
-DiskDescription="BVR2098 Suite Installationsdatei"
-VersionMajor = "2"
-VersionMinor = "0"
-DisplayVersion = "2"
-Publisher = "Dorothea Wachmann"
-ProductName = "BVR2098 Suite"
-HelpLink = "http://bvr20983.berlios.de/"
-URLUpdateInfo = "http://bvr20983.berlios.de/update/"
+BadAdvpackVer   = "Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
+DiskDescription ="BVR2098 Suite Installationsdatei"
+VersionMajor    = "2"
+VersionMinor    = "0"
+DisplayVersion  = "2"
+Publisher       = "Dorothea Wachmann"
+ProductName     = "BVR2098 Suite"
+HelpLink        = "http://bvr20983.berlios.de/"
+URLUpdateInfo   = "http://bvr20983.berlios.de/update/"
+BeginInstTitle  = "Installiere BVR2098 Suite ..."
+EndInstTitle    = "BVR2098 Suite wurded installiert."
+InstPrompt      = "Should BVR2098 Suite be installed ?"
+BeginDeinstTitle= "Entferne BVR2098 Suite ..."
+EndDeinstTitle  = "BVR2098 Suite wurde entfernt."
+DeinstPrompt    = "Soll BVR2098 Suite entfernt werden ?"

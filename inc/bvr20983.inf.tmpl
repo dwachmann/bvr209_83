@@ -32,21 +32,26 @@ Signature="$Chicago$"
 AdvancedINF=2.5,%BadAdvpackVer%
 
 [DefaultInstall]
+BeginPrompt=BeginPromptInstallSection
 CheckAdminRights=1
 CopyFiles=SWFiles.add
 AddReg=SW.AddReg
 RegisterOCXs=RegisterOCXSection
+EndPrompt=EndPromptInstallSection
+Uninstall=DefaultUninstall
 
 [DefaultUninstall]
-Cleanup=1
-DelFiles=SWFiles.del
-DelReg=SW.DelReg
+BeginPrompt=BeginPromptDeinstallSection
 UnRegisterOCXs=UnRegisterOCXSection
-RunPostSetupCommands=DeleteDirs:4
+DelReg=SW.DelReg
+DelFiles=SWFiles.del
+RunPostSetupCommands=DeleteSWDirs
+Cleanup=1
+EndPrompt=EndPromptDeinstallSection
 
-[DeleteDirs]
-RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16422%\@productprefix
-RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 %16412%\@productprefix
+[DeleteSWDirs]
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16422%\@productprefix"
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16412%\@productprefix"
 
 [SourceDisksNames]
 1=%DiskDescription%,"@bvr20983result",0
@@ -112,25 +117,53 @@ HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix
 %16422%\@productprefix\@bvr20983scresult
 %16422%\@productprefix\@bvr20983msgsresult
 
+[BeginPromptInstallSection]
+Prompt     = "%InstPrompt%"
+ButtonType = OKCANC
+Title      = "%BeginInstTitle%"
+
+[EndPromptInstallSection]
+Prompt="%EndInstTitle%"
+
+[BeginPromptDeinstallSection]
+Prompt     = "%DeinstPrompt%"
+ButtonType = OKCANC
+Title      = "%BeginDeinstTitle%"
+
+[EndPromptDeinstallSection]
+Prompt="%EndDeinstTitle%"
+
 [Strings]
-BadAdvpackVer="Incorrect version of advpack.dll. Please get new version from our web site."
-DiskDescription="@productname cabinet file"
-VersionMajor = "@productmajorversion"
-VersionMinor = "@productminorversion"
-DisplayVersion = "@productmajorversion"
-Publisher = "@publisher"
-ProductName = "@productname"
-HelpLink = "http://@productid.berlios.de/"
-URLUpdateInfo = "http://@productid.berlios.de/update/"
+BadAdvpackVer   = "Incorrect version of advpack.dll. Please get new version from our web site."
+DiskDescription = "@productname cabinet file"
+VersionMajor    = "@productmajorversion"
+VersionMinor    = "@productminorversion"
+DisplayVersion  = "@productmajorversion"
+Publisher       = "@publisher"
+ProductName     = "@productname"
+HelpLink        = "http://@productid.berlios.de/"
+URLUpdateInfo   = "http://@productid.berlios.de/update/"
+BeginInstTitle  = "Installing @productname ..."
+EndInstTitle    = "@productname installed."
+InstPrompt      = "Should @productname be installed ?"
+BeginDeinstTitle= "Deinstalling @productname ..."
+EndDeinstTitle  = "@productname deinstalled."
+DeinstPrompt    = "Should @productname be removed ?"
 
 ; German
 [Strings.0407]         
-BadAdvpackVer="Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
-DiskDescription="@productname Installationsdatei"
-VersionMajor = "@productmajorversion"
-VersionMinor = "@productminorversion"
-DisplayVersion = "@productmajorversion"
-Publisher = "@publisher"
-ProductName = "@productname"
-HelpLink = "http://@productid.berlios.de/"
-URLUpdateInfo = "http://@productid.berlios.de/update/"
+BadAdvpackVer   = "Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
+DiskDescription ="@productname Installationsdatei"
+VersionMajor    = "@productmajorversion"
+VersionMinor    = "@productminorversion"
+DisplayVersion  = "@productmajorversion"
+Publisher       = "@publisher"
+ProductName     = "@productname"
+HelpLink        = "http://@productid.berlios.de/"
+URLUpdateInfo   = "http://@productid.berlios.de/update/"
+BeginInstTitle  = "Installiere @productname ..."
+EndInstTitle    = "@productname wurded installiert."
+InstPrompt      = "Should @productname be installed ?"
+BeginDeinstTitle= "Entferne @productname ..."
+EndDeinstTitle  = "@productname wurde entfernt."
+DeinstPrompt    = "Soll @productname entfernt werden ?"

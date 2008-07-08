@@ -29,7 +29,7 @@ INCDIR     = .\inc
 HTMLDIR    = .\html
 SCRIPTSDIR = .\scripts
 
-signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://www.jondos.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll 
+signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll 
 
 PROJECTS =     \
 libbvr20983\~  \
@@ -75,5 +75,8 @@ install:
 
 uninstall: 
   rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultUninstall,$(MAKEDIR)\$(CABRESULT),32
+
+publish: 
+  @copy $(DISTDIR)\* M:\sth\local\linux\apache2\htdocs\bvr20983
 
 !include <./inc/bvr.inc>
