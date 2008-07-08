@@ -102,9 +102,9 @@ _MAKEFILE_INC_ = 1
 APPVER=5.01
 _WIN32_IE=0x0600
 
-SRCDIR=..\src
-INCDIR=..\inc
-RESDIR=..\res
+SRCDIR=$(MAKEDIR)\src
+INCDIR=$(MAKEDIR)\inc
+RESDIR=$(MAKEDIR)\res
 
 # -------------------------------------------------------------------------
 # Get CPU Type - exit if CPU environment variable is not defined
@@ -197,41 +197,9 @@ hcvars = -xn
 sign   = SignTool
 cab    = cabarc
 
-
-# -------------------------------------------------------------------------
-# Platform Dependent Compile Flags - must be specified after $(cc)
-#
-# Note: Debug switches are on by default for current release
-#
-# These switches set code generation and debugging options for the compiler.
-# They also set macros used for conditional compilation.
-#
-# The debugging switches allow for source level debugging with WinDebug or
-# Microsoft Visual C++.
-#
-# Common compiler flags:
-#   -c   - compile without linking
-#   -W3  - Set warning level to level 3    (-W4 for 64-bit compilations)
-#   -Zi  - generate debugging information
-#   -Od  - disable all optimizations
-#   -Ox  - use maximum optimizations
-#   -Zd  - generate only public symbols and line numbers for debugging
-#   -GS  - enable security checks
-#
-# i386 specific compiler flags:
-#   -Gz  - stdcall   (only if scall is added to makefile's compiler build rules)
-#
-# -------------------------------------------------------------------------
-
 # declarations common to all compiler options
 ccommon = -c -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -nologo -GS
-
 ccommon = $(ccommon) -D_UNICODE -DUNICODE
-
-# Add -GS (Buffer Security Check) for VC++ 7.0
-!IF "$(MSVCVER)" == "7.0"
-ccommon = $(ccommon) -GS
-!ENDIF
 
 !IF "$(CPU)" == "i386"
 cflags = $(ccommon) -D_X86_=1  -DWIN32 -D_WIN32 -W3
@@ -242,12 +210,12 @@ cflags = $(ccommon) -D_ALPHA_=1  -DWIN32 -D_WIN32 -W3
 scall  =
 
 !ELSEIF "$(CPU)" == "IA64"
-cflags = $(ccommon) -D_IA64_=1 -DWIN64 -D_WIN64  -DWIN32 -D_WIN32 /FIPRE64PRA.H
+cflags = $(ccommon) -D_IA64_=1 -DWIN64 -D_WIN64  -DWIN32 -D_WIN32 -FIPRE64PRA.H
 cflags = $(cflags) -Wp64 -W4
 scall  =
 
 !ELSEIF "$(CPU)" == "AMD64"
-cflags = $(ccommon) -D_AMD64_=1 -DWIN64 -D_WIN64  -DWIN32 -D_WIN32 /FIPRE64PRA.H
+cflags = $(ccommon) -D_AMD64_=1 -DWIN64 -D_WIN64  -DWIN32 -D_WIN32 -FIPRE64PRA.H
 cflags = $(cflags) -Wp64 -W4
 scall  =
 
@@ -278,21 +246,21 @@ cflags = $(cflags) -D_WIN32_IE=$(_WIN32_IE) -DWINVER=$(NMAKE_WINVER)
 
 !IF "$(CPU)" != "IA64"
 !IFDEF NODEBUG
-cdebug = -Ox -DNDEBUG
+cdebug = -Os -DNDEBUG
 !ELSE IFDEF PROFILE
-cdebug = -Gh -Zd -Ox -DNDEBUG
+cdebug = -Gh -Zd -Os -DNDEBUG
 !ELSE IFDEF TUNE
-cdebug = -Gh -Zd -Ox -DNDEBUG
+cdebug = -Gh -Zd -Os -DNDEBUG
 !ELSE
-cdebug = -Zi -Od -DDEBUG
+cdebug = -Zi -Gm -Od -DDEBUG -RTC1
 !ENDIF
 
 !ELSE
 
 !IFDEF NODEBUG
-cdebug = -Ox -DNDEBUG
+cdebug = -Os -DNDEBUG
 !ELSE
-cdebug = -Zi -Od -DDEBUG
+cdebug = -Zi -Gm -Od -DDEBUG -RTC1
 !ENDIF
 
 !ENDIF
@@ -355,14 +323,14 @@ cvarsdll   = $(noansi) -D_MT -D_DLL -MDd
 !ENDIF
 
 # resource compiler
-rcflags = /r
+rcflags = -r
 !ifdef NODEBUG
 rcvars = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) $(noansi)
 !else
 rcvars = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) -DDEBUG -D_DEBUG $(noansi)
 !endif
 
-rcvars = $(rcvars) /I $(RESDIR) /I $(INCDIR) /I $(OUTDIR)
+rcvars = $(rcvars) -I $(RESDIR) -I $(INCDIR) -I $(OUTDIR)
 
 # -------------------------------------------------------------------------
 # Platform Dependent MIDL Flags - must be specified after midl
@@ -378,15 +346,15 @@ MIDL_OPTIMIZATION=-target NT40
 !ENDIF
 
 !IF "$(CPU)" == "IA64"
-MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) /ia64
+MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) -ia64
 !ELSEIF "$(CPU)" == "AMD64"
-MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) /x64
+MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) -x64
 !ELSE
-MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) /win32
+MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) -win32
 !ENDIF
 
 !IF ("$(APPVER)" != "4.0")
-MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) /robust
+MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) -robust
 !ENDIF
 
 
@@ -407,7 +375,7 @@ MIDL_OPTIMIZATION = $(MIDL_OPTIMIZATION) /robust
 # -------------------------------------------------------------------------
 
 # declarations common to all linker options
-lflags  = $(lflags) /INCREMENTAL:NO /NOLOGO
+lflags  = $(lflags) -INCREMENTAL:NO -NOLOGO
 
 # declarations for use on Intel x86 systems
 !IF "$(CPU)" == "i386"
@@ -448,21 +416,21 @@ DLLENTRY =
 !IF "$(CPU)" == "i386"
 
 !IFDEF NODEBUG
-ldebug = /RELEASE
+ldebug = -RELEASE
 !ELSE
-ldebug = /DEBUG /DEBUGTYPE:cv
+ldebug = -DEBUG -DEBUGTYPE:cv
 !ENDIF
 
 !ELSE
 
 !IFDEF NODEBUG
-ldebug = /RELEASE
+ldebug = -RELEASE
 !ELSE IFDEF PROFILE
-ldebug = /DEBUG:mapped,partial /DEBUGTYPE:coff
+ldebug = -DEBUG:mapped,partial -DEBUGTYPE:coff
 !ELSE IFDEF TUNE
-ldebug = /DEBUG:mapped,partial /DEBUGTYPE:coff
+ldebug = -DEBUG:mapped,partial -DEBUGTYPE:coff
 !ELSE
-ldebug = /DEBUG /DEBUGTYPE:cv
+ldebug = -DEBUG -DEBUGTYPE:cv
 !ENDIF
 
 !ENDIF
@@ -568,18 +536,25 @@ OUTDIR=NT4
 #Set DEBUG
 !IF "$(NODEBUG)" == ""
 OUTDIR=$(OUTDIR)_DEBUG
-SLNDIR=..\debug
+SLNDIR=$(MAKEDIR)\debug
 !ELSE
 OUTDIR=$(OUTDIR)_RETAIL
-SLNDIR=..\release
+SLNDIR=$(MAKEDIR)\release
 !ENDIF
 
-cinclude=-I$(INCDIR) -I$(OUTDIR)
-cuseprecompheader=/Yu"os.h" /Fp"$(OUTDIR)\precompiledheaders.pch"
-ccrtprecompheader=/Yc"os.h" /Fp"$(OUTDIR)\precompiledheaders.pch"
-cvars= $(cvars) /Gm /EHa /RTC1 $(cinclude)
+DISTDIR    = $(MAKEDIR)\dist
+SIGNDIR    = $(MAKEDIR)\sign
+INCDIR     = $(MAKEDIR)\inc
+HTMLDIR    = $(MAKEDIR)\html
+SCRIPTSDIR = $(MAKEDIR)\scripts
 
-lvars=/MANIFEST:NO /INCREMENTAL /LIBPATH:$(SLNDIR)
+
+cinclude=-I$(INCDIR) -I$(OUTDIR)
+cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
+ccrtprecompheader=-Yc"os.h" -Fp"$(OUTDIR)\precomp.pch"
+cvars= $(cvars) -EHa $(cinclude)
+
+lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR)
 
 !ifdef clean
 makeopts = clean=1

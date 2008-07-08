@@ -20,41 +20,41 @@ _MAKEFILE_RULE_ = 1
 
 # Inference rule for updating the object files
 {$(SRCDIR)\sc}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(SRCDIR)\win}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(SRCDIR)\util}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(SRCDIR)\exception}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(SRCDIR)\com}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(SRCDIR)\com\ocx}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(SRCDIR)\com\sc}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(SRCDIR)}.cpp{$(OUTDIR)}.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(cuseprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 {$(RESDIR)}.mc{$(OUTDIR)}.bin:
   $(mc) -r $(OUTDIR) -h $(OUTDIR) -w $**
 
 {$(RESDIR)}.rc{$(OUTDIR)}.res:
-  $(rc) $(rcflags) $(rcvars) /fo $@ $**
+  $(rc) $(rcflags) $(rcvars) -fo $@ $**
 
 .c.obj:
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 # Rule for creating precompiled header file
 $(OUTDIR)\os.obj: $(SRCDIR)\os.cpp
-  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(ccrtprecompheader) /Fo"$(OUTDIR)\\" /Fd"$(OUTDIR)\\" $**
+  $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(ccrtprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 $(OUTDIR):
  if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)

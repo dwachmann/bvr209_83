@@ -17,12 +17,6 @@
 
 !include <./inc/Makefile.inc>
 
-SLNDIR  =.\debug
-DISTDIR =.\dist
-SIGNDIR =.\sign
-INCDIR  =.\inc
-HTMLDIR =.\html
-SCRIPTSDIR = .\scripts
 signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://www.jondos.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll 
 
 PROJECTS =     \
@@ -43,28 +37,31 @@ $(SIGNDIR)\$(DIGICLOCK_RESULT).exe \
 $(SIGNDIR)\$(LSSTG_RESULT).exe \
 $(SIGNDIR)\$(LSTYPEINFO_RESULT).exe
 
+CABRESULT = $(SIGNDIR)\$(BVR20983_RESULT).cab
+
 !ifdef clean
 all: $(PROJECTS) clean
 !else
 all: $(PROJECTS) 
 !endif
 
-distribute: patch $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(SIGNDIR)\$(BVR20983_RESULT).cab
+distribute: patch $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
   @copy $(HTMLDIR)\led.*                  $(DISTDIR)
   @copy $(HTMLDIR)\*.jpg                  $(DISTDIR)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
 
 patch:
-  cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/"
+  @echo $(SLNDIR)
+  @cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/"
 
-$(SIGNDIR)\$(BVR20983_RESULT).cab: $(CABCONTENT)
-	@$(cab) -s 6144 N $@ $?
+$(CABRESULT): $(CABCONTENT)
+	@$(cab) -s 6144 N $@ $**
 	@$(sign) $(signvars) /p $(signpwd) $@
 
 install:
-  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultInstall,C:\Projects\smartcard\applications\windows\bvr20983\dist\$(BVR20983_RESULT).cab,32
+  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultInstall,$(MAKEDIR)\$(CABRESULT),32
 
-uninstall:
-  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultUninstall,C:\Projects\smartcard\applications\windows\bvr20983\dist\$(BVR20983_RESULT).cab,32
-  
+uninstall: 
+  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultUninstall,$(MAKEDIR)\$(CABRESULT),32
+
 !include <./inc/bvr.inc>
