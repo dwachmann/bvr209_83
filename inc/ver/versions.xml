@@ -60,6 +60,9 @@
       <pattern><key>@productmajorversion</key><value>${../../../../v:version/@major}</value></pattern>
       <pattern><key>@productminorversion</key><value>${../../../../v:version/@minor}</value></pattern>
       <pattern><key>@productid</key><value>#{LCase("${../../../../@id}")}</value></pattern>
+      
+      <pattern><key>@bvr20983ocx1</key><value>${../../../../v:component[@id='cc']/v:type[@id='LED']/v:guid/text()}</value></pattern>
+      
     </patch>
 
     <patch filename="bvr20983-prod.h">

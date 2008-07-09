@@ -38,13 +38,21 @@ CopyFiles=SWFiles.add
 AddReg=SW.AddReg
 RegisterOCXs=RegisterOCXSection
 EndPrompt=EndPromptInstallSection
-Uninstall=DefaultUninstall
+Uninstall=DefaultUninstallOCX
+
+[DefaultUninstallOCX]
+UnRegisterOCXs=UnRegisterOCXSection
+DelReg=SW.DelReg
+DelFiles=SWFiles.del
+RunPostSetupCommands=DeleteSWDirs
+Cleanup=1
+EndPrompt=EndPromptDeinstallOCXSection
 
 [DefaultUninstall]
 BeginPrompt=BeginPromptDeinstallSection
 UnRegisterOCXs=UnRegisterOCXSection
-DelReg=SW.DelReg
-DelFiles=SWFiles.del
+DelReg=SW.DelReg,SW.DelRegOCX
+DelFiles=SWFiles.del,SWFiles.ocx
 RunPostSetupCommands=DeleteSWDirs
 Cleanup=1
 EndPrompt=EndPromptDeinstallSection
@@ -82,9 +90,13 @@ bvr20983.2.digiclock.1.exe,,,1
 bvr20983.2.lsstg.1.exe,,,1
 bvr20983.2.lstypeinfo.1.exe,,,1
 
+[SWFiles.ocx]
+bvr20983.2.inf,,,1
+
 [DestinationDirs]
-SWFiles.add=16422, bvr20983.2
-SWFiles.del=16422, bvr20983.2
+SWFiles.add=16422,bvr20983.2
+SWFiles.del=16422,bvr20983.2
+SWFiles.ocx=11,DOWNLO~1
 
 [SW.AddReg]
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"DisplayName",,"%ProductName%"
@@ -106,6 +118,16 @@ HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"VersionMino
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"HelpLink"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2,"URLUpdateInfo"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.2
+
+[SW.DelRegOCX]
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001},"Installer"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001},"SystemComponent"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001}\Contains
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001}\InstalledVersion
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001}\DownloadInformation,"CODEBASE"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001}\DownloadInformation,"INF"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001}\DownloadInformation
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0002-0002-0001-001100010001}
 
 [RegisterOCXSection]
 %16422%\bvr20983.2\bvr20983.2.msgs.1.dll
@@ -133,37 +155,42 @@ Title      = "%BeginDeinstTitle%"
 [EndPromptDeinstallSection]
 Prompt="%EndDeinstTitle%"
 
+[EndPromptDeinstallOCXSection]
+Prompt="%EndDeinstOCXTitle%"
+
 [Strings]
-BadAdvpackVer   = "Incorrect version of advpack.dll. Please get new version from our web site."
-DiskDescription = "BVR2098 Suite cabinet file"
-VersionMajor    = "2"
-VersionMinor    = "0"
-DisplayVersion  = "2"
-Publisher       = "Dorothea Wachmann"
-ProductName     = "BVR2098 Suite"
-HelpLink        = "http://bvr20983.berlios.de/"
-URLUpdateInfo   = "http://bvr20983.berlios.de/update/"
-BeginInstTitle  = "Installing BVR2098 Suite ..."
-EndInstTitle    = "BVR2098 Suite installed."
-InstPrompt      = "Should BVR2098 Suite be installed ?"
-BeginDeinstTitle= "Deinstalling BVR2098 Suite ..."
-EndDeinstTitle  = "BVR2098 Suite deinstalled."
-DeinstPrompt    = "Should BVR2098 Suite be removed ?"
+BadAdvpackVer     = "Incorrect version of advpack.dll. Please get new version from our web site."
+DiskDescription   = "BVR2098 Suite cabinet file"
+VersionMajor      = "2"
+VersionMinor      = "0"
+DisplayVersion    = "2"
+Publisher         = "Dorothea Wachmann"
+ProductName       = "BVR2098 Suite"
+HelpLink          = "http://bvr20983.berlios.de/"
+URLUpdateInfo     = "http://bvr20983.berlios.de/update/"
+BeginInstTitle    = "Installing BVR2098 Suite ..."
+EndInstTitle      = "BVR2098 Suite installed."
+InstPrompt        = "Should BVR2098 Suite be installed ?"
+BeginDeinstTitle  = "Deinstalling BVR2098 Suite ..."
+EndDeinstTitle    = "BVR2098 Suite deinstalled."
+EndDeinstOCXTitle = "ActiveX BVR2098 Suite deinstalled."
+DeinstPrompt      = "Should BVR2098 Suite be removed ?"
 
 ; German
 [Strings.0407]         
-BadAdvpackVer   = "Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
-DiskDescription ="BVR2098 Suite Installationsdatei"
-VersionMajor    = "2"
-VersionMinor    = "0"
-DisplayVersion  = "2"
-Publisher       = "Dorothea Wachmann"
-ProductName     = "BVR2098 Suite"
-HelpLink        = "http://bvr20983.berlios.de/"
-URLUpdateInfo   = "http://bvr20983.berlios.de/update/"
-BeginInstTitle  = "Installiere BVR2098 Suite ..."
-EndInstTitle    = "BVR2098 Suite wurded installiert."
-InstPrompt      = "Should BVR2098 Suite be installed ?"
-BeginDeinstTitle= "Entferne BVR2098 Suite ..."
-EndDeinstTitle  = "BVR2098 Suite wurde entfernt."
-DeinstPrompt    = "Soll BVR2098 Suite entfernt werden ?"
+BadAdvpackVer     = "Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
+DiskDescription   = "BVR2098 Suite Installationsdatei"
+VersionMajor      = "2"
+VersionMinor      = "0"
+DisplayVersion    = "2"
+Publisher         = "Dorothea Wachmann"
+ProductName       = "BVR2098 Suite"
+HelpLink          = "http://bvr20983.berlios.de/"
+URLUpdateInfo     = "http://bvr20983.berlios.de/update/"
+BeginInstTitle    = "Installiere BVR2098 Suite ..."
+EndInstTitle      = "BVR2098 Suite wurded installiert."
+InstPrompt        = "Should BVR2098 Suite be installed ?"
+BeginDeinstTitle  = "Entferne BVR2098 Suite ..."
+EndDeinstTitle    = "BVR2098 Suite wurde entfernt."
+EndDeinstOCXTitle = "ActiveX BVR2098 Suite wurde entfernt."
+DeinstPrompt      = "Soll BVR2098 Suite entfernt werden ?"

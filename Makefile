@@ -63,7 +63,6 @@ distribute: patch $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
 
 patch:
-  @echo $(SLNDIR)
   @cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/"
 
 $(CABRESULT): $(CABCONTENT)
@@ -76,7 +75,10 @@ install:
 uninstall: 
   rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultUninstall,$(MAKEDIR)\$(CABRESULT),32
 
-publish: 
+publish:
   @copy $(DISTDIR)\* M:\sth\local\linux\apache2\htdocs\bvr20983
+
+publish1:
+  @"\Program Files\putty\pscp.exe" -load berlios $(DISTDIR)\* dwachmann@shell.berlios.de:/home/groups/bvr20983/htdocs/update
 
 !include <./inc/bvr.inc>

@@ -38,13 +38,21 @@ CopyFiles=SWFiles.add
 AddReg=SW.AddReg
 RegisterOCXs=RegisterOCXSection
 EndPrompt=EndPromptInstallSection
-Uninstall=DefaultUninstall
+Uninstall=DefaultUninstallOCX
+
+[DefaultUninstallOCX]
+UnRegisterOCXs=UnRegisterOCXSection
+DelReg=SW.DelReg
+DelFiles=SWFiles.del
+RunPostSetupCommands=DeleteSWDirs
+Cleanup=1
+EndPrompt=EndPromptDeinstallOCXSection
 
 [DefaultUninstall]
 BeginPrompt=BeginPromptDeinstallSection
 UnRegisterOCXs=UnRegisterOCXSection
-DelReg=SW.DelReg
-DelFiles=SWFiles.del
+DelReg=SW.DelReg,SW.DelRegOCX
+DelFiles=SWFiles.del,SWFiles.ocx
 RunPostSetupCommands=DeleteSWDirs
 Cleanup=1
 EndPrompt=EndPromptDeinstallSection
@@ -82,9 +90,13 @@ RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16412%\@productprefix"
 @lsstgresult,,,1
 @lstypeinforesult,,,1
 
+[SWFiles.ocx]
+@productprefix.inf,,,1
+
 [DestinationDirs]
-SWFiles.add=16422, @productprefix
-SWFiles.del=16422, @productprefix
+SWFiles.add=16422,@productprefix
+SWFiles.del=16422,@productprefix
+SWFiles.ocx=11,DOWNLO~1
 
 [SW.AddReg]
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"DisplayName",,"%ProductName%"
@@ -106,6 +118,16 @@ HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"Version
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"HelpLink"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix,"URLUpdateInfo"
 HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\@productprefix
+
+[SW.DelRegOCX]
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1},"Installer"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1},"SystemComponent"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1}\Contains
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1}\InstalledVersion
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1}\DownloadInformation,"CODEBASE"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1}\DownloadInformation,"INF"
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1}\DownloadInformation
+HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{@bvr20983ocx1}
 
 [RegisterOCXSection]
 %16422%\@productprefix\@bvr20983msgsresult
@@ -133,37 +155,42 @@ Title      = "%BeginDeinstTitle%"
 [EndPromptDeinstallSection]
 Prompt="%EndDeinstTitle%"
 
+[EndPromptDeinstallOCXSection]
+Prompt="%EndDeinstOCXTitle%"
+
 [Strings]
-BadAdvpackVer   = "Incorrect version of advpack.dll. Please get new version from our web site."
-DiskDescription = "@productname cabinet file"
-VersionMajor    = "@productmajorversion"
-VersionMinor    = "@productminorversion"
-DisplayVersion  = "@productmajorversion"
-Publisher       = "@publisher"
-ProductName     = "@productname"
-HelpLink        = "http://@productid.berlios.de/"
-URLUpdateInfo   = "http://@productid.berlios.de/update/"
-BeginInstTitle  = "Installing @productname ..."
-EndInstTitle    = "@productname installed."
-InstPrompt      = "Should @productname be installed ?"
-BeginDeinstTitle= "Deinstalling @productname ..."
-EndDeinstTitle  = "@productname deinstalled."
-DeinstPrompt    = "Should @productname be removed ?"
+BadAdvpackVer     = "Incorrect version of advpack.dll. Please get new version from our web site."
+DiskDescription   = "@productname cabinet file"
+VersionMajor      = "@productmajorversion"
+VersionMinor      = "@productminorversion"
+DisplayVersion    = "@productmajorversion"
+Publisher         = "@publisher"
+ProductName       = "@productname"
+HelpLink          = "http://@productid.berlios.de/"
+URLUpdateInfo     = "http://@productid.berlios.de/update/"
+BeginInstTitle    = "Installing @productname ..."
+EndInstTitle      = "@productname installed."
+InstPrompt        = "Should @productname be installed ?"
+BeginDeinstTitle  = "Deinstalling @productname ..."
+EndDeinstTitle    = "@productname deinstalled."
+EndDeinstOCXTitle = "ActiveX @productname deinstalled."
+DeinstPrompt      = "Should @productname be removed ?"
 
 ; German
 [Strings.0407]         
-BadAdvpackVer   = "Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
-DiskDescription ="@productname Installationsdatei"
-VersionMajor    = "@productmajorversion"
-VersionMinor    = "@productminorversion"
-DisplayVersion  = "@productmajorversion"
-Publisher       = "@publisher"
-ProductName     = "@productname"
-HelpLink        = "http://@productid.berlios.de/"
-URLUpdateInfo   = "http://@productid.berlios.de/update/"
-BeginInstTitle  = "Installiere @productname ..."
-EndInstTitle    = "@productname wurded installiert."
-InstPrompt      = "Should @productname be installed ?"
-BeginDeinstTitle= "Entferne @productname ..."
-EndDeinstTitle  = "@productname wurde entfernt."
-DeinstPrompt    = "Soll @productname entfernt werden ?"
+BadAdvpackVer     = "Falsche Version der Bibliothek advpack.dll. Bitte installieren Sie die neuste Version."
+DiskDescription   = "@productname Installationsdatei"
+VersionMajor      = "@productmajorversion"
+VersionMinor      = "@productminorversion"
+DisplayVersion    = "@productmajorversion"
+Publisher         = "@publisher"
+ProductName       = "@productname"
+HelpLink          = "http://@productid.berlios.de/"
+URLUpdateInfo     = "http://@productid.berlios.de/update/"
+BeginInstTitle    = "Installiere @productname ..."
+EndInstTitle      = "@productname wurded installiert."
+InstPrompt        = "Should @productname be installed ?"
+BeginDeinstTitle  = "Entferne @productname ..."
+EndDeinstTitle    = "@productname wurde entfernt."
+EndDeinstOCXTitle = "ActiveX @productname wurde entfernt."
+DeinstPrompt      = "Soll @productname entfernt werden ?"

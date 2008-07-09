@@ -21,12 +21,12 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer     1,0,0,70
-#define verFileVer1    "1.0.0.70"
+#define verFileVer     1,0,0,71
+#define verFileVer1    "1.0.0.71"
 #define verFileDesc    "list typeinfo of registered COM objects"
 #define verIntName     "lstypeinfo"
 #define verOrigName    "bvr20983.2.lstypeinfo.1.exe"
-#define verMakeDate    "2008-07-08T16:56:28.936757Z"
+#define verMakeDate    "2008-07-08T17:21:47.504217Z"
 #define verCompPrefix  "lstypeinfo.1"
 
 #endif // LSTYPEINFOVER_H
