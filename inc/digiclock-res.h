@@ -44,8 +44,6 @@
 
 #define IDA_ACC                                 2
 
-#define IDR_MANIFEST                            2
-
 #define IDI_APP_ICON                            1
 #define IDI_STATE_0                             10
 #define IDI_STATE_1                             11

@@ -57,7 +57,8 @@ $(OUTDIR)\os.obj: $(SRCDIR)\os.cpp
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(ccrtprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
 $(OUTDIR):
- if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)
+  @if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)
+  @if exist "$(RESDIR)\$(manifest)" copy $(RESDIR)\$(manifest) $(OUTDIR)\bvr20983.manifest
 
 $(SLNDIR):
  if not exist "$(SLNDIR)/$(NULL)" mkdir $(SLNDIR)

@@ -22,6 +22,8 @@
 #include "digiclock-res.h"
 #include "digiclock-ver.h"
 
+IDR_MANIFEST_APP RT_MANIFEST "bvr20983.manifest"
+
 // The main icon resource for the application.
 IDI_APP_ICON ICON  "bvr20983.ico"
 

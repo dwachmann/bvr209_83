@@ -241,11 +241,11 @@ cflags = $(cflags) -D_WIN32_IE=$(_WIN32_IE) -DWINVER=$(NMAKE_WINVER)
 
 !IF "$(CPU)" != "IA64"
 !IFDEF NODEBUG
-cdebug = -Os -DNDEBUG
+cdebug = -O1 -DNDEBUG
 !ELSE IFDEF PROFILE
-cdebug = -Gh -Zd -Os -DNDEBUG
+cdebug = -Gh -Zd -O1 -DNDEBUG
 !ELSE IFDEF TUNE
-cdebug = -Gh -Zd -Os -DNDEBUG
+cdebug = -Gh -Zd -O1 -DNDEBUG
 !ELSE
 cdebug = -Zi -Gm -Od -DDEBUG -RTC1
 !ENDIF
@@ -253,7 +253,7 @@ cdebug = -Zi -Gm -Od -DDEBUG -RTC1
 !ELSE
 
 !IFDEF NODEBUG
-cdebug = -Os -DNDEBUG
+cdebug = -O1 -DNDEBUG
 !ELSE
 cdebug = -Zi -Gm -Od -DDEBUG -RTC1
 !ENDIF
@@ -268,19 +268,23 @@ noansi = -DNULL=0
 !IFDEF NODEBUG
 cvarsmt    = $(noansi) -D_MT -MT
 cvarsdll   = $(noansi) -D_MT -D_DLL -MD
-cvars      = $(noansi) $(cvarsmt)
+#cvars      = $(noansi) $(cvarsmt)
+cvars      = $(noansi) $(cvarsdll)
 !ELSE
 cvarsmt    = $(noansi) -D_MT -MTd
 cvarsdll   = $(noansi) -D_MT -D_DLL -MDd
-cvars      = $(noansi) $(cvarsmt)
+#cvars      = $(noansi) $(cvarsmt)
+cvars      = $(noansi) $(cvarsdll)
 !ENDIF
 
 # resource compiler
 rcflags = -r
 !ifdef NODEBUG
-rcvars = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) $(noansi)
+rcvars   = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) $(noansi)
+manifest = bvr20983.release.manifest
 !else
-rcvars = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) -DDEBUG -D_DEBUG $(noansi)
+rcvars   = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) -DDEBUG -D_DEBUG $(noansi)
+manifest = bvr20983.debug.manifest
 !endif
 
 rcvars = $(rcvars) -I $(RESDIR) -I $(INCDIR) -I $(OUTDIR)

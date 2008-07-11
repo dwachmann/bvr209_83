@@ -21,6 +21,8 @@
 #include "os.h"
 #include "bvr20983msgs-ver.h"
 
+IDR_MANIFEST_DLL RT_MANIFEST "bvr20983.manifest"
+
 #include "msgs.rc"
 
 // If being read in by AppStudio we don't confuse it with this Version Info.

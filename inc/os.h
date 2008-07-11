@@ -127,4 +127,7 @@ struct strless : public binary_function<LPCTSTR, LPCTSTR, bool>
 	{	return _tcscmp(_Left,_Right)<0;	}
 };
 
+#define IDR_MANIFEST_APP            1
+#define IDR_MANIFEST_DLL            2
+
 #endif // OS_H

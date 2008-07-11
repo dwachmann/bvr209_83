@@ -23,6 +23,8 @@
 #include "bvr20983sc-res.h"
 #include "bvr20983sc-ver.h"
 
+IDR_MANIFEST_DLL RT_MANIFEST "bvr20983.manifest"
+
 // The main icon resource for the application.
 IDI_APP_ICON ICON  "bvr20983.ico"
 
@@ -32,8 +34,6 @@ IDI_STATE_2 ICON  "unlocked.ico"
 
 IDT_TYPELIB_EN TYPELIB "ibvr20983-0000.tlb"
 IDT_TYPELIB_DE TYPELIB "ibvr20983-0007.tlb"
-
-//IDR_MANIFEST RT_MANIFEST "bvr20983.manifest"
 
 // About Dialog.
 IDD_ABOUTBOX DIALOG  67, 46, 196, 53
