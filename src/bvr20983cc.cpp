@@ -32,6 +32,7 @@
 #include "com/ocx/coled.h"
 #include "com/coclassfactory.h"
 #include "com/copropertypage.h"
+#include "commctrl.h"
 
 using namespace bvr20983;
 using namespace bvr20983::win;
@@ -107,7 +108,9 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
 
   switch( fdwReason )
   { case DLL_PROCESS_ATTACH:
+      OutputDebugFmt(_T("DllMain(DLL_PROCESS_ATTACH)\n"));
 
+      InitCommonControls();
       if( NULL==COMServer::CreateInstance(hDllInst) )
         bResult = FALSE;
 
@@ -118,14 +121,19 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
       }
       break;
     case DLL_PROCESS_DETACH:
+      OutputDebugFmt(_T("DllMain(DLL_PROCESS_DETACH)\n"));
       WndClass::UnregisterWindowClasses();
       COMServer::DeleteInstance();
       break;
     case DLL_THREAD_ATTACH:
+      OutputDebugFmt(_T("DllMain(DLL_THREAD_ATTACH)\n"));
+      InitCommonControls();
       break;
     case DLL_THREAD_DETACH:
+      OutputDebugFmt(_T("DllMain(DLL_THREAD_DETACH)\n"));
       break;
     default:
+      OutputDebugFmt(_T("DllMain(%ld)\n"),fdwReason);
       break;
   }
 

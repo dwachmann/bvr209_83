@@ -39,7 +39,7 @@ $(OUTDIR)\bvr20983cc.res: $(RESDIR)\bvr20983cc.rc $(OUTDIR)\ibvr20983cc-0000.tlb
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983cc.rc
 
 $(OUTDIR)\$(BVR20983CC_RESULT).dll: $(OBJS) $(INCDIR)\bvr20983cc.def
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983cc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983cc.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) comctl32.lib $(OBJS)
 
 $(SLNDIR)\$(BVR20983CC_RESULT).dll $(SLNDIR)\$(BVR20983CC_RESULT).lib: $(OUTDIR)\$(BVR20983CC_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983CC_RESULT).dll $(SLNDIR)
