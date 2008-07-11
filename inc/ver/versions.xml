@@ -41,7 +41,6 @@
       <pattern><key>@lsstgresult</key><value>${../../../../v:component[@id='lsstg']/v:filename/text()}</value></pattern>
       <pattern><key>@lstypeinforesult</key><value>${../../../../v:component[@id='lstypeinfo']/v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}</value></pattern>
-
       <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
     </patch>
 
@@ -53,7 +52,6 @@
       <pattern><key>@lsstgresult</key><value>${../../../../v:component[@id='lsstg']/v:filename/text()}.exe</value></pattern>
       <pattern><key>@lstypeinforesult</key><value>${../../../../v:component[@id='lstypeinfo']/v:filename/text()}.exe</value></pattern>
       <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}.cab</value></pattern>
-
       <pattern><key>@publisher</key><value>${../../../../v:company/text()}</value></pattern>
       <pattern><key>@productprefix</key><value>${../../../../v:filename/text()}</value></pattern>
       <pattern><key>@productname</key><value>${../../../../v:name/text()}</value></pattern>
