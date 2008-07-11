@@ -22,6 +22,7 @@
 #include "win/app.h"
 #include "win/wndclass.h"
 #include "win/wnd.h"
+#include "commctrl.h"
 
 using namespace bvr20983;
 
@@ -71,6 +72,8 @@ namespace bvr20983
      */
     int App::Main()
     { MSG     msg;
+
+      InitCommonControls();
 
       while( ::GetMessage(&msg, NULL, 0, 0) ) 
       { int acc = 0;
