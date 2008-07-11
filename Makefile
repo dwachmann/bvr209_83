@@ -23,13 +23,14 @@ SLNDIR=.\debug
 SLNDIR=.\release
 !ENDIF
 
-DISTDIR    = .\dist
-SIGNDIR    = .\sign
-INCDIR     = .\inc
-HTMLDIR    = .\html
-SCRIPTSDIR = .\scripts
-
-signvars=sign /f $(signkey) /d "BVR20983 Security Suite" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll 
+DISTDIR       = .\dist
+SIGNDIR       = .\sign
+INCDIR        = .\inc
+HTMLDIR       = .\html
+SCRIPTSDIR    = .\scripts
+SIGNPUBKEYTOK = 93425facf1ef717a
+signvars      = sign /f $(signkey) /d "$(BVR20983DESC)" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll
+patch         = cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/" 
 
 PROJECTS =     \
 libbvr20983\~  \
@@ -63,7 +64,7 @@ distribute: patch $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
 
 patch:
-  @cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/"
+  @$(patch) signpubkeytok $(SIGNPUBKEYTOK) crtlib $(MSVCRTLIB) debugver $(DEBUGVER)
 
 $(CABRESULT): $(CABCONTENT)
 	@$(cab) -s 6144 N $@ $**

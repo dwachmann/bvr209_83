@@ -1,5 +1,6 @@
 1. create certificate
    makecert -r -pe -# 1 -e 12/31/2009 -n "CN=Privacy needs Anonymity,OU=Dorothea Wachmann,O=BVR20983,C=Germany,E=trash@devnull.com" -sk bvr20983 -ss my bvr20983-01.cer
+   makecert -r -pe -# 2 -len 2048 -e 12/31/2010 -n "CN=Privacy needs Anonymity,OU=Dorothea Wachmann,O=BVR20983,C=Germany,E=trash@devnull.com" -sk bvr20983 -ss my bvr20983-02.cer   
    
 2. import to key store
    mmc certmgr.msc

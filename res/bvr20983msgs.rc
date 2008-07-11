@@ -21,7 +21,7 @@
 #include "os.h"
 #include "bvr20983msgs-ver.h"
 
-IDR_MANIFEST_DLL RT_MANIFEST "bvr20983.manifest"
+IDR_MANIFEST_DLL RT_MANIFEST "bvr20983msgs.manifest"
 
 #include "msgs.rc"
 
@@ -58,9 +58,10 @@ BEGIN
       VALUE "OriginalFilename",verOrigName
       VALUE "ProductName",     verProdName
       VALUE "ProductVersion",  verProdVer1
-      VALUE "Comments",        verMakeDate
+      VALUE "BuildDate",       verMakeDate
       VALUE "ProductPrefix",   verProdPrefix
       VALUE "ComponentPrefix", verCompPrefix
+      VALUE "DebugVersion",    verDebugVersion
     END
   END
 

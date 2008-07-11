@@ -324,12 +324,13 @@ Sub Init
   projectPath = Left(WScript.ScriptFullName,InStrRev(WScript.ScriptFullName,"\")-1)
   projectPath = Left(projectPath,InStrRev(projectPath,"\"))
   
-  Redim searchPath(2)
+  Redim searchPath(5)
   
   searchPath(0) = "inc\"
   searchPath(1) = "inc\ver\"
-  searchPath(1) = "inc\com\"
-  searchPath(1) = "html\"
+  searchPath(2) = "inc\com\"
+  searchPath(3) = "res\"
+  searchPath(4) = "html\"
 End Sub
 
 '

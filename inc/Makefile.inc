@@ -280,11 +280,13 @@ cvars      = $(noansi) $(cvarsdll)
 # resource compiler
 rcflags = -r
 !ifdef NODEBUG
-rcvars   = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) $(noansi)
-manifest = bvr20983.release.manifest
+rcvars    = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) $(noansi)
+MSVCRTLIB = CRT
+DEBUGVER  = 0
 !else
-rcvars   = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) -DDEBUG -D_DEBUG $(noansi)
-manifest = bvr20983.debug.manifest
+rcvars    = -DWIN32 -D_WIN32 -DWINVER=$(NMAKE_WINVER) -DDEBUG -D_DEBUG $(noansi)
+MSVCRTLIB = DebugCRT
+DEBUGVER  = 1
 !endif
 
 rcvars = $(rcvars) -I $(RESDIR) -I $(INCDIR) -I $(OUTDIR)
@@ -521,6 +523,7 @@ BVR20983_RESULT=bvr20983.2
 LSSTG_RESULT=bvr20983.2.lsstg.1
 LSTYPEINFO_RESULT=bvr20983.2.lstypeinfo.1
 BVR20983MSGS_RESULT=bvr20983.2.msgs.1
+BVR20983DESC=BVR2098 Suite
 
 #ENDIF _MAKEFILE_INC_
 !ENDIF

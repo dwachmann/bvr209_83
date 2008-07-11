@@ -42,6 +42,7 @@
       <pattern><key>@lstypeinforesult</key><value>${../../../../v:component[@id='lstypeinfo']/v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
+      <pattern><key>@bvr20983desc</key><value>${../../../../v:name/text()}</value></pattern>
     </patch>
 
     <patch template="bvr20983.inf.tmpl" filename="bvr20983.2.inf">
@@ -85,7 +86,15 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
-        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
+        <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+      </patch>
+
+      <patch template="bvr20983sc.manifest.tmpl" filename="bvr20983sc.manifest">
+        <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
+        <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
+        <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
+        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
       </patch>
 
       <type id="IAPDU" typeid="0002">
@@ -221,9 +230,17 @@
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
+        <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
 
         <pattern><key>(^#define.+verAboutTitle.+")(.+)(")</key>                                  <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verAboutText.+")(.+)(")</key>                                   <value>$1${../../../../v:name/text()} ${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
+      </patch>
+
+      <patch template="bvr20983cc.manifest.tmpl" filename="bvr20983cc.manifest">
+        <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
+        <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
+        <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
+        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
       </patch>
 
       <patch filename="led.html">
@@ -270,6 +287,30 @@
       </typelib>
     </component>
 
+    <component id="msgs" type="dll">
+      <version major="1" minor="0" fix="0" rev="${rev}"/>
+      <name>Product installation and message component</name>
+      <filename>${filenamepattern}</filename>
+
+      <patch filename="bvr20983msgs-ver.h">
+        <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
+        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
+        <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
+        <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+      </patch>
+
+      <patch template="bvr20983msgs.manifest.tmpl" filename="bvr20983msgs.manifest">
+        <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
+        <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
+        <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
+        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+      </patch>
+    </component>
+
     <component id="digiclock" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>A digital clock</name>
@@ -281,7 +322,15 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
-        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
+        <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+      </patch>
+
+      <patch template="digiclock.manifest.tmpl" filename="digiclock.manifest">
+        <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
+        <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
+        <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
+        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
       </patch>
     </component>
 
@@ -297,7 +346,15 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
-        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
+        <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+      </patch>
+
+      <patch template="lsstg.manifest.tmpl" filename="lsstg.manifest">
+        <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
+        <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
+        <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
+        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
       </patch>
     </component>
 
@@ -313,24 +370,17 @@
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
-        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
+        <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+      </patch>
+
+      <patch template="lstypeinfo.manifest.tmpl" filename="lstypeinfo.manifest">
+        <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
+        <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
+        <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
+        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
       </patch>
     </component>
 
-    <component id="msgs" type="dll">
-      <version major="1" minor="0" fix="0" rev="${rev}"/>
-      <name>Product installation and message component</name>
-      <filename>${filenamepattern}</filename>
-
-      <patch filename="bvr20983msgs-ver.h">
-        <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
-        <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
-        <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
-        <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
-        <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
-        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}}$3</value></pattern>
-      </patch>
-    </component>
   </product>
 </versions>

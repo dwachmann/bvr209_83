@@ -58,7 +58,6 @@ $(OUTDIR)\os.obj: $(SRCDIR)\os.cpp
 
 $(OUTDIR):
   @if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)
-  @if exist "$(RESDIR)\$(manifest)" copy $(RESDIR)\$(manifest) $(OUTDIR)\bvr20983.manifest
 
 $(SLNDIR):
  if not exist "$(SLNDIR)/$(NULL)" mkdir $(SLNDIR)
