@@ -14,16 +14,16 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
-
 !include <./inc/Makefile.inc>
 
 !IF "$(NODEBUG)" == ""
-SLNDIR=.\debug
+SLNDIR  = .\debug
+DISTDIR = .\dist-debug
 !ELSE
-SLNDIR=.\release
+SLNDIR  = .\release
+DISTDIR = .\dist-release
 !ENDIF
 
-DISTDIR       = .\dist
 SIGNDIR       = .\sign
 INCDIR        = .\inc
 HTMLDIR       = .\html
@@ -58,7 +58,7 @@ all: $(PROJECTS) clean
 all: $(PROJECTS) 
 !endif
 
-distribute: patch $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
+distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
   @copy $(HTMLDIR)\led.*                  $(DISTDIR)
   @copy $(HTMLDIR)\*.jpg                  $(DISTDIR)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
@@ -69,17 +69,5 @@ patch:
 $(CABRESULT): $(CABCONTENT)
 	@$(cab) -s 6144 N $@ $**
 	@$(sign) $(signvars) /p $(signpwd) $@
-
-install:
-  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultInstall,$(MAKEDIR)\$(CABRESULT),32
-
-uninstall: 
-  rundll32.exe advpack.dll,LaunchINFSectionEx $(BVR20983_RESULT).inf,DefaultUninstall,$(MAKEDIR)\$(CABRESULT),32
-
-publish:
-  @copy $(DISTDIR)\* M:\sth\local\linux\apache2\htdocs\bvr20983
-
-publish1:
-  @"\Program Files\putty\pscp.exe" -load berlios $(DISTDIR)\* dwachmann@shell.berlios.de:/home/groups/bvr20983/htdocs/update
 
 !include <./inc/bvr.inc>

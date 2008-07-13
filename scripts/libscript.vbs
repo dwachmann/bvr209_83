@@ -404,8 +404,8 @@ Sub GetRevisionAndDate(f)
 
   Set doc = GetSvnInfo(WScript.Arguments.Named.Item("File"))
   
-  rev = doc.selectSingleNode("/info/entry/commit/@revision").nodeValue
-  d   = doc.selectSingleNode("/info/entry/commit/date/text()").text
+  rev = doc.selectSingleNode("/info/entry/@revision").nodeValue
+  d   = doc.selectSingleNode("/info/entry/wc-info/text-updated/text()").text
   
   WScript.Echo "rev="       & rev
   WScript.Echo "builddate=" & d
