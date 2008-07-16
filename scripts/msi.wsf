@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!--
+     $Id$
+     
+     Copyright (C) 2008 Dorothea Wachmann
+     
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     
+     You should have received a copy of the GNU General Public License
+     along with this program.  If not, see http://www.gnu.org/licenses/.
+
+  -->
+  
+<package>
+   <job id="select">
+      <runtime>
+          <description>Show MSI information</description>
+          <named name = "File"
+                 helpstring = "Name of the msi file"
+                 type = "string"
+                 required = "true"
+          />
+
+          <named name = "Table"
+                 helpstring = "Name of the database table"
+                 type = "string"
+                 required = "false"
+          />
+          <example>Example: msi.wsf /File:msifile /Table:File</example>
+      </runtime>
+
+      <script language="VBScript" src="libmsi.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          Dim query : query = "select * from _Tables"
+          
+          Init
+          
+          If WScript.Arguments.Named.Exists("File") and fso.FileExists(WScript.Arguments.Named.Item("File")) Then
+            OpenDB WScript.Arguments.Named.Item("File"),msiOpenDatabaseModeReadOnly
+            
+            If WScript.Arguments.Named.Exists("Table") Then
+              query = "select * from " & WScript.Arguments.Named.Item("Table")
+            End If
+
+            QueryDB query
+          Else
+            WScript.Arguments.ShowUsage
+          End If
+        ]]>
+      </script>
+   </job>
+
+   <job id="addproperty">
+      <runtime>
+          <description>Add Properties to MSI DB</description>
+          <named name = "File"
+                 helpstring = "Name of the msi file"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //Job:addproperty msi.wsf /File:msifile /Table:File</example>
+      </runtime>
+
+      <script language="VBScript" src="libmsi.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          Dim i
+          
+          Init
+          
+          If WScript.Arguments.Named.Exists("File") and fso.FileExists(WScript.Arguments.Named.Item("File")) Then
+            OpenDB WScript.Arguments.Named.Item("File"),msiOpenDatabaseModeTransact
+
+            AddProperty WScript.Arguments.Unnamed
+            QueryDB "select * from Property"
+
+            database.Commit            
+          Else
+            WScript.Arguments.ShowUsage
+          End If
+        ]]>
+      </script>
+   </job>
+</package>

@@ -62,11 +62,20 @@ GUID Schema for components:
     Coclass Control          0011
     Coclass noncreatable     0012
     Enum                     0020
+    MSI GUID                 0100
     Custom GUID              1000
 
 GUID Schema for type libraries:
 <ProdId  |MajV|Comp|MajV|Type|Maj |Res >
  BFE20983-0000-0001-0001-0000|0001|FFFF
+
+GUID Schema for MSI packages:
+<ProdId  |MajV|Comp|MajV|Type|Res |Res >
+ BFE20983-0000-0000-0000-0100|FFFF|FFFF
+
+GUID Schema for MSI package components:
+<ProdId  |MajV|Comp|MajV|Type|Res |Res >
+ BFE20983-0000-0001-0001-0100|FFFF|FFFF
 
 Filename Convention:
   DLL Name: Productname.ProductMajorVersion.ComponentName.ComponentMajorVersion.dll
