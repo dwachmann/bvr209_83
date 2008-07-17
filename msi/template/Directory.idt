@@ -1,3 +1,6 @@
 Directory	Directory_Parent	DefaultDir
 s72	S72	l255
 Directory	Directory
+TARGETDIR		SourceDir
+ProgramFilesFolder	TARGETDIR	.
+BVRDIR	ProgramFilesFolder	bvr20983.2
