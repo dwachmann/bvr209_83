@@ -594,27 +594,32 @@ namespace bvr20983
 
     ::memset( &statstg, 0, sizeof(statstg) );
 
-    THROW_COMEXCEPTION( pStg->QueryInterface( IID_IPropertySetStorage,reinterpret_cast<void**>(&pPropSetStg) ) );
-
-    os<<pPropSetStg;
-
+    if( SUCCEEDED(pStg->QueryInterface( IID_IPropertySetStorage,reinterpret_cast<void**>(&pPropSetStg) ) ) )
+    { os<<pPropSetStg;
+    } // of if
+    
     THROW_COMEXCEPTION( pStg->EnumElements( NULL, NULL, NULL, &penum ) );
 
     hr = penum->Next( 1, &statstg, 0 );
     THROW_COMEXCEPTION( hr );
 
     while( S_OK == hr )
-    { 
-      if( NULL!=logger )
+    { if( NULL!=logger )
         logger->SetIndent(indent);
 
       { if( STGTY_STORAGE==statstg.type )
           os<<_T("[");
 
-        if( statstg.pwcsName[0]>_T('\x20') )
-          os<<statstg.pwcsName;
-        else
-          os<<_T("'\\x")<<hex<<setw(2)<<setfill(_T('0'))<<(UINT)(statstg.pwcsName[0])<<_T("'")<<statstg.pwcsName+1;
+        if( NULL!=statstg.pwcsName )
+        { for( int i=0;statstg.pwcsName[i]!=_T('\00');i++ )
+          { if( statstg.pwcsName[i]>_T('\x20') && statstg.pwcsName[i]<_T('\x7F') )
+		          os<<statstg.pwcsName[i];
+		        else
+		          os<<_T("\\x")<<hex<<setw(2)<<setfill(_T('0'))<<(UINT)(statstg.pwcsName[i]);
+		      } // of if
+	      } // of if
+	      
+	      os<<_T(" {0x")<<hex<<statstg.cbSize.HighPart<<statstg.cbSize.LowPart<<_T('}');
 
         if( STGTY_STORAGE==statstg.type )
           os<<_T("]");
@@ -639,13 +644,15 @@ namespace bvr20983
 
         os<<pStgChild;
       } // of if
-
+      
       ::CoTaskMemFree( statstg.pwcsName );
       statstg.pwcsName = NULL;
-
+      
       hr = penum->Next( 1, &statstg, 0 );
       THROW_COMEXCEPTION( hr );
     } // of while
+
+    os.flush();
     
     return os;
   } // of basic_ostream<charT,traits>& operator<<(basic_ostream<charT,traits>& os, IStorage *pStg)

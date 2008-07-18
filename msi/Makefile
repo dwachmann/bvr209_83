@@ -21,3 +21,4 @@ msidb       = msidb
 
 distribute: 
    $(msidb) -c -d $(RESULT) -f $(MAKEDIR)\$(TEMPLATEDIR) -i *
+   $(msidb) -d $(RESULT) -a bvr20983.2.cab
