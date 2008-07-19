@@ -1,3 +1,12 @@
 Feature_	Component_
 s38	s72
 FeatureComponents	Feature_	Component_
+sc	msgs.1
+sc	sc.1
+cc	msgs.1
+cc	cc.1
+digiclock	msgs.1
+digiclock	cc.1
+digiclock	digiclock.1
+lsstg	lsstg.1
+lstypeinfo	lstypeinfo.1

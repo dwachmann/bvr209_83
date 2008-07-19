@@ -1,3 +1,10 @@
 Feature	Feature_Parent	Title	Description	Display	Level	Directory_	Attributes
 s38	S38	L64	L255	I2	i2	S72	i2
 Feature	Feature
+sc		Smartcard Library	A COM Library to access a smartcard	1	1	BVRDIR	0
+cc		Custom Control Library	A OCX Library with several controls	2	1	BVRDIR	0
+Demo		Demo	Demo Programs	3	3	BVRDIR	0
+digiclock	Demo	digiclock	A Testfile for the digital clock control	4	3	BVRDIR	0
+Tools		Tools	Tools	5	2	BVRDIR	0
+lsstg	Tools	lsstg	display compound file structure	6	2	BVRDIR	0
+lstypeinfo	Tools	lstypeinfo	display typelib information	7	2	BVRDIR	0

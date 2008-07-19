@@ -1,3 +1,7 @@
 Registry	Root	Key	Name	Value	Component_
 s72	i2	l255	L255	L0	s72
 Registry	Registry
+sclogging	-1	Software\bvr20983.2\sc.1\logging	tracelevel	debug	sc.1
+cclogging	-1	Software\bvr20983.2\cc.1\logging	tracelevel	debug	cc.1
+lsstglogging	-1	Software\bvr20983.2\lsstg.1\logging	tracelevel	debug	lsstg.1
+lstypeinfologging	-1	Software\bvr20983.2\lstypeinfo.1\logging	tracelevel	debug	lstypeinfo.1

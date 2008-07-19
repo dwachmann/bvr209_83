@@ -1,7 +1,7 @@
 Property	Value
 s72	l0
 Property	Property
-ARPHELPLINK	http://www.microsoft.com/management
+ARPHELPLINK	http://bvr20983.berlios.de/
 BannerBitmap	bannrbmp
 ButtonText_Back	< &Back
 ButtonText_Browse	Br&owse
@@ -31,11 +31,15 @@ ExclamationIcon	exclamic
 IAgree	No
 InfoIcon	info
 InstallerIcon	insticon
-INSTALLLEVEL	3
+INSTALLLEVEL	1
 InstallMode	Typical
+Manufacturer	Dorothea Wachmann
 PIDTemplate	12345<###-%%%%%%%>@@@@@
-ProductID	none
+ProductCode	{BFE20983-0000-0000-0000-0100FFFFFFFF}
+ProductID	123-1234567
 ProductLanguage	1033
+ProductName	BVR20983 Suite
+ProductVersion	2.0.0.84
 Progress1	Installing
 Progress2	installs
 PROMPTROLLBACKCOST	P
@@ -44,3 +48,4 @@ RepairIcon	repairic
 Setup	Installation
 ShowUserRegistrationDlg	1
 Wizard	Installationszauberer
+UpdateCode	{BFE20983-0000-0000-0000-0100FFFFFFFF}

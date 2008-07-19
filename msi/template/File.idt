@@ -1,9 +1,9 @@
 File	Component_	FileName	FileSize	Version	Language	Attributes	Sequence
 s72	s72	l255	i4	S72	S20	I2	i2
 File	File
-msgs.1	msgs.1	bvr20983.2.msgs.1.dll	311280	1.0.0.0	1033	16384	1
-sc.1	sc.1	bvr20983.2.sc.1.dll	778224	1.0.0.0	1033	16384	2
-cc.1	cc.1	bvr20983.2.cc.1.dll	950256	1.0.0.0	1033	16384	3
-digiclock.1	digiclock.1	bvr20983.2.digiclock.1.exe	516592	1.0.0.0	1033	16384	4
-lsstg.1	lsstg.1	bvr20983.2.lsstg.1.exe	310256	1.0.0.0	1033	16384	5
-lstypeinfo.1	lstypeinfo.1	bvr20983.2.lstypeinfo.1.exe	338928	1.0.0.0	1033	16384	6
+msgs.1	msgs.1	bvr20983.2.msgs.1.dll	81904	1.0.0.0	1033	0	2
+sc.1	sc.1	bvr20983.2.sc.1.dll	311280	1.0.0.0	1033	0	3
+cc.1	cc.1	bvr20983.2.cc.1.dll	385008	1.0.0.0	1033	0	4
+digiclock.1	digiclock.1	bvr20983.2.digiclock.1.exe	147952	1.0.0.0	1033	0	5
+lsstg.1	lsstg.1	bvr20983.2.lsstg.1.exe	100848	1.0.0.0	1033	0	6
+lstypeinfo.1	lstypeinfo.1	bvr20983.2.lstypeinfo.1.exe	105968	1.0.0.0	1033	0	7
