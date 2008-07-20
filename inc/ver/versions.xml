@@ -40,6 +40,7 @@
       <pattern><key>@digiclockresult</key><value>${../../../../v:component[@id='digiclock']/v:filename/text()}</value></pattern>
       <pattern><key>@lsstgresult</key><value>${../../../../v:component[@id='lsstg']/v:filename/text()}</value></pattern>
       <pattern><key>@lstypeinforesult</key><value>${../../../../v:component[@id='lstypeinfo']/v:filename/text()}</value></pattern>
+      <pattern><key>@msicabresult</key><value>${../../../../v:component[@id='msicab']/v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983desc</key><value>${../../../../v:name/text()}</value></pattern>
@@ -375,6 +376,30 @@
       </patch>
 
       <patch template="lstypeinfo.manifest.tmpl" filename="lstypeinfo.manifest">
+        <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
+        <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
+        <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
+        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+      </patch>
+    </component>
+
+    <component id="msicab" type="exe">
+      <version major="1" minor="0" fix="0" rev="${rev}"/>
+      <name>create cabinet files and necessary msi information</name>
+      <filename>${filenamepattern}</filename>
+
+      <patch filename="msicab-ver.h">
+        <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}$3</value></pattern>
+        <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
+        <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
+        <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
+        <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
+        <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+      </patch>
+
+      <patch template="msicab.manifest.tmpl" filename="msicab.manifest">
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>

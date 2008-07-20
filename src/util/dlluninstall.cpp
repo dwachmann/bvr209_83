@@ -28,6 +28,7 @@ using namespace bvr20983;
 using namespace bvr20983::COM;
 using namespace bvr20983::util;
 
+#ifdef _UNICODE
 /**
  *
  */
@@ -59,4 +60,37 @@ STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int n
   if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
     EventLogger::UnregisterInRegistry((LPCTSTR)prodPrefix);
 } // of DllUninstallW()
+#else
+/**
+ *
+ */
+STDAPI_(void) DllInstallW(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine,int nCmdShow)
+{ MessageBox(hwnd,lpszCmdLine,_T("DllInstall"),0);
+
+  VersionInfo verInfo(COMServer::GetInstanceHandle());
+
+  LPVOID prodPrefix = verInfo.GetStringInfo(_T("ProductPrefix"));
+
+  OutputDebugFmt(_T("DllInstall(): <%s>\n"),prodPrefix);
+
+  if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
+    EventLogger::RegisterInRegistry((LPCTSTR)prodPrefix);
+} // of DllInstallW()
+
+/**
+ *
+ */
+STDAPI_(void) DllUninstallW(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine,int nCmdShow)
+{ MessageBox(hwnd,lpszCmdLine,_T("DllUninstall"),0);
+
+  VersionInfo verInfo(COMServer::GetInstanceHandle());
+
+  LPVOID prodPrefix = verInfo.GetStringInfo(_T("ProductPrefix"));
+
+  OutputDebugFmt(_T("DllUninstall(): <%s>\n"),prodPrefix);
+
+  if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
+    EventLogger::UnregisterInRegistry((LPCTSTR)prodPrefix);
+} // of DllUninstallW()
+#endif
 /*==========================END-OF-FILE===================================*/

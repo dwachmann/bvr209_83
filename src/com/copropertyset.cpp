@@ -55,7 +55,13 @@ namespace bvr20983
         m_friendlySetName(friendlySetName),
         m_readFriendlySetName(NULL),
         m_firstPID(PID_FIRST_USABLE+0x1000)
-    { THROW_COMEXCEPTION(  ::StgOpenStorageEx( fileName,
+    { 
+/*
+ * hack
+ * add conversion, if compiled in ansi mode
+ */
+#ifdef _UNICODE
+      THROW_COMEXCEPTION(  ::StgOpenStorageEx( fileName,
                                                STGM_READWRITE | STGM_SHARE_EXCLUSIVE,
                                                STGFMT_ANY,
                                                0,
@@ -65,6 +71,7 @@ namespace bvr20983
                                                reinterpret_cast<void**>(&m_pStg) 
                                              ) 
                         );
+#endif
       
       THROW_COMEXCEPTION( m_pStg->QueryInterface( IID_IPropertySetStorage,reinterpret_cast<void**>(&m_pPropSetStg) ) );
 
@@ -450,7 +457,13 @@ namespace bvr20983
           { propId      = dictIter->second;
             propName[0] = const_cast<LPOLESTR>(dictIter->first.c_str());
 
+/*
+ * hack
+ * add conversion, if compiled in ansi mode
+ */
+#ifdef _UNICODE
             THROW_COMEXCEPTION( pPropStg->WritePropertyNames( 1, &propId,propName) ); 
+#endif
           } // of for
         } // of if
 
@@ -459,7 +472,13 @@ namespace bvr20983
 
           LPWSTR friendlySetName = const_cast<LPWSTR>(m_friendlySetName);
 
+/*
+ * hack
+ * add conversion, if compiled in ansi mode
+ */
+#ifdef _UNICODE
           THROW_COMEXCEPTION( pPropStg->WritePropertyNames( 1, &propidDictionary,&friendlySetName ) );
+#endif
         } // of if
 
         THROW_COMEXCEPTION( pPropStg->Commit(STGC_DEFAULT) );
@@ -544,8 +563,14 @@ namespace bvr20983
         
         m_readFriendlySetName = NULL;
 
+/*
+ * hack
+ * add conversion, if compiled in ansi mode
+ */
+#ifdef _UNICODE
         if( SUCCEEDED(pPropStg->ReadPropertyNames( 1, &propid, &m_readFriendlySetName)) )
           m_friendlySetName = m_readFriendlySetName;
+#endif
       } // of if
     } // of COPropertySet::Read()
 

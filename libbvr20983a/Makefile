@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-LIBBVR20983=libbvr20983
+ansi=1
+LIBBVR20983=libbvr20983a
 
 !include <../inc/Makefile.inc>
-!include <libbvr20983.inc>
+!include <../libbvr20983/libbvr20983.inc>
 !include <../inc/Makefile.rule>

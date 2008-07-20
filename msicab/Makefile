@@ -15,8 +15,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-LIBBVR20983=libbvr20983
+ansi=1
 
 !include <../inc/Makefile.inc>
-!include <libbvr20983.inc>
+
+OBJS= \
+$(OUTDIR)\os.obj \
+$(OUTDIR)\msicab.obj \
+$(OUTDIR)\msicab.res \
+$(SLNDIR)\libbvr20983a.lib
+
+!ifdef clean
+all: clean
+!else
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB_RESULT).exe
+!endif
+
+$(OUTDIR)\$(MSICAB_RESULT).exe: $(OBJS)
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) FCI.LIB $(OBJS)
+
+$(SLNDIR)\$(MSICAB_RESULT).exe: $(OUTDIR)\$(MSICAB_RESULT).exe
+  @copy $(OUTDIR)\$(MSICAB_RESULT).exe $(SLNDIR)
+
+clean:
+  if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
+  if exist $(SLNDIR)\$(MSICAB_RESULT).exe del /q $(SLNDIR)\$(MSICAB_RESULT).exe
+
 !include <../inc/Makefile.rule>

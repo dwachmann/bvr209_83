@@ -18,7 +18,11 @@
 TEMPLATEDIR = template
 RESULT      = bvr20983.Msi
 msidb       = msidb
+msival      = msival2
 
 distribute: 
    $(msidb) -c -d $(RESULT) -f $(MAKEDIR)\$(TEMPLATEDIR) -i *
    $(msidb) -d $(RESULT) -a bvr20983.2.cab
+
+validate: 
+   $(msival) $(RESULT) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f

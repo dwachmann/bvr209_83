@@ -194,7 +194,12 @@ cab    = cabarc
 
 # declarations common to all compiler options
 ccommon = -c -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -nologo -GS
+
+!IFNDEF ansi
 ccommon = $(ccommon) -D_UNICODE -DUNICODE
+!ELSE
+ccommon = $(ccommon) -DOLE2ANSI
+!ENDIF
 
 !IF "$(CPU)" == "i386"
 cflags = $(ccommon) -D_X86_=1  -DWIN32 -D_WIN32 -W3
@@ -506,7 +511,7 @@ cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
 ccrtprecompheader=-Yc"os.h" -Fp"$(OUTDIR)\precomp.pch"
 cvars= $(cvars) -EHa $(cinclude)
 
-lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR)
+lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:..\lib\cab
 
 !ifdef clean
 makeopts = clean=1
@@ -522,6 +527,7 @@ DIGICLOCK_RESULT=bvr20983.2.digiclock.1
 BVR20983_RESULT=bvr20983.2
 LSSTG_RESULT=bvr20983.2.lsstg.1
 LSTYPEINFO_RESULT=bvr20983.2.lstypeinfo.1
+MSICAB_RESULT=bvr20983.2.msicab.1
 BVR20983MSGS_RESULT=bvr20983.2.msgs.1
 BVR20983DESC=BVR2098 Suite
 

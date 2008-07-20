@@ -47,13 +47,14 @@ namespace bvr20983
   
       THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( 28591, 0, buffer.data(), buffer.size(),(LPSTR)buf.get(), bufLen, NULL, NULL ) );
   
+      m_buffer = BString(buf.get(),bufLen);
 #else
-      BYTE* buf = buffer.data();
+      BYTE* buf = (BYTE*)buffer.data();
       
       bufLen = buffer.size();
+
+      m_buffer = BString(buf,bufLen);
 #endif
-  
-      m_buffer = BString(buf.get(),bufLen);
     } // of if
   }
   
@@ -85,11 +86,14 @@ namespace bvr20983
       ::memset(buffer.get(),m_buffer.size(),sizeof(TCHAR));
   
       THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar(28591, MB_ERR_INVALID_CHARS, (LPCSTR)m_buffer.data(),m_buffer.size(),buffer.get(),m_buffer.size()) );
+
+      result = TString(buffer.get(),m_buffer.size());
 #else
-      LPTSTR buffer = m_buffer.data();
+      LPTSTR buffer = (LPTSTR)m_buffer.data();
+
+      result = TString(buffer,m_buffer.size());
 #endif
   
-      result = TString(buffer.get(),m_buffer.size());
     } // of if
     
     return result;
@@ -109,11 +113,14 @@ namespace bvr20983
       ::memset(buffer.get(),m_buffer.size(),sizeof(TCHAR));
   
       THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar(28591, MB_ERR_INVALID_CHARS, (LPCSTR)m_buffer.data(),m_buffer.size(),buffer.get(),m_buffer.size()) );
+
+      *result = ::SysAllocString(buffer.get());
 #else
-      LPTSTR buffer = m_buffer.data();
+      BSTR buffer = (BSTR)m_buffer.data();
+
+      *result = ::SysAllocString(buffer);
 #endif
   
-      *result = ::SysAllocString(buffer.get());
     } // of if
   }
 
