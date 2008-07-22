@@ -15,28 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-!include <../inc/Makefile.inc>
+!include <../../inc/Makefile.inc>
 
 OBJS= \
 $(OUTDIR)\os.obj \
-$(OUTDIR)\digiclock.obj \
-$(OUTDIR)\digiclock.res \
+$(OUTDIR)\lsstp.obj \
+$(OUTDIR)\lsstg.res \
 $(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(DIGICLOCK_RESULT).exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSSTG_RESULT).exe
 !endif
 
-$(OUTDIR)\$(DIGICLOCK_RESULT).exe: $(OBJS)
-  $(link) $(ldebug) $(guilflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) comctl32.lib $(BVR20983CC_RESULT).lib $(OBJS)
+$(OUTDIR)\$(LSSTG_RESULT).exe: $(OBJS)
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
 
-$(SLNDIR)\$(DIGICLOCK_RESULT).exe: $(OUTDIR)\$(DIGICLOCK_RESULT).exe
-  @copy $(OUTDIR)\$(DIGICLOCK_RESULT).exe $(SLNDIR)
+$(SLNDIR)\$(LSSTG_RESULT).exe: $(OUTDIR)\$(LSSTG_RESULT).exe
+  @copy $(OUTDIR)\$(LSSTG_RESULT).exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\$(DIGICLOCK_RESULT).exe del /q $(SLNDIR)\$(DIGICLOCK_RESULT).exe
+  if exist $(SLNDIR)\$(LSSTG_RESULT).exe del /q $(SLNDIR)\$(LSSTG_RESULT).exe
 
-!include <../inc/Makefile.rule>
+!include <../../inc/Makefile.rule>

@@ -17,6 +17,6 @@
 
 LIBBVR20983=libbvr20983
 
-!include <../inc/Makefile.inc>
+!include <../../inc/Makefile.inc>
 !include <libbvr20983.inc>
-!include <../inc/Makefile.rule>
+!include <../../inc/Makefile.rule>

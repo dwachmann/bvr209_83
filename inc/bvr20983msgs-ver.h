@@ -21,12 +21,12 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer      1,0,0,82
-#define verFileVer1     "1.0.0.82"
+#define verFileVer      1,0,0,90
+#define verFileVer1     "1.0.0.90"
 #define verFileDesc     "Product installation and message component"
 #define verIntName      "msgs"
 #define verOrigName     "bvr20983.2.msgs.1.dll"
-#define verMakeDate     "2008-07-13T13:47:59.944097Z"
+#define verMakeDate     "2008-07-20T23:53:12.273430Z"
 #define verCompPrefix   "msgs.1"
 #define verDebugVersion "1"
 

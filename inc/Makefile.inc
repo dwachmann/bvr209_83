@@ -1,4 +1,4 @@
-# $Id: Makefile.inc.tmpl 76 2008-07-11 15:42:28Z dwachmann $
+# $Id: Makefile.inc.tmpl 88 2008-07-20 23:54:38Z dwachmann $
 # 
 # Copyright (C) 2008 Dorothea Wachmann
 # 
@@ -102,9 +102,9 @@ _MAKEFILE_INC_ = 1
 APPVER=5.01
 _WIN32_IE=0x0600
 
-SRCDIR=..\src
-INCDIR=..\inc
-RESDIR=..\res
+SRCDIR=..\..\src
+INCDIR=..\..\inc
+RESDIR=..\..\res
 
 # -------------------------------------------------------------------------
 # Get CPU Type - exit if CPU environment variable is not defined
@@ -500,10 +500,10 @@ OUTDIR=NT4
 #Set DEBUG
 !IF "$(NODEBUG)" == ""
 OUTDIR=$(OUTDIR)_DEBUG
-SLNDIR=..\debug
+SLNDIR=..\..\debug
 !ELSE
 OUTDIR=$(OUTDIR)_RETAIL
-SLNDIR=..\release
+SLNDIR=..\..\release
 !ENDIF
 
 cinclude=-I$(INCDIR) -I$(OUTDIR)
@@ -511,7 +511,7 @@ cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
 ccrtprecompheader=-Yc"os.h" -Fp"$(OUTDIR)\precomp.pch"
 cvars= $(cvars) -EHa $(cinclude)
 
-lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:..\lib\cab
+lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:..\..\lib\cab
 
 !ifdef clean
 makeopts = clean=1

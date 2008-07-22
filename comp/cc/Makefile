@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-!include <../inc/Makefile.inc>
+!include <../../inc/Makefile.inc>
 
 OBJS= \
 $(OUTDIR)\os.obj \
@@ -50,4 +50,4 @@ clean:
   if exist $(SLNDIR)\$(BVR20983CC_RESULT).dll del /q $(SLNDIR)\$(BVR20983CC_RESULT).dll
   if exist $(SLNDIR)\$(BVR20983CC_RESULT).lib del /q $(SLNDIR)\$(BVR20983CC_RESULT).lib
 
-!include <../inc/Makefile.rule>
+!include <../../inc/Makefile.rule>

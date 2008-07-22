@@ -15,28 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-!include <../inc/Makefile.inc>
+ansi=1
+
+!include <../../inc/Makefile.inc>
 
 OBJS= \
 $(OUTDIR)\os.obj \
-$(OUTDIR)\lstypeinfo.obj \
-$(OUTDIR)\lstypeinfo.res \
-$(SLNDIR)\libbvr20983.lib
+$(OUTDIR)\cabinetexception.obj \
+$(OUTDIR)\cabinetfci.obj \
+$(OUTDIR)\msicab.obj \
+$(OUTDIR)\msicab.res \
+$(SLNDIR)\libbvr20983a.lib
 
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB_RESULT).exe
 !endif
 
-$(OUTDIR)\$(LSTYPEINFO_RESULT).exe: $(OBJS)
-  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
+$(OUTDIR)\$(MSICAB_RESULT).exe: $(OBJS)
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) FCI.LIB $(OBJS)
 
-$(SLNDIR)\$(LSTYPEINFO_RESULT).exe: $(OUTDIR)\$(LSTYPEINFO_RESULT).exe
-  @copy $(OUTDIR)\$(LSTYPEINFO_RESULT).exe $(SLNDIR)
+$(SLNDIR)\$(MSICAB_RESULT).exe: $(OUTDIR)\$(MSICAB_RESULT).exe
+  @copy $(OUTDIR)\$(MSICAB_RESULT).exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\$(LSTYPEINFO_RESULT).exe del /q $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
+  if exist $(SLNDIR)\$(MSICAB_RESULT).exe del /q $(SLNDIR)\$(MSICAB_RESULT).exe
 
-!include <../inc/Makefile.rule>
+!include <../../inc/Makefile.rule>

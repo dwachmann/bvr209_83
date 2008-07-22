@@ -32,15 +32,15 @@ SIGNPUBKEYTOK = 93425facf1ef717a
 signvars      = sign /f $(signkey) /d "$(BVR20983DESC)" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll
 patch         = cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/" 
 
-PROJECTS =     \
-libbvr20983\~  \
-libbvr20983a\~ \
-bvr20983msgs\~ \
-bvr20983cc\~   \
-bvr20983sc\~   \
-digiclock\~    \
-lsstg\~        \
-lstypeinfo\~
+PROJECTS =          \
+comp\libbvr20983\~  \
+comp\libbvr20983a\~ \
+comp\msgs\~         \
+comp\cc\~           \
+comp\sc\~           \
+comp\digiclock\~    \
+comp\lsstg\~        \
+comp\lstypeinfo\~
 
 CABCONTENT = \
 $(INCDIR)\$(BVR20983_RESULT).inf \

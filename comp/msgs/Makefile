@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-!include <../inc/Makefile.inc>
+!include <../../inc/Makefile.inc>
 
 OBJS= \
 $(OUTDIR)\os.obj \
@@ -47,4 +47,4 @@ clean:
 
 .SUFFIXES: .mc .bin
 
-!include <../inc/Makefile.rule>
+!include <../../inc/Makefile.rule>

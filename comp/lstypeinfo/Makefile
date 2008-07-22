@@ -15,28 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-!include <../inc/Makefile.inc>
+!include <../../inc/Makefile.inc>
 
 OBJS= \
 $(OUTDIR)\os.obj \
-$(OUTDIR)\lsstp.obj \
-$(OUTDIR)\lsstg.res \
+$(OUTDIR)\lstypeinfo.obj \
+$(OUTDIR)\lstypeinfo.res \
 $(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSSTG_RESULT).exe
+all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
 !endif
 
-$(OUTDIR)\$(LSSTG_RESULT).exe: $(OBJS)
+$(OUTDIR)\$(LSTYPEINFO_RESULT).exe: $(OBJS)
   $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
 
-$(SLNDIR)\$(LSSTG_RESULT).exe: $(OUTDIR)\$(LSSTG_RESULT).exe
-  @copy $(OUTDIR)\$(LSSTG_RESULT).exe $(SLNDIR)
+$(SLNDIR)\$(LSTYPEINFO_RESULT).exe: $(OUTDIR)\$(LSTYPEINFO_RESULT).exe
+  @copy $(OUTDIR)\$(LSTYPEINFO_RESULT).exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\$(LSSTG_RESULT).exe del /q $(SLNDIR)\$(LSSTG_RESULT).exe
+  if exist $(SLNDIR)\$(LSTYPEINFO_RESULT).exe del /q $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
 
-!include <../inc/Makefile.rule>
+!include <../../inc/Makefile.rule>
