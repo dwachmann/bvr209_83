@@ -330,7 +330,7 @@ Sub Init
   searchPath(1) = "inc\ver\"
   searchPath(2) = "inc\com\"
   searchPath(3) = "res\"
-  searchPath(4) = "html\"
+  searchPath(4) = "res\html\"
 End Sub
 
 '

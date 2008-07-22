@@ -26,7 +26,7 @@ DISTDIR = .\dist-release
 
 SIGNDIR       = .\sign
 INCDIR        = .\inc
-HTMLDIR       = .\html
+HTMLDIR       = .\res\html
 SCRIPTSDIR    = .\scripts
 SIGNPUBKEYTOK = 93425facf1ef717a
 signvars      = sign /f $(signkey) /d "$(BVR20983DESC)" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll
@@ -40,7 +40,8 @@ comp\cc\~           \
 comp\sc\~           \
 comp\digiclock\~    \
 comp\lsstg\~        \
-comp\lstypeinfo\~
+comp\lstypeinfo\~   \
+comp\msicab\~
 
 CABCONTENT = \
 $(INCDIR)\$(BVR20983_RESULT).inf \
