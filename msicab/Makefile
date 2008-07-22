@@ -22,7 +22,7 @@ ansi=1
 OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\cabinetexception.obj \
-$(OUTDIR)\cabinet.obj \
+$(OUTDIR)\cabinetfci.obj \
 $(OUTDIR)\msicab.obj \
 $(OUTDIR)\msicab.res \
 $(SLNDIR)\libbvr20983a.lib

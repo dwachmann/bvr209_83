@@ -19,7 +19,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #include "os.h"
-#include "cab/cabinet.h"
+#include "cab/cabinetfci.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
 #include "util/logstream.h"
@@ -32,28 +32,21 @@ using namespace std;
  *
  */
 BOOL msicab(int num_files, char *file_list[])
-{ CCAB cabParameter;
+{ CabFCIParameter cabParameter;
+  CabinetFCI      cabinet(cabParameter);
   
-  Cabinet::Init(&cabParameter);
-  
-  { Cabinet cabinet(&cabParameter);
-  
-    for( int i=0;i<num_files;i++ )
-    {
-      /*
-       * Flush the folder 
-       */
-      if( !strcmp(file_list[i], "+") )
-      { cabinet.Flush(TRUE);
-        
-        continue;
-      } // of if
+  for( int i=0;i<num_files;i++ )
+  {
+    if( !strcmp(file_list[i], "+") )
+    { cabinet.Flush(TRUE);
       
-      cabinet.AddFile(file_list[i]);
-    } // of for
+      continue;
+    } // of if
     
-    cabinet.Flush();
-  }
+    cabinet.AddFile(file_list[i]);
+  } // of for
+  
+  cabinet.Flush();
 
   return TRUE;
 }
