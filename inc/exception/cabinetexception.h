@@ -20,6 +20,7 @@
 #define CABINETEXCEPTION_H
 
 #include "cab/fci.h"
+#include "cab/fdi.h"
 #include "exception/bvr20983exception.h"
 
 namespace bvr20983
@@ -30,6 +31,7 @@ namespace bvr20983
     {
       public:
         CabinetException(FCIERROR errorcode,LPCTSTR fileName=NULL,int lineNo=-1);
+        CabinetException(FDIERROR errorcode,LPCTSTR fileName=NULL,int lineNo=-1);
         
     }; // of class CabinetException
   } // of namespace cab

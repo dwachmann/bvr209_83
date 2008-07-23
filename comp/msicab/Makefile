@@ -23,6 +23,7 @@ OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\cabinetexception.obj \
 $(OUTDIR)\cabinetfci.obj \
+$(OUTDIR)\cabinetfdi.obj \
 $(OUTDIR)\msicab.obj \
 $(OUTDIR)\msicab.res \
 $(SLNDIR)\libbvr20983a.lib
@@ -34,7 +35,7 @@ all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB_RESULT).exe
 !endif
 
 $(OUTDIR)\$(MSICAB_RESULT).exe: $(OBJS)
-  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) FCI.LIB $(OBJS)
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) FCI.LIB FDI.LIB $(OBJS)
 
 $(SLNDIR)\$(MSICAB_RESULT).exe: $(OUTDIR)\$(MSICAB_RESULT).exe
   @copy $(OUTDIR)\$(MSICAB_RESULT).exe $(SLNDIR)

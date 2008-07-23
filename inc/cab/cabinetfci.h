@@ -52,9 +52,9 @@ namespace bvr20983
 
       void Init(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk);
       void StoreCabName(char *cabname, int iCab);
+      void DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName);
       
       static void StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName);
-      static void DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName);
     }; // of struct CabFCIParameter
 
     /**

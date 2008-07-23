@@ -74,4 +74,57 @@ bvr20983::cab::CabinetException::CabinetException(FCIERROR errorCode,LPCTSTR fil
       break;
   }
 }
+
+/*
+ * CabinetException::CabinetException
+ *
+ * Constructor Parameters:
+ *  None
+ */
+bvr20983::cab::CabinetException::CabinetException(FDIERROR errorCode,LPCTSTR fileName,int lineNo) : BVR20983Exception(errorCode,NULL,fileName,lineNo)
+{ m_errorCode = errorCode;
+
+  switch( m_errorCode )
+  {
+    case FDIERROR_NONE:
+			m_errorMessage= _T("No error");
+      break;
+		case FDIERROR_CABINET_NOT_FOUND:
+			m_errorMessage= _T("Cabinet not found");
+      break;
+		case FDIERROR_NOT_A_CABINET:
+			m_errorMessage= _T("Not a cabinet");
+      break;
+		case FDIERROR_UNKNOWN_CABINET_VERSION:
+			m_errorMessage= _T("Unknown cabinet version");
+      break;
+		case FDIERROR_CORRUPT_CABINET:
+			m_errorMessage= _T("Corrupt cabinet");
+      break;
+		case FDIERROR_ALLOC_FAIL:
+			m_errorMessage= _T("Memory allocation failed");
+      break;
+		case FDIERROR_BAD_COMPR_TYPE:
+			m_errorMessage= _T("Unknown compression type");
+      break;
+		case FDIERROR_MDI_FAIL:
+			m_errorMessage= _T("Failure decompressing data");
+      break;
+		case FDIERROR_TARGET_FILE:
+			m_errorMessage= _T("Failure writing to target file");
+      break;
+		case FDIERROR_RESERVE_MISMATCH:
+			m_errorMessage= _T("Cabinets in set have different RESERVE sizes");
+      break;
+		case FDIERROR_WRONG_CABINET:
+			m_errorMessage= _T("Cabinet returned on fdintNEXT_CABINET is incorrect");
+      break;
+		case FDIERROR_USER_ABORT:
+			m_errorMessage= _T("User aborted");
+      break;
+		default:
+			m_errorMessage= _T("Unknown error");
+      break;
+  }
+}
 /*==========================END-OF-FILE===================================*/
