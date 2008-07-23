@@ -32,10 +32,10 @@ using namespace std;
  *
  */
 BOOL msicab(int num_files, char *file_list[])
-{ CabFCIParameter cabParameter;
+{ CabFCIParameter cabParameter(file_list[0]);
   CabinetFCI      cabinet(cabParameter);
   
-  for( int i=0;i<num_files;i++ )
+  for( int i=1;i<num_files;i++ )
   {
     if( !strcmp(file_list[i], "+") )
     { cabinet.Flush(TRUE);
@@ -55,14 +55,7 @@ BOOL msicab(int num_files, char *file_list[])
  *
  */
 void printUsage(LPCTSTR progName)
-{ LOGGER_INFO<<progName<<_T(" [-C] [-a] [-u] [-d] <filename> [{FMT-ID}] <property args>")<<endl;
-  LOGGER_INFO<<_T("Display and manipulate COM Property Sets")<<endl;
-  LOGGER_INFO<<_T(" -a: add properties to property set")<<endl;
-  LOGGER_INFO<<_T(" -u: update properties to property set")<<endl;
-  LOGGER_INFO<<_T(" -d: delete properties to property set")<<endl;
-
-  LOGGER_INFO<<_T(" -C: create new property set")<<endl;
-  LOGGER_INFO<<_T(" -D: delete property set")<<endl;
+{ LOGGER_INFO<<progName<<_T(" <cabinetname> <dir|file> [<dir|file> ]")<<endl;
 
   ::exit(0);
 } // of printUsage()
@@ -80,7 +73,7 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
   try
   { _set_se_translator( SEException::throwException );
 
-    if( 1==argc || 0==_tcscmp(_T("-?"), argv[1]) || 0==_tcscmp( _T("/?"), argv[1]) )
+    if( argc<3 )
       printUsage(argv[0]);
 
     if( msicab(argc-1, &argv[1]) )

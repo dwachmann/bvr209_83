@@ -32,11 +32,11 @@ namespace bvr20983
      */
     struct CabFCIParameter
     {
-      static const ULONG MEDIA_SIZE       = 300000;
-      static const ULONG FOLDER_THRESHOLD = 900000;
-      static const int   DISKID           = 12345;
+      static const ULONG MEDIA_SIZE       = 1200000;
+      static const ULONG FOLDER_THRESHOLD = 1200000;
+      static const int   DISKID           =   12345;
 
-      CabFCIParameter(ULONG mediaSize=MEDIA_SIZE,ULONG folderThreshold=FOLDER_THRESHOLD,int iDisk=DISKID);
+      CabFCIParameter(char* cabName=NULL,ULONG mediaSize=MEDIA_SIZE,ULONG folderThreshold=FOLDER_THRESHOLD,int iDisk=DISKID);
 
       PCCAB operator&() 
       { return &m_ccab; }
@@ -46,11 +46,15 @@ namespace bvr20983
 
     private:
       CCAB m_ccab;
+      char m_cabPattern[MAX_PATH];
 
       friend class CabinetFCI;
 
-      void Init(ULONG mediaSize,ULONG folderThreshold,int iDisk);
-      static void StoreCabName(char *cabname, int iCab);
+      void Init(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk);
+      void StoreCabName(char *cabname, int iCab);
+      
+      static void StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName);
+      static void DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName);
     }; // of struct CabFCIParameter
 
     /**

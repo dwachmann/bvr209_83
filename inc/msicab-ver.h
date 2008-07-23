@@ -28,6 +28,6 @@
 #define verOrigName     "bvr20983.2.msicab.1.exe"
 #define verMakeDate     "2008-07-22T22:21:58.377264Z"
 #define verCompPrefix   "msicab.1"
-#define verDebugVersion "0"
+#define verDebugVersion "1"
 
 #endif // MSICABVER_H

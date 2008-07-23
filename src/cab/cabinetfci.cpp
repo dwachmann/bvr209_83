@@ -36,15 +36,13 @@ namespace bvr20983
     /**
      *
      */
-    CabFCIParameter::CabFCIParameter(ULONG mediaSize,ULONG folderThreshold,int iDisk)
-    { Init(mediaSize,folderThreshold,iDisk);
-      
-    } // of CabFCIParameter::CabFCIParameter()
+    CabFCIParameter::CabFCIParameter(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk)
+    { Init(cabName,mediaSize,folderThreshold,iDisk); }
 
     /**
      *
      */
-    void CabFCIParameter::Init(ULONG mediaSize,ULONG folderThreshold,int iDisk)
+    void CabFCIParameter::Init(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk)
     { ::memset(&m_ccab, 0, sizeof(CCAB));
 
       m_ccab.cb                = mediaSize;
@@ -53,7 +51,7 @@ namespace bvr20983
       /*
        * Don't reserve space for any extensions
        */
-      m_ccab.cbReserveCFHeader = 0;
+      m_ccab.cbReserveCFHeader = 6144;
       m_ccab.cbReserveCFFolder = 0;
       m_ccab.cbReserveCFData   = 0;
     
@@ -82,19 +80,73 @@ namespace bvr20983
        */
       _tcscpy_s(m_ccab.szDisk,CB_MAX_DISK_NAME, "DISK");
     
-      /* where to store the created CAB files */
-
-      ::GetTempPath(CB_MAX_CAB_PATH,m_ccab.szCabPath);
+      if( NULL==cabName )
+      { ::GetTempPath(CB_MAX_CAB_PATH,m_ccab.szCabPath);
+      
+        _tcscpy_s(m_ccab.szCab,CB_MAX_CAB_PATH, _T("msicab.cab"));
+      } // of if
+      else
+      { char dirName[MAX_PATH];
+        char fileName[MAX_PATH];
+        
+        DivideFilename(dirName,fileName,MAX_PATH,cabName);
+        
+        _tcscpy_s(m_ccab.szCabPath,CB_MAX_CAB_PATH,dirName);
+        _tcscpy_s(m_ccab.szCab,CB_MAX_CAB_PATH,fileName);
+      } // of else
+      
+      char* p0 = _tcsstr(m_ccab.szCab,_T(".cab"));
+      char* p1 = _tcsstr(m_ccab.szCab,_T(".CAB"));
+      char* p2 = NULL;
     
-      /* store name of first CAB file */
-      StoreCabName(m_ccab.szCab, m_ccab.iCab);
+      if( NULL!=p0 )
+        p2 = p0;
+      else if( NULL!=p1 )
+        p2 = p1;
+        
+      if( NULL!=p2 )
+        _tcsncpy_s(m_cabPattern,MAX_PATH,m_ccab.szCab,p2 - m_ccab.szCab);
+      else
+        _tcscpy_s(m_cabPattern,MAX_PATH,m_ccab.szCab);
+        
+      _tcscat_s(m_cabPattern,MAX_PATH,_T("-%d.cab"));
     } // of CabFCIParameter::Init()
+    
+    /**
+     *
+     */
+    void CabFCIParameter::StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName)
+    { char* p = strrchr((LPTSTR)fileName, '\\');
+    
+      if( p==NULL )
+        _tcscpy_s(strippedFilename,cbMaxFileName, fileName);
+      else
+        _tcscpy_s(strippedFilename,cbMaxFileName, p+1);
+    } // of CabFCIParameter::StripFilename()
+
+    /**
+     *
+     */
+    void CabFCIParameter::DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName)
+    { char* p = strrchr((LPTSTR)fileName, '\\');
+    
+      if( p==NULL )
+      { _tcscpy_s(dirName,cbMaxFileName, _T(".\\"));
+        _tcscpy_s(fName,cbMaxFileName, fileName);
+      } // of if
+      else
+      { _tcsncpy_s(dirName,cbMaxFileName,fileName,p-fileName);
+        _tcscat_s(dirName,cbMaxFileName,_T("\\"));
+        
+        _tcscpy_s(fName,cbMaxFileName, p+1);
+      } // of else
+    } // of CabFCIParameter::DivideFilename()
 
     /**
      *
      */
     void CabFCIParameter::StoreCabName(char *cabname, int iCab)
-    {  _stprintf_s(cabname,CB_MAX_CAB_PATH, "hugo-%d.cab", iCab);
+    { _stprintf_s(cabname,CB_MAX_CAB_PATH, m_cabPattern, iCab);
     } // of CabFCIParameter::StoreCabName()
 
     /*
@@ -162,16 +214,12 @@ namespace bvr20983
      *
      */
     void CabinetFCI::AddFile(char* fileName,TCOMP typeCompress)
-    { if( NULL==m_hfci )
+    { TCHAR strippedName[MAX_PATH];
+      
+      if( NULL==m_hfci )
         return;
         
-      TCHAR strippedName[MAX_PATH];
-      char* p = strrchr((LPTSTR)fileName, '\\');
-    
-      if( p==NULL )
-        _tcscpy_s(strippedName,ARRAYSIZE(strippedName), fileName);
-      else
-        _tcscpy_s(strippedName,ARRAYSIZE(strippedName), p+1);
+      CabFCIParameter::StripFilename(strippedName,ARRAYSIZE(strippedName),fileName);
 
       if( !FCIAddFile(m_hfci,
                       fileName,           /* file to add */
@@ -333,10 +381,12 @@ namespace bvr20983
      * to a CabinetFCI
      */
     int CabinetFCI::FCIFilePlaced(PCCAB pccab,char *pszFile,long  cbFile,BOOL  fContinuation)
-    { LOGGER_INFO<<_T("   placed file '")<<pszFile<<_T("' (size ")<<cbFile<<_T(") on CabinetFCI '")<<pccab->szCab<<_T("'\n");
+    { LOGGER_INFO<<_T("   placed file '")<<pszFile<<_T("' (size ")<<cbFile<<_T(") on cabinet '")<<pccab->szCab;
     
       if( fContinuation )
-        LOGGER_INFO<<_T("      (Above file is a later segment of a continued file)")<<endl;
+        LOGGER_INFO<<_T("      (Above file is a later segment of a continued file)");
+
+      LOGGER_INFO<<endl;
     
       return 0;
     }
@@ -402,7 +452,7 @@ namespace bvr20983
          */
         int percentage = GetPercentage(cb1, cb2);
     
-        LOGGER_INFO<<_T("Copying folder to CabinetFCI: ")<<percentage<<_T("%")<<endl;
+        LOGGER_INFO<<_T("Copying folder to cabinet: ")<<percentage<<_T("%")<<endl;
       }
     
       return 0;
@@ -418,7 +468,7 @@ namespace bvr20983
      *
      */
     BOOL CabinetFCI::FCIGetNextCabinet(PCCAB  pccab,ULONG  cbPrevCab)
-    { CabFCIParameter::StoreCabName(pccab->szCab, pccab->iCab);
+    { m_parameter.StoreCabName(pccab->szCab, pccab->iCab);
     
       return TRUE;
     }

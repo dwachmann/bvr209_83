@@ -28,6 +28,6 @@
 #define verOrigName     "bvr20983.2.sc.1.dll"
 #define verMakeDate     "2008-07-22T22:21:58.377264Z"
 #define verCompPrefix   "sc.1"
-#define verDebugVersion "0"
+#define verDebugVersion "1"
 
 #endif // BVR20983SCVER_H

@@ -28,7 +28,7 @@
 #define verOrigName     "bvr20983.2.cc.1.dll"
 #define verMakeDate     "2008-07-22T22:21:58.377264Z"
 #define verCompPrefix   "cc.1"
-#define verDebugVersion "0"
+#define verDebugVersion "1"
 
 #define verAboutTitle   "Custom Control Library"
 #define verAboutText    "Custom Control Library 1.0.0.91"
