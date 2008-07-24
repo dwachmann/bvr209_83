@@ -19,19 +19,41 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #include "os.h"
+#include <io.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include "cab/cabinetfci.h"
+#include "cab/cabinetfdi.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
 #include "util/logstream.h"
+#include "util/versioninfo.h"
 
 using namespace bvr20983;
 using namespace bvr20983::cab;
+using namespace bvr20983::util;
 using namespace std;
+
 
 /**
  *
  */
-BOOL msicab(int num_files, char *file_list[])
+BOOL FileExists(LPCTSTR fPath)
+{ int hf = -1;
+  
+   _tsopen_s( &hf, fPath, _O_BINARY | _O_RDONLY | _O_SEQUENTIAL,_SH_DENYNO,0 );
+
+  if( hf!=-1 )
+    _close(hf);
+    
+  return hf!=-1;
+} // of FileExists()
+
+
+/**
+ *
+ */
+void msicabcreate(int num_files, char *file_list[])
 { CabFCIParameter cabParameter(file_list[0]);
   CabinetFCI      cabinet(cabParameter);
   
@@ -47,15 +69,32 @@ BOOL msicab(int num_files, char *file_list[])
   } // of for
   
   cabinet.Flush();
+}
 
-  return TRUE;
+/**
+ *
+ */
+void msicabextract(int num_files, char *file_list[])
+{ CabinetFDI cabinet(file_list[0]);
+
+  cabinet.Extract();
+}
+
+/**
+ *
+ */
+void msicablist(int num_files, char *file_list[])
+{ CabinetFDI cabinet(file_list[0]);
+
+  cabinet.List();
 }
 
 /**
  *
  */
 void printUsage(LPCTSTR progName)
-{ LOGGER_INFO<<progName<<_T(" <cabinetname> <dir|file> [<dir|file> ]")<<endl;
+{ LOGGER_INFO<<_T("Usage:")<<endl;
+  LOGGER_INFO<<_T("  ")<<progName<<_T(" <cabinetname> <dir|file> [<dir|file> ]")<<endl;
 
   ::exit(0);
 } // of printUsage()
@@ -72,14 +111,27 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
     
   try
   { _set_se_translator( SEException::throwException );
+  
+    { VersionInfo verInfo;
+    
+      verInfo.LogCopyright();
+    }
 
-    if( argc<3 )
+    if( argc<2 )
       printUsage(argv[0]);
 
-    if( msicab(argc-1, &argv[1]) )
-      LOGGER_INFO<<_T("cabinets created ")<<endl;
+    if( !FileExists(argv[1]) )
+    { if( argc>2 )
+        msicabcreate(argc-1, &argv[1]);
+    } // of if
     else
-      LOGGER_INFO<<_T("msicap failed")<<endl;
+    { if( argc==2 )
+        msicablist(argc-1, &argv[1]);
+      else if( argc>=2 )
+        msicabextract(argc-1, &argv[1]);
+    } // of else
+    
+    
   }
   catch(BVR20983Exception& e)
   { LOGGER_ERROR<<e;

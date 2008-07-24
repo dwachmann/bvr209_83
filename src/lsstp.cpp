@@ -29,9 +29,11 @@
 #include "com/copropertyset.h"
 #include "util/logstream.h"
 #include "util/comlogstream.h"
+#include "util/versioninfo.h"
 
 using namespace bvr20983;
 using namespace bvr20983::COM;
+using namespace bvr20983::util;
 using namespace std;
 
 
@@ -39,14 +41,15 @@ using namespace std;
  *
  */
 void printUsage(LPCTSTR progName)
-{ LOGGER_INFO<<progName<<_T(" [-C] [-a] [-u] [-d] <filename> [{FMT-ID}] <property args>")<<endl;
-  LOGGER_INFO<<_T("Display and manipulate COM Property Sets")<<endl;
-  LOGGER_INFO<<_T(" -a: add properties to property set")<<endl;
-  LOGGER_INFO<<_T(" -u: update properties to property set")<<endl;
-  LOGGER_INFO<<_T(" -d: delete properties to property set")<<endl;
+{ LOGGER_INFO<<_T("Usage:")<<endl;
+  LOGGER_INFO<<_T("  ")<<progName<<_T(" [-C] [-a] [-u] [-d] <filename> [{FMT-ID}] <property args>")<<endl;
+  LOGGER_INFO<<_T("  ")<<_T("Display and manipulate COM Property Sets")<<endl;
+  LOGGER_INFO<<_T("  ")<<_T(" -a: add properties to property set")<<endl;
+  LOGGER_INFO<<_T("  ")<<_T(" -u: update properties to property set")<<endl;
+  LOGGER_INFO<<_T("  ")<<_T(" -d: delete properties to property set")<<endl;
 
-  LOGGER_INFO<<_T(" -C: create new property set")<<endl;
-  LOGGER_INFO<<_T(" -D: delete property set")<<endl;
+  LOGGER_INFO<<_T("  ")<<_T(" -C: create new property set")<<endl;
+  LOGGER_INFO<<_T("  ")<<_T(" -D: delete property set")<<endl;
 
   ::exit(0);
 } // of printUsage()
@@ -152,6 +155,11 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
   try
   { _set_se_translator( SEException::throwException );
 
+    { VersionInfo verInfo;
+    
+      verInfo.LogCopyright();
+    }
+    
     if( 1==argc || 0==_tcscmp(_T("-?"), argv[1]) || 0==_tcscmp( _T("/?"), argv[1]) )
       printUsage(argv[0]);
 

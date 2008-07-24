@@ -29,7 +29,9 @@
 #include "exception/seexception.h"
 #include "util/logstream.h"
 #include "util/comlogstream.h"
+#include "util/versioninfo.h"
 
+using namespace bvr20983::util;
 using namespace bvr20983;
 using namespace std;
 
@@ -37,8 +39,9 @@ using namespace std;
  *
  */
 void printUsage(LPCTSTR progName)
-{ LOGGER_INFO<<progName<<_T(": [-c] <name of COM object>|<CLSID of COM object>")<<endl;
-  LOGGER_INFO<<_T("         -c: only controls")<<endl;
+{ LOGGER_INFO<<_T("Uaage:")<<endl;
+  LOGGER_INFO<<_T("  ")<<progName<<_T(": [-c] <name of COM object>|<CLSID of COM object>")<<endl;
+  LOGGER_INFO<<_T("  ")<<_T("         -c: only controls")<<endl;
 
   ::exit(0);
 } // of printUsage()
@@ -824,6 +827,11 @@ extern "C" int __cdecl _tmain (int argc, _TCHAR  * argv[])
 
   try
   { _set_se_translator( SEException::throwException );
+
+    { VersionInfo verInfo;
+    
+      verInfo.LogCopyright();
+    }
 
     for( int i=1;i<argc;i++ )
     { if( _tcscmp(_T("-h"),argv[i])==0 || _tcscmp(_T("/?"),argv[i])==0 )

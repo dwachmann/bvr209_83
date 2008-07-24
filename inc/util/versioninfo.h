@@ -41,11 +41,13 @@ namespace bvr20983
         ~VersionInfo();
 
         void   Dump();
+        void   LogCopyright();
         LPVOID GetStringInfo(LPCTSTR valName);
 
       private:
         void   Init(LPCTSTR fName);
         void   Init(HMODULE hModule);
+        void   LogStringInfo(LPCTSTR valName);
 
         LPVOID            m_lpBuffer;
         VS_FIXEDFILEINFO* m_pFileInfo;

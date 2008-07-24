@@ -35,6 +35,7 @@ namespace bvr20983
       ~CabinetFDI();
 
        void Extract();
+       void List();
 
     private:
       HFDI            m_hfdi;
@@ -43,18 +44,20 @@ namespace bvr20983
       TCHAR           m_cabinetFullPath[MAX_PATH];
       TCHAR           m_cabinetPath[MAX_PATH];
       TCHAR           m_cabinetName[MAX_PATH];
-      static TCHAR    m_destinationDir[MAX_PATH];
+      TCHAR           m_destinationDir[MAX_PATH];
+      BOOL            m_listOnly;
 
-      static FNALLOC(mem_alloc);
-      static FNFREE(mem_free);
-      static FNOPEN(file_open);
-      static FNREAD(file_read);
-      static FNWRITE(file_write);
-      static FNCLOSE(file_close);
-      static FNSEEK(file_seek);
-      static FNFDINOTIFY(notification_function);
+      static FNALLOC(fdi_memalloc);
+      static FNFREE(fdi_memfree);
+      static FNOPEN(fdi_fileopen);
+      static FNREAD(fdi_fileread);
+      static FNWRITE(fdi_filewrite);
+      static FNCLOSE(fdi_fileclose);
+      static FNSEEK(fdi_fileseek);
+      static FNFDINOTIFY(fdi_notification);
 
       void Init();
+      int  FDINotification(FDINOTIFICATIONTYPE fdint,PFDINOTIFICATION pfdin);
     }; // of class CabinetFDI
   } // of namespace cab
 } // of namespace bvr20983

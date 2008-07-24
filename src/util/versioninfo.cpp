@@ -20,6 +20,7 @@
  */
 #include "os.h"
 #include "util/versioninfo.h"
+#include "util/logstream.h"
 #include "exception/lasterrorexception.h"
 #include "com/comserver.h"
 
@@ -146,7 +147,7 @@ namespace bvr20983
           OutputDebugFmt(_T(")\n"));
         } // of if
 
-        OutputDebugFmt(_T("%s (build %s)\n"),GetStringInfo(_T("FileDescription")),GetStringInfo(_T("Comments")));
+        OutputDebugFmt(_T("%s (build %s)\n"),GetStringInfo(_T("FileDescription")),GetStringInfo(_T("BuildDate")));
         OutputDebugFmt(_T("%s version \"%d.%d.%d.%d\"\n"),GetStringInfo(_T("ProductName")),DUMP_VERSION(m_pFileInfo->dwProductVersionMS,m_pFileInfo->dwProductVersionLS) );
         OutputDebugFmt(_T("%s\n"),GetStringInfo(_T("LegalCopyright")));
 
@@ -155,6 +156,61 @@ namespace bvr20983
 
       } // of if
     } // of VersionInfo::Dump()
+
+    /**   
+     *    
+     */
+    void VersionInfo::LogCopyright()
+    { if( NULL!=m_pFileInfo )
+      { DWORD flags = m_pFileInfo->dwFileFlags & m_pFileInfo->dwFileFlagsMask;
+
+        LogStringInfo(_T("InternalName"));
+        LOGGER_INFO<<_T(" version \"");
+        LOGGER_INFO<<HIWORD(m_pFileInfo->dwFileVersionMS)<<_T(".");
+        LOGGER_INFO<<LOWORD(m_pFileInfo->dwFileVersionMS)<<_T(".");
+        LOGGER_INFO<<HIWORD(m_pFileInfo->dwFileVersionLS)<<_T(".");
+        LOGGER_INFO<<LOWORD(m_pFileInfo->dwFileVersionLS)<<_T("\"");
+
+        if( flags!=0 )
+        { if( flags & VS_FF_DEBUG )
+            LOGGER_INFO<<_T(" DEBUG");
+
+          if( flags & VS_FF_PRERELEASE )
+            LOGGER_INFO<<_T(" PRERELEASE");
+
+          if( flags & VS_FF_PATCHED )
+            LOGGER_INFO<<_T(" PATCHED");
+
+          if( flags & VS_FF_PRIVATEBUILD )
+            LOGGER_INFO<<_T(" PRIVATEBUILD");
+
+          if( flags & VS_FF_SPECIALBUILD )
+            LOGGER_INFO<<_T(" SPECIALBUILD");
+        } // of if
+
+        LOGGER_INFO<<_T(" (build ");
+        LogStringInfo(_T("BuildDate"));
+        LOGGER_INFO<<_T(")");
+        LOGGER_INFO<<endl;
+
+        LOGGER_INFO<<_T("  ");
+        LogStringInfo(_T("ProductName"));
+        LOGGER_INFO<<_T(" version \"");
+        LOGGER_INFO<<HIWORD(m_pFileInfo->dwProductVersionMS)<<_T(".");
+        LOGGER_INFO<<LOWORD(m_pFileInfo->dwProductVersionMS)<<_T(".");
+        LOGGER_INFO<<HIWORD(m_pFileInfo->dwProductVersionLS)<<_T(".");
+        LOGGER_INFO<<LOWORD(m_pFileInfo->dwProductVersionLS)<<_T("\"")<<endl;
+
+        LOGGER_INFO<<_T("  ");
+        LogStringInfo(_T("FileDescription"));
+        LOGGER_INFO<<endl;
+
+        LOGGER_INFO<<_T("  ");
+        LogStringInfo(_T("LegalCopyright"));
+        LOGGER_INFO<<endl;
+        LOGGER_INFO<<endl;
+      } // of if
+    } // of VersionInfo::LogCopyright()
 
     /**
      *
@@ -180,6 +236,16 @@ namespace bvr20983
 
       return varValue;
     } // of VersionInfo::GetStringInfo()
+
+    /**
+     *
+     */
+    void VersionInfo::LogStringInfo(LPCTSTR valName)
+    { LPCTSTR varValue = (LPCTSTR)GetStringInfo(valName);
+    
+      if( NULL!=varValue )
+        LOGGER_INFO<<varValue;
+    } // of VersionInfo::LogStringInfo()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/
