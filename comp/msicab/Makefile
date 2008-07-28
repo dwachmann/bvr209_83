@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-ansi=1
+#ansi=1
 
 !include <../../inc/Makefile.inc>
 
@@ -24,9 +24,10 @@ $(OUTDIR)\os.obj \
 $(OUTDIR)\cabinetexception.obj \
 $(OUTDIR)\cabinetfci.obj \
 $(OUTDIR)\cabinetfdi.obj \
+$(OUTDIR)\xmldocument.obj \
 $(OUTDIR)\msicab.obj \
 $(OUTDIR)\msicab.res \
-$(SLNDIR)\libbvr20983a.lib
+$(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
 all: clean

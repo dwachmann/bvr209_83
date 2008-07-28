@@ -16,19 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983MSGSVER_H)
-#define BVR20983MSGSVER_H
+#if !defined(XMLDOCUMENT_H)
+#define XMLDOCUMENT_H
 
-#include "bvr20983-prod.h"
+#include "os.h"
+#include "util/comptr.h"
 
-#define verFileVer      1,0,0,94
-#define verFileVer1     "1.0.0.94"
-#define verFileDesc     "Product installation and message component"
-#define verIntName      "msgs"
-#define verOrigName     "bvr20983.2.msgs.1.dll"
-#define verMakeDate     "2008-07-22T22:21:58.377264Z"
-#define verCompPrefix   "msgs.1"
-#define verDebugVersion "1"
+namespace MSXML2
+{
+#include <msxml2.h>
+}
 
-#endif // BVR20983MSGSVER_H
+namespace bvr20983
+{
 
+  namespace util
+  {
+    class CXMLDocument
+    {
+      public:
+        CXMLDocument();
+        
+        void Load(LPCTSTR fileName);
+        
+      private:
+        COMPtr<IXMLDOMDocument> m_pXmlDoc;
+
+    }; // of class CGUID
+  } // of namespace util
+} // of namespace bvr20983
+
+#endif // XMLDOCUMENT_H
+//=================================END-OF-FILE==============================

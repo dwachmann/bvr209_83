@@ -25,6 +25,7 @@
 #include "cab/cabinetfci.h"
 #include "exception/bvr20983exception.h"
 #include "exception/cabinetexception.h"
+#include "exception/lasterrorexception.h"
 #include "util/logstream.h"
 
 using namespace std;
@@ -78,12 +79,22 @@ namespace bvr20983
        *
        * Can be left as an empty string.
        */
-      _tcscpy_s(m_ccab.szDisk,CB_MAX_DISK_NAME, "DISK");
+      strcpy_s(m_ccab.szDisk,CB_MAX_DISK_NAME, "DISK");
     
       if( NULL==cabName )
-      { ::GetTempPath(CB_MAX_CAB_PATH,m_ccab.szCabPath);
+      { 
+#ifdef _UNICODE
+        TCHAR tempPath[MAX_PATH];
+
+        ::GetTempPath(MAX_PATH,tempPath);
+        
+        THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, tempPath, MAX_PATH,m_ccab.szCabPath, CB_MAX_CAB_PATH, NULL, NULL ) );
+#else
+        ::GetTempPath(CB_MAX_CAB_PATH,m_ccab.szCabPath);
+#endif
       
-        _tcscpy_s(m_ccab.szCab,CB_MAX_CAB_PATH, _T("msicab.cab"));
+        strcpy_s(m_ccab.szCab,CB_MAX_CAB_PATH, "msicab.cab");
+        
       } // of if
       else
       { char dirName[MAX_PATH];
@@ -91,12 +102,12 @@ namespace bvr20983
         
         DivideFilename(dirName,fileName,MAX_PATH,cabName);
         
-        _tcscpy_s(m_ccab.szCabPath,CB_MAX_CAB_PATH,dirName);
-        _tcscpy_s(m_ccab.szCab,CB_MAX_CAB_PATH,fileName);
+        strcpy_s(m_ccab.szCabPath,CB_MAX_CAB_PATH,dirName);
+        strcpy_s(m_ccab.szCab,CB_MAX_CAB_PATH,fileName);
       } // of else
       
-      char* p0 = _tcsstr(m_ccab.szCab,_T(".cab"));
-      char* p1 = _tcsstr(m_ccab.szCab,_T(".CAB"));
+      char* p0 = strstr(m_ccab.szCab,".cab");
+      char* p1 = strstr(m_ccab.szCab,".CAB");
       char* p2 = NULL;
     
       if( NULL!=p0 )
@@ -105,40 +116,40 @@ namespace bvr20983
         p2 = p1;
         
       if( NULL!=p2 )
-        _tcsncpy_s(m_cabPattern,MAX_PATH,m_ccab.szCab,p2 - m_ccab.szCab);
+        strncpy_s(m_cabPattern,MAX_PATH,m_ccab.szCab,p2 - m_ccab.szCab);
       else
-        _tcscpy_s(m_cabPattern,MAX_PATH,m_ccab.szCab);
+        strcpy_s(m_cabPattern,MAX_PATH,m_ccab.szCab);
         
-      _tcscat_s(m_cabPattern,MAX_PATH,_T("-%d.cab"));
+      strcat_s(m_cabPattern,MAX_PATH,"-%d.cab");
     } // of CabFCIParameter::Init()
     
     /**
      *
      */
     void CabFCIParameter::StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName)
-    { char* p = strrchr((LPTSTR)fileName, '\\');
+    { char* p = strrchr(fileName, '\\');
     
       if( p==NULL )
-        _tcscpy_s(strippedFilename,cbMaxFileName, fileName);
+        strcpy_s(strippedFilename,cbMaxFileName, fileName);
       else
-        _tcscpy_s(strippedFilename,cbMaxFileName, p+1);
+        strcpy_s(strippedFilename,cbMaxFileName, p+1);
     } // of CabFCIParameter::StripFilename()
 
     /**
      *
      */
     void CabFCIParameter::DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName)
-    { char* p = strrchr((LPTSTR)fileName, '\\');
+    { char* p = strrchr(fileName, '\\');
     
       if( p==NULL )
-      { _tcscpy_s(dirName,cbMaxFileName, _T(".\\"));
-        _tcscpy_s(fName,cbMaxFileName, fileName);
+      { strcpy_s(dirName,cbMaxFileName, ".\\");
+        strcpy_s(fName,cbMaxFileName, fileName);
       } // of if
       else
-      { _tcsncpy_s(dirName,cbMaxFileName,fileName,p-fileName);
-        _tcscat_s(dirName,cbMaxFileName,_T("\\"));
+      { strncpy_s(dirName,cbMaxFileName,fileName,p-fileName);
+        strcat_s(dirName,cbMaxFileName,"\\");
         
-        _tcscpy_s(fName,cbMaxFileName, p+1);
+        strcpy_s(fName,cbMaxFileName, p+1);
       } // of else
     } // of CabFCIParameter::DivideFilename()
 
@@ -146,7 +157,7 @@ namespace bvr20983
      *
      */
     void CabFCIParameter::StoreCabName(char *cabname, int iCab)
-    { _stprintf_s(cabname,CB_MAX_CAB_PATH, m_cabPattern, iCab);
+    { sprintf_s(cabname,CB_MAX_CAB_PATH, m_cabPattern, iCab);
     } // of CabFCIParameter::StoreCabName()
 
     /*
@@ -214,7 +225,7 @@ namespace bvr20983
      *
      */
     void CabinetFCI::AddFile(char* fileName,TCOMP typeCompress)
-    { TCHAR strippedName[MAX_PATH];
+    { char strippedName[MAX_PATH];
       
       if( NULL==m_hfci )
         return;
@@ -275,7 +286,7 @@ namespace bvr20983
     int  CabinetFCI::FCIOpen(char FAR *pszFile, int oflag, int pmode, int FAR *err)
     { int result = -1;
     
-      if( _tsopen_s(&result, pszFile, oflag, _SH_DENYNO, pmode) )
+      if( _sopen_s(&result, pszFile, oflag, _SH_DENYNO, pmode) )
         *err = errno;
     
       return result;
@@ -400,21 +411,43 @@ namespace bvr20983
      * Function to obtain temporary files
      */
     BOOL CabinetFCI::FCIGetTempFile(char *pszTempName,int cbTempName)
-    { TCHAR tempPath[MAX_PATH];
-      TCHAR tempFName[MAX_PATH];
+    { char tempPath[MAX_PATH];
+      char tempFName[MAX_PATH];
 
-      if( GetTempPath(ARRAYSIZE(tempPath),tempPath)==0 )
+#ifdef _UNICODE
+      TCHAR tempPathU[MAX_PATH];
+      TCHAR tempFNameU[MAX_PATH];
+
+      if( ::GetTempPath(ARRAYSIZE(tempPathU),tempPathU)==0 )
         return FALSE;
 
-      if( GetTempFileName(tempPath,_T("cab"),0,tempFName)==0 )
+      if( ::GetTempFileName(tempPathU,_T("cab"),0,tempFNameU)==0 )
+        return FALSE;
+        
+      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, tempPathU, MAX_PATH,tempPath, MAX_PATH, NULL, NULL ) );
+      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, tempFNameU, MAX_PATH,tempFName, MAX_PATH, NULL, NULL ) );
+#else
+      if( ::GetTempPath(ARRAYSIZE(tempPath),tempPath)==0 )
         return FALSE;
 
-      if( _tcslen(tempFName) >= (unsigned)cbTempName )
+      if( ::GetTempFileName(tempPath,_T("cab"),0,tempFName)==0 )
+        return FALSE;
+#endif
+
+      if( strlen(tempFName) >= (unsigned)cbTempName )
         return FALSE;
 
-      _tcscpy_s(pszTempName,cbTempName,tempFName);
+      strcpy_s(pszTempName,cbTempName,tempFName);
 
+#ifdef _UNICODE
+      TCHAR pszTempNameU[MAX_PATH];
+
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, pszTempName, cbTempName,pszTempNameU, MAX_PATH) );
+
+      ::DeleteFile(pszTempNameU);
+#else
       ::DeleteFile(pszTempName);
+#endif
 
       return TRUE;
     } // of CabinetFCI::FCIGetTempFile()
@@ -482,7 +515,7 @@ namespace bvr20983
     /**
      *
      */
-    int CabinetFCI::FCIGetOpenInfo(char   *pszName,USHORT *pdate,USHORT *ptime,USHORT *pattribs,int FAR *err)    
+    int CabinetFCI::FCIGetOpenInfo(char* pszName,USHORT *pdate,USHORT *ptime,USHORT *pattribs,int FAR *err)    
     { BY_HANDLE_FILE_INFORMATION finfo;
       FILETIME                   filetime;
       HANDLE                     handle;
@@ -490,14 +523,24 @@ namespace bvr20983
       int                        hf;
       
       LOGGER_INFO<<_T("get_open_info(): pszName=")<<pszName<<endl;
+
+#ifdef _UNICODE
+      TCHAR pszNameU[MAX_PATH];
+
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, pszName, MAX_PATH,pszNameU, MAX_PATH) );
+#endif
     
-        /*
-         * Need a Win32 type handle to get file date/time
-         * using the Win32 APIs, even though the handle we
-         * will be returning is of the type compatible with
-         * _open
-         */
+      /*
+       * Need a Win32 type handle to get file date/time
+       * using the Win32 APIs, even though the handle we
+       * will be returning is of the type compatible with
+       * _open
+       */
+#ifdef _UNICODE
+      handle = ::CreateFile(pszNameU,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+#else
       handle = ::CreateFile(pszName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+#endif
        
       if( handle==INVALID_HANDLE_VALUE )
         return -1;
@@ -511,7 +554,11 @@ namespace bvr20983
       ::FileTimeToLocalFileTime(&finfo.ftLastWriteTime, &filetime);
       ::FileTimeToDosDateTime(&filetime,pdate,ptime);
     
+#ifdef _UNICODE
+      attrs = ::GetFileAttributes(pszNameU);
+#else
       attrs = ::GetFileAttributes(pszName);
+#endif
     
       if( attrs==0xFFFFFFFF )
         *pattribs = 0;
@@ -530,7 +577,7 @@ namespace bvr20983
       /*
        * Return handle using _open
        */
-      if( _tsopen_s( &hf, pszName, _O_RDONLY | _O_BINARY,_SH_DENYNO,0 ) )
+      if( _sopen_s( &hf, pszName, _O_RDONLY | _O_BINARY,_SH_DENYNO,0 ) )
         return -1; // abort on error
        
       return hf;

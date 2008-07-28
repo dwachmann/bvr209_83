@@ -39,6 +39,7 @@ namespace bvr20983
     { int   bufLen = 0;
       
 #ifdef _UNICODE
+      // cp=28591 --> ISO 8859-1 Latin I
       bufLen = ::WideCharToMultiByte( 28591, 0, buffer.data(), buffer.size(),NULL, 0, NULL, NULL );
       THROW_LASTERROREXCEPTION1( bufLen );
   

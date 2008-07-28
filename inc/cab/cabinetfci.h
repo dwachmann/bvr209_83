@@ -92,8 +92,6 @@ namespace bvr20983
       BOOL FCIGetNextCabinet(PCCAB pccab,ULONG  cbPrevCab);
       int  FCIGetOpenInfo(char* pszName,USHORT *pdate,USHORT *ptime,USHORT *pattribs,int FAR *err);
 
-      
-
       static FNFCIALLOC(fci_memalloc);
       static FNFCIFREE(fci_memfree);
       static FNFCIOPEN(fci_open);

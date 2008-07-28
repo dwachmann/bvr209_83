@@ -24,10 +24,12 @@
 #include <sys/stat.h>
 #include "cab/cabinetfci.h"
 #include "cab/cabinetfdi.h"
-#include "exception/bvr20983exception.h"
-#include "exception/seexception.h"
 #include "util/logstream.h"
 #include "util/versioninfo.h"
+#include "util/xmldocument.h"
+#include "exception/bvr20983exception.h"
+#include "exception/seexception.h"
+#include "exception/lasterrorexception.h"
 
 using namespace bvr20983;
 using namespace bvr20983::cab;
@@ -38,10 +40,10 @@ using namespace std;
 /**
  *
  */
-BOOL FileExists(LPCTSTR fPath)
+BOOL FileExists(LPCSTR fPath)
 { int hf = -1;
   
-   _tsopen_s( &hf, fPath, _O_BINARY | _O_RDONLY | _O_SEQUENTIAL,_SH_DENYNO,0 );
+   _sopen_s( &hf, fPath, _O_BINARY | _O_RDONLY | _O_SEQUENTIAL,_SH_DENYNO,0 );
 
   if( hf!=-1 )
     _close(hf);
@@ -92,7 +94,24 @@ void msicablist(int num_files, char *file_list[])
 /**
  *
  */
-void printUsage(LPCTSTR progName)
+void xmltest(char* fName)
+{ CXMLDocument xmlDoc;
+
+#ifdef _UNICODE
+  TCHAR fNameU[MAX_PATH];
+
+  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, MAX_PATH,fNameU, MAX_PATH) );
+
+  xmlDoc.Load(fNameU);
+#else
+  xmlDoc.Load(fName);
+#endif
+}
+
+/**
+ *
+ */
+void printUsage(LPCSTR progName)
 { LOGGER_INFO<<_T("Usage:")<<endl;
   LOGGER_INFO<<_T("  ")<<progName<<_T(" <cabinetname> <dir|file> [<dir|file> ]")<<endl;
 
@@ -102,8 +121,10 @@ void printUsage(LPCTSTR progName)
 /**
  *
  */
-extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
-{ LogStreamT::ReadVersionInfo();
+extern "C" int __cdecl main (int argc, char* argv[])
+{ ::CoInitialize(NULL);
+  
+  LogStreamT::ReadVersionInfo();
 
   LONG exHr = NOERROR;
   
@@ -119,19 +140,22 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
 
     if( argc<2 )
       printUsage(argv[0]);
-
-    if( !FileExists(argv[1]) )
-    { if( argc>2 )
-        msicabcreate(argc-1, &argv[1]);
-    } // of if
+      
+    if( strcmp(argv[1],"-xml")==0 && argc>=3 )
+      xmltest(argv[2]);
     else
-    { if( argc==2 )
-        msicablist(argc-1, &argv[1]);
-      else if( argc>=2 )
-        msicabextract(argc-1, &argv[1]);
+    {
+      if( !FileExists(argv[1]) )
+      { if( argc>2 )
+          msicabcreate(argc-1, &argv[1]);
+      } // of if
+      else
+      { if( argc==2 )
+          msicablist(argc-1, &argv[1]);
+        else if( argc>=2 )
+          msicabextract(argc-1, &argv[1]);
+      } // of else
     } // of else
-    
-    
   }
   catch(BVR20983Exception& e)
   { LOGGER_ERROR<<e;
@@ -153,6 +177,8 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
 
     exHr = -2;
   }
+  
+  ::CoUninitialize();
   
   return (int)exHr;
 } // of main()

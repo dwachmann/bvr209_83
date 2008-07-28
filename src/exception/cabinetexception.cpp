@@ -70,7 +70,7 @@ bvr20983::cab::CabinetException::CabinetException(FCIERROR errorCode,LPCTSTR fil
       break;
 
     default:
-      m_errorMessage= "Unknown error";
+      m_errorMessage= _T("Unknown error");
       break;
   }
 }

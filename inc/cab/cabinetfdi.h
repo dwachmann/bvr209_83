@@ -31,7 +31,7 @@ namespace bvr20983
     class CabinetFDI
     {
     public:
-      CabinetFDI(LPCTSTR cabinet_fullpath,LPCTSTR destDir=NULL);
+      CabinetFDI(LPCSTR cabinet_fullpath,LPCSTR destDir=NULL);
       ~CabinetFDI();
 
        void Extract();
@@ -41,10 +41,10 @@ namespace bvr20983
       HFDI            m_hfdi;
       FDICABINETINFO	m_fdici;
       ERF             m_erf;
-      TCHAR           m_cabinetFullPath[MAX_PATH];
-      TCHAR           m_cabinetPath[MAX_PATH];
-      TCHAR           m_cabinetName[MAX_PATH];
-      TCHAR           m_destinationDir[MAX_PATH];
+      char            m_cabinetFullPath[MAX_PATH];
+      char            m_cabinetPath[MAX_PATH];
+      char            m_cabinetName[MAX_PATH];
+      char            m_destinationDir[MAX_PATH];
       BOOL            m_listOnly;
 
       static FNALLOC(fdi_memalloc);

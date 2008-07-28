@@ -21,8 +21,8 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer      1,0,0,91
-#define verFileVer1     "1.0.0.91"
+#define verFileVer      1,0,0,94
+#define verFileVer1     "1.0.0.94"
 #define verFileDesc     "list COM structure storage"
 #define verIntName      "lsstg"
 #define verOrigName     "bvr20983.2.lsstg.1.exe"

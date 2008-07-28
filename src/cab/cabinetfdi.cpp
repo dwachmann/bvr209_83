@@ -26,6 +26,7 @@
 #include "cab/cabinetfdi.h"
 #include "exception/bvr20983exception.h"
 #include "exception/cabinetexception.h"
+#include "exception/lasterrorexception.h"
 #include "util/logstream.h"
 
 using namespace std;
@@ -37,31 +38,31 @@ namespace bvr20983
     /*
      *
      */
-    CabinetFDI::CabinetFDI(LPCTSTR cabinet_fullpath,LPCTSTR destDir) :
+    CabinetFDI::CabinetFDI(LPCSTR cabinet_fullpath,LPCSTR destDir) :
       m_hfdi(NULL),
       m_listOnly(TRUE)
-    { _tcscpy_s(m_cabinetFullPath,ARRAYSIZE(m_cabinetFullPath),cabinet_fullpath);
+    { strcpy_s(m_cabinetFullPath,ARRAYSIZE(m_cabinetFullPath),cabinet_fullpath);
 
       if( NULL==destDir )
-        _tcscpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),_T(".\\"));
+        strcpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),".\\");
       else
-      { _tcscpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),destDir);
+      { strcpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),destDir);
        
-        if( NULL==strrchr((LPTSTR)m_destinationDir, '\\') )
-          _tcscpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),"\\");
+        if( NULL==strrchr((LPSTR)m_destinationDir, '\\') )
+          strcpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),"\\");
       } // of else
 
-      char* p = strrchr((LPTSTR)cabinet_fullpath, '\\');
+      char* p = strrchr((LPSTR)cabinet_fullpath, '\\');
     
       if( p==NULL )
-      { _tcscpy_s(m_cabinetPath,ARRAYSIZE(m_cabinetPath), _T(".\\"));
-        _tcscpy_s(m_cabinetName,ARRAYSIZE(m_cabinetName), cabinet_fullpath);
+      { strcpy_s(m_cabinetPath,ARRAYSIZE(m_cabinetPath), ".\\");
+        strcpy_s(m_cabinetName,ARRAYSIZE(m_cabinetName), cabinet_fullpath);
       } // of if
       else
-      { _tcsncpy_s(m_cabinetPath,ARRAYSIZE(m_cabinetPath),cabinet_fullpath,p-cabinet_fullpath);
-        _tcscat_s(m_cabinetPath,ARRAYSIZE(m_cabinetPath),_T("\\"));
+      { strncpy_s(m_cabinetPath,ARRAYSIZE(m_cabinetPath),cabinet_fullpath,p-cabinet_fullpath);
+        strcat_s(m_cabinetPath,ARRAYSIZE(m_cabinetPath),"\\");
         
-        _tcscpy_s(m_cabinetName,ARRAYSIZE(m_cabinetName), p+1);
+        strcpy_s(m_cabinetName,ARRAYSIZE(m_cabinetName), p+1);
       } // of else
       
       Init(); 
@@ -87,7 +88,7 @@ namespace bvr20983
 
       int hf = -1;
       
-       _tsopen_s( &hf, m_cabinetFullPath, _O_BINARY | _O_RDONLY | _O_SEQUENTIAL,_SH_DENYNO,0 );
+       _sopen_s( &hf, m_cabinetFullPath, _O_BINARY | _O_RDONLY | _O_SEQUENTIAL,_SH_DENYNO,0 );
       BOOL isCabinet = hf!=-1 && ::FDIIsCabinet(m_hfdi,hf,&m_fdici);
 
       if( hf!=-1 )
@@ -156,7 +157,7 @@ namespace bvr20983
     FNOPEN(CabinetFDI::fdi_fileopen)
     { int hf = -1;
       
-      _tsopen_s(&hf, pszFile, oflag, _SH_DENYNO, pmode);
+      _sopen_s(&hf, pszFile, oflag, _SH_DENYNO, pmode);
       
       return hf;
     }
@@ -222,12 +223,12 @@ namespace bvr20983
           LOGGER_INFO<<_T("  file name in cabinet = ")<<pfdin->psz1<<endl;
           LOGGER_INFO<<_T("  uncompressed file size = ")<<pfdin->cb<<endl;
 
-          _stprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
+          sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
 
           if( m_listOnly )
             result = 0;
           else
-            _tsopen_s( &result, destination,_O_BINARY | _O_CREAT | _O_WRONLY | _O_SEQUENTIAL,_SH_DENYNO,_S_IREAD | _S_IWRITE);
+            _sopen_s( &result, destination,_O_BINARY | _O_CREAT | _O_WRONLY | _O_SEQUENTIAL,_SH_DENYNO,_S_IREAD | _S_IWRITE);
           break;
 
         case fdintCLOSE_FILE_INFO:  // close the file, set relevant info
@@ -236,8 +237,19 @@ namespace bvr20983
 
           _close(pfdin->hf);
 
-          _stprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
+#ifdef _UNICODE
+          TCHAR destinationU[MAX_PATH];
+    
+          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, destination, MAX_PATH,destinationU, MAX_PATH) );
+#endif
+
+          sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
+
+#ifdef _UNICODE
+          fHandle = ::CreateFile(destinationU,GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
+#else
           fHandle = ::CreateFile(destination,GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
+#endif
 
           if( INVALID_HANDLE_VALUE!=fHandle )
           {
@@ -259,7 +271,11 @@ namespace bvr20983
                * attribute bits are reserved for use by
                * the cabinet format.
                */
+#ifdef _UNICODE
+              ::SetFileAttributes(destinationU,pfdin->attribs & (_A_RDONLY | _A_HIDDEN | _A_SYSTEM | _A_ARCH) );
+#else
               ::SetFileAttributes(destination,pfdin->attribs & (_A_RDONLY | _A_HIDDEN | _A_SYSTEM | _A_ARCH) );
+#endif
             } // of if
           } // of if
             
