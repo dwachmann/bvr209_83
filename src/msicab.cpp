@@ -27,6 +27,7 @@
 #include "util/logstream.h"
 #include "util/versioninfo.h"
 #include "util/xmldocument.h"
+#include "util/dirinfo.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
 #include "exception/lasterrorexception.h"

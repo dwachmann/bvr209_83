@@ -48,4 +48,10 @@ namespace bvr20983
   { throw LastErrorException(_T(__FILE__), __LINE__); \
   } \
 
+#define THROW_LASTERROREXCEPTION2 \
+  throw LastErrorException(_T(__FILE__), __LINE__);
+
+#define THROW_LASTERROREXCEPTION3(err) \
+  throw LastErrorException(err,_T(__FILE__), __LINE__);
+
 #endif // LASTERROREXCEPTION_H
