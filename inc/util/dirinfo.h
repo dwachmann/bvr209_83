@@ -35,7 +35,7 @@ namespace bvr20983
     class DirectoryInfo
     {
       public:
-        DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask=NULL,int maxDepth=0);
+        DirectoryInfo(LPCTSTR baseDirectory,UINT maxDepth=0);
         ~DirectoryInfo();
 
         void Iterate();
@@ -46,7 +46,7 @@ namespace bvr20983
 
       private:
         TCHAR           m_baseDirectory[MAX_PATH];
-        TCHAR           m_currentDirectory[MAX_PATH];
+        int             m_maxDepth;
         HANDLE          m_hFind;
         WIN32_FIND_DATA m_findData;
 

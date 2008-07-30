@@ -85,13 +85,32 @@ void xmltest(char* fName)
 #ifdef _UNICODE
   TCHAR fNameU[MAX_PATH];
 
-  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, MAX_PATH,fNameU, MAX_PATH) );
+  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameU, MAX_PATH) );
 
   xmlDoc.Load(fNameU);
 #else
   xmlDoc.Load(fName);
 #endif
 }
+
+/**
+ *
+ */
+void dirtest(char* dirName,UINT maxDepth)
+{ 
+#ifdef _UNICODE
+  TCHAR dirNameU[MAX_PATH];
+
+  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameU, MAX_PATH) );
+
+  DirectoryInfo dirInfo(dirNameU,maxDepth);
+#else
+  DirectoryInfo dirInfo(dirName,maxDepth);
+#endif
+
+  dirInfo.Iterate();
+}
+
 
 /**
  *
@@ -128,6 +147,8 @@ extern "C" int __cdecl main (int argc, char* argv[])
       
     if( strcmp(argv[1],"-xml")==0 && argc>=3 )
       xmltest(argv[2]);
+    else if( strcmp(argv[1],"-dir")==0 && argc>=3 )
+      dirtest(argv[2],argc>3 ? atoi(argv[3]) : 0);
     else
     { 
 #ifdef _UNICODE

@@ -31,38 +31,26 @@ namespace bvr20983
     /*
      *
      */
-    DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask,int maxDepth) :
-      m_hFind(INVALID_HANDLE_VALUE)
+    DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,UINT maxDepth) :
+      m_hFind(INVALID_HANDLE_VALUE),
+      m_maxDepth(maxDepth)
     { 
-      LOGGER_INFO<<_T("basedir=<")<<baseDirectory<<_T(">");
-      
-      if( NULL!=fileMask )
-        LOGGER_INFO<<_T("fileMask=<")<<fileMask<<_T(">");
-        
-      LOGGER_INFO<<endl;
-      
-      
       ::memset(&m_findData,'\0',sizeof(m_findData));
-    
-      _tcscpy_s(m_baseDirectory,MAX_PATH,baseDirectory);
-      
-      THROW_LASTERROREXCEPTION1( ::GetCurrentDirectory(MAX_PATH,m_currentDirectory) );
-      
-      TCHAR d[MAX_PATH];
-      
-      _tcscpy_s(d,MAX_PATH,m_baseDirectory);
 
-      if( NULL!=fileMask && fileMask[0]!=_T('\\') )
-        _tcscat_s(d,MAX_PATH,_T("\\"));
+      LPTSTR filePart = NULL;
+      
+      THROW_LASTERROREXCEPTION1( ::GetFullPathName(baseDirectory,MAX_PATH,m_baseDirectory,&filePart) );
+      
+      TCHAR  dir[MAX_PATH];
+      
+      _tcscpy_s(dir,MAX_PATH,m_baseDirectory);
+      _tcscat_s(dir,MAX_PATH,_T("\\*.*"));
 
-      if( NULL!=fileMask )
-        _tcscat_s(d,MAX_PATH,fileMask);
-
-      m_hFind = ::FindFirstFile(d, &m_findData);
+      m_hFind = ::FindFirstFile(dir, &m_findData);
 
       if( INVALID_HANDLE_VALUE==m_hFind ) 
         THROW_LASTERROREXCEPTION2
-    }
+    } // of DirectoryInfo::DirectoryInfo()
 
     /*
      *
@@ -72,24 +60,44 @@ namespace bvr20983
         ::FindClose(m_hFind);
 
       m_hFind = NULL;
-      
-      THROW_LASTERROREXCEPTION1( ::SetCurrentDirectory(m_currentDirectory) );
     } // of DirectoryInfo::~DirectoryInfo()
 
     /**
      *
      */
     void DirectoryInfo::Dump()
-    { if( FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes )
+    { if( (FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes)!=0 &&  
+          (_tcscmp(m_findData.cFileName,_T(".."))==0 || _tcscmp(m_findData.cFileName,_T("."))==0 )
+        )
+        return;
+      
+      if( FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes )
         LOGGER_INFO<<_T(" <DIR> ");
       else
         LOGGER_INFO<<_T("       ");
-        
-      LOGGER_INFO<<m_findData.cFileName;
-      
-      if( FILE_ATTRIBUTE_ARCHIVE & m_findData.dwFileAttributes )
-        LOGGER_INFO<<_T(" A ");
 
+      if( FILE_ATTRIBUTE_ARCHIVE & m_findData.dwFileAttributes )
+        LOGGER_INFO<<_T("A");
+      else
+        LOGGER_INFO<<_T(" ");
+
+      if( FILE_ATTRIBUTE_HIDDEN & m_findData.dwFileAttributes )
+        LOGGER_INFO<<_T("H");
+      else
+        LOGGER_INFO<<_T(" ");
+
+      if( FILE_ATTRIBUTE_READONLY & m_findData.dwFileAttributes )
+        LOGGER_INFO<<_T("R");
+      else
+        LOGGER_INFO<<_T(" ");
+
+      if( FILE_ATTRIBUTE_SYSTEM & m_findData.dwFileAttributes )
+        LOGGER_INFO<<_T("S");
+      else
+        LOGGER_INFO<<_T(" ");
+
+      LOGGER_INFO<<_T(" ")<<m_baseDirectory<<_T("\\")<<m_findData.cFileName;
+      
       LOGGER_INFO<<endl;
     } // of DirectoryInfo::Dump()
 
@@ -99,27 +107,21 @@ namespace bvr20983
     void DirectoryInfo::Iterate()
     { 
       do
-      { Dump();
+      { 
+        Dump();
       
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
             _tcscmp(m_findData.cFileName,_T("."))!=0 && 
-            _tcscmp(m_findData.cFileName,_T(".."))!=0
+            _tcscmp(m_findData.cFileName,_T(".."))!=0 &&
+            m_maxDepth>0
           )
-        { 
-/*          
-          TCHAR  dir[MAX_PATH];
-          LPTSTR filePart = NULL;
+        { TCHAR dir[MAX_PATH];
           
-          THROW_LASTERROREXCEPTION1( ::GetFullPathName(m_findData.cFileName,MAX_PATH,dir,&filePart) );
-          
-          LOGGER_INFO<<_T("dir=<")<<dir<<_T(">")<<endl;
-*/
+          _tcscpy_s(dir,MAX_PATH,m_baseDirectory);
+          _tcscat_s(dir,MAX_PATH,_T("\\"));
+          _tcscat_s(dir,MAX_PATH,m_findData.cFileName);
 
-          LOGGER_INFO<<_T("SetCurrentDirectory(")<<m_findData.cFileName<<_T(")");
-
-          THROW_LASTERROREXCEPTION1( ::SetCurrentDirectory(m_findData.cFileName) );
-          
-          DirectoryInfo d(m_findData.cFileName,_T("*.*"));
+          DirectoryInfo d(dir,m_maxDepth-1);
         
           d.Iterate();
         } // of if
