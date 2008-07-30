@@ -23,12 +23,14 @@
 #include <io.h>
 #include <fcntl.h>
 #include "cab/cabinetfci.h"
+#include "util/logstream.h"
+#include "util/dirinfo.h"
 #include "exception/bvr20983exception.h"
 #include "exception/cabinetexception.h"
 #include "exception/lasterrorexception.h"
-#include "util/logstream.h"
 
 using namespace std;
+using namespace bvr20983::util;
 
 namespace bvr20983
 {
@@ -230,19 +232,40 @@ namespace bvr20983
       if( NULL==m_hfci )
         return;
         
-      CabFCIParameter::StripFilename(strippedName,ARRAYSIZE(strippedName),fileName);
-
-      if( !FCIAddFile(m_hfci,
-                      fileName,           /* file to add */
-                      strippedName,       /* file name in CabinetFCI file */
-                      FALSE,              /* file is not executable */
-                      fci_getnextcabinet,
-                      fci_progress,
-                      fci_getopeninfo,
-                      typeCompress
-                     )
-        )
-        THROW_CABEXCEPTION((FCIERROR)m_erf.erfOper);
+#ifdef _UNICODE
+      TCHAR fileNameU[MAX_PATH];
+      
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameU, MAX_PATH) );
+      
+      if( DirectoryInfo::IsFile(fileNameU) )
+#else
+      if( DirectoryInfo::IsFile(fileName) )
+#endif      
+      { CabFCIParameter::StripFilename(strippedName,ARRAYSIZE(strippedName),fileName);
+  
+        if( !FCIAddFile(m_hfci,
+                        fileName,           /* file to add */
+                        strippedName,       /* file name in CabinetFCI file */
+                        FALSE,              /* file is not executable */
+                        fci_getnextcabinet,
+                        fci_progress,
+                        fci_getopeninfo,
+                        typeCompress
+                       )
+          )
+          THROW_CABEXCEPTION((FCIERROR)m_erf.erfOper);
+      } // of if
+#ifdef _UNICODE
+      else if( DirectoryInfo::IsDirectory(fileNameU) )
+      { DirectoryInfo dirInfo(fileNameU);
+#else
+      else if( DirectoryInfo::IsDirectory(fileName) )
+      { DirectoryInfo dirInfo(fileName);
+#endif      
+      
+        dirInfo.Iterate();
+        
+      } // of else if
     } // of CabinetFCI::AddFile(
       
 

@@ -31,11 +31,34 @@ namespace bvr20983
     /*
      *
      */
-    DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,int maxDepth) :
+    DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask,int maxDepth) :
       m_hFind(INVALID_HANDLE_VALUE)
-    { ::memset(&m_findData,'\0',sizeof(m_findData));
+    { 
+      LOGGER_INFO<<_T("basedir=<")<<baseDirectory<<_T(">");
+      
+      if( NULL!=fileMask )
+        LOGGER_INFO<<_T("fileMask=<")<<fileMask<<_T(">");
+        
+      LOGGER_INFO<<endl;
+      
+      
+      ::memset(&m_findData,'\0',sizeof(m_findData));
+    
+      _tcscpy_s(m_baseDirectory,MAX_PATH,baseDirectory);
+      
+      THROW_LASTERROREXCEPTION1( ::GetCurrentDirectory(MAX_PATH,m_currentDirectory) );
+      
+      TCHAR d[MAX_PATH];
+      
+      _tcscpy_s(d,MAX_PATH,m_baseDirectory);
 
-      m_hFind = ::FindFirstFile(baseDirectory, &m_findData);
+      if( NULL!=fileMask && fileMask[0]!=_T('\\') )
+        _tcscat_s(d,MAX_PATH,_T("\\"));
+
+      if( NULL!=fileMask )
+        _tcscat_s(d,MAX_PATH,fileMask);
+
+      m_hFind = ::FindFirstFile(d, &m_findData);
 
       if( INVALID_HANDLE_VALUE==m_hFind ) 
         THROW_LASTERROREXCEPTION2
@@ -49,18 +72,23 @@ namespace bvr20983
         ::FindClose(m_hFind);
 
       m_hFind = NULL;
+      
+      THROW_LASTERROREXCEPTION1( ::SetCurrentDirectory(m_currentDirectory) );
     } // of DirectoryInfo::~DirectoryInfo()
 
     /**
      *
      */
     void DirectoryInfo::Dump()
-    { LOGGER_INFO<<_T("FileName:")<<m_findData.cFileName<<endl;
-
-      if( FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes )
-        LOGGER_INFO<<_T(" DIRECTORY ");
-      else if( FILE_ATTRIBUTE_ARCHIVE & m_findData.dwFileAttributes )
-        LOGGER_INFO<<_T(" ARCHIVE ");
+    { if( FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes )
+        LOGGER_INFO<<_T(" <DIR> ");
+      else
+        LOGGER_INFO<<_T("       ");
+        
+      LOGGER_INFO<<m_findData.cFileName;
+      
+      if( FILE_ATTRIBUTE_ARCHIVE & m_findData.dwFileAttributes )
+        LOGGER_INFO<<_T(" A ");
 
       LOGGER_INFO<<endl;
     } // of DirectoryInfo::Dump()
@@ -69,12 +97,34 @@ namespace bvr20983
      *
      */
     void DirectoryInfo::Iterate()
-    { Dump();
+    { 
+      do
+      { Dump();
+      
+        if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
+            _tcscmp(m_findData.cFileName,_T("."))!=0 && 
+            _tcscmp(m_findData.cFileName,_T(".."))!=0
+          )
+        { 
+/*          
+          TCHAR  dir[MAX_PATH];
+          LPTSTR filePart = NULL;
+          
+          THROW_LASTERROREXCEPTION1( ::GetFullPathName(m_findData.cFileName,MAX_PATH,dir,&filePart) );
+          
+          LOGGER_INFO<<_T("dir=<")<<dir<<_T(">")<<endl;
+*/
 
-      while( ::FindNextFile(m_hFind, &m_findData)!=0 ) 
-      {
-        Dump();
-      } // of while
+          LOGGER_INFO<<_T("SetCurrentDirectory(")<<m_findData.cFileName<<_T(")");
+
+          THROW_LASTERROREXCEPTION1( ::SetCurrentDirectory(m_findData.cFileName) );
+          
+          DirectoryInfo d(m_findData.cFileName,_T("*.*"));
+        
+          d.Iterate();
+        } // of if
+
+      } while( ::FindNextFile(m_hFind, &m_findData)!=0 );
 
       DWORD dwError = ::GetLastError();
       
@@ -85,7 +135,7 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::IsFile(LPCTSTR fName)
+    boolean DirectoryInfo::IsFile(LPCTSTR fName) 
     { boolean         result = false;
       HANDLE          hFind  = INVALID_HANDLE_VALUE;
       WIN32_FIND_DATA findData;

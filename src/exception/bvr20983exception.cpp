@@ -32,12 +32,15 @@ namespace bvr20983
 
   template<class charT, class Traits>
   basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const BVR20983Exception& e)
-  { os<<typeid(e).name()<<":"<< e.GetErrorMessage() <<_T(" [0x")<<hex<<setw(4)<<setfill(_T('0'))<<e.GetErrorCode()<<_T("]"); 
+  { if( NULL!=e.GetErrorMessage() )
+      os<<typeid(e).name()<<":"<< e.GetErrorMessage() <<_T(" [0x")<<hex<<setw(4)<<setfill(_T('0'))<<e.GetErrorCode()<<_T("]"); 
+    else
+      os<<typeid(e).name()<<":"<<_T(" [0x")<<hex<<setw(4)<<setfill(_T('0'))<<e.GetErrorCode()<<_T("]"); 
 
     if( e.GetLineNo()!=-1 )
       os<<_T(" linenumber=")<<dec<<e.GetLineNo();
 
-    if( e.GetFileName()!=NULL )
+    if( NULL!=e.GetFileName() )
       os<<_T(" filename=")<<e.GetFileName();
 
     return os;

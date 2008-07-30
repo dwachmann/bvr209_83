@@ -16,17 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(VERSIONINFO_H)
-#define VERSIONINFO_H
+#if !defined(DIRINFO_H)
+#define DIRINFO_H
 
 
 namespace bvr20983
 {
   namespace util
   {
-    struct LANGANDCODEPAGE 
-    { WORD wLanguage;
-      WORD wCodePage;
+    struct DirInfo 
+    { DWORD m_attrib;
+      TCHAR m_fileName[MAX_PATH];
     };
 
     /**
@@ -35,7 +35,7 @@ namespace bvr20983
     class DirectoryInfo
     {
       public:
-        DirectoryInfo(LPCTSTR baseDirectory,int maxDepth=0);
+        DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask=NULL,int maxDepth=0);
         ~DirectoryInfo();
 
         void Iterate();
@@ -45,11 +45,13 @@ namespace bvr20983
         static boolean IsDirectory(LPCTSTR dirName);
 
       private:
+        TCHAR           m_baseDirectory[MAX_PATH];
+        TCHAR           m_currentDirectory[MAX_PATH];
         HANDLE          m_hFind;
         WIN32_FIND_DATA m_findData;
 
     }; // of class DirectoryInfo
   } // of namespace util
 } // of namespace bvr20983
-#endif // VERSIONINFO_H
+#endif // DIRINFO_H
 /*==========================END-OF-FILE===================================*/

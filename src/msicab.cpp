@@ -37,22 +37,6 @@ using namespace bvr20983::cab;
 using namespace bvr20983::util;
 using namespace std;
 
-
-/**
- *
- */
-BOOL FileExists(LPCSTR fPath)
-{ int hf = -1;
-  
-   _sopen_s( &hf, fPath, _O_BINARY | _O_RDONLY | _O_SEQUENTIAL,_SH_DENYNO,0 );
-
-  if( hf!=-1 )
-    _close(hf);
-    
-  return hf!=-1;
-} // of FileExists()
-
-
 /**
  *
  */
@@ -145,11 +129,17 @@ extern "C" int __cdecl main (int argc, char* argv[])
     if( strcmp(argv[1],"-xml")==0 && argc>=3 )
       xmltest(argv[2]);
     else
-    {
-      if( !FileExists(argv[1]) )
-      { if( argc>2 )
-          msicabcreate(argc-1, &argv[1]);
-      } // of if
+    { 
+#ifdef _UNICODE
+      TCHAR fileNameU[MAX_PATH];
+      
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[1], -1,fileNameU, MAX_PATH) );
+      
+      if( !DirectoryInfo::IsFile(fileNameU) && argc>2 )
+#else
+      if( !DirectoryInfo::IsFile(argv[1]) && argc>2 )
+#endif
+        msicabcreate(argc-1, &argv[1]);
       else
       { if( argc==2 )
           msicablist(argc-1, &argv[1]);
@@ -159,7 +149,7 @@ extern "C" int __cdecl main (int argc, char* argv[])
     } // of else
   }
   catch(BVR20983Exception& e)
-  { LOGGER_ERROR<<e;
+  { LOGGER_ERROR<<e<<endl;
 
     exHr = e.GetErrorCode();
   }
