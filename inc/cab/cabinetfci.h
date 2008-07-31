@@ -20,12 +20,21 @@
 #define CABINETFCI_H
 
 #include "cab/fci.h"
+#include "util/dirinfo.h"
 
 namespace bvr20983
 {
   namespace cab
   {
     class CabinetFCI;
+
+    /**
+     *
+     */
+    struct CabinetFCIDirInfo : public util::DirIterator
+    {
+      boolean Next(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
+    };
 
     /**
      *

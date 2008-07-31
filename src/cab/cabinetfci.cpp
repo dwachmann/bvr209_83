@@ -24,7 +24,6 @@
 #include <fcntl.h>
 #include "cab/cabinetfci.h"
 #include "util/logstream.h"
-#include "util/dirinfo.h"
 #include "exception/bvr20983exception.h"
 #include "exception/cabinetexception.h"
 #include "exception/lasterrorexception.h"
@@ -262,11 +261,24 @@ namespace bvr20983
       else if( DirectoryInfo::IsDirectory(fileName) )
       { DirectoryInfo dirInfo(fileName);
 #endif      
+
+        CabinetFCIDirInfo dirInfoIter;
       
-        dirInfo.Iterate();
+        dirInfo.Iterate(dirInfoIter,this);
         
       } // of else if
-    } // of CabinetFCI::AddFile(
+    } // of CabinetFCI::AddFile()
+
+    /**
+     *
+     */
+    boolean CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+    { CabinetFCI* cab = (CabinetFCI*)p;
+
+      LOGGER_INFO<<_T("Next():")<<findData.cFileName<<endl;
+
+      return true;
+    }
       
 
 

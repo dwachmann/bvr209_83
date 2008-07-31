@@ -108,7 +108,7 @@ void dirtest(char* dirName,UINT maxDepth)
   DirectoryInfo dirInfo(dirName,maxDepth);
 #endif
 
-  dirInfo.Iterate();
+  dirInfo.Dump();
 }
 
 

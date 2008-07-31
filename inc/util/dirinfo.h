@@ -24,9 +24,22 @@ namespace bvr20983
 {
   namespace util
   {
-    struct DirInfo 
-    { DWORD m_attrib;
-      TCHAR m_fileName[MAX_PATH];
+    class DirectoryInfo;
+
+    /**
+     *
+     */
+    struct DirIterator
+    {
+      virtual boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)=0;
+    };
+
+    /**
+     *
+     */
+    struct DumpDirIterator : public DirIterator
+    {
+      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
     };
 
     /**
@@ -38,11 +51,13 @@ namespace bvr20983
         DirectoryInfo(LPCTSTR baseDirectory,UINT maxDepth=0);
         ~DirectoryInfo();
 
-        void Iterate();
-        void Dump();
+        void           Dump();
+        void           Iterate(DirIterator& iter,void* p=NULL);
 
         static boolean IsFile(LPCTSTR fName);
         static boolean IsDirectory(LPCTSTR dirName);
+
+        typedef std::vector<WIN32_FIND_DATA> VDirInfo;
 
       private:
         TCHAR           m_baseDirectory[MAX_PATH];
@@ -50,6 +65,9 @@ namespace bvr20983
         HANDLE          m_hFind;
         WIN32_FIND_DATA m_findData;
 
+        friend struct DumpDirIterator;
+
+        void            DumpFindData();
     }; // of class DirectoryInfo
   } // of namespace util
 } // of namespace bvr20983

@@ -28,14 +28,22 @@ namespace bvr20983
   namespace util
   {
 
+    /**
+     *
+     */
+    boolean DumpDirIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+    { dirInfo.DumpFindData();
+
+      return true;
+    } // of DumpDirIterator::Next()
+
     /*
      *
      */
     DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,UINT maxDepth) :
       m_hFind(INVALID_HANDLE_VALUE),
       m_maxDepth(maxDepth)
-    { 
-      ::memset(&m_findData,'\0',sizeof(m_findData));
+    { ::memset(&m_findData,'\0',sizeof(m_findData));
 
       LPTSTR filePart = NULL;
       
@@ -65,7 +73,7 @@ namespace bvr20983
     /**
      *
      */
-    void DirectoryInfo::Dump()
+    void DirectoryInfo::DumpFindData()
     { if( (FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes)!=0 &&  
           (_tcscmp(m_findData.cFileName,_T(".."))==0 || _tcscmp(m_findData.cFileName,_T("."))==0 )
         )
@@ -99,16 +107,24 @@ namespace bvr20983
       LOGGER_INFO<<_T(" ")<<m_baseDirectory<<_T("\\")<<m_findData.cFileName;
       
       LOGGER_INFO<<endl;
-    } // of DirectoryInfo::Dump()
+    } // of DirectoryInfo::DumpFindData()
 
     /*
      *
      */
-    void DirectoryInfo::Iterate()
-    { 
-      do
-      { 
-        Dump();
+    void DirectoryInfo::Dump()
+    { DumpDirIterator iter;
+
+      Iterate(iter);
+    } // of DirectoryInfo::Dump()
+      
+
+    /*
+     *
+     */
+    void DirectoryInfo::Iterate(DirIterator& iter,void* p)
+    { do
+      { iter.Next(*this,m_findData,p);
       
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
             _tcscmp(m_findData.cFileName,_T("."))!=0 && 
@@ -123,7 +139,7 @@ namespace bvr20983
 
           DirectoryInfo d(dir,m_maxDepth-1);
         
-          d.Iterate();
+          d.Iterate(iter,p);
         } // of if
 
       } while( ::FindNextFile(m_hFind, &m_findData)!=0 );
