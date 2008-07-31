@@ -230,6 +230,12 @@ namespace bvr20983
       
       if( NULL==m_hfci )
         return;
+
+      if( strcmp(m_parameter->szCab,fileName)==0 )
+      { LOGGER_INFO<<_T("ignore file ")<<fileName<<endl;
+
+        return;
+      } // of if
         
 #ifdef _UNICODE
       TCHAR fileNameU[MAX_PATH];
@@ -275,10 +281,26 @@ namespace bvr20983
     boolean CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
     { CabinetFCI* cab = (CabinetFCI*)p;
 
-      LOGGER_INFO<<_T("Next():")<<findData.cFileName<<endl;
+      if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
+      { TCHAR path[MAX_PATH];
+        
+        dirInfo.GetFullName(path,MAX_PATH);
+
+        LOGGER_INFO<<_T("Next():")<<path<<endl;
+
+#ifdef _UNICODE
+        char path1[MAX_PATH];
+
+        THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, path, MAX_PATH,path1, MAX_PATH, NULL, NULL ) );
+
+        cab->AddFile(path1);
+#else
+        cab->AddFile(path);
+#endif
+      } // of if
 
       return true;
-    }
+    } // of CabinetFCIDirInfo::Next()
       
 
 

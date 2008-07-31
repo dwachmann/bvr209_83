@@ -53,6 +53,7 @@ namespace bvr20983
 
         void           Dump();
         void           Iterate(DirIterator& iter,void* p=NULL);
+        int            GetFullName(LPTSTR path,int cPath);
 
         static boolean IsFile(LPCTSTR fName);
         static boolean IsDirectory(LPCTSTR dirName);

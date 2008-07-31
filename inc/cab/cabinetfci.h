@@ -78,7 +78,7 @@ namespace bvr20983
 
       void Flush(BOOL flushFolder=FALSE);
       void AddFile(char* fileName,TCOMP typeCompress=tcompTYPE_MSZIP);
-      
+
     private:
       long            m_totalCompressedSize;    /* total compressed size so far */
       long            m_totalUncompressedSize;  /* total uncompressed size so far */

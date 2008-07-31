@@ -74,12 +74,7 @@ namespace bvr20983
      *
      */
     void DirectoryInfo::DumpFindData()
-    { if( (FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes)!=0 &&  
-          (_tcscmp(m_findData.cFileName,_T(".."))==0 || _tcscmp(m_findData.cFileName,_T("."))==0 )
-        )
-        return;
-      
-      if( FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes )
+    { if( FILE_ATTRIBUTE_DIRECTORY & m_findData.dwFileAttributes )
         LOGGER_INFO<<_T(" <DIR> ");
       else
         LOGGER_INFO<<_T("       ");
@@ -117,6 +112,23 @@ namespace bvr20983
 
       Iterate(iter);
     } // of DirectoryInfo::Dump()
+
+
+    /*
+     *
+     */
+   int DirectoryInfo::GetFullName(LPTSTR path,int cPath)
+   { int result = 0;
+
+     if( NULL!=path )
+     { result = _tcscpy_s(path,cPath,m_baseDirectory);
+
+       result += _tcscat_s(path,cPath,_T("\\"));
+       result += _tcscat_s(path,cPath,m_findData.cFileName);
+     } // of if
+
+     return result;
+   } // of DirectoryInfo::GetFullName()
       
 
     /*
@@ -124,13 +136,15 @@ namespace bvr20983
      */
     void DirectoryInfo::Iterate(DirIterator& iter,void* p)
     { do
-      { iter.Next(*this,m_findData,p);
-      
+      { 
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
-            _tcscmp(m_findData.cFileName,_T("."))!=0 && 
-            _tcscmp(m_findData.cFileName,_T(".."))!=0 &&
-            m_maxDepth>0
+            (_tcscmp(m_findData.cFileName,_T("."))==0 || _tcscmp(m_findData.cFileName,_T(".."))==0)
           )
+          continue;
+        
+        iter.Next(*this,m_findData,p);
+      
+        if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && m_maxDepth>0 )
         { TCHAR dir[MAX_PATH];
           
           _tcscpy_s(dir,MAX_PATH,m_baseDirectory);
