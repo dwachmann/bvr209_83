@@ -46,9 +46,9 @@ namespace bvr20983
      */
     struct CabFCIParameter
     {
-      static const ULONG MEDIA_SIZE       = 1200000;
-      static const ULONG FOLDER_THRESHOLD = 1200000;
-      static const int   DISKID           =   12345;
+      static const ULONG MEDIA_SIZE       = 600*1024*1024;
+      static const ULONG FOLDER_THRESHOLD = 600*1024*1024;
+      static const int   DISKID           = 42;
 
       CabFCIParameter(char* cabName=NULL,ULONG mediaSize=MEDIA_SIZE,ULONG folderThreshold=FOLDER_THRESHOLD,int iDisk=DISKID);
 
@@ -81,7 +81,7 @@ namespace bvr20983
       CabinetFCI(const CabFCIParameter& parameter);
       ~CabinetFCI();
 
-      void Flush(BOOL flushFolder=FALSE);
+      void Flush(boolean flushFolder=false);
       void AddFile(char* fileName,char* prefix=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
 
     private:

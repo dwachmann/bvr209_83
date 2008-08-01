@@ -41,7 +41,7 @@ using namespace std;
  *
  */
 void msicabcreate(int num_files, char *file_list[])
-{ CabFCIParameter cabParameter(file_list[0]);
+{ CabFCIParameter cabParameter(file_list[0],1440*1024,1440*1024,43);
   CabinetFCI      cabinet(cabParameter);
   
   for( int i=1;i<num_files;i++ )
@@ -53,7 +53,7 @@ void msicabcreate(int num_files, char *file_list[])
 #endif    
 
     if( !strcmp(file_list[i], "+") )
-    { cabinet.Flush(TRUE);
+    { cabinet.Flush(true);
       
       continue;
     } // of if

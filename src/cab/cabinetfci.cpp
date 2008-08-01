@@ -221,9 +221,11 @@ namespace bvr20983
     /**
      *
      */
-    void CabinetFCI::Flush(BOOL flushFolder)
+    void CabinetFCI::Flush(boolean flushFolder)
     { if( NULL==m_hfci )
         return;
+        
+      LOGGER_DEBUG<<_T("CabinetFCI::Flush(")<<flushFolder<<_T(")")<<endl;
         
       if( ( flushFolder && !::FCIFlushFolder (m_hfci,      fci_getnextcabinet,fci_progress)) 
           ||
@@ -242,7 +244,7 @@ namespace bvr20983
         return;
 
       if( strcmp(m_parameter->szCab,fileName)==0 )
-      { LOGGER_INFO<<_T("ignore file ")<<fileName<<endl;
+      { LOGGER_DEBUG<<_T("ignore file ")<<fileName<<endl;
 
         return;
       } // of if
@@ -279,9 +281,8 @@ namespace bvr20983
 #endif      
 
         CabinetFCIDirInfo dirInfoIter(prefix);
-      
-        dirInfo.Iterate(dirInfoIter,this);
         
+        dirInfo.Iterate(dirInfoIter,this);
       } // of else if
     } // of CabinetFCI::AddFile()
     
@@ -301,7 +302,10 @@ namespace bvr20983
     boolean CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
     { CabinetFCI* cab = (CabinetFCI*)p;
 
-      LOGGER_INFO<<_T("CabinetFCIDirInfo::Next():")<<findData.cFileName<<endl;
+      LOGGER_DEBUG<<_T("CabinetFCIDirInfo::Next():")<<findData.cFileName<<endl;
+      
+      if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 )
+        cab->Flush(true);
 
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
       { TCHAR path[MAX_PATH];
@@ -469,7 +473,9 @@ namespace bvr20983
      * to a CabinetFCI
      */
     int CabinetFCI::FCIFilePlaced(PCCAB pccab,char *pszFile,long  cbFile,BOOL  fContinuation)
-    { LOGGER_INFO<<_T("FCIFilePlaced(pccab->szCab=")<<pccab->szCab<<_T(",pszFile=")<<pszFile<<_T(",cbFile=")<<cbFile<<_T(",fContinuation=")<<fContinuation<<_T(")")<<endl;
+    { LOGGER_DEBUG<<_T("FCIFilePlaced(pccab->szCab=")<<pccab->szCab<<_T(",pszFile=")<<pszFile<<_T(",cbFile=")<<cbFile<<_T(",fContinuation=")<<fContinuation<<_T(")")<<endl;
+    
+      LOGGER_INFO<<_T(" File ")<<pszFile<<_T(" placed in cabinet ")<<pccab->szCab<<endl;
     
       return 0;
     }
@@ -561,7 +567,8 @@ namespace bvr20983
       }
       else if( typeStatus==statusCabinet )
       {
-        LOGGER_INFO<<_T("Writing cabinet: ")<<cb1<<_T(":")<<cb2<<endl;
+        LOGGER_DEBUG<<_T("Writing cabinet: ")<<cb1<<_T(":")<<cb2<<endl;
+        LOGGER_INFO<<_T("Writing cabinet ...")<<endl;
       }
     
       return 0;
@@ -654,7 +661,7 @@ namespace bvr20983
       if( _sopen_s( &hf, pszName, _O_RDONLY | _O_BINARY,_SH_DENYNO,0 ) )
         return -1; // abort on error
 
-      LOGGER_INFO<<_T("FCIGetOpenInfo(pszName=")<<pszName<<_T(",*pattribs=")<<*pattribs<<_T(")")<<endl;
+      LOGGER_DEBUG<<_T("FCIGetOpenInfo(pszName=")<<pszName<<_T(",*pattribs=")<<*pattribs<<_T(")")<<endl;
        
       return hf;
     }

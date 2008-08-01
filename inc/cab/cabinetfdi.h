@@ -19,6 +19,7 @@
 #ifndef CabinetFDI_H
 #define CabinetFDI_H
 
+#include "cab/fci.h"
 #include "cab/fdi.h"
 
 namespace bvr20983

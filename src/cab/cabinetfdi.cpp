@@ -100,7 +100,7 @@ namespace bvr20983
       LOGGER_INFO<<_T("Listing of cabinet file '")<<m_cabinetFullPath<<_T("'")<<endl<<_T("  ");
       LOGGER_INFO<<m_fdici.cFiles<<_T(" file(s), ");
       LOGGER_INFO<<m_fdici.cFolders<<_T(" folder(s), ");
-      LOGGER_INFO<<m_fdici.setID<<_T(" set ID 12345, ");
+      LOGGER_INFO<<_T(" set ID  ")<<m_fdici.setID<<_T(", ");
       LOGGER_INFO<<_T(" cabinet #")<<m_fdici.iCabinet<<_T(",");
       LOGGER_INFO<<_T(" reserve area ")<<m_fdici.fReserve<<_T(",");
       LOGGER_INFO<<_T(" Chained to prev ")<<m_fdici.hasprev;
@@ -206,10 +206,10 @@ namespace bvr20983
         case fdintCABINET_INFO: // general information about the cabinet
           if( m_listOnly )
           { LOGGER_INFO<<_T("  next cabinet ")<<pfdin->psz1;
-            LOGGER_INFO<<_T(",next disk ")<<pfdin->psz2;
-            LOGGER_INFO<<_T(",cabinet path ")<<pfdin->psz3;
-            LOGGER_INFO<<_T(",cabinet set ID ")<<pfdin->setID;
-            LOGGER_INFO<<_T(",cabinet # in set ")<<pfdin->iCabinet;
+            LOGGER_INFO<<_T(", next disk ")<<pfdin->psz2;
+            LOGGER_INFO<<_T(", cabinet path ")<<pfdin->psz3;
+            LOGGER_INFO<<_T(", cabinet set ID ")<<pfdin->setID;
+            LOGGER_INFO<<_T(", cabinet # in set ")<<pfdin->iCabinet;
             LOGGER_INFO<<endl<<endl;
           } // of if
           else
@@ -232,12 +232,59 @@ namespace bvr20983
 
           if( m_listOnly )
           {
-            LOGGER_INFO<<setw(10)<<pfdin->cb;
+            LOGGER_INFO<<setw(10)<<setfill(_T(' '))<<pfdin->cb<<_T(" ");
 
-            LOGGER_INFO<<_T(" ")<<pfdin->attribs;
-            LOGGER_INFO<<_T(" ")<<pfdin->iFolder;
-            LOGGER_INFO<<_T(" ")<<pfdin->time;
-            LOGGER_INFO<<_T(" ")<<pfdin->date;
+            if( pfdin->attribs & _A_NAME_IS_UTF )
+              LOGGER_INFO<<_T("U");
+            else
+              LOGGER_INFO<<_T("-");
+
+            if( pfdin->attribs & _A_EXEC )
+              LOGGER_INFO<<_T("X");
+            else
+              LOGGER_INFO<<_T("-");
+
+            if( pfdin->attribs & _A_RDONLY )
+              LOGGER_INFO<<_T("R");
+            else
+              LOGGER_INFO<<_T("-");
+
+            if( pfdin->attribs & _A_SYSTEM )
+              LOGGER_INFO<<_T("S");
+            else
+              LOGGER_INFO<<_T("-");
+
+            if( pfdin->attribs & _A_HIDDEN )
+              LOGGER_INFO<<_T("H");
+            else
+              LOGGER_INFO<<_T("-");
+
+            if( pfdin->attribs & _A_ARCH )
+              LOGGER_INFO<<_T("A");
+            else
+              LOGGER_INFO<<_T("-");
+
+            LOGGER_INFO<<_T(" ")<<setw(5)<<setfill(_T(' '))<<pfdin->iFolder<<_T(" ");
+              
+            { FILETIME   datetime;
+              SYSTEMTIME systemTime;
+
+              if( ::DosDateTimeToFileTime(pfdin->date,pfdin->time,&datetime)  && 
+                  ::FileTimeToSystemTime(&datetime,&systemTime)
+                )
+              { LOGGER_INFO<<setw(4)<<setfill(_T('0'))<<systemTime.wYear<<_T("/");
+                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wMonth<<_T("/");
+                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wDay<<_T(" ");
+
+                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wHour<<_T(":");
+                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wMinute<<_T(":");
+                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wSecond;
+              } // of if
+              else
+              { LOGGER_INFO<<_T(" ")<<pfdin->time;
+                LOGGER_INFO<<_T(" ")<<pfdin->date;
+              } // of else
+            }
 
             LOGGER_INFO<<_T(" ")<<pfdin->psz1;
             LOGGER_INFO<<endl;
@@ -262,13 +309,13 @@ namespace bvr20983
 
           _close(pfdin->hf);
 
+          sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
+
 #ifdef _UNICODE
           TCHAR destinationU[MAX_PATH];
     
           THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, destination, MAX_PATH,destinationU, MAX_PATH) );
 #endif
-
-          sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
 
 #ifdef _UNICODE
           fHandle = ::CreateFile(destinationU,GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
