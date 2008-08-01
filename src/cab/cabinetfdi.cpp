@@ -204,12 +204,22 @@ namespace bvr20983
       switch( fdint )
       {
         case fdintCABINET_INFO: // general information about the cabinet
-          LOGGER_INFO<<_T("fdintCABINET_INFO")<<endl;
-          LOGGER_INFO<<_T("  next cabinet     = ")<<pfdin->psz1<<endl;
-          LOGGER_INFO<<_T("  next disk        = ")<<pfdin->psz2<<endl;
-          LOGGER_INFO<<_T("  cabinet path     = ")<<pfdin->psz3<<endl;
-          LOGGER_INFO<<_T("  cabinet set ID   = ")<<pfdin->setID<<endl;
-          LOGGER_INFO<<_T("  cabinet # in set = ")<<pfdin->iCabinet<<endl;
+          if( m_listOnly )
+          { LOGGER_INFO<<_T("  next cabinet ")<<pfdin->psz1;
+            LOGGER_INFO<<_T(",next disk ")<<pfdin->psz2;
+            LOGGER_INFO<<_T(",cabinet path ")<<pfdin->psz3;
+            LOGGER_INFO<<_T(",cabinet set ID ")<<pfdin->setID;
+            LOGGER_INFO<<_T(",cabinet # in set ")<<pfdin->iCabinet;
+            LOGGER_INFO<<endl<<endl;
+          } // of if
+          else
+          { LOGGER_DEBUG<<_T("fdintCABINET_INFO")<<endl;
+            LOGGER_DEBUG<<_T("  next cabinet     = ")<<pfdin->psz1<<endl;
+            LOGGER_DEBUG<<_T("  next disk        = ")<<pfdin->psz2<<endl;
+            LOGGER_DEBUG<<_T("  cabinet path     = ")<<pfdin->psz3<<endl;
+            LOGGER_DEBUG<<_T("  cabinet set ID   = ")<<pfdin->setID<<endl;
+            LOGGER_DEBUG<<_T("  cabinet # in set = ")<<pfdin->iCabinet<<endl;
+          } // of else
           break;
         case fdintPARTIAL_FILE: // first file in cabinet is continuation
           LOGGER_INFO<<_T("fdintPARTIAL_FILE")<<endl;
@@ -219,16 +229,31 @@ namespace bvr20983
           break;
 
         case fdintCOPY_FILE:  // file to be copied
-          LOGGER_INFO<<_T("fdintCOPY_FILE[")<<m_listOnly<<_T("]")<<endl;
-          LOGGER_INFO<<_T("  file name in cabinet = ")<<pfdin->psz1<<endl;
-          LOGGER_INFO<<_T("  uncompressed file size = ")<<pfdin->cb<<endl;
-
-          sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
 
           if( m_listOnly )
+          {
+            LOGGER_INFO<<setw(10)<<pfdin->cb;
+
+            LOGGER_INFO<<_T(" ")<<pfdin->attribs;
+            LOGGER_INFO<<_T(" ")<<pfdin->iFolder;
+            LOGGER_INFO<<_T(" ")<<pfdin->time;
+            LOGGER_INFO<<_T(" ")<<pfdin->date;
+
+            LOGGER_INFO<<_T(" ")<<pfdin->psz1;
+            LOGGER_INFO<<endl;
+
             result = 0;
+          } // of if
           else
+          { LOGGER_INFO<<_T("fdintCOPY_FILE[")<<m_listOnly<<_T("]")<<endl;
+            LOGGER_INFO<<_T("  file name in cabinet = ")<<pfdin->psz1<<endl;
+            LOGGER_INFO<<_T("  uncompressed file size = ")<<pfdin->cb<<endl;
+  
+            sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
+
             _sopen_s( &result, destination,_O_BINARY | _O_CREAT | _O_WRONLY | _O_SEQUENTIAL,_SH_DENYNO,_S_IREAD | _S_IWRITE);
+          } // of else
+          
           break;
 
         case fdintCLOSE_FILE_INFO:  // close the file, set relevant info

@@ -46,13 +46,26 @@ void msicabcreate(int num_files, char *file_list[])
   
   for( int i=1;i<num_files;i++ )
   {
+#ifdef _UNICODE
+    TCHAR fNameU[MAX_PATH];
+  
+    THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, file_list[i], -1,fNameU, MAX_PATH) );
+#endif    
+
     if( !strcmp(file_list[i], "+") )
     { cabinet.Flush(TRUE);
       
       continue;
     } // of if
     
-    cabinet.AddFile(file_list[i]);
+#ifdef _UNICODE
+    if( DirectoryInfo::IsDirectory(fNameU) )
+#else
+    if( DirectoryInfo::IsDirectory(file_list[i]) )
+#endif
+      cabinet.AddFile(file_list[i],file_list[i]);
+    else    
+      cabinet.AddFile(file_list[i]);
   } // of for
   
   cabinet.Flush();

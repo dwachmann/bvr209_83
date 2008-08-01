@@ -33,7 +33,12 @@ namespace bvr20983
      */
     struct CabinetFCIDirInfo : public util::DirIterator
     {
+      CabinetFCIDirInfo(char* prefix=NULL);
+      
       boolean Next(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
+      
+    private:
+      char m_prefix[MAX_PATH];  
     };
 
     /**
@@ -63,7 +68,7 @@ namespace bvr20983
       void StoreCabName(char *cabname, int iCab);
       void DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName);
       
-      static void StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName);
+      static void StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName,char* prefix=NULL);
     }; // of struct CabFCIParameter
 
     /**
@@ -77,7 +82,7 @@ namespace bvr20983
       ~CabinetFCI();
 
       void Flush(BOOL flushFolder=FALSE);
-      void AddFile(char* fileName,TCOMP typeCompress=tcompTYPE_MSZIP);
+      void AddFile(char* fileName,char* prefix=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
 
     private:
       long            m_totalCompressedSize;    /* total compressed size so far */

@@ -142,7 +142,8 @@ namespace bvr20983
           )
           continue;
         
-        iter.Next(*this,m_findData,p);
+        if( !iter.Next(*this,m_findData,p) )
+          return;
       
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && m_maxDepth>0 )
         { TCHAR dir[MAX_PATH];
@@ -196,7 +197,7 @@ namespace bvr20983
 
       if( INVALID_HANDLE_VALUE==hFind ) 
         ::FindClose(hFind);
-
+        
       return result;
     }
   } // of namespace util

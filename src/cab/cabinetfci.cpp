@@ -127,13 +127,23 @@ namespace bvr20983
     /**
      *
      */
-    void CabFCIParameter::StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName)
-    { char* p = strrchr(fileName, '\\');
+    void CabFCIParameter::StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName,char* prefix)
+    { char* prefixStart = NULL!=prefix && prefix[0]!='\0' ? strstr(fileName,prefix) : NULL;
     
-      if( p==NULL )
-        strcpy_s(strippedFilename,cbMaxFileName, fileName);
+      if( NULL==prefixStart )
+      { char* p = strrchr(fileName, '\\');
+      
+        if( p==NULL )
+          strcpy_s(strippedFilename,cbMaxFileName, fileName);
+        else
+          strcpy_s(strippedFilename,cbMaxFileName, p+1);
+      } // of if
       else
-        strcpy_s(strippedFilename,cbMaxFileName, p+1);
+      { int prefixLen = strlen(prefix);
+        int offset    = *(prefixStart+prefixLen)=='\\' ? prefixLen+1 : prefixLen;
+
+        strcpy_s(strippedFilename,cbMaxFileName,prefixStart+offset);
+      } // of else
     } // of CabFCIParameter::StripFilename()
 
     /**
@@ -225,7 +235,7 @@ namespace bvr20983
     /**
      *
      */
-    void CabinetFCI::AddFile(char* fileName,TCOMP typeCompress)
+    void CabinetFCI::AddFile(char* fileName,char* prefix,TCOMP typeCompress)
     { char strippedName[MAX_PATH];
       
       if( NULL==m_hfci )
@@ -246,7 +256,7 @@ namespace bvr20983
 #else
       if( DirectoryInfo::IsFile(fileName) )
 #endif      
-      { CabFCIParameter::StripFilename(strippedName,ARRAYSIZE(strippedName),fileName);
+      { CabFCIParameter::StripFilename(strippedName,ARRAYSIZE(strippedName),fileName,prefix);
   
         if( !FCIAddFile(m_hfci,
                         fileName,           /* file to add */
@@ -262,18 +272,28 @@ namespace bvr20983
       } // of if
 #ifdef _UNICODE
       else if( DirectoryInfo::IsDirectory(fileNameU) )
-      { DirectoryInfo dirInfo(fileNameU);
+      { DirectoryInfo dirInfo(fileNameU,10);
 #else
       else if( DirectoryInfo::IsDirectory(fileName) )
-      { DirectoryInfo dirInfo(fileName);
+      { DirectoryInfo dirInfo(fileName,10);
 #endif      
 
-        CabinetFCIDirInfo dirInfoIter;
+        CabinetFCIDirInfo dirInfoIter(prefix);
       
         dirInfo.Iterate(dirInfoIter,this);
         
       } // of else if
     } // of CabinetFCI::AddFile()
+    
+    /**
+     *
+     */
+    CabinetFCIDirInfo::CabinetFCIDirInfo(char* prefix)
+    { if( NULL!=prefix )
+        ::strcpy_s(m_prefix,MAX_PATH,prefix);
+      else
+        ::memset(m_prefix,'\0',MAX_PATH);
+    } // of CabinetFCIDirInfo::CabinetFCIDirInfo()
 
     /**
      *
@@ -281,21 +301,21 @@ namespace bvr20983
     boolean CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
     { CabinetFCI* cab = (CabinetFCI*)p;
 
+      LOGGER_INFO<<_T("CabinetFCIDirInfo::Next():")<<findData.cFileName<<endl;
+
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
       { TCHAR path[MAX_PATH];
         
         dirInfo.GetFullName(path,MAX_PATH);
-
-        LOGGER_INFO<<_T("Next():")<<path<<endl;
 
 #ifdef _UNICODE
         char path1[MAX_PATH];
 
         THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, path, MAX_PATH,path1, MAX_PATH, NULL, NULL ) );
 
-        cab->AddFile(path1);
+        cab->AddFile(path1,m_prefix);
 #else
-        cab->AddFile(path);
+        cab->AddFile(path,m_prefix);
 #endif
       } // of if
 
@@ -449,12 +469,7 @@ namespace bvr20983
      * to a CabinetFCI
      */
     int CabinetFCI::FCIFilePlaced(PCCAB pccab,char *pszFile,long  cbFile,BOOL  fContinuation)
-    { LOGGER_INFO<<_T("   placed file '")<<pszFile<<_T("' (size ")<<cbFile<<_T(") on cabinet '")<<pccab->szCab;
-    
-      if( fContinuation )
-        LOGGER_INFO<<_T("      (Above file is a later segment of a continued file)");
-
-      LOGGER_INFO<<endl;
+    { LOGGER_INFO<<_T("FCIFilePlaced(pccab->szCab=")<<pccab->szCab<<_T(",pszFile=")<<pszFile<<_T(",cbFile=")<<cbFile<<_T(",fContinuation=")<<fContinuation<<_T(")")<<endl;
     
       return 0;
     }
@@ -530,7 +545,7 @@ namespace bvr20983
          *
          * cb2 = uncompressed size of block
          */
-        LOGGER_INFO<<_T("Compressing: ")<<m_totalUncompressedSize<<_T(" -> ")<<m_totalCompressedSize<<endl;
+        LOGGER_DEBUG<<_T("Compressing: ")<<m_totalUncompressedSize<<_T(" -> ")<<m_totalCompressedSize<<endl;
       }
       else if( typeStatus==statusFolder )
       {
@@ -542,7 +557,11 @@ namespace bvr20983
          */
         int percentage = GetPercentage(cb1, cb2);
     
-        LOGGER_INFO<<_T("Copying folder to cabinet: ")<<percentage<<_T("%")<<endl;
+        LOGGER_DEBUG<<_T("Copying folder to cabinet: ")<<percentage<<_T("%")<<endl;
+      }
+      else if( typeStatus==statusCabinet )
+      {
+        LOGGER_INFO<<_T("Writing cabinet: ")<<cb1<<_T(":")<<cb2<<endl;
       }
     
       return 0;
@@ -579,8 +598,6 @@ namespace bvr20983
       DWORD                      attrs;
       int                        hf;
       
-      LOGGER_INFO<<_T("get_open_info(): pszName=")<<pszName<<endl;
-
 #ifdef _UNICODE
       TCHAR pszNameU[MAX_PATH];
 
@@ -636,6 +653,8 @@ namespace bvr20983
        */
       if( _sopen_s( &hf, pszName, _O_RDONLY | _O_BINARY,_SH_DENYNO,0 ) )
         return -1; // abort on error
+
+      LOGGER_INFO<<_T("FCIGetOpenInfo(pszName=")<<pszName<<_T(",*pattribs=")<<*pattribs<<_T(")")<<endl;
        
       return hf;
     }
