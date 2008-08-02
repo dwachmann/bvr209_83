@@ -29,21 +29,22 @@ namespace bvr20983
   class GCOMPtr;
 
   template <class ICom>
-  class COMPtr
+  class COMPtr : public COMPtrBase
   {
     public:
       COMPtr(ICom* pIUnk=NULL) : m_pIUnk(NULL)
       { Init(pIUnk); }
 
+      COMPtr(LPCOLESTR lpszProgID,LPCOLESTR lpszIID,DWORD dwClsContext=CLSCTX_INPROC_SERVER,LPUNKNOWN pOutUnknown=NULL) : m_pIUnk(NULL)
+      { CLSID clsId = GUID_NULL;
+        IID   iid   = GUID_NULL;
+      
+        GetInfo(lpszProgID,lpszIID,&clsId,&iid);
+        CreateCOM(clsId,iid,dwClsContext,pOutUnknown);
+      } 
+
       COMPtr(REFIID clsId,REFIID riid,DWORD dwClsContext=CLSCTX_INPROC_SERVER,LPUNKNOWN pOutUnknown=NULL) : m_pIUnk(NULL)
-      { ICom* pIUnk = NULL;
-
-        THROW_COMEXCEPTION( ::CoCreateInstance(clsId,pOutUnknown,dwClsContext,riid,(LPVOID*)&pIUnk) );
-
-        Init(pIUnk); 
-
-        RELEASE_INTERFACE(pIUnk);
-      }
+      { CreateCOM(clsId,riid,dwClsContext,pOutUnknown); }
 
       COMPtr(const GCOMPtr<ICom>& gCOMPtr) : m_pIUnk(NULL)
       { Init(gCOMPtr.GetPtr()); }
@@ -115,6 +116,16 @@ namespace bvr20983
       }
 
     private:
+      void CreateCOM(REFIID clsId,REFIID riid,DWORD dwClsContext,LPUNKNOWN pOutUnknown)
+      { ICom* pIUnk = NULL;
+
+        THROW_COMEXCEPTION( ::CoCreateInstance(clsId,pOutUnknown,dwClsContext,riid,(LPVOID*)&pIUnk) );
+
+        Init(pIUnk); 
+
+        RELEASE_INTERFACE(pIUnk);
+      }
+
       void Init(ICom* pIUnk)
       { ADDREF_INTERFACE( pIUnk );
 

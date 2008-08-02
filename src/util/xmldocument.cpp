@@ -44,8 +44,8 @@ namespace bvr20983
     /**
      *
      */
-    CXMLDocument::CXMLDocument() :
-      m_pXmlDoc(CLSID_Msxml2_DOMDocument_5_0,IID_IXMLDOMDocument)
+    CXMLDocument::CXMLDocument(LPCOLESTR domDocProgId) :
+      m_pXmlDoc(domDocProgId,_T("IXMLDOMDocument"))
     { 
       THROW_COMEXCEPTION( m_pXmlDoc->put_async(VARIANT_FALSE) );
       THROW_COMEXCEPTION( m_pXmlDoc->put_validateOnParse(VARIANT_TRUE) );

@@ -20,6 +20,7 @@
  */
 #include "os.h"
 #include "util/guid.h"
+#include "exception/comexception.h"
 
 namespace bvr20983
 {
@@ -32,6 +33,13 @@ namespace bvr20983
     ::StringFromGUID2(m_guid,szCLSID, GUID_SIZE);
     
     m_guidStr = TString(szCLSID);
+  }
+
+  /**
+   *
+   */
+  CGUID::CGUID(const TString& guid) : m_guidStr(guid),m_guid(GUID_NULL)
+  { THROW_COMEXCEPTION( ::CLSIDFromString((LPOLESTR)guid.c_str(),&m_guid) );
   }
 
 } // of namespace bvr20983

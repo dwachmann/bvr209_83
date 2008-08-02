@@ -23,6 +23,20 @@
 
 namespace bvr20983
 {
+  /**
+   *
+   */
+  class COMPtrBase
+  {
+    public:
+    
+    protected:
+      static void GetInfo(LPCOLESTR lpszProgID,LPCOLESTR lpszIID,LPCLSID pClsId,LPIID pIID);
+  }; // of class COMPtrBase
+
+  /**
+   *
+   */
   class GCOMPtrBase
   {
     public:
@@ -34,7 +48,7 @@ namespace bvr20983
 
     protected:
       static IGlobalInterfaceTable* m_gpGIT;
-  }; // of class COMPtrBase
+  }; // of class GCOMPtrBase
 } // of namespace bvr20983
 #endif // COMPTRBASE_H
 //=================================END-OF-FILE==============================

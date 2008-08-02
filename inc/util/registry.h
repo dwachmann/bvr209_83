@@ -123,6 +123,8 @@ namespace bvr20983
       void  SetKeyValue(LPCTSTR subkey,LPCTSTR name,DWORD lValue);
       void  SetKeyIntValue(LPCTSTR subkey,LPCTSTR name,DWORD value);
 
+      void  QueryKeyValue(LPCTSTR subkey,LPCTSTR name,TString& value);
+
       const RegistryKey& GetKey() const
       { return m_key; }
       

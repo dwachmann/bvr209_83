@@ -26,6 +26,7 @@ namespace bvr20983
   class CGUID
   {
     public:
+      CGUID(const TString& guid);
       CGUID(REFGUID guid);
       
       operator REFGUID() const
@@ -41,7 +42,7 @@ namespace bvr20983
       { return m_guid==guid.m_guid ? true : false; }
 
     private:
-      REFGUID  m_guid;
+      GUID     m_guid;
       TString  m_guidStr;
   }; // of class CGUID
 } // of namespace bvr20983

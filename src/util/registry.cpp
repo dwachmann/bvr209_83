@@ -419,6 +419,20 @@ namespace bvr20983
       m_key.Create();
   } // of Registry::SetKeyIntValue()
 
+
+  /**
+   *
+   */
+  void Registry::QueryKeyValue(LPCTSTR subkey,LPCTSTR name,TString& value)
+  { if( subkey!=NULL )
+    { RegistryKey key(m_key,subkey);
+
+      key.QueryValue(name,value);
+    }
+    else
+      m_key.QueryValue(name,value);
+  } // of Registry::QueryKeyValue()
+
   /**
    *
    */

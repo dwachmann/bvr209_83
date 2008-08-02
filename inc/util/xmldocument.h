@@ -35,7 +35,7 @@ namespace bvr20983
     class CXMLDocument
     {
       public:
-        CXMLDocument();
+        CXMLDocument(LPCOLESTR domDocProgId=_T("Msxml2.DOMDocument.6.0"));
         
         void Load(LPCTSTR fileName);
         

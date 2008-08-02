@@ -312,7 +312,7 @@ End Function
 '
 Sub Init
   Dim f
-  Set xmlDoc = CreateObject("Msxml2.DOMDocument.5.0")
+  Set xmlDoc = CreateObject("Msxml2.DOMDocument.6.0")
   
   xmlDoc.validateOnParse = True
   xmlDoc.async = False
