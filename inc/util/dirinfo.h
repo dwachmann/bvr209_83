@@ -57,6 +57,7 @@ namespace bvr20983
 
         static boolean IsFile(LPCTSTR fName);
         static boolean IsDirectory(LPCTSTR dirName);
+        static boolean CreateDirectory(LPCTSTR dirName);
 
         typedef std::vector<WIN32_FIND_DATA> VDirInfo;
 

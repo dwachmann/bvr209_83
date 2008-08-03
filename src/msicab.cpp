@@ -124,6 +124,18 @@ void dirtest(char* dirName,UINT maxDepth)
   dirInfo.Dump();
 }
 
+void dir1test(char* dirName)
+{ 
+#ifdef _UNICODE
+  TCHAR dirNameU[MAX_PATH];
+
+  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameU, MAX_PATH) );
+
+  DirectoryInfo::CreateDirectory(dirNameU);
+#else
+  DirectoryInfo::CreateDirectory(dirName);
+#endif
+}
 
 /**
  *
@@ -162,6 +174,8 @@ extern "C" int __cdecl main (int argc, char* argv[])
       xmltest(argv[2]);
     else if( strcmp(argv[1],"-dir")==0 && argc>=3 )
       dirtest(argv[2],argc>3 ? atoi(argv[3]) : 0);
+    else if( strcmp(argv[1],"-dir1")==0 && argc>=3 )
+      dir1test(argv[2]);
     else
     { 
 #ifdef _UNICODE

@@ -181,7 +181,7 @@ namespace bvr20983
         ::FindClose(hFind);
 
       return result;
-    }
+    } // of DirectoryInfo::IsFile()
 
     /*
      *
@@ -199,7 +199,50 @@ namespace bvr20983
         ::FindClose(hFind);
         
       return result;
-    }
+    } // of DirectoryInfo::IsDirectory()
+    
+    /*
+     *
+     */
+    boolean DirectoryInfo::CreateDirectory(LPCTSTR dirName)
+    { boolean result = true;
+      
+      if( NULL!=dirName && NULL==_tcschr(dirName,'*') && NULL==_tcschr(dirName,'?') )
+      { TCHAR   path[MAX_PATH];
+        TCHAR   fullPath[MAX_PATH];
+        LPCTSTR searchStart = dirName;
+        LPCTSTR sep         = NULL;
+        LPTSTR  filePart    = NULL;
+        
+        do
+        { sep = _tcschr(searchStart,'\\');
+        
+          if( NULL!=sep )
+          { _tcsncpy_s(path,MAX_PATH,dirName,sep-dirName);
+            
+            searchStart = sep + 1;
+          } // of if
+          else
+            _tcscpy_s(path,MAX_PATH,dirName);
+
+          THROW_LASTERROREXCEPTION1( ::GetFullPathName(path,MAX_PATH,fullPath,&filePart) );
+          
+          boolean isDir = IsDirectory(fullPath);
+          
+          if( !IsDirectory(fullPath) )
+          {
+            if( !::CreateDirectory(fullPath,NULL) )
+            { result = false;
+              break;
+            } // of if
+          
+            LOGGER_INFO<<_T("creating directory <")<<fullPath<<_T(">")<<endl;
+          } // of if
+        } while( sep!=NULL );
+      } // of if
+    
+      return result;
+    } // of DirectoryInfo::CreateDirectory()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/
