@@ -274,10 +274,10 @@ namespace bvr20983
       } // of if
 #ifdef _UNICODE
       else if( DirectoryInfo::IsDirectory(fileNameU) )
-      { DirectoryInfo dirInfo(fileNameU,10);
+      { DirectoryInfo dirInfo(fileNameU,NULL,10);
 #else
       else if( DirectoryInfo::IsDirectory(fileName) )
-      { DirectoryInfo dirInfo(fileName,10);
+      { DirectoryInfo dirInfo(fileName,NULL,10);
 #endif      
 
         CabinetFCIDirInfo dirInfoIter(prefix);

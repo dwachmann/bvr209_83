@@ -37,18 +37,10 @@ namespace bvr20983
     /**
      *
      */
-    struct DumpDirIterator : public DirIterator
-    {
-      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
-    };
-
-    /**
-     *
-     */
     class DirectoryInfo
     {
       public:
-        DirectoryInfo(LPCTSTR baseDirectory,UINT maxDepth=0);
+        DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask=NULL,UINT maxDepth=0);
         ~DirectoryInfo();
 
         void           Dump();
@@ -59,10 +51,13 @@ namespace bvr20983
         static boolean IsDirectory(LPCTSTR dirName);
         static boolean CreateDirectory(LPCTSTR dirName);
 
+        static boolean RemoveDirectory(LPCTSTR dirName,boolean recursive);
+
         typedef std::vector<WIN32_FIND_DATA> VDirInfo;
 
       private:
         TCHAR           m_baseDirectory[MAX_PATH];
+        TCHAR           m_fileMask[MAX_PATH];
         int             m_maxDepth;
         HANDLE          m_hFind;
         WIN32_FIND_DATA m_findData;

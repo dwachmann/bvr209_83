@@ -27,20 +27,38 @@ namespace bvr20983
 {
   namespace util
   {
+    /**
+     *
+     */
+    struct DumpDirIterator : public DirIterator
+    {
+      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+      { dirInfo.DumpFindData();
+  
+        return true;
+      } // of DumpDirIterator::Next()
+    };
 
     /**
      *
      */
-    boolean DumpDirIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
-    { dirInfo.DumpFindData();
+    struct RemoveFileIterator : public DirIterator
+    {
+      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
+    };
 
-      return true;
-    } // of DumpDirIterator::Next()
+    /**
+     *
+     */
+    struct RemoveDirectoryIterator : public DirIterator
+    {
+      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
+    };
 
     /*
      *
      */
-    DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,UINT maxDepth) :
+    DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask,UINT maxDepth) :
       m_hFind(INVALID_HANDLE_VALUE),
       m_maxDepth(maxDepth)
     { ::memset(&m_findData,'\0',sizeof(m_findData));
@@ -49,10 +67,16 @@ namespace bvr20983
       
       THROW_LASTERROREXCEPTION1( ::GetFullPathName(baseDirectory,MAX_PATH,m_baseDirectory,&filePart) );
       
+      if( NULL==fileMask )
+        _tcscpy_s(m_fileMask,MAX_PATH,_T("*.*"));
+      else
+        _tcscpy_s(m_fileMask,MAX_PATH,fileMask);
+      
       TCHAR  dir[MAX_PATH];
       
       _tcscpy_s(dir,MAX_PATH,m_baseDirectory);
-      _tcscat_s(dir,MAX_PATH,_T("\\*.*"));
+      _tcscat_s(dir,MAX_PATH,_T("\\"));
+      _tcscat_s(dir,MAX_PATH,m_fileMask);
 
       m_hFind = ::FindFirstFile(dir, &m_findData);
 
@@ -64,7 +88,7 @@ namespace bvr20983
      *
      */
     DirectoryInfo::~DirectoryInfo()
-    { if( INVALID_HANDLE_VALUE==m_hFind ) 
+    { if( INVALID_HANDLE_VALUE!=m_hFind ) 
         ::FindClose(m_hFind);
 
       m_hFind = NULL;
@@ -142,9 +166,6 @@ namespace bvr20983
           )
           continue;
         
-        if( !iter.Next(*this,m_findData,p) )
-          return;
-      
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && m_maxDepth>0 )
         { TCHAR dir[MAX_PATH];
           
@@ -152,10 +173,13 @@ namespace bvr20983
           _tcscat_s(dir,MAX_PATH,_T("\\"));
           _tcscat_s(dir,MAX_PATH,m_findData.cFileName);
 
-          DirectoryInfo d(dir,m_maxDepth-1);
+          DirectoryInfo d(dir,m_fileMask,m_maxDepth-1);
         
           d.Iterate(iter,p);
         } // of if
+
+        if( !iter.Next(*this,m_findData,p) )
+          return;
 
       } while( ::FindNextFile(m_hFind, &m_findData)!=0 );
 
@@ -177,7 +201,7 @@ namespace bvr20983
 
       result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0;
 
-      if( INVALID_HANDLE_VALUE==hFind ) 
+      if( INVALID_HANDLE_VALUE!=hFind ) 
         ::FindClose(hFind);
 
       return result;
@@ -195,7 +219,7 @@ namespace bvr20983
 
       result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 
-      if( INVALID_HANDLE_VALUE==hFind ) 
+      if( INVALID_HANDLE_VALUE!=hFind ) 
         ::FindClose(hFind);
         
       return result;
@@ -243,6 +267,92 @@ namespace bvr20983
     
       return result;
     } // of DirectoryInfo::CreateDirectory()
+
+    /**
+     *
+     */
+    boolean RemoveFileIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+    { boolean result = true;
+      
+      if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
+      { TCHAR fullPath[MAX_PATH];
+      
+        dirInfo.GetFullName(fullPath,MAX_PATH);
+        
+        if( findData.dwFileAttributes&FILE_ATTRIBUTE_READONLY )
+        { result = ::SetFileAttributes(fullPath,findData.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY)==TRUE;
+        
+          if( !result )
+            return result;
+        } // of if
+        
+        result = ::DeleteFile(fullPath)==TRUE;
+        
+        LOGGER_INFO<<_T("delete file <")<<fullPath<<_T(">:")<<result<<endl;
+      } // of if
+      
+      return result;
+    } // of RemoveFileIterator::Next()
+
+    /**
+     *
+     */
+    boolean RemoveDirectoryIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+    { boolean result = true;
+      
+      if( findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY )
+      { TCHAR fullPath[MAX_PATH];
+      
+        dirInfo.GetFullName(fullPath,MAX_PATH);
+        
+        result = ::RemoveDirectory(fullPath)==TRUE;
+        
+        LOGGER_INFO<<_T("remove directory <")<<fullPath<<_T(">:")<<result<<endl;
+      } // of if
+      
+      return result;
+    } // of RemoveFileIterator::Next()
+
+    /*
+     *
+     */
+    boolean DirectoryInfo::RemoveDirectory(LPCTSTR dirName,boolean recursive)
+    { boolean result = true;
+      
+      if( NULL!=dirName && NULL==_tcschr(dirName,'*') && NULL==_tcschr(dirName,'?') )
+      { TCHAR   fullPath[MAX_PATH];
+        LPTSTR  filePart = NULL;
+        
+        THROW_LASTERROREXCEPTION1( ::GetFullPathName(dirName,MAX_PATH,fullPath,&filePart) );
+        
+        boolean isDir = IsDirectory(fullPath);
+        
+        if( IsDirectory(fullPath) )
+        {
+          if( recursive )
+          { { DirectoryInfo dirInfo(fullPath,NULL,10);
+            
+              RemoveFileIterator fileIterator;
+            
+              dirInfo.Iterate(fileIterator);
+            }
+  
+            { DirectoryInfo dirInfo(fullPath,NULL,10);
+  
+              RemoveDirectoryIterator dirIterator;
+            
+              dirInfo.Iterate(dirIterator);
+            }
+          } // of if
+          
+          result = ::RemoveDirectory(fullPath)==TRUE;
+
+          LOGGER_INFO<<_T("remove directory <")<<fullPath<<_T(">:")<<result<<endl;
+        } // of if
+      } // of if
+    
+      return result;
+    } // of DirectoryInfo::RemoveDirectory()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

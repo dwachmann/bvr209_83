@@ -116,9 +116,9 @@ void dirtest(char* dirName,UINT maxDepth)
 
   THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameU, MAX_PATH) );
 
-  DirectoryInfo dirInfo(dirNameU,maxDepth);
+  DirectoryInfo dirInfo(dirNameU,NULL,maxDepth);
 #else
-  DirectoryInfo dirInfo(dirName,maxDepth);
+  DirectoryInfo dirInfo(dirName,NULL,maxDepth);
 #endif
 
   dirInfo.Dump();
@@ -134,6 +134,19 @@ void dir1test(char* dirName)
   DirectoryInfo::CreateDirectory(dirNameU);
 #else
   DirectoryInfo::CreateDirectory(dirName);
+#endif
+}
+
+void dir2test(char* dirName)
+{ 
+#ifdef _UNICODE
+  TCHAR dirNameU[MAX_PATH];
+
+  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameU, MAX_PATH) );
+
+  DirectoryInfo::RemoveDirectory(dirNameU,true);
+#else
+  DirectoryInfo::RemoveDirectory(dirName,true);
 #endif
 }
 
@@ -176,6 +189,8 @@ extern "C" int __cdecl main (int argc, char* argv[])
       dirtest(argv[2],argc>3 ? atoi(argv[3]) : 0);
     else if( strcmp(argv[1],"-dir1")==0 && argc>=3 )
       dir1test(argv[2]);
+    else if( strcmp(argv[1],"-dir2")==0 && argc>=3 )
+      dir2test(argv[2]);
     else
     { 
 #ifdef _UNICODE
