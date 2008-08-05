@@ -63,12 +63,13 @@ namespace bvr20983
       char m_cabPattern[MAX_PATH];
 
       friend class CabinetFCI;
+      friend class CabinetFDI;
 
       void Init(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk);
       void StoreCabName(char *cabname, int iCab);
-      void DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName);
       
       static void StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName,char* prefix=NULL);
+      static void DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName);
     }; // of struct CabFCIParameter
 
     /**

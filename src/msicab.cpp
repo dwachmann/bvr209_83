@@ -75,7 +75,7 @@ void msicabcreate(int num_files, char *file_list[])
  *
  */
 void msicabextract(int num_files, char *file_list[])
-{ CabinetFDI cabinet(file_list[0]);
+{ CabinetFDI cabinet(file_list[0],num_files>1 ? file_list[1] : NULL);
 
   cabinet.Extract();
 }

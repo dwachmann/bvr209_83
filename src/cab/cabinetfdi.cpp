@@ -23,13 +23,16 @@
 #include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include "cab/cabinetfci.h"
 #include "cab/cabinetfdi.h"
+#include "util/logstream.h"
+#include "util/dirinfo.h"
 #include "exception/bvr20983exception.h"
 #include "exception/cabinetexception.h"
 #include "exception/lasterrorexception.h"
-#include "util/logstream.h"
 
 using namespace std;
+using namespace bvr20983::util;
 
 namespace bvr20983
 {
@@ -48,8 +51,8 @@ namespace bvr20983
       else
       { strcpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),destDir);
        
-        if( NULL==strrchr((LPSTR)m_destinationDir, '\\') )
-          strcpy_s(m_destinationDir,ARRAYSIZE(m_destinationDir),"\\");
+        if( strlen(m_destinationDir)>0 && m_destinationDir[strlen(m_destinationDir)-1]!='\\' )
+          strcat_s(m_destinationDir,ARRAYSIZE(m_destinationDir),"\\");
       } // of else
 
       char* p = strrchr((LPSTR)cabinet_fullpath, '\\');
@@ -106,6 +109,16 @@ namespace bvr20983
       LOGGER_INFO<<_T(" Chained to prev ")<<m_fdici.hasprev;
       LOGGER_INFO<<_T(" / next ")<<m_fdici.hasnext;
       LOGGER_INFO<<endl;
+
+#ifdef _UNICODE
+      TCHAR destinationDirU[MAX_PATH];
+      
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, m_destinationDir, -1,destinationDirU, MAX_PATH) );
+      
+      DirectoryInfo::CreateDirectory(destinationDirU);
+#else
+      DirectoryInfo::CreateDirectory(m_destinationDir);
+#endif      
     } // of CabinetFDI::Init()
 
     /**
@@ -293,10 +306,27 @@ namespace bvr20983
           } // of if
           else
           { LOGGER_INFO<<_T("fdintCOPY_FILE[")<<m_listOnly<<_T("]")<<endl;
-            LOGGER_INFO<<_T("  file name in cabinet = ")<<pfdin->psz1<<endl;
+            LOGGER_INFO<<_T("    file name in cabinet = ")<<pfdin->psz1<<endl;
             LOGGER_INFO<<_T("  uncompressed file size = ")<<pfdin->cb<<endl;
   
             sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
+
+            LOGGER_INFO<<_T("        destination file = ")<<destination<<endl;
+
+            char destDirName[MAX_PATH];            
+            char destFileName[MAX_PATH];
+            
+            CabFCIParameter::DivideFilename(destDirName,destFileName,MAX_PATH,destination);
+            
+#ifdef _UNICODE
+            TCHAR destDirNameU[MAX_PATH];            
+            
+            THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, destDirName, -1,destDirNameU, MAX_PATH) );
+            
+            DirectoryInfo::CreateDirectory(destDirNameU);
+#else
+            DirectoryInfo::CreateDirectory(destDirName);
+#endif            
 
             _sopen_s( &result, destination,_O_BINARY | _O_CREAT | _O_WRONLY | _O_SEQUENTIAL,_SH_DENYNO,_S_IREAD | _S_IWRITE);
           } // of else
