@@ -342,7 +342,7 @@ namespace bvr20983
               break;
             } // of if
           
-            LOGGER_INFO<<_T("creating directory <")<<fullPath<<_T(">")<<endl;
+            LOGGER_DEBUG<<_T("creating directory <")<<fullPath<<_T(">")<<endl;
           } // of if
         } while( sep!=NULL );
       } // of if
@@ -370,7 +370,7 @@ namespace bvr20983
         
         result = ::DeleteFile(fullPath)==TRUE;
         
-        LOGGER_INFO<<_T("delete file <")<<fullPath<<_T(">:")<<result<<endl;
+        LOGGER_DEBUG<<_T("delete file <")<<fullPath<<_T(">:")<<result<<endl;
       } // of if
       
       return result;
@@ -389,7 +389,7 @@ namespace bvr20983
         
         result = ::RemoveDirectory(fullPath)==TRUE;
         
-        LOGGER_INFO<<_T("remove directory <")<<fullPath<<_T(">:")<<result<<endl;
+        LOGGER_DEBUG<<_T("remove directory <")<<fullPath<<_T(">:")<<result<<endl;
       } // of if
       
       return result;
@@ -441,7 +441,7 @@ namespace bvr20983
           
           result = ::RemoveDirectoryW(fullPath)==TRUE;
 
-          LOGGER_INFO<<_T("remove directory <")<<fullPath<<_T(">:")<<result<<endl;
+          LOGGER_DEBUG<<_T("remove directory <")<<fullPath<<_T(">:")<<result<<endl;
         } // of if
       } // of if
     

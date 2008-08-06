@@ -46,11 +46,12 @@ namespace bvr20983
      */
     struct CabFCIParameter
     {
-      static const ULONG MEDIA_SIZE       = 600*1024*1024;
-      static const ULONG FOLDER_THRESHOLD = 600*1024*1024;
+      static const ULONG CDROM_SIZE       = 650*1024*1024;
+      static const ULONG FLOPPY_SIZE      = 1440*1024;
+      static const ULONG FOLDER_THRESHOLD = 650*1024*1024;
       static const int   DISKID           = 42;
 
-      CabFCIParameter(char* cabName=NULL,ULONG mediaSize=MEDIA_SIZE,ULONG folderThreshold=FOLDER_THRESHOLD,int iDisk=DISKID);
+      CabFCIParameter(char* cabName=NULL,ULONG mediaSize=CDROM_SIZE,int iDisk=DISKID,ULONG folderThreshold=FOLDER_THRESHOLD);
 
       PCCAB operator&() 
       { return &m_ccab; }

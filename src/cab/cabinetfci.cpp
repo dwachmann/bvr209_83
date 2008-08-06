@@ -38,7 +38,7 @@ namespace bvr20983
     /**
      *
      */
-    CabFCIParameter::CabFCIParameter(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk)
+    CabFCIParameter::CabFCIParameter(char* cabName,ULONG mediaSize,int iDisk,ULONG folderThreshold)
     { Init(cabName,mediaSize,folderThreshold,iDisk); }
 
     /**

@@ -27,14 +27,18 @@ namespace bvr20983
   class LastErrorException : public BVR20983Exception
   {
     public:
-      LastErrorException(LPCTSTR fileName=NULL,int lineNo=-1)
-      { LastErrorException(::GetLastError(),fileName,lineNo); }
+      LastErrorException(LPCTSTR fileName=NULL,int lineNo=-1) : BVR20983Exception(::GetLastError(),NULL,fileName,lineNo)
+      { LoadMessage(); }
       
-      LastErrorException(LONG errorNo,LPCTSTR fileName=NULL,int lineNo=-1);
+      LastErrorException(LONG errorNo,LPCTSTR fileName=NULL,int lineNo=-1) : BVR20983Exception(errorNo,NULL,fileName,lineNo)
+      { LoadMessage(); }
+      
       ~LastErrorException();
       
     private:
       bool m_IsLastError;
+      
+      void LoadMessage();
   }; // of class LastErrorException
 } // of namespace bvr20983
 

@@ -226,89 +226,81 @@ namespace bvr20983
           } // of else
           break;
         case fdintPARTIAL_FILE: // first file in cabinet is continuation
-          LOGGER_INFO<<_T("fdintPARTIAL_FILE")<<endl;
-          LOGGER_INFO<<_T("   name of continued file            = ")<<pfdin->psz1<<endl;
-          LOGGER_INFO<<_T("   name of cabinet where file starts = ")<<pfdin->psz2<<endl;
-          LOGGER_INFO<<_T("   name of disk where file starts    = ")<<pfdin->psz3<<endl;
+          LOGGER_DEBUG<<_T("fdintPARTIAL_FILE")<<endl;
+          LOGGER_DEBUG<<_T("   name of continued file            = ")<<pfdin->psz1<<endl;
+          LOGGER_DEBUG<<_T("   name of cabinet where file starts = ")<<pfdin->psz2<<endl;
+          LOGGER_DEBUG<<_T("   name of disk where file starts    = ")<<pfdin->psz3<<endl;
           break;
 
         case fdintCOPY_FILE:  // file to be copied
+          LOGGER_INFO<<setw(10)<<setfill(_T(' '))<<pfdin->cb<<_T(" ");
+
+          if( pfdin->attribs & _A_NAME_IS_UTF )
+            LOGGER_INFO<<_T("U");
+          else
+            LOGGER_INFO<<_T("-");
+
+          if( pfdin->attribs & _A_EXEC )
+            LOGGER_INFO<<_T("X");
+          else
+            LOGGER_INFO<<_T("-");
+
+          if( pfdin->attribs & _A_RDONLY )
+            LOGGER_INFO<<_T("R");
+          else
+            LOGGER_INFO<<_T("-");
+
+          if( pfdin->attribs & _A_SYSTEM )
+            LOGGER_INFO<<_T("S");
+          else
+            LOGGER_INFO<<_T("-");
+
+          if( pfdin->attribs & _A_HIDDEN )
+            LOGGER_INFO<<_T("H");
+          else
+            LOGGER_INFO<<_T("-");
+
+          if( pfdin->attribs & _A_ARCH )
+            LOGGER_INFO<<_T("A");
+          else
+            LOGGER_INFO<<_T("-");
+
+          LOGGER_INFO<<_T(" ")<<setw(5)<<setfill(_T(' '))<<pfdin->iFolder<<_T(" ");
+            
+          { FILETIME   datetime;
+            SYSTEMTIME systemTime;
+
+            if( ::DosDateTimeToFileTime(pfdin->date,pfdin->time,&datetime)  && 
+                ::FileTimeToSystemTime(&datetime,&systemTime)
+              )
+            { LOGGER_INFO<<setw(4)<<setfill(_T('0'))<<systemTime.wYear<<_T("/");
+              LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wMonth<<_T("/");
+              LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wDay<<_T(" ");
+
+              LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wHour<<_T(":");
+              LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wMinute<<_T(":");
+              LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wSecond;
+            } // of if
+            else
+            { LOGGER_INFO<<_T(" ")<<pfdin->time;
+              LOGGER_INFO<<_T(" ")<<pfdin->date;
+            } // of else
+          }
+
+          LOGGER_INFO<<_T(" ")<<pfdin->psz1;
+          LOGGER_INFO<<endl;
 
           if( m_listOnly )
-          {
-            LOGGER_INFO<<setw(10)<<setfill(_T(' '))<<pfdin->cb<<_T(" ");
-
-            if( pfdin->attribs & _A_NAME_IS_UTF )
-              LOGGER_INFO<<_T("U");
-            else
-              LOGGER_INFO<<_T("-");
-
-            if( pfdin->attribs & _A_EXEC )
-              LOGGER_INFO<<_T("X");
-            else
-              LOGGER_INFO<<_T("-");
-
-            if( pfdin->attribs & _A_RDONLY )
-              LOGGER_INFO<<_T("R");
-            else
-              LOGGER_INFO<<_T("-");
-
-            if( pfdin->attribs & _A_SYSTEM )
-              LOGGER_INFO<<_T("S");
-            else
-              LOGGER_INFO<<_T("-");
-
-            if( pfdin->attribs & _A_HIDDEN )
-              LOGGER_INFO<<_T("H");
-            else
-              LOGGER_INFO<<_T("-");
-
-            if( pfdin->attribs & _A_ARCH )
-              LOGGER_INFO<<_T("A");
-            else
-              LOGGER_INFO<<_T("-");
-
-            LOGGER_INFO<<_T(" ")<<setw(5)<<setfill(_T(' '))<<pfdin->iFolder<<_T(" ");
-              
-            { FILETIME   datetime;
-              SYSTEMTIME systemTime;
-
-              if( ::DosDateTimeToFileTime(pfdin->date,pfdin->time,&datetime)  && 
-                  ::FileTimeToSystemTime(&datetime,&systemTime)
-                )
-              { LOGGER_INFO<<setw(4)<<setfill(_T('0'))<<systemTime.wYear<<_T("/");
-                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wMonth<<_T("/");
-                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wDay<<_T(" ");
-
-                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wHour<<_T(":");
-                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wMinute<<_T(":");
-                LOGGER_INFO<<setw(2)<<setfill(_T('0'))<<systemTime.wSecond;
-              } // of if
-              else
-              { LOGGER_INFO<<_T(" ")<<pfdin->time;
-                LOGGER_INFO<<_T(" ")<<pfdin->date;
-              } // of else
-            }
-
-            LOGGER_INFO<<_T(" ")<<pfdin->psz1;
-            LOGGER_INFO<<endl;
-
             result = 0;
-          } // of if
           else
-          { LOGGER_INFO<<_T("fdintCOPY_FILE[")<<m_listOnly<<_T("]")<<endl;
-            LOGGER_INFO<<_T("    file name in cabinet = ")<<pfdin->psz1<<endl;
-            LOGGER_INFO<<_T("  uncompressed file size = ")<<pfdin->cb<<endl;
-  
-            sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
+          { sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
 
-            LOGGER_INFO<<_T("        destination file = ")<<destination<<endl;
+            LOGGER_DEBUG<<_T("        destination file = ")<<destination<<endl;
 
             char destDirName[MAX_PATH];            
             char destFileName[MAX_PATH];
             
             DirectoryInfo::DivideFilenameA(destDirName,destFileName,MAX_PATH,destination);
-            
             DirectoryInfo::CreateDirectoryA(destDirName);
 
             _sopen_s( &result, destination,_O_BINARY | _O_CREAT | _O_WRONLY | _O_SEQUENTIAL,_SH_DENYNO,_S_IREAD | _S_IWRITE);
@@ -317,8 +309,8 @@ namespace bvr20983
           break;
 
         case fdintCLOSE_FILE_INFO:  // close the file, set relevant info
-          LOGGER_INFO<<_T("fdintCLOSE_FILE_INFO")<<endl;
-          LOGGER_INFO<<_T("   file name in cabinet = ")<<pfdin->psz1<<endl;
+          LOGGER_DEBUG<<_T("fdintCLOSE_FILE_INFO")<<endl;
+          LOGGER_DEBUG<<_T("   file name in cabinet = ")<<pfdin->psz1<<endl;
 
           _close(pfdin->hf);
 
@@ -354,10 +346,10 @@ namespace bvr20983
           break;
 
         case fdintNEXT_CABINET: // file continued to next cabinet
-          LOGGER_INFO<<_T("fdintNEXT_CABINET")<<endl;
-          LOGGER_INFO<<_T("   name of next cabinet where file continued = ")<<pfdin->psz1<<endl;
-          LOGGER_INFO<<_T("   name of next disk where file continued    = ")<<pfdin->psz2<<endl;
-          LOGGER_INFO<<_T("   cabinet path name                         = ")<<pfdin->psz3<<endl;
+          LOGGER_DEBUG<<_T("fdintNEXT_CABINET")<<endl;
+          LOGGER_DEBUG<<_T("   name of next cabinet where file continued = ")<<pfdin->psz1<<endl;
+          LOGGER_DEBUG<<_T("   name of next disk where file continued    = ")<<pfdin->psz2<<endl;
+          LOGGER_DEBUG<<_T("   cabinet path name                         = ")<<pfdin->psz3<<endl;
           break;
       } // of switch()
 

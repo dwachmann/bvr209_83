@@ -40,48 +40,6 @@ using namespace std;
 /**
  *
  */
-void msicabcreate(int num_files, char *file_list[])
-{ CabFCIParameter cabParameter(file_list[0],1440*1024,1440*1024,43);
-  CabinetFCI      cabinet(cabParameter);
-  
-  for( int i=1;i<num_files;i++ )
-  {
-    if( !strcmp(file_list[i], "+") )
-    { cabinet.Flush(true);
-      
-      continue;
-    } // of if
-    
-    if( DirectoryInfo::IsDirectoryA(file_list[i]) )
-      cabinet.AddFile(file_list[i],file_list[i]);
-    else    
-      cabinet.AddFile(file_list[i]);
-  } // of for
-  
-  cabinet.Flush();
-}
-
-/**
- *
- */
-void msicabextract(int num_files, char *file_list[])
-{ CabinetFDI cabinet(file_list[0],num_files>1 ? file_list[1] : NULL);
-
-  cabinet.Extract();
-}
-
-/**
- *
- */
-void msicablist(int num_files, char *file_list[])
-{ CabinetFDI cabinet(file_list[0]);
-
-  cabinet.List();
-}
-
-/**
- *
- */
 void xmltest(char* fName)
 { CXMLDocument xmlDoc;
 
@@ -99,27 +57,30 @@ void xmltest(char* fName)
 /**
  *
  */
-void dirtest(char* dirName,UINT maxDepth)
-{ DirectoryInfo dirInfo(dirName,NULL,maxDepth);
+void dirtest(char* dirName,char* prefix,UINT maxDepth)
+{ DirectoryInfo dirInfo(dirName,prefix,maxDepth);
 
   dirInfo.Dump();
-}
-
-void dir1test(char* dirName)
-{ DirectoryInfo::CreateDirectoryA(dirName);
-}
-
-void dir2test(char* dirName)
-{ 
-  DirectoryInfo::RemoveDirectoryA(dirName,true);
 }
 
 /**
  *
  */
 void printUsage(LPCSTR progName)
-{ LOGGER_INFO<<_T("Usage:")<<endl;
-  LOGGER_INFO<<_T("  ")<<progName<<_T(" <cabinetname> <dir|file> [<dir|file> ]")<<endl;
+{ LOGGER_INFO<<_T("Usage: "<<progName<<" [options] command cabfile [files] [dest_dir]")<<endl;
+  LOGGER_INFO<<endl;
+  LOGGER_INFO<<_T("Commands:")<<endl;
+  LOGGER_INFO<<_T("   t   List contents of cabinet")<<endl;
+  LOGGER_INFO<<_T("   c   Create new cabinet")<<endl;
+  LOGGER_INFO<<_T("   x   Extract file(s) from cabinet")<<endl;
+  LOGGER_INFO<<endl;
+  LOGGER_INFO<<_T("Options:")<<endl;
+  LOGGER_INFO<<_T("  -i   Set cabinet set ID when creating cabinets")<<endl;
+  LOGGER_INFO<<endl;
+  LOGGER_INFO<<_T("Examples:")<<endl;
+  LOGGER_INFO<<_T("  create cabinet: msicab c data.cab <instdir>")<<endl;
+  LOGGER_INFO<<_T("    list cabinet: msicab t data.cab")<<endl;
+  LOGGER_INFO<<_T(" extract cabinet: msicab x data.cab <extractdir>")<<endl;
 
   ::exit(0);
 } // of printUsage()
@@ -150,21 +111,68 @@ extern "C" int __cdecl main (int argc, char* argv[])
     if( strcmp(argv[1],"-xml")==0 && argc>=3 )
       xmltest(argv[2]);
     else if( strcmp(argv[1],"-dir")==0 && argc>=3 )
-      dirtest(argv[2],argc>3 ? atoi(argv[3]) : 0);
-    else if( strcmp(argv[1],"-dir1")==0 && argc>=3 )
-      dir1test(argv[2]);
-    else if( strcmp(argv[1],"-dir2")==0 && argc>=3 )
-      dir2test(argv[2]);
+      dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? atoi(argv[4]) : 0);
     else
-    { 
-      if( !DirectoryInfo::IsFileA(argv[1]) && argc>2 )
-        msicabcreate(argc-1, &argv[1]);
-      else
-      { if( argc==2 )
-          msicablist(argc-1, &argv[1]);
-        else if( argc>=2 )
-          msicabextract(argc-1, &argv[1]);
-      } // of else
+    { char command = '\0';
+      int  i       = 1;
+      int  diskid  = CabFCIParameter::DISKID;
+    
+      for( ;i<argc;i++ )
+      { 
+        // options
+        if( argv[i][0]=='-' )
+        {
+        } // of if
+        else if( command=='\0' )
+        { command=argv[i][0];
+        
+          if( i==argc-1 )
+            printUsage(argv[0]);
+            
+          i++;
+          
+          break;
+        } // of else if
+      } // of for
+      
+      switch( command )
+      { case 't':
+          { CabinetFDI cabinet(argv[i]);
+
+            cabinet.List();
+          }
+          break;
+        case 'c':
+          { CabFCIParameter cabParameter(argv[i],CabFCIParameter::CDROM_SIZE,diskid);
+            CabinetFCI      cabinet(cabParameter);
+            
+            for( i++;i<argc;i++ )
+            {
+              if( !strcmp(argv[i], "+") )
+              { cabinet.Flush(true);
+                
+                continue;
+              } // of if
+              
+              if( DirectoryInfo::IsDirectoryA(argv[i]) )
+                cabinet.AddFile(argv[i],argv[i]);
+              else    
+                cabinet.AddFile(argv[i]);
+            } // of for
+            
+            cabinet.Flush();
+          }
+          break;
+        case 'x':
+          { CabinetFDI cabinet(argv[i],i+1<argc ? argv[i+1] : NULL);
+          
+            cabinet.Extract();
+          }
+          break;
+        default:
+          printUsage(argv[0]);
+          break;
+      } // of switch
     } // of else
   }
   catch(BVR20983Exception& e)

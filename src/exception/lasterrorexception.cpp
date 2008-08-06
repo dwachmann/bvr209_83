@@ -25,10 +25,8 @@
 /*
  *
  */
-bvr20983::LastErrorException::LastErrorException(LONG errorNo,LPCTSTR fileName,int lineNo) : BVR20983Exception(errno,NULL,fileName,lineNo)
-{ m_errorCode    = (LONG)errorNo;
-  m_IsLastError  = false;
-  m_errorMessage = NULL;
+void bvr20983::LastErrorException::LoadMessage()
+{ m_IsLastError = false;
 
   DWORD result = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
                                  NULL,
@@ -39,7 +37,7 @@ bvr20983::LastErrorException::LastErrorException(LONG errorNo,LPCTSTR fileName,i
                                 );
                                 
   if( result>0 )
-    m_IsLastError  = TRUE;
+    m_IsLastError  = true;
 }
 
 /**
