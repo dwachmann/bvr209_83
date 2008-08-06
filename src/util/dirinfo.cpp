@@ -32,7 +32,7 @@ namespace bvr20983
      */
     struct DumpDirIterator : public DirIterator
     {
-      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
       { dirInfo.DumpFindData();
   
         return true;
@@ -44,7 +44,7 @@ namespace bvr20983
      */
     struct RemoveFileIterator : public DirIterator
     {
-      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
+      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p);
     };
 
     /**
@@ -52,33 +52,57 @@ namespace bvr20983
      */
     struct RemoveDirectoryIterator : public DirIterator
     {
-      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
+      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p);
     };
 
     /*
      *
      */
-    DirectoryInfo::DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask,UINT maxDepth) :
+    DirectoryInfo::DirectoryInfo(LPCSTR baseDirectory,LPCSTR fileMask,UINT maxDepth) :
       m_hFind(INVALID_HANDLE_VALUE),
       m_maxDepth(maxDepth)
+    { WCHAR baseDirectoryW[MAX_PATH];
+      WCHAR fileMaskW[MAX_PATH];
+
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, baseDirectory, -1,baseDirectoryW, MAX_PATH) );
+
+      if( NULL!=fileMask )
+      { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileMask, -1,fileMaskW, MAX_PATH) ); }
+      
+      Init(baseDirectoryW,fileMask!=NULL ? fileMaskW : NULL); 
+    }
+
+    /*
+     *
+     */
+    DirectoryInfo::DirectoryInfo(LPCWSTR baseDirectory,LPCWSTR fileMask,UINT maxDepth) :
+      m_hFind(INVALID_HANDLE_VALUE),
+      m_maxDepth(maxDepth)
+    { Init(baseDirectory,fileMask); }
+
+
+    /*
+     *
+     */
+    void DirectoryInfo::Init(LPCWSTR baseDirectory,LPCWSTR fileMask)
     { ::memset(&m_findData,'\0',sizeof(m_findData));
 
-      LPTSTR filePart = NULL;
+      LPWSTR filePart = NULL;
       
-      THROW_LASTERROREXCEPTION1( ::GetFullPathName(baseDirectory,MAX_PATH,m_baseDirectory,&filePart) );
+      THROW_LASTERROREXCEPTION1( ::GetFullPathNameW(baseDirectory,MAX_PATH,m_baseDirectory,&filePart) );
       
       if( NULL==fileMask )
-        _tcscpy_s(m_fileMask,MAX_PATH,_T("*.*"));
+        ::wcscpy_s(m_fileMask,MAX_PATH,L"*.*");
       else
-        _tcscpy_s(m_fileMask,MAX_PATH,fileMask);
+        ::wcscpy_s(m_fileMask,MAX_PATH,fileMask);
       
-      TCHAR  dir[MAX_PATH];
+      WCHAR  dir[MAX_PATH];
       
-      _tcscpy_s(dir,MAX_PATH,m_baseDirectory);
-      _tcscat_s(dir,MAX_PATH,_T("\\"));
-      _tcscat_s(dir,MAX_PATH,m_fileMask);
+      ::wcscpy_s(dir,MAX_PATH,m_baseDirectory);
+      ::wcscat_s(dir,MAX_PATH,L"\\");
+      ::wcscat_s(dir,MAX_PATH,m_fileMask);
 
-      m_hFind = ::FindFirstFile(dir, &m_findData);
+      m_hFind = ::FindFirstFileW(dir, &m_findData);
 
       if( INVALID_HANDLE_VALUE==m_hFind ) 
         THROW_LASTERROREXCEPTION2
@@ -137,22 +161,41 @@ namespace bvr20983
       Iterate(iter);
     } // of DirectoryInfo::Dump()
 
+    /*
+     *
+     */
+    boolean DirectoryInfo::GetFullNameA(LPSTR path,int cPath)
+    { boolean result = false;
+
+      if( NULL!=path )
+      { WCHAR pathW[MAX_PATH];
+        
+        result = GetFullNameW(pathW,MAX_PATH);
+        
+        if( result )
+        { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, pathW, MAX_PATH,path, cPath, NULL, NULL ) ); }
+      } // of if
+
+      return result;
+    } // of DirectoryInfo::GetFullNameA()
+
 
     /*
      *
      */
-   int DirectoryInfo::GetFullName(LPTSTR path,int cPath)
-   { int result = 0;
+    boolean DirectoryInfo::GetFullNameW(LPWSTR path,int cPath)
+    { boolean result = false;
 
-     if( NULL!=path )
-     { result = _tcscpy_s(path,cPath,m_baseDirectory);
+      if( NULL!=path )
+      { ::wcscpy_s(path,cPath,m_baseDirectory);
+        ::wcscat_s(path,cPath,L"\\");
+        ::wcscat_s(path,cPath,m_findData.cFileName);
+        
+        result = true;
+      } // of if
 
-       result += _tcscat_s(path,cPath,_T("\\"));
-       result += _tcscat_s(path,cPath,m_findData.cFileName);
-     } // of if
-
-     return result;
-   } // of DirectoryInfo::GetFullName()
+      return result;
+    } // of DirectoryInfo::GetFullNameW()
       
 
     /*
@@ -162,16 +205,16 @@ namespace bvr20983
     { do
       { 
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
-            (_tcscmp(m_findData.cFileName,_T("."))==0 || _tcscmp(m_findData.cFileName,_T(".."))==0)
+            (::wcscmp(m_findData.cFileName,L".")==0 || ::wcscmp(m_findData.cFileName,L"..")==0)
           )
           continue;
         
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && m_maxDepth>0 )
-        { TCHAR dir[MAX_PATH];
+        { WCHAR dir[MAX_PATH];
           
-          _tcscpy_s(dir,MAX_PATH,m_baseDirectory);
-          _tcscat_s(dir,MAX_PATH,_T("\\"));
-          _tcscat_s(dir,MAX_PATH,m_findData.cFileName);
+          ::wcscpy_s(dir,MAX_PATH,m_baseDirectory);
+          ::wcscat_s(dir,MAX_PATH,L"\\");
+          ::wcscat_s(dir,MAX_PATH,m_findData.cFileName);
 
           DirectoryInfo d(dir,m_fileMask,m_maxDepth-1);
         
@@ -181,7 +224,7 @@ namespace bvr20983
         if( !iter.Next(*this,m_findData,p) )
           return;
 
-      } while( ::FindNextFile(m_hFind, &m_findData)!=0 );
+      } while( ::FindNextFileW(m_hFind, &m_findData)!=0 );
 
       DWORD dwError = ::GetLastError();
       
@@ -192,30 +235,57 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::IsFile(LPCTSTR fName) 
-    { boolean         result = false;
-      HANDLE          hFind  = INVALID_HANDLE_VALUE;
-      WIN32_FIND_DATA findData;
+    boolean DirectoryInfo::IsFileA(LPCSTR fName) 
+    { WCHAR fNameW[MAX_PATH];
 
-      hFind = ::FindFirstFile(fName, &findData);
-
-      result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0;
-
-      if( INVALID_HANDLE_VALUE!=hFind ) 
-        ::FindClose(hFind);
-
-      return result;
-    } // of DirectoryInfo::IsFile()
+      if( NULL!=fName )
+      { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameW, MAX_PATH) ); }
+      
+      return fName!=NULL ? IsFileW(fNameW) : false;
+    } // of DirectoryInfo::IsFileA()
 
     /*
      *
      */
-    boolean DirectoryInfo::IsDirectory(LPCTSTR dirName)
-    { boolean         result = false;
-      HANDLE          hFind  = INVALID_HANDLE_VALUE;
-      WIN32_FIND_DATA findData;
+    boolean DirectoryInfo::IsFileW(LPCWSTR fName) 
+    { boolean          result = false;
+    
+      if( NULL!=fName )
+      { HANDLE           hFind  = INVALID_HANDLE_VALUE;
+        WIN32_FIND_DATAW findData;
+  
+        hFind = ::FindFirstFileW(fName, &findData);
+  
+        result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0;
+  
+        if( INVALID_HANDLE_VALUE!=hFind ) 
+          ::FindClose(hFind);
+      } // of if
+      
+      return result;
+    } // of DirectoryInfo::IsFileW()
 
-      hFind = ::FindFirstFile(dirName, &findData);
+    /*
+     *
+     */
+    boolean DirectoryInfo::IsDirectoryA(LPCSTR dirName)
+    { WCHAR dirNameW[MAX_PATH];
+
+      if( NULL!=dirName )
+      { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameW, MAX_PATH) ); }
+      
+      return dirName!=NULL ? IsDirectoryW(dirNameW) : false;
+    } // of DirectoryInfo::IsDirectoryA()
+
+    /*
+     *
+     */
+    boolean DirectoryInfo::IsDirectoryW(LPCWSTR dirName)
+    { boolean          result = false;
+      HANDLE           hFind  = INVALID_HANDLE_VALUE;
+      WIN32_FIND_DATAW findData;
+
+      hFind = ::FindFirstFileW(dirName, &findData);
 
       result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 
@@ -223,39 +293,51 @@ namespace bvr20983
         ::FindClose(hFind);
         
       return result;
-    } // of DirectoryInfo::IsDirectory()
+    } // of DirectoryInfo::IsDirectoryW()
+
+    /*
+     *
+     */
+    boolean DirectoryInfo::CreateDirectoryA(LPCSTR dirName)
+    { WCHAR dirNameW[MAX_PATH];
+
+      if( NULL!=dirName )
+      { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameW, MAX_PATH) ); }
+
+      return dirName!=NULL ? CreateDirectoryW(dirNameW) : false;;
+    } // of DirectoryInfo::CreateDirectoryW()
     
     /*
      *
      */
-    boolean DirectoryInfo::CreateDirectory(LPCTSTR dirName)
+    boolean DirectoryInfo::CreateDirectoryW(LPCWSTR dirName)
     { boolean result = true;
       
-      if( NULL!=dirName && NULL==_tcschr(dirName,'*') && NULL==_tcschr(dirName,'?') )
-      { TCHAR   path[MAX_PATH];
-        TCHAR   fullPath[MAX_PATH];
-        LPCTSTR searchStart = dirName;
-        LPCTSTR sep         = NULL;
-        LPTSTR  filePart    = NULL;
+      if( NULL!=dirName && NULL==::wcschr(dirName,L'*') && NULL==::wcschr(dirName,L'?') )
+      { WCHAR   path[MAX_PATH];
+        WCHAR   fullPath[MAX_PATH];
+        LPCWSTR searchStart = dirName;
+        LPCWSTR sep         = NULL;
+        LPWSTR  filePart    = NULL;
         
         do
-        { sep = _tcschr(searchStart,'\\');
+        { sep = ::wcschr(searchStart,L'\\');
         
           if( NULL!=sep )
-          { _tcsncpy_s(path,MAX_PATH,dirName,sep-dirName);
+          { ::wcsncpy_s(path,MAX_PATH,dirName,sep-dirName);
             
             searchStart = sep + 1;
           } // of if
           else
-            _tcscpy_s(path,MAX_PATH,dirName);
+            ::wcscpy_s(path,MAX_PATH,dirName);
 
-          THROW_LASTERROREXCEPTION1( ::GetFullPathName(path,MAX_PATH,fullPath,&filePart) );
+          THROW_LASTERROREXCEPTION1( ::GetFullPathNameW(path,MAX_PATH,fullPath,&filePart) );
           
-          boolean isDir = IsDirectory(fullPath);
+          boolean isDir = IsDirectoryW(fullPath);
           
-          if( !IsDirectory(fullPath) )
+          if( !IsDirectoryW(fullPath) )
           {
-            if( !::CreateDirectory(fullPath,NULL) )
+            if( !::CreateDirectoryW(fullPath,NULL) )
             { result = false;
               break;
             } // of if
@@ -266,18 +348,18 @@ namespace bvr20983
       } // of if
     
       return result;
-    } // of DirectoryInfo::CreateDirectory()
+    } // of DirectoryInfo::CreateDirectoryW()
 
     /**
      *
      */
-    boolean RemoveFileIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+    boolean RemoveFileIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
     { boolean result = true;
       
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
-      { TCHAR fullPath[MAX_PATH];
+      { WCHAR fullPath[MAX_PATH];
       
-        dirInfo.GetFullName(fullPath,MAX_PATH);
+        dirInfo.GetFullNameW(fullPath,MAX_PATH);
         
         if( findData.dwFileAttributes&FILE_ATTRIBUTE_READONLY )
         { result = ::SetFileAttributes(fullPath,findData.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY)==TRUE;
@@ -297,13 +379,13 @@ namespace bvr20983
     /**
      *
      */
-    boolean RemoveDirectoryIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+    boolean RemoveDirectoryIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
     { boolean result = true;
       
       if( findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY )
-      { TCHAR fullPath[MAX_PATH];
+      { WCHAR fullPath[MAX_PATH];
       
-        dirInfo.GetFullName(fullPath,MAX_PATH);
+        dirInfo.GetFullNameW(fullPath,MAX_PATH);
         
         result = ::RemoveDirectory(fullPath)==TRUE;
         
@@ -316,18 +398,30 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::RemoveDirectory(LPCTSTR dirName,boolean recursive)
+    boolean DirectoryInfo::RemoveDirectoryA(LPCSTR dirName,boolean recursive)
+    { WCHAR dirNameW[MAX_PATH];
+
+      if( NULL!=dirName )
+      { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameW, MAX_PATH) ); }
+
+      return dirName!=NULL ? RemoveDirectoryW(dirNameW,recursive) : false;;
+    } // of DirectoryInfo::RemoveDirectoryA()
+
+    /*
+     *
+     */
+    boolean DirectoryInfo::RemoveDirectoryW(LPCWSTR dirName,boolean recursive)
     { boolean result = true;
       
-      if( NULL!=dirName && NULL==_tcschr(dirName,'*') && NULL==_tcschr(dirName,'?') )
-      { TCHAR   fullPath[MAX_PATH];
-        LPTSTR  filePart = NULL;
+      if( NULL!=dirName && NULL==::wcschr(dirName,L'*') && NULL==::wcschr(dirName,L'?') )
+      { WCHAR   fullPath[MAX_PATH];
+        LPWSTR  filePart = NULL;
         
-        THROW_LASTERROREXCEPTION1( ::GetFullPathName(dirName,MAX_PATH,fullPath,&filePart) );
+        THROW_LASTERROREXCEPTION1( ::GetFullPathNameW(dirName,MAX_PATH,fullPath,&filePart) );
         
-        boolean isDir = IsDirectory(fullPath);
+        boolean isDir = IsDirectoryW(fullPath);
         
-        if( IsDirectory(fullPath) )
+        if( IsDirectoryW(fullPath) )
         {
           if( recursive )
           { { DirectoryInfo dirInfo(fullPath,NULL,10);
@@ -345,14 +439,138 @@ namespace bvr20983
             }
           } // of if
           
-          result = ::RemoveDirectory(fullPath)==TRUE;
+          result = ::RemoveDirectoryW(fullPath)==TRUE;
 
           LOGGER_INFO<<_T("remove directory <")<<fullPath<<_T(">:")<<result<<endl;
         } // of if
       } // of if
     
       return result;
-    } // of DirectoryInfo::RemoveDirectory()
+    } // of DirectoryInfo::RemoveDirectoryW()
+
+    /**
+     *
+     */
+    void DirectoryInfo::StripFilenameA(LPSTR strippedFilename, int cbMaxFileName,LPCSTR fileName,LPCSTR prefix)
+    { WCHAR strippedFilenameW[MAX_PATH];
+
+      WCHAR fileNameW[MAX_PATH];
+      WCHAR prefixW[MAX_PATH];
+
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameW, MAX_PATH) );
+
+      if( NULL!=prefix )
+      { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, prefix, -1,prefixW, MAX_PATH) ); }
+      
+      StripFilenameW(strippedFilenameW,MAX_PATH,fileNameW,NULL!=prefix ? prefixW : NULL);
+
+      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, strippedFilenameW, MAX_PATH,strippedFilename, cbMaxFileName, NULL, NULL ) );
+    } // of DirectoryInfo::StripFilenameA()
+
+    /**
+     *
+     */
+    void DirectoryInfo::StripFilenameW(LPWSTR strippedFilename, int cbMaxFileName,LPCWSTR fileName,LPCWSTR prefix)
+    { LPCWSTR prefixStart = NULL!=prefix && prefix[0]!=L'\0' ? ::wcsstr(fileName,prefix) : NULL;
+    
+      if( NULL==prefixStart )
+      { LPCWSTR p = ::wcsrchr(fileName, L'\\');
+      
+        if( p==NULL )
+          ::wcscpy_s(strippedFilename,cbMaxFileName, fileName);
+        else
+          ::wcscpy_s(strippedFilename,cbMaxFileName, p+1);
+      } // of if
+      else
+      { int prefixLen = ::wcslen(prefix);
+        int offset    = *(prefixStart+prefixLen)==L'\\' ? prefixLen+1 : prefixLen;
+
+        ::wcscpy_s(strippedFilename,cbMaxFileName,prefixStart+offset);
+      } // of else
+    } // of CabFCIParameter::StripFilenameW()
+
+    /**
+     *
+     */
+    void DirectoryInfo::DivideFilenameA(LPSTR dirName,LPSTR fName, int cbMaxFileName,LPCSTR fileName)
+    { if( NULL!=dirName && NULL!=fName && NULL!=fileName )
+      { WCHAR fileNameW[MAX_PATH];
+        WCHAR dirNameW[MAX_PATH];
+        WCHAR fNameW[MAX_PATH];
+      
+        THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameW, MAX_PATH) );
+        
+        DivideFilenameW(dirNameW,fNameW,MAX_PATH,fileNameW);
+        
+        THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, dirNameW, MAX_PATH,dirName, cbMaxFileName, NULL, NULL ) );
+        THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, fNameW, MAX_PATH,fName, cbMaxFileName, NULL, NULL ) );
+      } // of if
+    } // of DirectoryInfo::DivideFilenameA()
+
+    /**
+     *
+     */
+    void DirectoryInfo::DivideFilenameW(LPWSTR dirName,LPWSTR fName, int cbMaxFileName,LPCWSTR fileName)
+    { if( NULL!=dirName && NULL!=fName && NULL!=fileName )
+      { LPCWSTR p = ::wcsrchr(fileName, L'\\');
+      
+        if( p==NULL )
+        { ::wcscpy_s(dirName,cbMaxFileName, L".\\");
+          ::wcscpy_s(fName,cbMaxFileName, fileName);
+        } // of if
+        else
+        { ::wcsncpy_s(dirName,cbMaxFileName,fileName,p-fileName);
+          ::wcscat_s(dirName,cbMaxFileName,L"\\");
+          
+          ::wcscpy_s(fName,cbMaxFileName, p+1);
+        } // of else
+      } // of if
+    } // of CabFCIParameter::DivideFilenameW()
+
+#ifdef _UNICODE
+    boolean DirectoryInfo::_GetFullName(LPTSTR path,int cPath)
+    { return GetFullNameW(path,cPath); }
+    
+    boolean DirectoryInfo::_IsFile(LPCTSTR fName)
+    { return IsFileW(fName); }
+    
+    boolean DirectoryInfo::_IsDirectory(LPCTSTR dirName)
+    { return IsDirectoryW(dirName); }
+    
+    boolean DirectoryInfo::_CreateDirectory(LPCTSTR dirName)
+    { return CreateDirectoryW(dirName); }
+
+    boolean DirectoryInfo::_RemoveDirectory(LPCTSTR dirName,boolean recursive)
+    { return RemoveDirectoryW(dirName,recursive); }
+
+    void DirectoryInfo::_StripFilename(LPTSTR strippedFilename, int cbMaxFileName,LPCTSTR fileName,LPCTSTR prefix)
+    { return StripFilenameW(strippedFilename,cbMaxFileName,fileName,prefix); }
+    
+    void DirectoryInfo::_DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName)
+    { return DivideFilenameW(dirName,fName,cbMaxFileName,fileName); }
+#else
+    boolean DirectoryInfo::_GetFullName(LPTSTR path,int cPath)
+    { return GetFullNameA(path,cPath); }
+    
+    boolean DirectoryInfo::_IsFile(LPCTSTR fName)
+    { return IsFileA(fName); }
+    
+    boolean DirectoryInfo::_IsDirectory(LPCTSTR dirName)
+    { return IsDirectoryA(dirName); }
+    
+    boolean DirectoryInfo::_CreateDirectory(LPCTSTR dirName)
+    { return CreateDirectoryA(dirName); }
+  
+    boolean DirectoryInfo::_RemoveDirectory(LPCTSTR dirName,boolean recursive)
+    { return RemoveDirectoryA(dirName); }
+
+    void DirectoryInfo::_StripFilename(LPTSTR strippedFilename, int cbMaxFileName,LPCTSTR fileName,LPCTSTR prefix)
+    { return StripFilenameA(strippedFilename,cbMaxFileName,fileName,prefix); }
+    
+    void DirectoryInfo::_DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName)
+    { return DivideFilenameA(dirName,fName,cbMaxFileName,fileName); }
+#endif        
+
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

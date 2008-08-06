@@ -83,25 +83,15 @@ namespace bvr20983
       strcpy_s(m_ccab.szDisk,CB_MAX_DISK_NAME, "DISK");
     
       if( NULL==cabName )
-      { 
-#ifdef _UNICODE
-        TCHAR tempPath[MAX_PATH];
-
-        ::GetTempPath(MAX_PATH,tempPath);
-        
-        THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, tempPath, MAX_PATH,m_ccab.szCabPath, CB_MAX_CAB_PATH, NULL, NULL ) );
-#else
-        ::GetTempPath(CB_MAX_CAB_PATH,m_ccab.szCabPath);
-#endif
+      { ::GetTempPathA(CB_MAX_CAB_PATH,m_ccab.szCabPath);
       
         strcpy_s(m_ccab.szCab,CB_MAX_CAB_PATH, "msicab.cab");
-        
       } // of if
       else
       { char dirName[MAX_PATH];
         char fileName[MAX_PATH];
         
-        DivideFilename(dirName,fileName,MAX_PATH,cabName);
+        DirectoryInfo::DivideFilenameA(dirName,fileName,MAX_PATH,cabName);
         
         strcpy_s(m_ccab.szCabPath,CB_MAX_CAB_PATH,dirName);
         strcpy_s(m_ccab.szCab,CB_MAX_CAB_PATH,fileName);
@@ -124,45 +114,6 @@ namespace bvr20983
       strcat_s(m_cabPattern,MAX_PATH,"-%d.cab");
     } // of CabFCIParameter::Init()
     
-    /**
-     *
-     */
-    void CabFCIParameter::StripFilename(char* strippedFilename, int cbMaxFileName,char* fileName,char* prefix)
-    { char* prefixStart = NULL!=prefix && prefix[0]!='\0' ? strstr(fileName,prefix) : NULL;
-    
-      if( NULL==prefixStart )
-      { char* p = strrchr(fileName, '\\');
-      
-        if( p==NULL )
-          strcpy_s(strippedFilename,cbMaxFileName, fileName);
-        else
-          strcpy_s(strippedFilename,cbMaxFileName, p+1);
-      } // of if
-      else
-      { int prefixLen = strlen(prefix);
-        int offset    = *(prefixStart+prefixLen)=='\\' ? prefixLen+1 : prefixLen;
-
-        strcpy_s(strippedFilename,cbMaxFileName,prefixStart+offset);
-      } // of else
-    } // of CabFCIParameter::StripFilename()
-
-    /**
-     *
-     */
-    void CabFCIParameter::DivideFilename(char* dirName,char* fName, int cbMaxFileName,char* fileName)
-    { char* p = strrchr(fileName, '\\');
-    
-      if( p==NULL )
-      { strcpy_s(dirName,cbMaxFileName, ".\\");
-        strcpy_s(fName,cbMaxFileName, fileName);
-      } // of if
-      else
-      { strncpy_s(dirName,cbMaxFileName,fileName,p-fileName);
-        strcat_s(dirName,cbMaxFileName,"\\");
-        
-        strcpy_s(fName,cbMaxFileName, p+1);
-      } // of else
-    } // of CabFCIParameter::DivideFilename()
 
     /**
      *
@@ -249,16 +200,8 @@ namespace bvr20983
         return;
       } // of if
         
-#ifdef _UNICODE
-      TCHAR fileNameU[MAX_PATH];
-      
-      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameU, MAX_PATH) );
-      
-      if( DirectoryInfo::IsFile(fileNameU) )
-#else
-      if( DirectoryInfo::IsFile(fileName) )
-#endif      
-      { CabFCIParameter::StripFilename(strippedName,ARRAYSIZE(strippedName),fileName,prefix);
+      if( DirectoryInfo::IsFileA(fileName) )
+      { DirectoryInfo::StripFilenameA(strippedName,ARRAYSIZE(strippedName),fileName,prefix);
   
         if( !FCIAddFile(m_hfci,
                         fileName,           /* file to add */
@@ -272,13 +215,8 @@ namespace bvr20983
           )
           THROW_CABEXCEPTION((FCIERROR)m_erf.erfOper);
       } // of if
-#ifdef _UNICODE
-      else if( DirectoryInfo::IsDirectory(fileNameU) )
-      { DirectoryInfo dirInfo(fileNameU,NULL,10);
-#else
-      else if( DirectoryInfo::IsDirectory(fileName) )
+      else if( DirectoryInfo::IsDirectoryA(fileName) )
       { DirectoryInfo dirInfo(fileName,NULL,10);
-#endif      
 
         CabinetFCIDirInfo dirInfoIter(prefix);
         
@@ -299,7 +237,7 @@ namespace bvr20983
     /**
      *
      */
-    boolean CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)
+    boolean CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
     { CabinetFCI* cab = (CabinetFCI*)p;
 
       LOGGER_DEBUG<<_T("CabinetFCIDirInfo::Next():")<<findData.cFileName<<endl;
@@ -308,19 +246,11 @@ namespace bvr20983
         cab->Flush(true);
 
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
-      { TCHAR path[MAX_PATH];
+      { char path[MAX_PATH];
         
-        dirInfo.GetFullName(path,MAX_PATH);
+        dirInfo.GetFullNameA(path,MAX_PATH);
 
-#ifdef _UNICODE
-        char path1[MAX_PATH];
-
-        THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, path, MAX_PATH,path1, MAX_PATH, NULL, NULL ) );
-
-        cab->AddFile(path1,m_prefix);
-#else
         cab->AddFile(path,m_prefix);
-#endif
       } // of if
 
       return true;
@@ -492,40 +422,18 @@ namespace bvr20983
     { char tempPath[MAX_PATH];
       char tempFName[MAX_PATH];
 
-#ifdef _UNICODE
-      TCHAR tempPathU[MAX_PATH];
-      TCHAR tempFNameU[MAX_PATH];
-
-      if( ::GetTempPath(ARRAYSIZE(tempPathU),tempPathU)==0 )
+      if( ::GetTempPathA(ARRAYSIZE(tempPath),tempPath)==0 )
         return FALSE;
 
-      if( ::GetTempFileName(tempPathU,_T("cab"),0,tempFNameU)==0 )
+      if( ::GetTempFileNameA(tempPath,"cab",0,tempFName)==0 )
         return FALSE;
-        
-      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, tempPathU, MAX_PATH,tempPath, MAX_PATH, NULL, NULL ) );
-      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, tempFNameU, MAX_PATH,tempFName, MAX_PATH, NULL, NULL ) );
-#else
-      if( ::GetTempPath(ARRAYSIZE(tempPath),tempPath)==0 )
-        return FALSE;
-
-      if( ::GetTempFileName(tempPath,_T("cab"),0,tempFName)==0 )
-        return FALSE;
-#endif
 
       if( strlen(tempFName) >= (unsigned)cbTempName )
         return FALSE;
 
       strcpy_s(pszTempName,cbTempName,tempFName);
 
-#ifdef _UNICODE
-      TCHAR pszTempNameU[MAX_PATH];
-
-      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, pszTempName, cbTempName,pszTempNameU, MAX_PATH) );
-
-      ::DeleteFile(pszTempNameU);
-#else
-      ::DeleteFile(pszTempName);
-#endif
+      ::DeleteFileA(pszTempName);
 
       return TRUE;
     } // of CabinetFCI::FCIGetTempFile()
@@ -605,23 +513,13 @@ namespace bvr20983
       DWORD                      attrs;
       int                        hf;
       
-#ifdef _UNICODE
-      TCHAR pszNameU[MAX_PATH];
-
-      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, pszName, MAX_PATH,pszNameU, MAX_PATH) );
-#endif
-    
       /*
        * Need a Win32 type handle to get file date/time
        * using the Win32 APIs, even though the handle we
        * will be returning is of the type compatible with
        * _open
        */
-#ifdef _UNICODE
-      handle = ::CreateFile(pszNameU,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-#else
-      handle = ::CreateFile(pszName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-#endif
+      handle = ::CreateFileA(pszName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,NULL);
        
       if( handle==INVALID_HANDLE_VALUE )
         return -1;
@@ -635,11 +533,7 @@ namespace bvr20983
       ::FileTimeToLocalFileTime(&finfo.ftLastWriteTime, &filetime);
       ::FileTimeToDosDateTime(&filetime,pdate,ptime);
     
-#ifdef _UNICODE
-      attrs = ::GetFileAttributes(pszNameU);
-#else
-      attrs = ::GetFileAttributes(pszName);
-#endif
+      attrs = ::GetFileAttributesA(pszName);
     
       if( attrs==0xFFFFFFFF )
         *pattribs = 0;

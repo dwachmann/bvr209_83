@@ -23,7 +23,6 @@
 #include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include "cab/cabinetfci.h"
 #include "cab/cabinetfdi.h"
 #include "util/logstream.h"
 #include "util/dirinfo.h"
@@ -110,15 +109,7 @@ namespace bvr20983
       LOGGER_INFO<<_T(" / next ")<<m_fdici.hasnext;
       LOGGER_INFO<<endl;
 
-#ifdef _UNICODE
-      TCHAR destinationDirU[MAX_PATH];
-      
-      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, m_destinationDir, -1,destinationDirU, MAX_PATH) );
-      
-      DirectoryInfo::CreateDirectory(destinationDirU);
-#else
-      DirectoryInfo::CreateDirectory(m_destinationDir);
-#endif      
+      DirectoryInfo::CreateDirectoryA(m_destinationDir);
     } // of CabinetFDI::Init()
 
     /**
@@ -316,17 +307,9 @@ namespace bvr20983
             char destDirName[MAX_PATH];            
             char destFileName[MAX_PATH];
             
-            CabFCIParameter::DivideFilename(destDirName,destFileName,MAX_PATH,destination);
+            DirectoryInfo::DivideFilenameA(destDirName,destFileName,MAX_PATH,destination);
             
-#ifdef _UNICODE
-            TCHAR destDirNameU[MAX_PATH];            
-            
-            THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, destDirName, -1,destDirNameU, MAX_PATH) );
-            
-            DirectoryInfo::CreateDirectory(destDirNameU);
-#else
-            DirectoryInfo::CreateDirectory(destDirName);
-#endif            
+            DirectoryInfo::CreateDirectoryA(destDirName);
 
             _sopen_s( &result, destination,_O_BINARY | _O_CREAT | _O_WRONLY | _O_SEQUENTIAL,_SH_DENYNO,_S_IREAD | _S_IWRITE);
           } // of else
@@ -341,17 +324,7 @@ namespace bvr20983
 
           sprintf_s(destination,MAX_PATH, "%s%s", m_destinationDir,pfdin->psz1);
 
-#ifdef _UNICODE
-          TCHAR destinationU[MAX_PATH];
-    
-          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, destination, MAX_PATH,destinationU, MAX_PATH) );
-#endif
-
-#ifdef _UNICODE
-          fHandle = ::CreateFile(destinationU,GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
-#else
-          fHandle = ::CreateFile(destination,GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
-#endif
+          fHandle = ::CreateFileA(destination,GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
 
           if( INVALID_HANDLE_VALUE!=fHandle )
           {
@@ -373,11 +346,7 @@ namespace bvr20983
                * attribute bits are reserved for use by
                * the cabinet format.
                */
-#ifdef _UNICODE
-              ::SetFileAttributes(destinationU,pfdin->attribs & (_A_RDONLY | _A_HIDDEN | _A_SYSTEM | _A_ARCH) );
-#else
-              ::SetFileAttributes(destination,pfdin->attribs & (_A_RDONLY | _A_HIDDEN | _A_SYSTEM | _A_ARCH) );
-#endif
+              ::SetFileAttributesA(destination,pfdin->attribs & (_A_RDONLY | _A_HIDDEN | _A_SYSTEM | _A_ARCH) );
             } // of if
           } // of if
             

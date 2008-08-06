@@ -31,7 +31,7 @@ namespace bvr20983
      */
     struct DirIterator
     {
-      virtual boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p)=0;
+      virtual boolean Next(DirectoryInfo& dirInfo,const _WIN32_FIND_DATAW& findData,void* p)=0;
     };
 
     /**
@@ -40,31 +40,50 @@ namespace bvr20983
     class DirectoryInfo
     {
       public:
-        DirectoryInfo(LPCTSTR baseDirectory,LPCTSTR fileMask=NULL,UINT maxDepth=0);
+        DirectoryInfo(LPCWSTR baseDirectory,LPCWSTR fileMask=NULL,UINT maxDepth=0);
+        DirectoryInfo(LPCSTR baseDirectory,LPCSTR fileMask=NULL,UINT maxDepth=0);
         ~DirectoryInfo();
 
         void           Dump();
         void           Iterate(DirIterator& iter,void* p=NULL);
-        int            GetFullName(LPTSTR path,int cPath);
 
-        static boolean IsFile(LPCTSTR fName);
-        static boolean IsDirectory(LPCTSTR dirName);
-        static boolean CreateDirectory(LPCTSTR dirName);
+        boolean        GetFullNameA(LPSTR path,int cPath);
+        static boolean IsFileA(LPCSTR fName);
+        static boolean IsDirectoryA(LPCSTR dirName);
+        static boolean CreateDirectoryA(LPCSTR dirName);
+        static boolean RemoveDirectoryA(LPCSTR dirName,boolean recursive);
+        static void    StripFilenameA(LPSTR strippedFilename, int cbMaxFileName,LPCSTR fileName,LPCSTR prefix=NULL);
+        static void    DivideFilenameA(LPSTR dirName,LPSTR fName, int cbMaxFileName,LPCSTR fileName);
 
-        static boolean RemoveDirectory(LPCTSTR dirName,boolean recursive);
+        boolean        GetFullNameW(LPWSTR path,int cPath);
+        static boolean IsFileW(LPCWSTR fName);
+        static boolean IsDirectoryW(LPCWSTR dirName);
+        static boolean CreateDirectoryW(LPCWSTR dirName);
+        static boolean RemoveDirectoryW(LPCWSTR dirName,boolean recursive);
+        static void    StripFilenameW(LPWSTR strippedFilename, int cbMaxFileName,LPCWSTR fileName,LPCWSTR prefix=NULL);
+        static void    DivideFilenameW(LPWSTR dirName,LPWSTR fName, int cbMaxFileName,LPCWSTR fileName);
 
-        typedef std::vector<WIN32_FIND_DATA> VDirInfo;
+        boolean        _GetFullName(LPTSTR path,int cPath);
+        static boolean _IsFile(LPCTSTR fName);
+        static boolean _IsDirectory(LPCTSTR dirName);
+        static boolean _CreateDirectory(LPCTSTR dirName);
+        static boolean _RemoveDirectory(LPCTSTR dirName,boolean recursive);
+        static void    _StripFilename(LPTSTR strippedFilename, int cbMaxFileName,LPCTSTR fileName,LPCTSTR prefix=NULL);
+        static void    _DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName);
+
+        typedef std::vector<_WIN32_FIND_DATAW> VDirInfo;
 
       private:
-        TCHAR           m_baseDirectory[MAX_PATH];
-        TCHAR           m_fileMask[MAX_PATH];
-        int             m_maxDepth;
-        HANDLE          m_hFind;
-        WIN32_FIND_DATA m_findData;
+        WCHAR            m_baseDirectory[MAX_PATH];
+        WCHAR            m_fileMask[MAX_PATH];
+        int              m_maxDepth;
+        HANDLE           m_hFind;
+        WIN32_FIND_DATAW m_findData;
 
         friend struct DumpDirIterator;
 
         void            DumpFindData();
+        void            Init(LPCWSTR baseDirectory,LPCWSTR fileMask);
     }; // of class DirectoryInfo
   } // of namespace util
 } // of namespace bvr20983

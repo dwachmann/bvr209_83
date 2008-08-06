@@ -46,23 +46,13 @@ void msicabcreate(int num_files, char *file_list[])
   
   for( int i=1;i<num_files;i++ )
   {
-#ifdef _UNICODE
-    TCHAR fNameU[MAX_PATH];
-  
-    THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, file_list[i], -1,fNameU, MAX_PATH) );
-#endif    
-
     if( !strcmp(file_list[i], "+") )
     { cabinet.Flush(true);
       
       continue;
     } // of if
     
-#ifdef _UNICODE
-    if( DirectoryInfo::IsDirectory(fNameU) )
-#else
-    if( DirectoryInfo::IsDirectory(file_list[i]) )
-#endif
+    if( DirectoryInfo::IsDirectoryA(file_list[i]) )
       cabinet.AddFile(file_list[i],file_list[i]);
     else    
       cabinet.AddFile(file_list[i]);
@@ -110,44 +100,18 @@ void xmltest(char* fName)
  *
  */
 void dirtest(char* dirName,UINT maxDepth)
-{ 
-#ifdef _UNICODE
-  TCHAR dirNameU[MAX_PATH];
-
-  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameU, MAX_PATH) );
-
-  DirectoryInfo dirInfo(dirNameU,NULL,maxDepth);
-#else
-  DirectoryInfo dirInfo(dirName,NULL,maxDepth);
-#endif
+{ DirectoryInfo dirInfo(dirName,NULL,maxDepth);
 
   dirInfo.Dump();
 }
 
 void dir1test(char* dirName)
-{ 
-#ifdef _UNICODE
-  TCHAR dirNameU[MAX_PATH];
-
-  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameU, MAX_PATH) );
-
-  DirectoryInfo::CreateDirectory(dirNameU);
-#else
-  DirectoryInfo::CreateDirectory(dirName);
-#endif
+{ DirectoryInfo::CreateDirectoryA(dirName);
 }
 
 void dir2test(char* dirName)
 { 
-#ifdef _UNICODE
-  TCHAR dirNameU[MAX_PATH];
-
-  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, dirName, -1,dirNameU, MAX_PATH) );
-
-  DirectoryInfo::RemoveDirectory(dirNameU,true);
-#else
-  DirectoryInfo::RemoveDirectory(dirName,true);
-#endif
+  DirectoryInfo::RemoveDirectoryA(dirName,true);
 }
 
 /**
@@ -193,15 +157,7 @@ extern "C" int __cdecl main (int argc, char* argv[])
       dir2test(argv[2]);
     else
     { 
-#ifdef _UNICODE
-      TCHAR fileNameU[MAX_PATH];
-      
-      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[1], -1,fileNameU, MAX_PATH) );
-      
-      if( !DirectoryInfo::IsFile(fileNameU) && argc>2 )
-#else
-      if( !DirectoryInfo::IsFile(argv[1]) && argc>2 )
-#endif
+      if( !DirectoryInfo::IsFileA(argv[1]) && argc>2 )
         msicabcreate(argc-1, &argv[1]);
       else
       { if( argc==2 )
