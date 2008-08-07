@@ -58,6 +58,9 @@ namespace bvr20983
 
       LPCTSTR GetName() const
       { return LevelName[m_level]; }
+      
+      LevelType GetLevel() const
+      { return m_level; }
 
       bool operator>=(const LogLevel& l) const
       { return m_level>=l.m_level; }

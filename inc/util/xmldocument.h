@@ -32,15 +32,16 @@ namespace bvr20983
 
   namespace util
   {
-    class CXMLDocument
+    class XMLDocument
     {
       public:
-        CXMLDocument(LPCOLESTR domDocProgId=_T("Msxml2.DOMDocument.6.0"));
+        XMLDocument(LPCOLESTR domDocProgId=_T("Msxml2.DOMDocument.6.0"));
         
         void Load(LPCTSTR fileName);
+        void XMLDocument::DumpSelection(LPCTSTR xpathExpression);
         
       private:
-        COMPtr<IXMLDOMDocument> m_pXmlDoc;
+        COMPtr<MSXML2::IXMLDOMDocument2> m_pXmlDoc;
 
     }; // of class CGUID
   } // of namespace util

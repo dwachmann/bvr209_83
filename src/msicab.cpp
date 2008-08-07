@@ -40,17 +40,24 @@ using namespace std;
 /**
  *
  */
-void xmltest(char* fName)
-{ CXMLDocument xmlDoc;
+void xmltest(char* fName,char* xPath)
+{ bvr20983::util::XMLDocument xmlDoc;
 
 #ifdef _UNICODE
   TCHAR fNameU[MAX_PATH];
+  TCHAR xPathU[MAX_PATH];
 
   THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameU, MAX_PATH) );
 
+  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, xPath, -1,xPathU, MAX_PATH) );
+
   xmlDoc.Load(fNameU);
+  
+  xmlDoc.DumpSelection(xPathU);
 #else
   xmlDoc.Load(fName);
+
+  xmlDoc.DumpSelection(xPath);
 #endif
 }
 
@@ -104,12 +111,18 @@ extern "C" int __cdecl main (int argc, char* argv[])
     
       verInfo.LogCopyright();
     }
+    
+    LOGGER_FATAL<<_T("a fatal message")<<endl;
+    LOGGER_ERROR<<_T("a error message")<<endl;
+    LOGGER_WARN<<_T("a warn message")<<endl;
+    LOGGER_INFO<<_T("a info message")<<endl;
+    LOGGER_DEBUG<<_T("a debug message")<<endl;
 
     if( argc<2 )
       printUsage(argv[0]);
       
-    if( strcmp(argv[1],"-xml")==0 && argc>=3 )
-      xmltest(argv[2]);
+    if( strcmp(argv[1],"-xml")==0 && argc==4 )
+      xmltest(argv[2],argv[3]);
     else if( strcmp(argv[1],"-dir")==0 && argc>=3 )
       dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? atoi(argv[4]) : 0);
     else

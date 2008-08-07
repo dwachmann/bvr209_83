@@ -86,50 +86,77 @@ namespace bvr20983
     { basic_ostream<TCHAR>& os = *this;
 
       if( dumpPrefix )
-      { os<<_T("[");
-
-        if( m_showSourceFile && NULL!=sourceFileName )
-        { LPCTSTR i = _tcsrchr(sourceFileName,_T('\\'));
-          
-          if( NULL!=i && *(i+1)!=_T('\0') )
-            i += 1;
-          else
-            i = sourceFileName;
-          
-          os<<setw(20)<<left<<i<<_T(",");
+      { 
+        if( m_type==CONSOLE )
+        { 
+          switch( logStreamLevel.GetLevel() )
+          { case LogLevelT::FATAL_LEVEL:
+              ::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY | BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED);
+              break;
+            case LogLevelT::ERROR_LEVEL:
+              ::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
+              break;
+            case LogLevelT::WARN_LEVEL:
+              ::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED|FOREGROUND_GREEN| FOREGROUND_INTENSITY);
+              break;
+            case LogLevelT::INFO_LEVEL:
+              ::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_RED|FOREGROUND_INTENSITY|BACKGROUND_BLUE);
+              break;
+            case LogLevelT::DEBUG_LEVEL:
+              ::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_RED|BACKGROUND_BLUE);
+              break;
+            default:
+              ::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_RED);
+              break;
+          } // of switch
         } // of if
-
-        if( m_showThreadID )
-        { os<<std::hex<<_T("0x")<<(::GetCurrentThreadId())<<_T(","); }
-
-        if( m_showLineNo )
-        { if( sourceLineNo!=-1 )
-            os<<std::setw(5)<<sourceLineNo<<_T(",");
-          else
-            os<<_T("     ,");
-        } // of if
-        
-        if( m_showLevel )
-          os<<std::setw(5)<<logStreamLevel;
-        
-        if( m_showTimestamp )
+        else
         {
-          time_t    ltime;
-          struct tm tm;
+          os<<_T("[");
+  
+          if( m_showSourceFile && NULL!=sourceFileName )
+          { LPCTSTR i = _tcsrchr(sourceFileName,_T('\\'));
+            
+            if( NULL!=i && *(i+1)!=_T('\0') )
+              i += 1;
+            else
+              i = sourceFileName;
+            
+            os<<setw(20)<<left<<i<<_T(",");
+          } // of if
+  
+          if( m_showThreadID )
+          { os<<std::hex<<_T("0x")<<(::GetCurrentThreadId())<<_T(","); }
+  
+          if( m_showLineNo )
+          { if( sourceLineNo!=-1 )
+              os<<std::setw(5)<<sourceLineNo<<_T(",");
+            else
+              os<<_T("     ,");
+          } // of if
           
-          time(&ltime);
-          localtime_s(&tm,&ltime);
+          if( m_showLevel )
+            os<<std::setw(5)<<logStreamLevel;
           
-          TCHAR  strftimebuf[255];
-          _tcsftime(strftimebuf, sizeof(strftimebuf)/sizeof(strftimebuf[0]), _T("%Y-%m-%d-%H:%M:%S"), &tm);
-          
-          os<<_T(",")<<strftimebuf;
-        } // of if
-
-        os<<_T("] ");
-
-        for( int i=0;i<indent;i++ )
-          os<<_T("  ");
+          if( m_showTimestamp )
+          {
+            time_t    ltime;
+            struct tm tm;
+            
+            time(&ltime);
+            localtime_s(&tm,&ltime);
+            
+            TCHAR  strftimebuf[255];
+            _tcsftime(strftimebuf, sizeof(strftimebuf)/sizeof(strftimebuf[0]), _T("%Y-%m-%d-%H:%M:%S"), &tm);
+            
+            os<<_T(",")<<strftimebuf;
+          } // of if
+  
+          os<<_T("] ");
+  
+          for( int i=0;i<indent;i++ )
+            os<<_T("  ");
+        } // of else
       } // of if
       
       os.write(buffer,len);

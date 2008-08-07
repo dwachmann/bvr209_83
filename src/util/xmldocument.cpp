@@ -44,18 +44,21 @@ namespace bvr20983
     /**
      *
      */
-    CXMLDocument::CXMLDocument(LPCOLESTR domDocProgId) :
-      m_pXmlDoc(domDocProgId,_T("IXMLDOMDocument"))
+    XMLDocument::XMLDocument(LPCOLESTR domDocProgId) :
+      m_pXmlDoc(domDocProgId,_T("IXMLDOMDocument2"))
     { 
       THROW_COMEXCEPTION( m_pXmlDoc->put_async(VARIANT_FALSE) );
       THROW_COMEXCEPTION( m_pXmlDoc->put_validateOnParse(VARIANT_TRUE) );
       THROW_COMEXCEPTION( m_pXmlDoc->put_resolveExternals(VARIANT_TRUE) );
+      
+      THROW_COMEXCEPTION( m_pXmlDoc->setProperty(_T("SelectionLanguage"),COVariant(_T("XPath"))) );
+      THROW_COMEXCEPTION( m_pXmlDoc->setProperty(_T("SelectionNamespaces"),COVariant( _T("xmlns:v='http://bvr20983.berlios.de'"))) );
     }
     
     /**
      *
      */
-    void CXMLDocument::Load(LPCTSTR fileName)
+    void XMLDocument::Load(LPCTSTR fileName)
     { VARIANT_BOOL              status;
       COMPtr<IXMLDOMParseError> pXMLErr;
       COMString                 bstr;
@@ -68,16 +71,44 @@ namespace bvr20983
         THROW_COMEXCEPTION( m_pXmlDoc->get_parseError(&pXMLErr) );
         THROW_COMEXCEPTION( pXMLErr->get_reason(&bstr) );
         
-        LOGGER_INFO<<_T("Failed to load DOM from file ")<<fileName<<_T(". ")<<bstr<<endl;
+        LOGGER_ERROR<<_T("Failed to load DOM from file ")<<fileName<<_T(". ")<<bstr<<endl;
       } // of if
+/*
       else
-      { THROW_COMEXCEPTION(m_pXmlDoc->get_xml(&bstr));
+      { 
+        THROW_COMEXCEPTION(m_pXmlDoc->get_xml(&bstr));
 
         LOGGER_INFO<<_T("Parsed XML-Document:")<<endl;
         LOGGER_INFO<<bstr<<endl;
-      } // of else
-    } // of CXMLDocument::Load()
+      } 
+*/
+    } // of XMLDocument::Load()
+    
+     /**
+     *
+     */
+    void XMLDocument::DumpSelection(LPCTSTR xpathExpression)
+    { if( !m_pXmlDoc.IsNULL() )
+      { COMPtr<IXMLDOMElement>  pXMLDocElement;
+        COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+        
+        THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pXMLDocElement) );
+        THROW_COMEXCEPTION( pXMLDocElement->selectNodes(const_cast<LPTSTR>(xpathExpression),&pXMLDomNodeList) );
+        
+        COMPtr<IXMLDOMNode> node;
 
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&node);hr==S_OK;hr = pXMLDomNodeList->nextNode(&node) )
+        { COMString nodeName;
+          COVariant nodeValue;
+          const VARIANT*  v = nodeValue;
+        
+          THROW_COMEXCEPTION( node->get_nodeName(&nodeName) );
+          THROW_COMEXCEPTION( node->get_nodeValue(const_cast<VARIANT*>(v)) );
+          
+          LOGGER_INFO<<nodeName<<_T(":")<<nodeValue<<endl;
+        } // of for
+      } // of if
+    } // of XMLDocument::DumpSelection()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/
