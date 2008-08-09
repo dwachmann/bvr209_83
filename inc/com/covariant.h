@@ -35,7 +35,7 @@ namespace bvr20983
         COVariant();
         COVariant(const VARIANT& value);
         COVariant(const COVariant& value);
-        COVariant(LPCTSTR value);
+        COVariant(LPCTSTR value,UINT len=0);
         COVariant(const TString& value);
         COVariant(bool value);
         ~COVariant();
@@ -53,7 +53,7 @@ namespace bvr20983
         { return &m_value; }
 
         const VARIANT* operator->() const
-        { return &m_value;}
+        { return &m_value; }
 
         HRESULT ChangeType(VARTYPE vt,const COVariant& v);
         HRESULT ChangeType(VARTYPE vt);

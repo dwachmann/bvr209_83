@@ -56,11 +56,24 @@ namespace bvr20983
     /**
      *
      */
-    COVariant::COVariant(LPCTSTR value)
+    COVariant::COVariant(LPCTSTR value,UINT len)
     { ::VariantInit(&m_value);
 
-      V_VT(&m_value)   = VT_BSTR;
+      V_VT(&m_value) = VT_BSTR;
+
+      TCHAR  n = _T('\0');
+      LPTSTR v = NULL;
+      
+      if( NULL!=value && len>0 && len<=::_tcslen(value) )
+      { v      = const_cast<LPTSTR>(value);
+        n      = v[len];
+        v[len] = _T('\0');
+      } // of if
+      
       V_BSTR(&m_value) = ::SysAllocString(value);
+
+      if( NULL!=v )
+        v[len] = n;
     }
 
     /**

@@ -21,6 +21,7 @@
 
 #include "os.h"
 #include "util/comptr.h"
+#include "com/covariant.h"
 
 namespace MSXML2
 {
@@ -37,8 +38,13 @@ namespace bvr20983
       public:
         XMLDocument(LPCOLESTR domDocProgId=_T("Msxml2.DOMDocument.6.0"));
         
-        void Load(LPCTSTR fileName);
-        void XMLDocument::DumpSelection(LPCTSTR xpathExpression);
+        boolean Load(LPCTSTR fileName);
+        void    DumpSelection(LPCTSTR xpathExpression);
+        
+        boolean GetNodeValue(LPCTSTR xpath,COM::COVariant& value);
+        boolean GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value);
+
+        boolean GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value);
         
       private:
         COMPtr<MSXML2::IXMLDOMDocument2> m_pXmlDoc;

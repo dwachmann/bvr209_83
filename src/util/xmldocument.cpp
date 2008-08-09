@@ -25,7 +25,6 @@
 #include "util/logstream.h"
 #include "util/comlogstream.h"
 #include "exception/comexception.h"
-#include "com/covariant.h"
 
 using namespace bvr20983::COM;
 
@@ -58,8 +57,9 @@ namespace bvr20983
     /**
      *
      */
-    void XMLDocument::Load(LPCTSTR fileName)
-    { VARIANT_BOOL              status;
+    boolean XMLDocument::Load(LPCTSTR fileName)
+    { boolean                   result = false;
+      VARIANT_BOOL              status;
       COMPtr<IXMLDOMParseError> pXMLErr;
       COMString                 bstr;
       COVariant                 var(fileName);
@@ -73,6 +73,9 @@ namespace bvr20983
         
         LOGGER_ERROR<<_T("Failed to load DOM from file ")<<fileName<<_T(". ")<<bstr<<endl;
       } // of if
+      else
+        result = true;
+
 /*
       else
       { 
@@ -82,9 +85,10 @@ namespace bvr20983
         LOGGER_INFO<<bstr<<endl;
       } 
 */
+      return result;
     } // of XMLDocument::Load()
     
-     /**
+    /**
      *
      */
     void XMLDocument::DumpSelection(LPCTSTR xpathExpression)
@@ -109,6 +113,100 @@ namespace bvr20983
         } // of for
       } // of if
     } // of XMLDocument::DumpSelection()
+
+    /**
+     *
+     */
+    boolean XMLDocument::GetNodeValue(LPCTSTR xpath,COVariant& value)
+    { boolean result = false;
+    
+      if( !m_pXmlDoc.IsNULL() )
+      { COMPtr<IXMLDOMElement>  pXMLDocElement;
+        
+        THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pXMLDocElement) );
+        
+        COMPtr<IXMLDOMNode> node(pXMLDocElement);
+        
+        result = GetNodeValue(node,xpath,value);
+      } // of if
+      
+      return result;
+    } // of XMLDocument::GetNodeValue()
+    
+    /**
+     *
+     */
+    boolean XMLDocument::GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COVariant& value)
+    { boolean            result = false;
+      COMPtr<IXMLDOMNode> selectedNode;
+    
+      if( !node.IsNULL() )
+      { HRESULT hr = node->selectSingleNode(const_cast<LPTSTR>(xpath),&selectedNode);
+        THROW_COMEXCEPTION( hr );
+        
+        if( hr==S_OK )
+        { const VARIANT* v = value;
+          
+          THROW_COMEXCEPTION( selectedNode->get_nodeValue(const_cast<VARIANT*>(v)) );
+          
+          GetProperty(selectedNode,value);
+  
+          result = true;
+        } // of if
+      } // of if
+      
+      return result;
+    } // of XMLDocument::GetNodeValue()
+
+    /**
+     *
+     */
+    boolean XMLDocument::GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value)
+    { boolean result = false;
+    
+      if( value.GetType()==VT_BSTR )
+      { BSTR    v        = V_BSTR(value);
+        UINT    vLen     = ::SysStringLen(v);
+        boolean evalExpr = false;
+        
+        LPCTSTR propStart = _tcsstr(v,_T("${"));
+        LPCTSTR exprStart = _tcsstr(v,_T("#{"));
+        LPCTSTR begin     = propStart!=NULL && exprStart!=NULL            ? 
+                            (propStart<exprStart ? propStart : exprStart) : 
+                            (propStart!=NULL     ? propStart : exprStart);
+        
+        LPCTSTR end       = _tcsrchr(v,_T('}'));
+        
+        if( NULL!=begin && NULL!=end && end>begin )
+        { COVariant v1(begin+2,end-begin-2);
+          COVariant v2;
+          LPCTSTR   xpath = V_BSTR(v1);
+          
+          result = GetNodeValue(node,xpath,v2);
+
+          if( result && v2.GetType()==VT_BSTR )
+          { BSTR v22          = V_BSTR(v2);
+            UINT resultStrLen = (begin-v) + SysStringLen(v22) + ((v+vLen) - (end+1)) + 1;
+            
+            LPTSTR buffer = (LPTSTR)calloc(resultStrLen,sizeof(TCHAR));
+            
+            if( begin>v )
+              _tcsncat_s(buffer,resultStrLen,v,begin-v);
+              
+            _tcscat_s(buffer,resultStrLen,v22);
+            
+            if( end+1<v+vLen-1 )
+              _tcscat_s(buffer,resultStrLen,end+1);
+              
+            value = buffer;
+            
+            ::free(buffer);
+          } // of if
+        } // of if
+      } // of if
+      
+      return result;
+    } // of XMLDocument::GetProperty()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/
