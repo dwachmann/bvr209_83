@@ -42,22 +42,38 @@ using namespace std;
 /**
  *
  */
-void xmltest(char* fName,char* xPath)
-{ bvr20983::util::XMLDocument xmlDoc;
-  COM::COVariant              value;
-  boolean                     hasValue=false;
+void xmltest(char* fName,char* xPath,char* argv[],int argc)
+{ bvr20983::util::XMLDocument            xmlDoc;
+  COM::COVariant                         value;
+  boolean                                hasValue=false;
+  bvr20983::util::XMLDocument::PropertyM props;
 
 #ifdef _UNICODE
   TCHAR fNameU[MAX_PATH];
   TCHAR xPathU[MAX_PATH];
+  TCHAR propNameU[MAX_PATH];
+  TCHAR propValueU[MAX_PATH];
 
   THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameU, MAX_PATH) );
-
   THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, xPath, -1,xPathU, MAX_PATH) );
+
+  for( int i=0;i<argc && i+1<argc;i+=2 )
+  { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i]  , -1,propNameU, MAX_PATH) );
+    THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i+1], -1,propValueU, MAX_PATH) );
+
+    props.insert( bvr20983::util::XMLDocument::PropertyP(propNameU,propValueU) );
+  } // of for
+
+  xmlDoc.SetProperties(props);
 
   if( xmlDoc.Load(fNameU) )
     hasValue = xmlDoc.GetNodeValue(xPathU,value,true);
 #else
+  for( int i=0;i<argc && i+1<argc;i+=2 )
+    props.insert( bvr20983::util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
+
+  xmlDoc.SetProperties(props);
+
   if(  xmlDoc.Load(fName) )
     hasValue = xmlDoc.GetNodeValue(xPathU,value,true);
 #endif
@@ -122,8 +138,8 @@ extern "C" int __cdecl main (int argc, char* argv[])
     if( argc<2 )
       printUsage(argv[0]);
       
-    if( strcmp(argv[1],"-xml")==0 && argc==4 )
-      xmltest(argv[2],argv[3]);
+    if( strcmp(argv[1],"-xml")==0 && argc>=4 )
+      xmltest(argv[2],argv[3],argc>=5 ? &argv[4] : NULL,argc-4);
     else if( strcmp(argv[1],"-dir")==0 && argc>=3 )
       dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? atoi(argv[4]) : 0);
     else

@@ -36,10 +36,15 @@ namespace bvr20983
     class XMLDocument
     {
       public:
+        typedef std::pair<LPCTSTR, LPCTSTR>        PropertyP;
+        typedef std::map<LPCTSTR, LPCTSTR,strless> PropertyM;
+
         XMLDocument(LPCOLESTR domDocProgId=_T("Msxml2.DOMDocument.6.0"));
         
         boolean Load(LPCTSTR fileName);
         void    DumpSelection(LPCTSTR xpathExpression);
+        void    SetProperties(const PropertyM& prop)
+        { m_properties = prop; }
         
         boolean GetNodeValue(LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
         boolean GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
@@ -48,6 +53,7 @@ namespace bvr20983
         
       private:
         COMPtr<MSXML2::IXMLDOMDocument2> m_pXmlDoc;
+        PropertyM                        m_properties;
 
     }; // of class CGUID
   } // of namespace util

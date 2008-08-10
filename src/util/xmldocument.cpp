@@ -266,7 +266,11 @@ namespace bvr20983
                 evalExpr = false;
               } // of if
               else
-              { if( NULL==_tcschr(xpath,_T('/')) && NULL==_tcschr(xpath,_T(':')) && 
+              { 
+                if( !m_properties.empty() && m_properties.find(xpath)!=m_properties.end() )
+                  xpath = m_properties.find(xpath)->second;
+                
+                if( NULL==_tcschr(xpath,_T('/')) && NULL==_tcschr(xpath,_T(':')) && 
                     NULL==_tcschr(xpath,_T('@')) && NULL==_tcschr(xpath,_T('\'')) &&
                     NULL==_tcschr(xpath,_T('[')) && NULL==_tcschr(xpath,_T(']'))
                   )
@@ -282,7 +286,13 @@ namespace bvr20983
                   } // of if
                 } // of if
 
-                if( GetNodeValue(node,xpath,v2,true) && v2.GetType()==VT_BSTR )
+                boolean getNodeValueResult = false;
+                try
+                { getNodeValueResult = GetNodeValue(node,xpath,v2,true); }
+                catch(COMException&)
+                { }
+
+                if( getNodeValueResult && v2.GetType()==VT_BSTR )
                   prop += V_BSTR(v2);
                 else
                   prop += xpath;
