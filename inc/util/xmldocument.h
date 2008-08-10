@@ -41,8 +41,8 @@ namespace bvr20983
         boolean Load(LPCTSTR fileName);
         void    DumpSelection(LPCTSTR xpathExpression);
         
-        boolean GetNodeValue(LPCTSTR xpath,COM::COVariant& value);
-        boolean GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value);
+        boolean GetNodeValue(LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
+        boolean GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
 
         boolean GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value);
         

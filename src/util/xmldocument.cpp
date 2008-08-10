@@ -117,7 +117,7 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::GetNodeValue(LPCTSTR xpath,COVariant& value)
+    boolean XMLDocument::GetNodeValue(LPCTSTR xpath,COVariant& value,boolean evalProperty)
     { boolean result = false;
     
       if( !m_pXmlDoc.IsNULL() )
@@ -127,7 +127,7 @@ namespace bvr20983
         
         COMPtr<IXMLDOMNode> node(pXMLDocElement);
         
-        result = GetNodeValue(node,xpath,value);
+        result = GetNodeValue(node,xpath,value,evalProperty);
       } // of if
       
       return result;
@@ -136,7 +136,7 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COVariant& value)
+    boolean XMLDocument::GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COVariant& value,boolean evalProperty)
     { boolean            result = false;
       COMPtr<IXMLDOMNode> selectedNode;
     
@@ -149,7 +149,8 @@ namespace bvr20983
           
           THROW_COMEXCEPTION( selectedNode->get_nodeValue(const_cast<VARIANT*>(v)) );
           
-          GetProperty(selectedNode,value);
+          if( evalProperty )
+            GetProperty(selectedNode,value);
   
           result = true;
         } // of if
@@ -173,83 +174,125 @@ namespace bvr20983
         UINT    varDepth = 0;
         LPTSTR  begin    = NULL;
         LPTSTR  end      = NULL;
-        LPTSTR  prop     = NULL;
-        UINT    propLen  = 0;
+        TString prop;
         
         do
         { LPTSTR propStart = _tcsstr(v,_T("${"));
           LPTSTR exprStart = _tcsstr(v,_T("#{"));
+          LPTSTR beginExpr = NULL!=propStart && NULL!=exprStart            ? 
+                            (propStart<exprStart ? propStart : exprStart) : 
+                            (propStart!=NULL     ? propStart : exprStart);
+          LPTSTR endExpr   = _tcschr(v,_T('}'));
           
-          if( NULL!=propStart || NULL!=exprStart )
-            varDepth++;
+          if( NULL!=beginExpr && NULL!=endExpr && beginExpr<endExpr )
+          { varDepth++;
           
-          if( NULL==begin )
-            begin = NULL!=propStart && NULL!=exprStart            ? 
-                    (propStart<exprStart ? propStart : exprStart) : 
-                    (propStart!=NULL     ? propStart : exprStart);
-          
-          if( !evalExpr )
-            evalExpr = NULL!=exprStart;
-                              
-          if( (NULL!=propStart || NULL!=exprStart) && v+2<vEnd )
-            v = begin+2;
-          
-          end = _tcschr(v,_T('}'));
-          
-          if( NULL!=end )
-            varDepth--;
+            if( NULL==begin )
+              begin = beginExpr;
+            
+            if( !evalExpr && 
+                ((NULL==propStart && NULL!=exprStart) || 
+                 (NULL!=propStart && NULL!=exprStart && exprStart<propStart)
+                ) 
+              )
+              evalExpr = NULL!=exprStart;
+                                
+            if( v+2<vEnd )
+              v = beginExpr+2;
+          } // of if          
+          else
+          { end = _tcschr(v,_T('}'));
+
+            if( NULL!=end )
+            { v = end + 1;
+              varDepth--;
+            } // of if
+          } // of else
             
           if( varDepth<=0 )
           { if( NULL!=begin && NULL!=end && end>begin )
             { COVariant v1(begin+2,end-begin-2);
               COVariant v2;
               LPCTSTR   xpath = V_BSTR(v1);
-              
-              GetNodeValue(node,xpath,v2);
-              
-              if( GetNodeValue(node,xpath,v2) && v2.GetType()==VT_BSTR )
-              { BSTR v22 = V_BSTR(v2);
-                
-                propLen  += (begin-v0) + ::SysStringLen(v22);
-                
-                if( NULL==prop )
-                  prop = (LPTSTR)::calloc(propLen+1,sizeof(TCHAR));
-                else
-                  prop = (LPTSTR)::realloc(prop,(propLen+1)*sizeof(TCHAR));
-                
-                if( begin>v0 )
-                  _tcsncat_s(prop,propLen+1,v0,begin-v0);
-                
-                _tcscat_s(prop,propLen+1,v22);
+
+              if( begin>v0 )
+                prop += TString(v0,begin-v0);
+
+              if( evalExpr )
+              { 
+                //
+                // HACK: in the vbs version the vbs eval routine is called
+                // here we only implement the two actual functions that are used in versions.xml
+                //
+                if( _tcsstr(xpath,_T("LCase(\""))==xpath )
+                { TString param(xpath+7,_tcslen(xpath)-2-7);
+                  COVariant v4(param);
+                  
+                  GetProperty(node,v4);
+
+                  LPTSTR s = const_cast<LPTSTR>(V_BSTR(v4));
+
+                  for( ;*s!=_T('\0');s++ )
+                    *s = toupper(*s);
+
+                  prop += V_BSTR(v4);
+                } // of if
+                else if( _tcsstr(xpath,_T("zerofill(\""))==xpath )
+                { TString params( xpath+10,_tcslen(xpath)-1-10);
+
+                  LPCTSTR comma = _tcschr(params.c_str(),_T(','));
+
+                  if( NULL!=comma )
+                  { TString param1(params.c_str(),comma-1-params.c_str());
+                    COVariant v4(param1);
+
+                    GetProperty(node,v4);
+
+                    TString param2(comma+1);
+
+                    int c = _ttoi(param2.c_str()) - _tcslen(V_BSTR(v4));
+
+                    TString result(V_BSTR(v4));
+
+                    for( int i=0;i<c;i++ )
+                      result = _T("0") + result;
+
+                    prop += result.c_str();
+                  } // of if
+                  else
+                    prop += params;
+                } // of else if
+
+                evalExpr = false;
               } // of if
               else
-              { BSTR v11 = V_BSTR(v1);
-                
-                propLen  += (begin-v0) + ::SysStringLen(v11);
-                
-                if( NULL==prop )
-                  prop = (LPTSTR)::calloc(propLen+1,sizeof(TCHAR));
+              { if( NULL==_tcschr(xpath,_T('/')) && NULL==_tcschr(xpath,_T(':')) && 
+                    NULL==_tcschr(xpath,_T('@')) && NULL==_tcschr(xpath,_T('\'')) &&
+                    NULL==_tcschr(xpath,_T('[')) && NULL==_tcschr(xpath,_T(']'))
+                  )
+                { COVariant v3;
+                  TString parameterPath = _T("/v:versions/v:parameter[@name='");
+                  parameterPath += xpath;
+                  parameterPath += _T("']/text()");
+
+                  if( GetNodeValue(parameterPath.c_str(),v3,false) && v3.GetType()==VT_BSTR )
+                  { GetProperty(node,v3);
+
+                    xpath = V_BSTR(v3);
+                  } // of if
+                } // of if
+
+                if( GetNodeValue(node,xpath,v2,true) && v2.GetType()==VT_BSTR )
+                  prop += V_BSTR(v2);
                 else
-                  prop = (LPTSTR)::realloc(prop,(propLen+1)*sizeof(TCHAR));
-                
-                if( begin>v0 )
-                  _tcsncat_s(prop,propLen+1,v0,begin-v0);
-                
-                _tcscat_s(prop,propLen+1,v11);
+                  prop += xpath;
               } // of else
 
               v0 = v = end + 1;
               begin = end = NULL;
             } // of if
             else
-            { propLen  += vEnd - v0;
-              
-              if( NULL==prop )
-                prop = (LPTSTR)::calloc(propLen+1,sizeof(TCHAR));
-              else
-                prop = (LPTSTR)::realloc(prop,(propLen+1)*sizeof(TCHAR));
-                
-              _tcscat_s(prop,propLen+1,v0);
+            { prop += v0;
               
               v0 = v = vEnd;
               begin = end = NULL;
@@ -257,9 +300,7 @@ namespace bvr20983
           } // of if
         } while( v<vEnd );
         
-        value = prop;
-        
-        ::free(prop);
+        value = prop.c_str();
         
         result = true;
       } // of if

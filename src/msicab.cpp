@@ -56,10 +56,10 @@ void xmltest(char* fName,char* xPath)
   THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, xPath, -1,xPathU, MAX_PATH) );
 
   if( xmlDoc.Load(fNameU) )
-    hasValue = xmlDoc.GetNodeValue(xPathU,value);
+    hasValue = xmlDoc.GetNodeValue(xPathU,value,true);
 #else
   if(  xmlDoc.Load(fName) )
-    hasValue = xmlDoc.GetNodeValue(xPathU,value);
+    hasValue = xmlDoc.GetNodeValue(xPathU,value,true);
 #endif
 
   if( hasValue )
