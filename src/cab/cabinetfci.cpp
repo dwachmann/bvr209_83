@@ -188,7 +188,7 @@ namespace bvr20983
     /**
      *
      */
-    void CabinetFCI::AddFile(char* fileName,char* prefix,TCOMP typeCompress)
+    void CabinetFCI::AddFile(LPSTR fileName,LPSTR prefix,LPSTR addFileName,TCOMP typeCompress)
     { char strippedName[MAX_PATH];
       
       if( NULL==m_hfci )
@@ -204,9 +204,11 @@ namespace bvr20983
       { DirectoryInfo::StripFilenameA(strippedName,ARRAYSIZE(strippedName),fileName,prefix);
   
         if( !FCIAddFile(m_hfci,
-                        fileName,           /* file to add */
-                        strippedName,       /* file name in CabinetFCI file */
-                        FALSE,              /* file is not executable */
+                        fileName,                         /* file to add */
+                        addFileName==NULL ? 
+                          strippedName : 
+                          addFileName, /* file name in CabinetFCI file */
+                        FALSE,                            /* file is not executable */
                         fci_getnextcabinet,
                         fci_progress,
                         fci_getopeninfo,

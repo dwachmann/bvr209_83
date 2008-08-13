@@ -102,9 +102,9 @@ namespace bvr20983
         COMPtr<IXMLDOMNode> node;
 
         for( HRESULT hr = pXMLDomNodeList->nextNode(&node);hr==S_OK;hr = pXMLDomNodeList->nextNode(&node) )
-        { COMString nodeName;
-          COVariant nodeValue;
-          const VARIANT*  v = nodeValue;
+        { COMString      nodeName;
+          COVariant      nodeValue;
+          const VARIANT* v = nodeValue;
         
           THROW_COMEXCEPTION( node->get_nodeName(&nodeName) );
           THROW_COMEXCEPTION( node->get_nodeValue(const_cast<VARIANT*>(v)) );
@@ -113,6 +113,18 @@ namespace bvr20983
         } // of for
       } // of if
     } // of XMLDocument::DumpSelection()
+
+    /**
+     *
+     */
+    void XMLDocument::GetSelection(LPCTSTR xpathExpression,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList)
+    { if( !m_pXmlDoc.IsNULL() )
+      { COMPtr<IXMLDOMElement>  pXMLDocElement;
+        
+        THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pXMLDocElement) );
+        THROW_COMEXCEPTION( pXMLDocElement->selectNodes(const_cast<LPTSTR>(xpathExpression),&pXMLDomNodeList) );
+      } // of if
+    } // of XMLDocument::GetSelection()
 
     /**
      *
@@ -137,7 +149,7 @@ namespace bvr20983
      *
      */
     boolean XMLDocument::GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COVariant& value,boolean evalProperty)
-    { boolean            result = false;
+    { boolean             result = false;
       COMPtr<IXMLDOMNode> selectedNode;
     
       if( !node.IsNULL() )

@@ -80,7 +80,7 @@ namespace bvr20983
       ~CabinetFCI();
 
       void Flush(boolean flushFolder=false);
-      void AddFile(char* fileName,char* prefix=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
+      void AddFile(LPSTR fileName,LPSTR prefix=NULL,LPSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
 
     private:
       long            m_totalCompressedSize;    /* total compressed size so far */

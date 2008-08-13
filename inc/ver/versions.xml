@@ -24,7 +24,8 @@
   <parameter name="filenamepattern">#{LCase("${../../../@id}")}.${../../../v:version/@major}.${../../@id}.${../../v:version/@major}</parameter>
   <parameter name="filenamepattern1">#{LCase("${../../@id}")}.${../../v:version/@major}</parameter>
   <parameter name="guidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../@typeid}${../../v:guidid/text()}#{zerofill("${../../v:version/@major}",4)}</parameter>
-  <parameter name="guidpattern1">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-0000#{zerofill("${../../v:version/@major}",4)}FFFF</parameter>
+  <parameter name="typelibguidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-0000#{zerofill("${../../v:version/@major}",4)}FFFF</parameter>
+  <parameter name="msiguidpattern">${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-0100FFFFFFFF</parameter>
 
   <product id="BVR20983">
     <version major="2" minor="0" fix="0" rev="${rev}"/>
@@ -77,6 +78,7 @@
     <component id="sc" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Smartcard Library</name>
+      <msiguid>${msiguidpattern}</msiguid>
       <guidid>0001</guidid>
       <filename>${filenamepattern}</filename>
 
@@ -172,7 +174,7 @@
       
       <typelib id="BVR20983SC">
         <version major="1" minor="0"/>
-        <guid>${guidpattern1}</guid>
+        <guid>${typelibguidpattern}</guid>
         
         <patch template="ibvr20983-0000.tmpl" filename="ibvr20983-0000.odl">
           <pattern><key>@typelibVersion</key>      <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
@@ -221,6 +223,7 @@
     <component id="cc" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Custom Control Library</name>
+      <msiguid>${msiguidpattern}</msiguid>
       <guidid>0002</guidid>
       <filename>${filenamepattern}</filename>
       <patch filename="bvr20983cc-ver.h">
@@ -274,7 +277,7 @@
 
       <typelib id="BVR20983CC">
         <version major="1" minor="0"/>
-        <guid>${guidpattern1}</guid>
+        <guid>${typelibguidpattern}</guid>
 
         <patch template="ibvr20983cc-0000.tmpl" filename="ibvr20983cc-0000.odl">
           <pattern><key>@typelibVersion</key>      <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
@@ -291,6 +294,8 @@
     <component id="msgs" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Product installation and message component</name>
+      <msiguid>${msiguidpattern}</msiguid>
+      <guidid>0003</guidid>
       <filename>${filenamepattern}</filename>
 
       <patch filename="bvr20983msgs-ver.h">
@@ -315,6 +320,8 @@
     <component id="digiclock" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>A digital clock</name>
+      <msiguid>${msiguidpattern}</msiguid>
+      <guidid>0004</guidid>
       <filename>${filenamepattern}</filename>
       <patch filename="digiclock-ver.h">
         <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
@@ -338,6 +345,8 @@
     <component id="lsstg" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list COM structure storage</name>
+      <msiguid>${msiguidpattern}</msiguid>
+      <guidid>0005</guidid>
       <filename>${filenamepattern}</filename>
 
       <patch filename="lsstg-ver.h">
@@ -362,6 +371,8 @@
     <component id="lstypeinfo" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list typeinfo of registered COM objects</name>
+      <msiguid>${msiguidpattern}</msiguid>
+      <guidid>0006</guidid>
       <filename>${filenamepattern}</filename>
 
       <patch filename="lstypeinfo-ver.h">
@@ -386,6 +397,8 @@
     <component id="msicab" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>create cabinet files and necessary msi information</name>
+<!--      <msiguid>${msiguidpattern}</msiguid> -->
+      <guidid>0007</guidid>
       <filename>${filenamepattern}</filename>
 
       <patch filename="msicab-ver.h">

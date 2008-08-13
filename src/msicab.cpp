@@ -29,24 +29,27 @@
 #include "util/versioninfo.h"
 #include "util/xmldocument.h"
 #include "util/dirinfo.h"
+#include "util/comstring.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
 #include "exception/lasterrorexception.h"
+#include <fstream>
 
 using namespace bvr20983;
 using namespace bvr20983::cab;
 using namespace bvr20983::util;
+using namespace bvr20983::COM;
 using namespace std;
 
 /**
  *
  */
 void xmltest(char* fName,char* xPath,char* argv[],int argc)
-{ bvr20983::util::XMLDocument            xmlDoc;
-  COM::COVariant                         value;
-  boolean                                hasValue=false;
-  bvr20983::util::XMLDocument::PropertyM props;
+{ util::XMLDocument            xmlDoc;
+  COVariant                    value;
+  boolean                      hasValue=false;
+  util::XMLDocument::PropertyM props;
 
 #ifdef _UNICODE
   TCHAR fNameU[MAX_PATH];
@@ -61,7 +64,7 @@ void xmltest(char* fName,char* xPath,char* argv[],int argc)
   { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i]  , -1,propNameU, MAX_PATH) );
     THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i+1], -1,propValueU, MAX_PATH) );
 
-    props.insert( bvr20983::util::XMLDocument::PropertyP(propNameU,propValueU) );
+    props.insert( util::XMLDocument::PropertyP(propNameU,propValueU) );
   } // of for
 
   xmlDoc.SetProperties(props);
@@ -70,7 +73,7 @@ void xmltest(char* fName,char* xPath,char* argv[],int argc)
     hasValue = xmlDoc.GetNodeValue(xPathU,value,true);
 #else
   for( int i=0;i<argc && i+1<argc;i+=2 )
-    props.insert( bvr20983::util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
+    props.insert( util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
 
   xmlDoc.SetProperties(props);
 
@@ -82,7 +85,7 @@ void xmltest(char* fName,char* xPath,char* argv[],int argc)
   { LOGGER_INFO<<xPath<<_T(":")<<value<<endl; }
   else
   { LOGGER_INFO<<xPath<<_T(": NOT FOUND")<<endl; }
-}
+} // of xmltest()
 
 /**
  *
@@ -91,7 +94,158 @@ void dirtest(char* dirName,char* prefix,UINT maxDepth)
 { DirectoryInfo dirInfo(dirName,prefix,maxDepth);
 
   dirInfo.Dump();
-}
+} // of dirtest()
+
+/**
+ *
+ */
+void msicab(char* fName,char* argv[],int argc)
+{ util::XMLDocument            xmlDoc;
+  COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
+  COMPtr<IXMLDOMNode>          pNode;
+  util::XMLDocument::PropertyM props;
+
+#ifdef _UNICODE
+  TCHAR fNameU[MAX_PATH];
+  TCHAR propNameU[MAX_PATH];
+  TCHAR propValueU[MAX_PATH];
+
+  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameU, MAX_PATH) );
+
+  for( int i=0;i<argc && i+1<argc;i+=2 )
+  { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i]  , -1,propNameU, MAX_PATH) );
+    THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i+1], -1,propValueU, MAX_PATH) );
+
+    props.insert( util::XMLDocument::PropertyP(propNameU,propValueU) );
+  } // of for
+
+  xmlDoc.SetProperties(props);
+
+  if( xmlDoc.Load(fNameU) )
+  { 
+#else
+  for( int i=0;i<argc && i+1<argc;i+=2 )
+    props.insert( util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
+
+  xmlDoc.SetProperties(props);
+
+  if(  xmlDoc.Load(fName) )
+  { 
+#endif
+    COVariant productidValue;
+
+    if( xmlDoc.GetNodeValue(_T("//v:product/@id"),productidValue,true) )
+    { TString cabfilename = V_BSTR(productidValue);
+      cabfilename += _T(".cab");
+
+#ifdef _UNICODE
+      char cabfilenameA[MAX_PATH];
+
+      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, cabfilename.c_str(), -1,cabfilenameA, MAX_PATH, NULL, NULL ) );
+
+      CabFCIParameter cabParameter(cabfilenameA,CabFCIParameter::CDROM_SIZE);
+#else
+      CabFCIParameter cabParameter(cabfilename.c_str(),CabFCIParameter::CDROM_SIZE);
+#endif
+
+      ofstream componentIDT("component.idt");
+      ofstream fileIDT("file.idt");
+
+      componentIDT<<"Component\tComponentId\tDirectory_\tAttributes\tCondition\tKeyPath"<<endl;
+      componentIDT<<"s72\tS38\ts72\ti2\tS255\tS72"<<endl;
+      componentIDT<<"Component\tComponent"<<endl;
+
+      fileIDT<<"File\tComponent_\tFileName\tFileSize\tVersion\tLanguage\tAttributes\tSequence"<<endl;
+      fileIDT<<"s72\ts72\tl255\ti4\tS72\tS20\tI2\ti2"<<endl;
+      fileIDT<<"File\tFile"<<endl;
+
+      CabinetFCI cabinet(cabParameter);
+
+      LOGGER_INFO<<_T("product:")<<productidValue<<endl; 
+
+      xmlDoc.GetSelection(_T("//v:component[descendant::v:msiguid]/@id"),pXMLDomNodeList);
+
+      int seqNo = 0;
+      
+      if( !pXMLDomNodeList.IsNULL() )
+      { for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr = pXMLDomNodeList->nextNode(&pNode),seqNo++ )
+        { COMString       nodeName;
+          COVariant       nodeValue;
+          const VARIANT*  v = nodeValue;
+        
+          THROW_COMEXCEPTION( pNode->get_nodeName(&nodeName) );
+          THROW_COMEXCEPTION( pNode->get_nodeValue(const_cast<VARIANT*>(v)) );
+
+          if( xmlDoc.GetProperty(pNode,nodeValue) )
+          { LOGGER_INFO<<_T("id:")<<nodeValue<<endl; 
+
+            COVariant filenameValue;
+            TString filename = _T("//v:component[@id='");
+            filename += V_BSTR(nodeValue);
+            filename += _T("']/v:filename/text()");
+
+            COVariant msiguidValue;
+            TString msiguid = _T("//v:component[@id='");
+            msiguid += V_BSTR(nodeValue);
+            msiguid += _T("']/v:msiguid/text()");
+
+            COVariant compTypeValue;
+            TString compType = _T("//v:component[@id='");
+            compType += V_BSTR(nodeValue);
+            compType += _T("']/@type");
+
+            if( xmlDoc.GetNodeValue(filename.c_str(),filenameValue,true) &&
+                xmlDoc.GetNodeValue(msiguid.c_str(),msiguidValue,true) &&
+                xmlDoc.GetNodeValue(compType.c_str(),compTypeValue,true)
+              )
+            { LOGGER_INFO<<_T("  filename:")<<filenameValue<<endl; 
+              LOGGER_INFO<<_T("  comptype:")<<compTypeValue<<endl; 
+              LOGGER_INFO<<_T("   msiguid:")<<msiguidValue<<endl; 
+
+              TString compFileName = V_BSTR(filenameValue);
+              compFileName += _T(".");
+              compFileName += V_BSTR(compTypeValue);
+
+              VersionInfo verInfo(compFileName.c_str());
+
+              LPVOID fileVersion = verInfo.GetStringInfo(_T("FileVersion"));
+
+#ifdef _UNICODE
+              char fNameA[MAX_PATH];
+              char msiguidA[MAX_PATH];
+              char compcabfilename[MAX_PATH];
+              char compIdA[MAX_PATH];
+              char fileVersionA[MAX_PATH];
+
+              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, compFileName.c_str(), -1,fNameA, MAX_PATH, NULL, NULL ) );
+              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, V_BSTR(msiguidValue), -1,msiguidA, MAX_PATH, NULL, NULL ) );
+              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, V_BSTR(nodeValue), -1,compIdA, MAX_PATH, NULL, NULL ) );
+              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, (LPCTSTR)fileVersion, -1,fileVersionA, MAX_PATH, NULL, NULL ) );
+
+              strcpy_s(compcabfilename,MAX_PATH,"_");
+              strcat_s(compcabfilename,MAX_PATH,msiguidA);
+              strcat_s(compcabfilename,MAX_PATH,"_");
+
+              cabinet.AddFile(fNameA,NULL,compcabfilename);
+#else
+              cabinet.AddFile(V_BSTR(filenameValue));
+#endif
+
+
+              componentIDT<<compIdA<<"\t{"<<msiguidA<<'}'<<"\tBVRDIR\t0\t\t"<<compcabfilename<<endl;
+
+              ULONG fileSize=42;
+
+              fileIDT<<compcabfilename<<'\t'<<compIdA<<'\t'<<fNameA<<'\t'<<fileSize<<'\t'<<fileVersionA<<'\t'<<1033<<'\t'<<0<<'\t'<<seqNo<<endl;
+            } // of if
+          } // of if
+        } // of for
+
+        cabinet.Flush();
+      } // of if
+    } // of if
+  } // of if
+} // of msicab()
 
 /**
  *
@@ -140,6 +294,8 @@ extern "C" int __cdecl main (int argc, char* argv[])
       
     if( strcmp(argv[1],"-xml")==0 && argc>=4 )
       xmltest(argv[2],argv[3],argc>=5 ? &argv[4] : NULL,argc-4);
+    if( strcmp(argv[1],"-msicab")==0 && argc>=3 )
+      msicab(argv[2],argc>=4 ? &argv[3] : NULL,argc-3);
     else if( strcmp(argv[1],"-dir")==0 && argc>=3 )
       dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? atoi(argv[4]) : 0);
     else
