@@ -266,6 +266,47 @@ namespace bvr20983
     } // of DirectoryInfo::IsFileW()
 
     /*
+     * 
+     */
+    boolean DirectoryInfo::GetFileSizeA(LPCSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh) 
+    { WCHAR fNameW[MAX_PATH];
+
+      if( NULL!=fName )
+      { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameW, MAX_PATH) ); }
+      
+      return fName!=NULL ? GetFileSizeW(fNameW,nFileSizeLow,nFileSizeHigh) : false;
+    } // of DirectoryInfo::GetFileSizeA()
+
+    /*
+     *
+     */
+    boolean DirectoryInfo::GetFileSizeW(LPCWSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh) 
+    { boolean result = false;
+    
+      if( NULL!=fName )
+      { HANDLE           hFind  = INVALID_HANDLE_VALUE;
+        WIN32_FIND_DATAW findData;
+  
+        hFind = ::FindFirstFileW(fName, &findData);
+  
+        result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0;
+
+        if( result )
+        { if( NULL!=nFileSizeLow )
+            *nFileSizeLow = findData.nFileSizeLow;
+
+          if( NULL!=nFileSizeHigh )
+            *nFileSizeHigh = findData.nFileSizeHigh;
+        } // of if
+  
+        if( INVALID_HANDLE_VALUE!=hFind ) 
+          ::FindClose(hFind);
+      } // of if
+      
+      return result;
+    } // of DirectoryInfo::GetFileSizeW()
+
+    /*
      *
      */
     boolean DirectoryInfo::IsDirectoryA(LPCSTR dirName)
@@ -548,6 +589,9 @@ namespace bvr20983
     
     void DirectoryInfo::_DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName)
     { return DivideFilenameW(dirName,fName,cbMaxFileName,fileName); }
+
+    boolean DirectoryInfo::_GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh)
+    { return GetFileSizeW(fName,nFileSizeLow,nFileSizeHigh); }
 #else
     boolean DirectoryInfo::_GetFullName(LPTSTR path,int cPath)
     { return GetFullNameA(path,cPath); }
@@ -569,6 +613,9 @@ namespace bvr20983
     
     void DirectoryInfo::_DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName)
     { return DivideFilenameA(dirName,fName,cbMaxFileName,fileName); }
+
+    boolean DirectoryInfo::_GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh)
+    { return GetFileSizeA(fName,nFileSizeLow,nFileSizeHigh); }
 #endif        
 
   } // of namespace util

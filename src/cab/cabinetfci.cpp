@@ -38,13 +38,24 @@ namespace bvr20983
     /**
      *
      */
-    CabFCIParameter::CabFCIParameter(char* cabName,ULONG mediaSize,int iDisk,ULONG folderThreshold)
+    CabFCIParameter::CabFCIParameter(LPCWSTR cabName,ULONG mediaSize,int iDisk,ULONG folderThreshold)
+    { char cabNameA[MAX_PATH];
+      
+      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, cabName, -1,cabNameA, MAX_PATH, NULL, NULL ) );
+
+      Init(cabNameA,mediaSize,folderThreshold,iDisk); 
+    }
+
+    /**
+     *
+     */
+    CabFCIParameter::CabFCIParameter(LPCSTR cabName,ULONG mediaSize,int iDisk,ULONG folderThreshold)
     { Init(cabName,mediaSize,folderThreshold,iDisk); }
 
     /**
      *
      */
-    void CabFCIParameter::Init(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk)
+    void CabFCIParameter::Init(LPCSTR cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk)
     { ::memset(&m_ccab, 0, sizeof(CCAB));
 
       m_ccab.cb                = mediaSize;
@@ -118,7 +129,7 @@ namespace bvr20983
     /**
      *
      */
-    void CabFCIParameter::StoreCabName(char *cabname, int iCab)
+    void CabFCIParameter::StoreCabName(LPSTR cabname, int iCab)
     { sprintf_s(cabname,CB_MAX_CAB_PATH, m_cabPattern, iCab);
     } // of CabFCIParameter::StoreCabName()
 
@@ -185,10 +196,48 @@ namespace bvr20983
         THROW_CABEXCEPTION((FCIERROR)m_erf.erfOper);
     } // of void CabinetFCI::Flush()
 
+          
     /**
      *
      */
-    void CabinetFCI::AddFile(LPSTR fileName,LPSTR prefix,LPSTR addFileName,TCOMP typeCompress)
+    void CabinetFCI::AddFile(LPCTSTR fileName,LPCTSTR prefix,LPCTSTR addFileName,TCOMP typeCompress)
+    {
+#ifdef _UNICODE
+      AddFileW(fileName,prefix,addFileName,typeCompress);
+#else
+      AddFileA(fileName,prefix,addFileName,typeCompress);
+#endif
+    } // of CabinetFCI::AddFile()
+
+
+    /**
+     *
+     */
+    void CabinetFCI::AddFileW(LPCWSTR fileName,LPCWSTR prefix,LPCWSTR addFileName,TCOMP typeCompress)
+    { char fileNameA[MAX_PATH];
+      char prefixA[MAX_PATH];
+      char addFileNameA[MAX_PATH];
+
+      if( NULL!=fileName )
+      { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, fileName, -1,fileNameA, MAX_PATH, NULL, NULL ) ); }
+
+      if( NULL!=prefix )
+      { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, prefix, -1,prefixA, MAX_PATH, NULL, NULL ) ); }
+
+      if( NULL!=addFileName )
+      { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, addFileName, -1,addFileNameA, MAX_PATH, NULL, NULL ) ); }
+
+      AddFileA(NULL!=fileName    ? fileNameA    : NULL,
+               NULL!=prefix      ? prefixA      : NULL,
+               NULL!=addFileName ? addFileNameA : NULL,
+               typeCompress
+              );
+    } // of CabinetFCI::AddFileW()
+
+    /**
+     *
+     */
+    void CabinetFCI::AddFileA(LPCSTR fileName,LPCSTR prefix,LPCSTR addFileName,TCOMP typeCompress)
     { char strippedName[MAX_PATH];
       
       if( NULL==m_hfci )
@@ -204,10 +253,10 @@ namespace bvr20983
       { DirectoryInfo::StripFilenameA(strippedName,ARRAYSIZE(strippedName),fileName,prefix);
   
         if( !FCIAddFile(m_hfci,
-                        fileName,                         /* file to add */
+                        const_cast<LPSTR>(fileName),      /* file to add */
                         addFileName==NULL ? 
                           strippedName : 
-                          addFileName, /* file name in CabinetFCI file */
+                          const_cast<LPSTR>(addFileName), /* file name in CabinetFCI file */
                         FALSE,                            /* file is not executable */
                         fci_getnextcabinet,
                         fci_progress,
@@ -225,11 +274,25 @@ namespace bvr20983
         dirInfo.Iterate(dirInfoIter,this);
       } // of else if
     } // of CabinetFCI::AddFile()
-    
+
     /**
      *
      */
-    CabinetFCIDirInfo::CabinetFCIDirInfo(char* prefix)
+    CabinetFCIDirInfo::CabinetFCIDirInfo(LPCWSTR prefix)
+    { char prefixA[MAX_PATH];
+
+      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, prefix, -1,prefixA, MAX_PATH, NULL, NULL ) );
+
+      if( NULL!=prefix )
+        ::strcpy_s(m_prefix,MAX_PATH,prefixA);
+      else
+        ::memset(m_prefix,'\0',MAX_PATH);
+    } // of CabinetFCIDirInfo::CabinetFCIDirInfo()
+
+    /**
+     *
+     */
+    CabinetFCIDirInfo::CabinetFCIDirInfo(LPCSTR prefix)
     { if( NULL!=prefix )
         ::strcpy_s(m_prefix,MAX_PATH,prefix);
       else
@@ -252,7 +315,7 @@ namespace bvr20983
         
         dirInfo.GetFullNameA(path,MAX_PATH);
 
-        cab->AddFile(path,m_prefix);
+        cab->AddFileA(path,m_prefix);
       } // of if
 
       return true;

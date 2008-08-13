@@ -32,7 +32,8 @@ namespace bvr20983
     class CabinetFDI
     {
     public:
-      CabinetFDI(LPCSTR cabinet_fullpath,LPCSTR destDir=NULL);
+      CabinetFDI(LPCWSTR cabinet_fullpath,LPCWSTR destDir=NULL);
+      CabinetFDI(LPCSTR  cabinet_fullpath,LPCSTR destDir=NULL);
       ~CabinetFDI();
 
        void Extract();
@@ -57,7 +58,7 @@ namespace bvr20983
       static FNSEEK(fdi_fileseek);
       static FNFDINOTIFY(fdi_notification);
 
-      void Init();
+      void Init(LPCSTR cabinet_fullpath,LPCSTR destDir);
       int  FDINotification(FDINOTIFICATIONTYPE fdint,PFDINOTIFICATION pfdin);
     }; // of class CabinetFDI
   } // of namespace cab

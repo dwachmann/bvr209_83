@@ -45,41 +45,19 @@ using namespace std;
 /**
  *
  */
-void xmltest(char* fName,char* xPath,char* argv[],int argc)
+void xmltest(LPTSTR fName,LPTSTR xPath,LPTSTR argv[],int argc)
 { util::XMLDocument            xmlDoc;
   COVariant                    value;
   boolean                      hasValue=false;
   util::XMLDocument::PropertyM props;
 
-#ifdef _UNICODE
-  TCHAR fNameU[MAX_PATH];
-  TCHAR xPathU[MAX_PATH];
-  TCHAR propNameU[MAX_PATH];
-  TCHAR propValueU[MAX_PATH];
-
-  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameU, MAX_PATH) );
-  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, xPath, -1,xPathU, MAX_PATH) );
-
-  for( int i=0;i<argc && i+1<argc;i+=2 )
-  { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i]  , -1,propNameU, MAX_PATH) );
-    THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i+1], -1,propValueU, MAX_PATH) );
-
-    props.insert( util::XMLDocument::PropertyP(propNameU,propValueU) );
-  } // of for
-
-  xmlDoc.SetProperties(props);
-
-  if( xmlDoc.Load(fNameU) )
-    hasValue = xmlDoc.GetNodeValue(xPathU,value,true);
-#else
   for( int i=0;i<argc && i+1<argc;i+=2 )
     props.insert( util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
 
   xmlDoc.SetProperties(props);
 
-  if(  xmlDoc.Load(fName) )
-    hasValue = xmlDoc.GetNodeValue(xPathU,value,true);
-#endif
+  if( xmlDoc.Load(fName) )
+    hasValue = xmlDoc.GetNodeValue(xPath,value,true);
 
   if( hasValue )
   { LOGGER_INFO<<xPath<<_T(":")<<value<<endl; }
@@ -90,7 +68,7 @@ void xmltest(char* fName,char* xPath,char* argv[],int argc)
 /**
  *
  */
-void dirtest(char* dirName,char* prefix,UINT maxDepth)
+void dirtest(LPTSTR dirName,LPTSTR prefix,UINT maxDepth)
 { DirectoryInfo dirInfo(dirName,prefix,maxDepth);
 
   dirInfo.Dump();
@@ -99,65 +77,42 @@ void dirtest(char* dirName,char* prefix,UINT maxDepth)
 /**
  *
  */
-void msicab(char* fName,char* argv[],int argc)
+void msicab(LPTSTR fName,LPTSTR argv[],int argc)
 { util::XMLDocument            xmlDoc;
   COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
   COMPtr<IXMLDOMNode>          pNode;
   util::XMLDocument::PropertyM props;
 
-#ifdef _UNICODE
-  TCHAR fNameU[MAX_PATH];
-  TCHAR propNameU[MAX_PATH];
-  TCHAR propValueU[MAX_PATH];
-
-  THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fName, -1,fNameU, MAX_PATH) );
-
-  for( int i=0;i<argc && i+1<argc;i+=2 )
-  { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i]  , -1,propNameU, MAX_PATH) );
-    THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, argv[i+1], -1,propValueU, MAX_PATH) );
-
-    props.insert( util::XMLDocument::PropertyP(propNameU,propValueU) );
-  } // of for
-
-  xmlDoc.SetProperties(props);
-
-  if( xmlDoc.Load(fNameU) )
-  { 
-#else
   for( int i=0;i<argc && i+1<argc;i+=2 )
     props.insert( util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
 
   xmlDoc.SetProperties(props);
 
-  if(  xmlDoc.Load(fName) )
+  if( xmlDoc.Load(fName) )
   { 
-#endif
     COVariant productidValue;
 
     if( xmlDoc.GetNodeValue(_T("//v:product/@id"),productidValue,true) )
     { TString cabfilename = V_BSTR(productidValue);
       cabfilename += _T(".cab");
 
-#ifdef _UNICODE
-      char cabfilenameA[MAX_PATH];
-
-      THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, cabfilename.c_str(), -1,cabfilenameA, MAX_PATH, NULL, NULL ) );
-
-      CabFCIParameter cabParameter(cabfilenameA,CabFCIParameter::CDROM_SIZE);
-#else
       CabFCIParameter cabParameter(cabfilename.c_str(),CabFCIParameter::CDROM_SIZE);
+
+#ifdef _UNICODE
+      wofstream componentIDT(_T("component.idt"));
+      wofstream fileIDT(_T("file.idt"));
+#else
+      ofstream componentIDT(_T("component.idt"));
+      ofstream fileIDT(_T("file.idt"));
 #endif
 
-      ofstream componentIDT("component.idt");
-      ofstream fileIDT("file.idt");
+      componentIDT<<_T("Component\tComponentId\tDirectory_\tAttributes\tCondition\tKeyPath")<<endl;
+      componentIDT<<_T("s72\tS38\ts72\ti2\tS255\tS72")<<endl;
+      componentIDT<<_T("Component\tComponent")<<endl;
 
-      componentIDT<<"Component\tComponentId\tDirectory_\tAttributes\tCondition\tKeyPath"<<endl;
-      componentIDT<<"s72\tS38\ts72\ti2\tS255\tS72"<<endl;
-      componentIDT<<"Component\tComponent"<<endl;
-
-      fileIDT<<"File\tComponent_\tFileName\tFileSize\tVersion\tLanguage\tAttributes\tSequence"<<endl;
-      fileIDT<<"s72\ts72\tl255\ti4\tS72\tS20\tI2\ti2"<<endl;
-      fileIDT<<"File\tFile"<<endl;
+      fileIDT<<_T("File\tComponent_\tFileName\tFileSize\tVersion\tLanguage\tAttributes\tSequence")<<endl;
+      fileIDT<<_T("s72\ts72\tl255\ti4\tS72\tS20\tI2\ti2")<<endl;
+      fileIDT<<_T("File\tFile")<<endl;
 
       CabinetFCI cabinet(cabParameter);
 
@@ -179,19 +134,21 @@ void msicab(char* fName,char* argv[],int argc)
           if( xmlDoc.GetProperty(pNode,nodeValue) )
           { LOGGER_INFO<<_T("id:")<<nodeValue<<endl; 
 
+            TString compId(V_BSTR(nodeValue));
+
             COVariant filenameValue;
             TString filename = _T("//v:component[@id='");
-            filename += V_BSTR(nodeValue);
+            filename += compId;
             filename += _T("']/v:filename/text()");
 
             COVariant msiguidValue;
             TString msiguid = _T("//v:component[@id='");
-            msiguid += V_BSTR(nodeValue);
+            msiguid += compId;
             msiguid += _T("']/v:msiguid/text()");
 
             COVariant compTypeValue;
             TString compType = _T("//v:component[@id='");
-            compType += V_BSTR(nodeValue);
+            compType += compId;
             compType += _T("']/@type");
 
             if( xmlDoc.GetNodeValue(filename.c_str(),filenameValue,true) &&
@@ -208,35 +165,25 @@ void msicab(char* fName,char* argv[],int argc)
 
               VersionInfo verInfo(compFileName.c_str());
 
-              LPVOID fileVersion = verInfo.GetStringInfo(_T("FileVersion"));
+              LPCTSTR fileVersion = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
 
-#ifdef _UNICODE
-              char fNameA[MAX_PATH];
-              char msiguidA[MAX_PATH];
-              char compcabfilename[MAX_PATH];
-              char compIdA[MAX_PATH];
-              char fileVersionA[MAX_PATH];
+              TCHAR compcabfilename[MAX_PATH];
 
-              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, compFileName.c_str(), -1,fNameA, MAX_PATH, NULL, NULL ) );
-              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, V_BSTR(msiguidValue), -1,msiguidA, MAX_PATH, NULL, NULL ) );
-              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, V_BSTR(nodeValue), -1,compIdA, MAX_PATH, NULL, NULL ) );
-              THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, (LPCTSTR)fileVersion, -1,fileVersionA, MAX_PATH, NULL, NULL ) );
+              _tcscpy_s(compcabfilename,MAX_PATH,_T("_"));
+              _tcscat_s(compcabfilename,MAX_PATH,V_BSTR(msiguidValue));
+              _tcscat_s(compcabfilename,MAX_PATH,_T("_"));
 
-              strcpy_s(compcabfilename,MAX_PATH,"_");
-              strcat_s(compcabfilename,MAX_PATH,msiguidA);
-              strcat_s(compcabfilename,MAX_PATH,"_");
+              DWORD fileSize=0;
 
-              cabinet.AddFile(fNameA,NULL,compcabfilename);
-#else
-              cabinet.AddFile(V_BSTR(filenameValue));
-#endif
+              DirectoryInfo::_GetFileSize(compFileName.c_str(),&fileSize);
 
+              cabinet.AddFile(compFileName.c_str(),NULL,compcabfilename);
 
-              componentIDT<<compIdA<<"\t{"<<msiguidA<<'}'<<"\tBVRDIR\t0\t\t"<<compcabfilename<<endl;
+              componentIDT<<compId<<_T("\t{")<<V_BSTR(msiguidValue)<<_T('}')<<_T("\tBVRDIR\t0\t\t")<<compcabfilename<<endl;
 
-              ULONG fileSize=42;
+              
 
-              fileIDT<<compcabfilename<<'\t'<<compIdA<<'\t'<<fNameA<<'\t'<<fileSize<<'\t'<<fileVersionA<<'\t'<<1033<<'\t'<<0<<'\t'<<seqNo<<endl;
+              fileIDT<<compcabfilename<<_T('\t')<<compId<<_T('\t')<<compFileName.c_str()<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
             } // of if
           } // of if
         } // of for
@@ -250,7 +197,7 @@ void msicab(char* fName,char* argv[],int argc)
 /**
  *
  */
-void printUsage(LPCSTR progName)
+void printUsage(LPCTSTR progName)
 { LOGGER_INFO<<_T("Usage: "<<progName<<" [options] command cabfile [files] [dest_dir]")<<endl;
   LOGGER_INFO<<endl;
   LOGGER_INFO<<_T("Commands:")<<endl;
@@ -272,7 +219,7 @@ void printUsage(LPCSTR progName)
 /**
  *
  */
-extern "C" int __cdecl main (int argc, char* argv[])
+extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
 { ::CoInitialize(NULL);
   
   LogStreamT::ReadVersionInfo();
@@ -292,24 +239,24 @@ extern "C" int __cdecl main (int argc, char* argv[])
     if( argc<2 )
       printUsage(argv[0]);
       
-    if( strcmp(argv[1],"-xml")==0 && argc>=4 )
+    if( _tcscmp(argv[1],_T("-xml"))==0 && argc>=4 )
       xmltest(argv[2],argv[3],argc>=5 ? &argv[4] : NULL,argc-4);
-    if( strcmp(argv[1],"-msicab")==0 && argc>=3 )
+    if( _tcscmp(argv[1],_T("-msicab"))==0 && argc>=3 )
       msicab(argv[2],argc>=4 ? &argv[3] : NULL,argc-3);
-    else if( strcmp(argv[1],"-dir")==0 && argc>=3 )
-      dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? atoi(argv[4]) : 0);
+    else if( _tcscmp(argv[1],_T("-dir"))==0 && argc>=3 )
+      dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? _tstoi(argv[4]) : 0);
     else
-    { char command = '\0';
-      int  i       = 1;
-      int  diskid  = CabFCIParameter::DISKID;
+    { TCHAR command = _T('\0');
+      int   i       = 1;
+      int   diskid  = CabFCIParameter::DISKID;
     
       for( ;i<argc;i++ )
       { 
         // options
-        if( argv[i][0]=='-' )
+        if( argv[i][0]==_T('-') )
         {
         } // of if
-        else if( command=='\0' )
+        else if( command==_T('\0') )
         { command=argv[i][0];
         
           if( i==argc-1 )
@@ -334,13 +281,13 @@ extern "C" int __cdecl main (int argc, char* argv[])
             
             for( i++;i<argc;i++ )
             {
-              if( !strcmp(argv[i], "+") )
+              if( !_tcscmp(argv[i], _T("+")) )
               { cabinet.Flush(true);
                 
                 continue;
               } // of if
               
-              if( DirectoryInfo::IsDirectoryA(argv[i]) )
+              if( DirectoryInfo::_IsDirectory(argv[i]) )
                 cabinet.AddFile(argv[i],argv[i]);
               else    
                 cabinet.AddFile(argv[i]);

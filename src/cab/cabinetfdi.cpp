@@ -40,9 +40,35 @@ namespace bvr20983
     /*
      *
      */
+    CabinetFDI::CabinetFDI(LPCWSTR cabinet_fullpath,LPCWSTR destDir) :
+      m_hfdi(NULL),
+      m_listOnly(TRUE)
+    { char cabinet_fullpathA[MAX_PATH];
+      char destDirA[MAX_PATH];
+
+      if( NULL!=cabinet_fullpath )
+      { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, cabinet_fullpath, -1,cabinet_fullpathA, MAX_PATH, NULL, NULL ) ); }
+
+      if( NULL!=destDir )
+      { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, destDir, -1,destDirA, MAX_PATH, NULL, NULL ) ); }
+      
+      Init(cabinet_fullpath!=NULL ? cabinet_fullpathA : NULL,
+           destDir!=NULL          ? destDirA          : NULL
+          ); 
+    }
+
+    /*
+     *
+     */
     CabinetFDI::CabinetFDI(LPCSTR cabinet_fullpath,LPCSTR destDir) :
       m_hfdi(NULL),
       m_listOnly(TRUE)
+    { Init(cabinet_fullpath,destDir); }
+
+    /*
+     *
+     */
+    void CabinetFDI::Init(LPCSTR cabinet_fullpath,LPCSTR destDir)
     { strcpy_s(m_cabinetFullPath,ARRAYSIZE(m_cabinetFullPath),cabinet_fullpath);
 
       if( NULL==destDir )
@@ -67,14 +93,7 @@ namespace bvr20983
         strcpy_s(m_cabinetName,ARRAYSIZE(m_cabinetName), p+1);
       } // of else
       
-      Init(); 
-    }
-
-    /*
-     *
-     */
-    void CabinetFDI::Init()
-    { m_hfdi = ::FDICreate( fdi_memalloc,
+      m_hfdi = ::FDICreate( fdi_memalloc,
                             fdi_memfree,
                             fdi_fileopen,
                             fdi_fileread,

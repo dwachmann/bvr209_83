@@ -54,6 +54,7 @@ namespace bvr20983
         static boolean RemoveDirectoryA(LPCSTR dirName,boolean recursive);
         static void    StripFilenameA(LPSTR strippedFilename, int cbMaxFileName,LPCSTR fileName,LPCSTR prefix=NULL);
         static void    DivideFilenameA(LPSTR dirName,LPSTR fName, int cbMaxFileName,LPCSTR fileName);
+        static boolean GetFileSizeA(LPCSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh);
 
         boolean        GetFullNameW(LPWSTR path,int cPath);
         static boolean IsFileW(LPCWSTR fName);
@@ -62,6 +63,7 @@ namespace bvr20983
         static boolean RemoveDirectoryW(LPCWSTR dirName,boolean recursive);
         static void    StripFilenameW(LPWSTR strippedFilename, int cbMaxFileName,LPCWSTR fileName,LPCWSTR prefix=NULL);
         static void    DivideFilenameW(LPWSTR dirName,LPWSTR fName, int cbMaxFileName,LPCWSTR fileName);
+        static boolean GetFileSizeW(LPCWSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh=NULL); 
 
         boolean        _GetFullName(LPTSTR path,int cPath);
         static boolean _IsFile(LPCTSTR fName);
@@ -70,6 +72,7 @@ namespace bvr20983
         static boolean _RemoveDirectory(LPCTSTR dirName,boolean recursive);
         static void    _StripFilename(LPTSTR strippedFilename, int cbMaxFileName,LPCTSTR fileName,LPCTSTR prefix=NULL);
         static void    _DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName);
+        static boolean _GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh=NULL); 
 
         typedef std::vector<_WIN32_FIND_DATAW> VDirInfo;
 

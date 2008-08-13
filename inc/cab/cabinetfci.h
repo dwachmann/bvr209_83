@@ -33,7 +33,8 @@ namespace bvr20983
      */
     struct CabinetFCIDirInfo : public util::DirIterator
     {
-      CabinetFCIDirInfo(char* prefix=NULL);
+      CabinetFCIDirInfo(LPCWSTR prefix);
+      CabinetFCIDirInfo(LPCSTR prefix=NULL);
       
       boolean Next(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
       
@@ -51,7 +52,8 @@ namespace bvr20983
       static const ULONG FOLDER_THRESHOLD = 650*1024*1024;
       static const int   DISKID           = 42;
 
-      CabFCIParameter(char* cabName=NULL,ULONG mediaSize=CDROM_SIZE,int iDisk=DISKID,ULONG folderThreshold=FOLDER_THRESHOLD);
+      CabFCIParameter(LPCWSTR cabName,ULONG mediaSize=CDROM_SIZE,int iDisk=DISKID,ULONG folderThreshold=FOLDER_THRESHOLD);
+      CabFCIParameter(LPCSTR  cabName=NULL,ULONG mediaSize=CDROM_SIZE,int iDisk=DISKID,ULONG folderThreshold=FOLDER_THRESHOLD);
 
       PCCAB operator&() 
       { return &m_ccab; }
@@ -65,8 +67,8 @@ namespace bvr20983
 
       friend class CabinetFCI;
 
-      void Init(char* cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk);
-      void StoreCabName(char *cabname, int iCab);
+      void Init(LPCSTR cabName,ULONG mediaSize,ULONG folderThreshold,int iDisk);
+      void StoreCabName(LPSTR cabname, int iCab);
     }; // of struct CabFCIParameter
 
     /**
@@ -80,7 +82,10 @@ namespace bvr20983
       ~CabinetFCI();
 
       void Flush(boolean flushFolder=false);
-      void AddFile(LPSTR fileName,LPSTR prefix=NULL,LPSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
+
+      void AddFileA(LPCSTR fileName,LPCSTR prefix=NULL,LPCSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
+      void AddFileW(LPCWSTR fileName,LPCWSTR prefix=NULL,LPCWSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
+      void AddFile(LPCTSTR fileName,LPCTSTR prefix=NULL,LPCTSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
 
     private:
       long            m_totalCompressedSize;    /* total compressed size so far */
