@@ -15,14 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-TEMPLATEDIR = template
-RESULT      = bvr20983.Msi
+!include <../../inc/Makefile.inc>
+
+TEMPLATEDIR = $(MAKEDIR)\template
+RESULT      = bvr20983.2.Msi
+CABNAME     = bvr20983.2.cab
+msicab      = $(SLNDIR)\$(MSICAB_RESULT).exe
 msidb       = msidb
 msival      = msival2
 
 distribute: 
-   $(msidb) -c -d $(RESULT) -f $(MAKEDIR)\$(TEMPLATEDIR) -i *
-   $(msidb) -d $(RESULT) -a bvr20983.2.cab
+   $(msicab) -msicab ..\..\inc\ver\versions.xml $(SLNDIR) $(CABNAME) $(TEMPLATEDIR)
+   $(msidb) -c -d $(RESULT) -f $(TEMPLATEDIR) -i *
+   $(msidb) -d $(RESULT) -a $(CABNAME)
 
 validate: 
    $(msival) $(RESULT) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f

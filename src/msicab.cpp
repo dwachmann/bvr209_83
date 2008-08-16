@@ -77,7 +77,7 @@ void dirtest(LPTSTR dirName,LPTSTR prefix,UINT maxDepth)
 /**
  *
  */
-void msicab(LPTSTR fName,LPTSTR argv[],int argc)
+void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR argv[],int argc)
 { util::XMLDocument            xmlDoc;
   COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
   COMPtr<IXMLDOMNode>          pNode;
@@ -93,17 +93,23 @@ void msicab(LPTSTR fName,LPTSTR argv[],int argc)
     COVariant productidValue;
 
     if( xmlDoc.GetNodeValue(_T("//v:product/@id"),productidValue,true) )
-    { TString cabfilename = V_BSTR(productidValue);
-      cabfilename += _T(".cab");
+    { CabFCIParameter cabParameter(cabName,CabFCIParameter::CDROM_SIZE);
+      CabinetFCI      cabinet(cabParameter);
 
-      CabFCIParameter cabParameter(cabfilename.c_str(),CabFCIParameter::CDROM_SIZE);
+      TString msiComponentFName(templateDir);
+      msiComponentFName += _T("\\");
+      msiComponentFName += _T("component.idt");
+
+      TString msiFileFName(templateDir);
+      msiFileFName += _T("\\");
+      msiFileFName += _T("file.idt");
 
 #ifdef _UNICODE
-      wofstream componentIDT(_T("component.idt"));
-      wofstream fileIDT(_T("file.idt"));
+      wofstream componentIDT(msiComponentFName.c_str());
+      wofstream fileIDT(msiFileFName.c_str());
 #else
-      ofstream componentIDT(_T("component.idt"));
-      ofstream fileIDT(_T("file.idt"));
+      ofstream componentIDT(msiComponentFName.c_str());
+      ofstream fileIDT(msiFileFName.c_str());
 #endif
 
       componentIDT<<_T("Component\tComponentId\tDirectory_\tAttributes\tCondition\tKeyPath")<<endl;
@@ -114,13 +120,11 @@ void msicab(LPTSTR fName,LPTSTR argv[],int argc)
       fileIDT<<_T("s72\ts72\tl255\ti4\tS72\tS20\tI2\ti2")<<endl;
       fileIDT<<_T("File\tFile")<<endl;
 
-      CabinetFCI cabinet(cabParameter);
-
       LOGGER_INFO<<_T("product:")<<productidValue<<endl; 
 
       xmlDoc.GetSelection(_T("//v:component[descendant::v:msiguid]/@id"),pXMLDomNodeList);
 
-      int seqNo = 0;
+      int seqNo = 1;
       
       if( !pXMLDomNodeList.IsNULL() )
       { for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr = pXMLDomNodeList->nextNode(&pNode),seqNo++ )
@@ -134,56 +138,76 @@ void msicab(LPTSTR fName,LPTSTR argv[],int argc)
           if( xmlDoc.GetProperty(pNode,nodeValue) )
           { LOGGER_INFO<<_T("id:")<<nodeValue<<endl; 
 
-            TString compId(V_BSTR(nodeValue));
+            TString compName(V_BSTR(nodeValue));
+
+            COVariant compVersionValue;
+            TString compVersion = _T("//v:component[@id='");
+            compVersion += compName;
+            compVersion += _T("']/v:version/@major");
 
             COVariant filenameValue;
             TString filename = _T("//v:component[@id='");
-            filename += compId;
+            filename += compName;
             filename += _T("']/v:filename/text()");
 
             COVariant msiguidValue;
             TString msiguid = _T("//v:component[@id='");
-            msiguid += compId;
+            msiguid += compName;
             msiguid += _T("']/v:msiguid/text()");
 
             COVariant compTypeValue;
             TString compType = _T("//v:component[@id='");
-            compType += compId;
+            compType += compName;
             compType += _T("']/@type");
 
             if( xmlDoc.GetNodeValue(filename.c_str(),filenameValue,true) &&
-                xmlDoc.GetNodeValue(msiguid.c_str(),msiguidValue,true) &&
-                xmlDoc.GetNodeValue(compType.c_str(),compTypeValue,true)
+                xmlDoc.GetNodeValue(msiguid.c_str(),msiguidValue,true)   &&
+                xmlDoc.GetNodeValue(compType.c_str(),compTypeValue,true) &&
+                xmlDoc.GetNodeValue(compVersion.c_str(),compVersionValue,true)
               )
-            { LOGGER_INFO<<_T("  filename:")<<filenameValue<<endl; 
+            { 
+              TString compId(compName);
+              compId += _T(".");
+              compId += V_BSTR(compVersionValue);
+              
+              LOGGER_INFO<<_T("    compId:")<<compId<<endl; 
+              LOGGER_INFO<<_T("  filename:")<<filenameValue<<endl; 
               LOGGER_INFO<<_T("  comptype:")<<compTypeValue<<endl; 
               LOGGER_INFO<<_T("   msiguid:")<<msiguidValue<<endl; 
 
-              TString compFileName = V_BSTR(filenameValue);
+              TString compFileName(compDir);
+              compFileName += _T("\\");
+              compFileName += V_BSTR(filenameValue);
               compFileName += _T(".");
               compFileName += V_BSTR(compTypeValue);
 
-              VersionInfo verInfo(compFileName.c_str());
+              if( DirectoryInfo::_IsFile(compFileName.c_str()) )
+              { VersionInfo verInfo(compFileName.c_str());
+                LPCTSTR fileVersion = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
 
-              LPCTSTR fileVersion = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
+                TCHAR compcabfilename[MAX_PATH];
+                _tcscpy_s(compcabfilename,MAX_PATH,compId.c_str());
 
-              TCHAR compcabfilename[MAX_PATH];
+                DWORD fileSize=0;
+                DirectoryInfo::_GetFileSize(compFileName.c_str(),&fileSize);
 
-              _tcscpy_s(compcabfilename,MAX_PATH,_T("_"));
-              _tcscat_s(compcabfilename,MAX_PATH,V_BSTR(msiguidValue));
-              _tcscat_s(compcabfilename,MAX_PATH,_T("_"));
+                cabinet.AddFile(compFileName.c_str(),NULL,compcabfilename);
 
-              DWORD fileSize=0;
+                TCHAR strippedCompFileName[MAX_PATH];
 
-              DirectoryInfo::_GetFileSize(compFileName.c_str(),&fileSize);
+                DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,compFileName.c_str());
 
-              cabinet.AddFile(compFileName.c_str(),NULL,compcabfilename);
+                LPTSTR s = strippedCompFileName;
+                for( ;*s!=_T('\0');s++ )
+                  *s = tolower(*s);
 
-              componentIDT<<compId<<_T("\t{")<<V_BSTR(msiguidValue)<<_T('}')<<_T("\tBVRDIR\t0\t\t")<<compcabfilename<<endl;
+                s = V_BSTR(msiguidValue);
+                for( ;*s!=_T('\0');s++ )
+                  *s = toupper(*s);
 
-              
-
-              fileIDT<<compcabfilename<<_T('\t')<<compId<<_T('\t')<<compFileName.c_str()<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+                componentIDT<<compId<<_T("\t{")<<V_BSTR(msiguidValue)<<_T('}')<<_T("\tBVRDIR\t0\t\t")<<compcabfilename<<endl;
+                fileIDT<<compcabfilename<<_T('\t')<<compId<<_T('\t')<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+              } // of if
             } // of if
           } // of if
         } // of for
@@ -198,7 +222,10 @@ void msicab(LPTSTR fName,LPTSTR argv[],int argc)
  *
  */
 void printUsage(LPCTSTR progName)
-{ LOGGER_INFO<<_T("Usage: "<<progName<<" [options] command cabfile [files] [dest_dir]")<<endl;
+{ LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab <versions file> <component dir> <cabname> <templatedir>")<<endl;
+  LOGGER_INFO<<endl;
+  
+  LOGGER_INFO<<_T("Usage: "<<progName<<" [options] command cabfile [files] [dest_dir]")<<endl;
   LOGGER_INFO<<endl;
   LOGGER_INFO<<_T("Commands:")<<endl;
   LOGGER_INFO<<_T("   t   List contents of cabinet")<<endl;
@@ -241,8 +268,12 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
       
     if( _tcscmp(argv[1],_T("-xml"))==0 && argc>=4 )
       xmltest(argv[2],argv[3],argc>=5 ? &argv[4] : NULL,argc-4);
-    if( _tcscmp(argv[1],_T("-msicab"))==0 && argc>=3 )
-      msicab(argv[2],argc>=4 ? &argv[3] : NULL,argc-3);
+    else if( _tcscmp(argv[1],_T("-msicab"))==0 )
+    { if( argc>=6 )
+        msicab(argv[2],argv[3],argv[4],argv[5],argc>6 ? &argv[6] : NULL,argc-6);
+      else
+        printUsage(argv[0]);
+    } // of else if
     else if( _tcscmp(argv[1],_T("-dir"))==0 && argc>=3 )
       dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? _tstoi(argv[4]) : 0);
     else
