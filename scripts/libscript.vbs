@@ -324,13 +324,14 @@ Sub Init
   projectPath = Left(WScript.ScriptFullName,InStrRev(WScript.ScriptFullName,"\")-1)
   projectPath = Left(projectPath,InStrRev(projectPath,"\"))
   
-  Redim searchPath(5)
+  Redim searchPath(6)
   
   searchPath(0) = "inc\"
   searchPath(1) = "inc\ver\"
   searchPath(2) = "inc\com\"
   searchPath(3) = "res\"
   searchPath(4) = "res\html\"
+  searchPath(5) = "comp\msi\template\"
 End Sub
 
 '

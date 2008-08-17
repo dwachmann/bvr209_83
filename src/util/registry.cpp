@@ -87,7 +87,7 @@ namespace bvr20983
   /**
    *
    */
-  RegistryKey::RegistryKey(const RegistryKey& path,LPCTSTR subkey)
+  RegistryKey::RegistryKey(const RegistryKey& path,LPCTSTR subkey) : m_pDumpFile(NULL)
   { TString p = path;
 
     if( NULL!=subkey )
@@ -101,13 +101,13 @@ namespace bvr20983
   /**
    *
    */
-  RegistryKey::RegistryKey(const TString& path)
+  RegistryKey::RegistryKey(const TString& path) : m_pDumpFile(NULL)
   { Init(path.c_str()); }
 
   /**
    *
    */
-  RegistryKey::RegistryKey(LPCTSTR path)
+  RegistryKey::RegistryKey(LPCTSTR path) : m_pDumpFile(NULL)
   { Init(path); }
 
   /**
@@ -177,48 +177,89 @@ namespace bvr20983
    *
    */
   RegistryKey::~RegistryKey()
-  { Close(); }
+  { Close(); 
 
-  /**
-   *
-   */
-  void RegistryKey::Close()
-  { if( m_keyOpened )
-    { //LOGGER_DEBUG<<_T("RegistryKey::Close(): closing <")<<m_subpath<<_T(">")<<endl;
-    
-      ::RegCloseKey(m_key);
-    } // of if
-      
-    m_keyOpened = false;
+    SetDumpFile(NULL);
   } // of RegistryKey::~RegistryKey()
 
   /**
    *
    */
+  void RegistryKey::SetDumpFile(LPCTSTR dumpFilename)
+  { if( NULL!=m_pDumpFile )
+      m_pDumpFile->flush();
+
+    delete m_pDumpFile;
+
+    m_pDumpFile = NULL;
+
+    if( NULL!=dumpFilename )
+    {
+#ifdef _UNICODE
+      m_pDumpFile = new wofstream(dumpFilename,ios_base::app);
+#else
+      m_pDumpFile = new ofstream(dumpFilename,ios_base::app);
+#endif
+    } // of if
+  } // of RegistryKey::SetDumpFile()
+
+
+  /**
+   *
+   */
+  void RegistryKey::Close()
+  { if( m_keyOpened && NULL==m_pDumpFile )
+      ::RegCloseKey(m_key);
+      
+    m_keyOpened = false;
+  } // of RegistryKey::Close()
+
+  /**
+   *
+   */
   bool RegistryKey::Create()
-  { Close();
+  { bool result = false;
+
+    Close();
+
+    if( NULL==m_pDumpFile )
+    { DWORD lpdwDisposition = 0;
+
+      THROW_LASTERROREXCEPTION( ::RegCreateKeyEx(m_mainKey,m_subpath.c_str(),0,NULL,REG_OPTION_NON_VOLATILE,KEY_ALL_ACCESS,NULL,&m_key,&lpdwDisposition) );
+
+      m_keyOpened = true;
+
+      if( lpdwDisposition==REG_CREATED_NEW_KEY )
+        LOGGER_DEBUG<<_T("RegistryKey::Create() <")<<m_subpath<<_T(">")<<endl;
     
-    DWORD lpdwDisposition = 0;
+      result = lpdwDisposition==REG_CREATED_NEW_KEY;
+    } // of if
+    else
+    { if( !m_keyOpened )
+        result = true;
 
-    THROW_LASTERROREXCEPTION( ::RegCreateKeyEx(m_mainKey,m_subpath.c_str(),0,NULL,REG_OPTION_NON_VOLATILE,KEY_ALL_ACCESS,NULL,&m_key,&lpdwDisposition) );
+      m_keyOpened = true;
+    } // of else
 
-    m_keyOpened = true;
-
-    if( lpdwDisposition==REG_CREATED_NEW_KEY )
-      LOGGER_DEBUG<<_T("RegistryKey::Create() <")<<m_subpath<<_T(">")<<endl;
-    
-    return lpdwDisposition==REG_CREATED_NEW_KEY;
+    return result;
   } // of RegistryKey::Create()
 
   /**
    *
    */
   bool RegistryKey::Exists()
-  { HKEY key    = NULL;
-    bool result = ERROR_SUCCESS==::RegOpenKeyEx(m_mainKey,m_subpath.c_str(),0,KEY_READ,&key);
+  { bool result = false;
 
-    if( result )
-      ::RegCloseKey(key);
+    if( NULL==m_pDumpFile )
+    { HKEY key = NULL;
+      
+      result = ERROR_SUCCESS==::RegOpenKeyEx(m_mainKey,m_subpath.c_str(),0,KEY_READ,&key);
+
+      if( result )
+        ::RegCloseKey(key);
+    } // of if
+    else 
+      result = true;
 
     return result;
   } // RegistryKey::Exists()
@@ -229,9 +270,9 @@ namespace bvr20983
   void RegistryKey::Open()
   { Close();
     
-    THROW_LASTERROREXCEPTION( ::RegOpenKeyEx(m_mainKey,m_subpath.c_str(),0,KEY_READ,&m_key) );
-
-    //LOGGER_DEBUG<<_T("RegistryKey::Open() <")<<m_subpath<<_T(">")<<endl;
+    if( NULL==m_pDumpFile )
+    { THROW_LASTERROREXCEPTION( ::RegOpenKeyEx(m_mainKey,m_subpath.c_str(),0,KEY_READ,&m_key) );
+    } // of if
 
     m_keyOpened = true;
   } // RegistryKey::Open()
@@ -240,29 +281,31 @@ namespace bvr20983
    *
    */
   void RegistryKey::Delete(bool deep)
-  { LOGGER_DEBUG<<_T("RegistryKey::Delete(deep=")<<deep<<_T(") ")<<*this<<endl;
+  { if( NULL==m_pDumpFile )
+    { LOGGER_DEBUG<<_T("RegistryKey::Delete(deep=")<<deep<<_T(") ")<<*this<<endl;
 
-    if( !deep )
-    { THROW_LASTERROREXCEPTION( ::RegDeleteKey(m_mainKey,m_subpath.c_str()) ); }
-    else
-    { TString  keyName;
-      VTString keys;
-    
-      RegistryKeyEnum regEnum(*this,0);
-    
-      for( ;regEnum.Next(keyName); )
-        keys.push_back( keyName );
+      if( !deep )
+      { THROW_LASTERROREXCEPTION( ::RegDeleteKey(m_mainKey,m_subpath.c_str()) ); }
+      else
+      { TString  keyName;
+        VTString keys;
+      
+        RegistryKeyEnum regEnum(*this,0);
+      
+        for( ;regEnum.Next(keyName); )
+          keys.push_back( keyName );
 
-      VTString::iterator iter;
-    
-      for( iter=keys.begin();iter!=keys.end();iter++ )
-      { RegistryKey k(*iter);
+        VTString::iterator iter;
       
-        k.Delete(false);
-      } // of for
-      
-      Delete(false);
-    } // of else
+        for( iter=keys.begin();iter!=keys.end();iter++ )
+        { RegistryKey k(*iter);
+        
+          k.Delete(false);
+        } // of for
+        
+        Delete(false);
+      } // of else
+    } // of if
   } // of RegistryKey::Delete()
 
   /**
@@ -271,11 +314,25 @@ namespace bvr20983
   void RegistryKey::SetValue(LPCTSTR name,LPCTSTR value)
   { Create();
 
-    if( NULL!=value )
-    { LOGGER_DEBUG<<_T("RegistryKey::SetValue(name=")<<(name!=NULL?name:_T("NULL"))<<_T(",value=")<<(value!=NULL?value:_T("NULL"))<<_T(")")<<endl;
+    if( NULL==m_pDumpFile )
+    { if( NULL!=value )
+      { LOGGER_DEBUG<<_T("RegistryKey::SetValue(name=")<<(name!=NULL?name:_T("NULL"))<<_T(",value=")<<(value!=NULL?value:_T("NULL"))<<_T(")")<<endl;
+        
+        THROW_LASTERROREXCEPTION( ::RegSetValueEx(*this,name,0,REG_SZ,(BYTE *)value,(_tcslen(value)+1)*sizeof(TCHAR)) ); 
+      } // of if
+    } // of if
+    else
+    { (*m_pDumpFile)<<_T("[")<<m_mainKeyStr<<_T("\\")<<m_subpath<<_T("]")<<endl;
       
-      THROW_LASTERROREXCEPTION( ::RegSetValueEx(*this,name,0,REG_SZ,(BYTE *)value,(_tcslen(value)+1)*sizeof(TCHAR)) ); 
-    }
+      if( NULL!=value )
+      { if( NULL==name )
+          (*m_pDumpFile)<<_T("@=\"")<<value<<_T("\"")<<endl;
+        else
+          (*m_pDumpFile)<<_T("\"")<<name<<_T("\"=\"")<<value<<_T("\"")<<endl;
+      } // of if
+
+      (*m_pDumpFile)<<endl;
+    } // of else
   } // of RegistryKey::SetValue()
 
   /**
@@ -284,11 +341,23 @@ namespace bvr20983
   void RegistryKey::SetIntValue(LPCTSTR name,DWORD value)
   { Create();
     
-    if( NULL!=value )
-    { LOGGER_DEBUG<<_T("RegistryKey::SetIntValue(name=")<<(name!=NULL?name:_T("NULL"))<<_T(",value=")<<value<<_T(")")<<endl;
+    if( NULL==m_pDumpFile )
+    { if( NULL!=value )
+      { LOGGER_DEBUG<<_T("RegistryKey::SetIntValue(name=")<<(name!=NULL?name:_T("NULL"))<<_T(",value=")<<value<<_T(")")<<endl;
 
-      THROW_LASTERROREXCEPTION( ::RegSetValueEx(*this,name,0,REG_DWORD,(BYTE *)&value,sizeof(value)) ); 
-    }
+        THROW_LASTERROREXCEPTION( ::RegSetValueEx(*this,name,0,REG_DWORD,(BYTE *)&value,sizeof(value)) ); 
+      }
+    } // of if
+    else
+    { (*m_pDumpFile)<<_T("[")<<m_mainKeyStr<<_T("\\")<<m_subpath<<_T("]")<<endl;
+      
+      if( NULL==name )
+        (*m_pDumpFile)<<_T("@=dword:")<<hex<<setfill(_T('0'))<<setw(8)<<value<<endl;
+      else
+        (*m_pDumpFile)<<_T("\"")<<name<<_T("\"=dword:")<<hex<<setfill(_T('0'))<<setw(8)<<value<<endl;
+
+      (*m_pDumpFile)<<endl;
+    } // of else
   } // of RegistryKey::SetIntValue()
 
   /**
@@ -297,21 +366,25 @@ namespace bvr20983
   void RegistryKey::QueryValue(LPCTSTR name,TString &value)
   { Open();
 
-    DWORD dataType = 0;
-    DWORD dataSize = 0;
-    
-    THROW_LASTERROREXCEPTION( ::RegQueryValueEx(*this,name,0,&dataType,NULL,&dataSize) );
-
-    if( REG_SZ==dataType )
-    { LPTSTR dataBuffer = new TCHAR[dataSize];
-      memset( dataBuffer, '\0', dataSize );
+    if( NULL==m_pDumpFile )
+    { DWORD dataType = 0;
+      DWORD dataSize = 0;
       
-      THROW_LASTERROREXCEPTION( ::RegQueryValueEx(*this,name,0,&dataType,(LPBYTE) dataBuffer,&dataSize) );
+      THROW_LASTERROREXCEPTION( ::RegQueryValueEx(*this,name,0,&dataType,NULL,&dataSize) );
 
-      value.assign(dataBuffer,(dataSize-1)/sizeof(TCHAR));
+      if( REG_SZ==dataType )
+      { LPTSTR dataBuffer = new TCHAR[dataSize];
+        memset( dataBuffer, '\0', dataSize );
+        
+        THROW_LASTERROREXCEPTION( ::RegQueryValueEx(*this,name,0,&dataType,(LPBYTE) dataBuffer,&dataSize) );
 
-      delete[] dataBuffer;
+        value.assign(dataBuffer,(dataSize-1)/sizeof(TCHAR));
+
+        delete[] dataBuffer;
+      } // of if
     } // of if
+    else
+      throw runtime_error("Could not query in dump mode");
   } // of RegistryKey::QueryValue()
 
 
@@ -323,20 +396,48 @@ namespace bvr20983
     
     Open();
 
-    DWORD dataType = 0;
-    DWORD dataSize = 0;
-    
-    LONG result = ::RegQueryValueEx(*this,name,0,&dataType,NULL,&dataSize);
-    THROW_LASTERROREXCEPTION(result);
-
-    if( REG_DWORD==dataType )
-    { result = ::RegQueryValueEx(*this,name,0,&dataType,(LPBYTE) &queryResult,&dataSize);
+    if( NULL==m_pDumpFile )
+    { DWORD dataType = 0;
+      DWORD dataSize = 0;
+      
+      LONG result = ::RegQueryValueEx(*this,name,0,&dataType,NULL,&dataSize);
       THROW_LASTERROREXCEPTION(result);
+
+      if( REG_DWORD==dataType )
+      { result = ::RegQueryValueEx(*this,name,0,&dataType,(LPBYTE) &queryResult,&dataSize);
+        THROW_LASTERROREXCEPTION(result);
+      } // of if
     } // of if
+    else
+      throw runtime_error("Could not query in dump mode");
       
     return queryResult;
   } // of RegistryKey::QueryIntValue()
 
+
+  /**
+   *
+   */
+  bool RegistryKey::HasSubKey()
+  { TCHAR buffer[256];
+    DWORD bufferSize = sizeof(buffer)/sizeof(buffer[0]);
+    bool  result     = false;
+  
+    Open();
+      
+    if( NULL==m_pDumpFile )
+    { LONG enumResult = ::RegEnumKeyEx(m_key,0,buffer,&bufferSize,NULL,NULL,NULL,NULL);
+
+      if( enumResult!=ERROR_NO_MORE_ITEMS )
+      { THROW_LASTERROREXCEPTION(enumResult); }
+      
+      result = enumResult==ERROR_SUCCESS;
+    } // of if
+    else
+      throw runtime_error("Could not query in dump mode");
+
+    return result;
+  } // of RegistryKey::HasSubKey()
 
   /**
    *
@@ -351,31 +452,12 @@ namespace bvr20983
   /**
    *
    */
-  bool RegistryKey::HasSubKey()
-  { TCHAR buffer[256];
-    DWORD bufferSize = sizeof(buffer)/sizeof(buffer[0]);
-    bool  result = false;
-  
-    Open();
-    
-    LONG enumResult = ::RegEnumKeyEx(m_key,0,buffer,&bufferSize,NULL,NULL,NULL,NULL);
-
-    if( enumResult!=ERROR_NO_MORE_ITEMS )
-    { THROW_LASTERROREXCEPTION(enumResult); }
-    
-    result = enumResult==ERROR_SUCCESS;
-
-    //LOGGER_DEBUG<<_T("RegistryKey::HasSubKeys() ")<<result<<endl;
-    
-    return result;
-  } // of RegistryKey::QueryValue()
-
-  /**
-   *
-   */
   void Registry::SetKeyValue(LPCTSTR subkey,LPCTSTR name,LPCTSTR value)
   { if( subkey!=NULL )
     { RegistryKey key(m_key,subkey);
+
+      if( !m_dumpFileName.empty() )
+        key.SetDumpFile(m_dumpFileName.c_str());
 
       key.SetValue(name,value);
     } // of if
@@ -396,6 +478,9 @@ namespace bvr20983
     if( subkey!=NULL )
     { RegistryKey key(m_key,subkey);
 
+      if( !m_dumpFileName.empty() )
+        key.SetDumpFile(m_dumpFileName.c_str());
+
       key.SetValue(name,value);
     } // of if
     else if( value!=NULL )
@@ -410,6 +495,9 @@ namespace bvr20983
   void Registry::SetKeyIntValue(LPCTSTR subkey,LPCTSTR name,DWORD value)
   { if( subkey!=NULL )
     { RegistryKey key(m_key,subkey);
+
+      if( !m_dumpFileName.empty() )
+        key.SetDumpFile(m_dumpFileName.c_str());
 
       key.SetIntValue(name,value);
     }
@@ -427,6 +515,9 @@ namespace bvr20983
   { if( subkey!=NULL )
     { RegistryKey key(m_key,subkey);
 
+      if( !m_dumpFileName.empty() )
+        key.SetDumpFile(m_dumpFileName.c_str());
+
       key.QueryValue(name,value);
     }
     else
@@ -441,7 +532,8 @@ namespace bvr20983
                                  LPCTSTR modulePath,
                                  ITypeInfo2& rTypeInfo2,
                                  bool isControl,
-                                 LPCTSTR threadingModel
+                                 LPCTSTR threadingModel,
+                                 LPCTSTR dumpFileName
                                 )
   { LOGGER_DEBUG<<_T("Registry::RegisterCoClass()")<<endl;
     LOGGER_DEBUG<<_T("typelibGUID=")<<pTypeLib->guid<<endl;
@@ -490,7 +582,7 @@ namespace bvr20983
     TString verIndepProgIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     verIndepProgIdRegKeyStr += verIndepProgID;
 
-    Registry verIndepProgIdRegKey(verIndepProgIdRegKeyStr);
+    Registry verIndepProgIdRegKey(verIndepProgIdRegKeyStr,dumpFileName);
     verIndepProgIdRegKey.SetKeyValue(NULL,NULL,typeDesc);
     verIndepProgIdRegKey.SetKeyValue(_T("CurVer"),NULL,progID);
     verIndepProgIdRegKey.SetKeyValue(_T("CLSID"),NULL,typeID);
@@ -499,7 +591,7 @@ namespace bvr20983
     TString progIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     progIdRegKeyStr += progID;
 
-    Registry progIdRegKey(progIdRegKeyStr);
+    Registry progIdRegKey(progIdRegKeyStr,dumpFileName);
     progIdRegKey.SetKeyValue(NULL,NULL,typeDesc);
     progIdRegKey.SetKeyValue(_T("CLSID"),NULL,typeID);
 
@@ -507,7 +599,7 @@ namespace bvr20983
     TString typeRegKeyStr(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
     typeRegKeyStr += typeID;
     
-    Registry typeRegKey(typeRegKeyStr);
+    Registry typeRegKey(typeRegKeyStr,dumpFileName);
 
     typeRegKey.SetKeyValue(NULL,NULL,typeDesc);
     typeRegKey.SetKeyValue(_T("ProgID"),NULL,progID);
@@ -546,36 +638,39 @@ namespace bvr20983
         typeRegKeyStr += typeID;
         typeRegKeyStr += _T("\\MiscStatus");
     
-        Registry miscStatusKey(typeRegKeyStr);
+        Registry miscStatusKey(typeRegKeyStr,dumpFileName);
 
         miscStatusKey.SetKeyValue(_T("1"),NULL,miscStatus);
       } // of if
     } // of if
 
-    CATID catIds[ARRAYSIZE(g_KnownCATIDs)];
-    int   catIdsCount=0;
+    if( NULL==dumpFileName )
+    { CATID catIds[ARRAYSIZE(g_KnownCATIDs)];
+      int   catIdsCount=0;
 
-    for( int c=0;c<ARRAYSIZE(g_KnownCATIDs);c++ )
-    { GUID catid = CUST_CATID;
+      for( int c=0;c<ARRAYSIZE(g_KnownCATIDs);c++ )
+      { GUID catid = CUST_CATID;
 
-      catid.Data4[1] = c;
+        catid.Data4[1] = c;
 
-      if( rTypeInfo2.GetCustData(catid,&var)==S_OK && VT_I4==V_VT(&var) && V_I4(&var)==1 )
-        catIds[catIdsCount++] = g_KnownCATIDs[c];
+        if( rTypeInfo2.GetCustData(catid,&var)==S_OK && VT_I4==V_VT(&var) && V_I4(&var)==1 )
+          catIds[catIdsCount++] = g_KnownCATIDs[c];
 
-      if( catIdsCount>0 )
-      { COMPtr<ICatRegister> pCatRegister(CLSID_StdComponentCategoriesMgr,IID_ICatRegister);
+        if( catIdsCount>0 )
+        { COMPtr<ICatRegister> pCatRegister(CLSID_StdComponentCategoriesMgr,IID_ICatRegister);
 
-        pCatRegister->RegisterClassImplCategories(typeGUID,catIdsCount,catIds);
-      } // of if
-    } // of for
+          pCatRegister->RegisterClassImplCategories(typeGUID,catIdsCount,catIds);
+        } // of if
+      } // of for
+    } // of if
   } // of Registry::RegisterCoClass()
 
  /**
    *
    */
   void Registry::UnregisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                   REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion
+                                   REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion,
+                                   LPCTSTR dumpFileName
                                   )
   { LOGGER_DEBUG<<_T("Registry::UnregisterCoClass()")<<endl;
     LOGGER_DEBUG<<_T("typeGUID   =")<<typeGUID<<endl;
@@ -598,7 +693,8 @@ namespace bvr20983
     TString verIndepProgIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     verIndepProgIdRegKeyStr += verIndepProgID;
 
-    RegistryKey verIndepProgIdRegKey(verIndepProgIdRegKeyStr);
+    RegistryKey verIndepProgIdRegKey(verIndepProgIdRegKeyStr,dumpFileName);
+    verIndepProgIdRegKey.SetDumpFile(dumpFileName);
     verIndepProgIdRegKey.Delete(true);
 
     // Create ProgID keys.
@@ -606,6 +702,7 @@ namespace bvr20983
     progIdRegKeyStr += progID;
 
     RegistryKey progIdRegKey(progIdRegKeyStr);
+    progIdRegKey.SetDumpFile(dumpFileName);
     progIdRegKey.Delete(true);
 
     // Create entries under CLSID.
@@ -613,6 +710,7 @@ namespace bvr20983
     typeRegKeyStr += typeID;
 
     RegistryKey typeRegKey(typeRegKeyStr);
+    typeRegKey.SetDumpFile(dumpFileName);
     typeRegKey.Delete(true);
   } // of Registry::UnregisterCoClass()
 
@@ -683,7 +781,7 @@ namespace bvr20983
   /**
    *
    */
-  void Registry::RegisterComObjectsInTypeLibrary(LPCTSTR szModulePath,bool registerTypes)
+  void Registry::RegisterComObjectsInTypeLibrary(LPCTSTR szModulePath,bool registerTypes,LPCTSTR dumpFileName)
   { TCHAR            szWindowsDir[MAX_PATH];
     TLIBATTR*        pTLibAttr = NULL;
     COMPtr<ITypeLib> pTLib;
@@ -733,10 +831,12 @@ namespace bvr20983
                           pTypeAttr->guid,typeName,typeDoc,pTypeAttr->wMajorVerNum,
                           szModulePath,
                           *pTypeInfo2,
-                          (pTypeAttr->wTypeFlags & TYPEFLAG_FCONTROL)!=0 ? true : false
+                          (pTypeAttr->wTypeFlags & TYPEFLAG_FCONTROL)!=0 ? true : false,
+                          _T("Apartment"),
+                          dumpFileName
                          );
         else
-          UnregisterCoClass(pTLibAttr,libName,pTypeAttr->guid,typeName,pTypeAttr->wMajorVerNum);
+          UnregisterCoClass(pTLibAttr,libName,pTypeAttr->guid,typeName,pTypeAttr->wMajorVerNum,dumpFileName);
       } // of if
 
       pTypeInfo->ReleaseTypeAttr(pTypeAttr);
@@ -773,10 +873,12 @@ namespace bvr20983
 
     pTLib->ReleaseTLibAttr(pTLibAttr);
 
-    if( registerTypes )
-    { THROW_COMEXCEPTION( ::RegisterTypeLib(pTLib,(OLECHAR *)szModulePath,szWindowsDir) ); }
-    else
-    { THROW_COMEXCEPTION( ::UnRegisterTypeLib(pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,pTLibAttr->lcid,SYS_WIN32) ); }
+    if( NULL==dumpFileName )
+    { if( registerTypes )
+      { THROW_COMEXCEPTION( ::RegisterTypeLib(pTLib,(OLECHAR *)szModulePath,szWindowsDir) ); }
+      else
+      { THROW_COMEXCEPTION( ::UnRegisterTypeLib(pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,pTLibAttr->lcid,SYS_WIN32) ); }
+    } // of if
   } // of Registry::RegisterComObjectsInTypeLibrary()
 
 

@@ -1010,6 +1010,18 @@
 				RelativePath=".\inc\ver\versions.xsd"
 				>
 			</File>
+			<Filter
+				Name="comp"
+				>
+				<Filter
+					Name="msgs"
+					>
+					<File
+						RelativePath=".\comp\msgs\Makefile"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\Makefile"

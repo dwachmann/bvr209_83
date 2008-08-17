@@ -124,7 +124,8 @@ STDAPI DllUnregisterServer()
 } // of DllUnregisterServer()
 
 /**
- *
+ * regsvr32 /i:"DllInstall" <dllname> bInstall==TRUE 
+ * regsvr32 /u:"DllInstall" <dllname> bInstall==FALSE 
  */
 STDAPI DllInstall(BOOL bInstall,LPCTSTR pszCmdLine)
 { HRESULT hr = S_OK;
@@ -133,4 +134,90 @@ STDAPI DllInstall(BOOL bInstall,LPCTSTR pszCmdLine)
 
   return hr;
 } // of DllInstall()
+
+#ifdef _UNICODE
+#define _DllRegistrationInfo_ DllRegistrationInfoW
+#else
+#define _DllRegistrationInfo_ DllRegistrationInfoA
+#endif
+
+/**
+ *
+ */
+void PrintRegistrationInfoUsage(HWND hwnd)
+{ basic_ostringstream<TCHAR> msgStream;
+  msgStream<<_T("Usage: rundll32 <dllname>,DllRegistrationInfo <classes|typelib> <filename>");
+
+  TString msg = msgStream.str();
+
+  ::MessageBox(hwnd,msg.c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
+} // of PrintRegistrationInfoUsage()
+
+/**
+ * RUNDLL32.EXE <dllname>,DllRegistrationInfo <register|unregister> <filename>
+ *
+ * hwnd        - window handle that should be used as the owner window for any windows your DLL creates
+ * hinst       - your DLL's instance handle
+ * lpszCmdLine - command line your DLL should parse
+ * nCmdShow    - describes how your DLL's windows should be displayed
+ */
+STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+{ try
+  { OutputDebugFmt(_T("DllRegistrationInfo(): <%s>\n"),lpszCmdLine);
+
+    TCHAR cmd[256];
+    TCHAR filename[MAX_PATH];
+
+    ::memset(cmd     ,_T('\0'),ARRAYSIZE(cmd));
+    ::memset(filename,_T('\0'),MAX_PATH);
+
+    int     i         = 0;
+    boolean stop      = false;
+    LPTSTR  nextToken = NULL;
+    for( LPTSTR tok=_tcstok_s(lpszCmdLine,_T(" "),&nextToken);NULL!=tok && !stop;tok=_tcstok_s(NULL,_T(" "),&nextToken),i++ )
+    {
+      switch( i )
+      { 
+      case 0:
+        if( _tcscmp(tok,_T("classes"))==0 || _tcscmp(tok,_T("typelib"))==0 )
+          _tcscpy_s(cmd,ARRAYSIZE(cmd),tok);
+        else
+          stop = true;
+        break;
+      case 1:
+        _tcscpy_s(filename,MAX_PATH,tok);
+        stop = true;
+        break;
+      default:
+        stop = true;
+        break;
+      } // of switch
+    } // of for
+
+    if( cmd[0]!=_T('\0') && filename[0]!=_T('\0') )
+    { basic_ostringstream<TCHAR> msgStream;
+      msgStream<<_T("command=")<<cmd<<_T("\n")<<_T("file=")<<filename;
+
+      ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
+
+      if( _tcscmp(cmd,_T("classes"))==0 )
+      { TCHAR szModulePath[MAX_PATH];
+
+        COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
+
+        Registry::RegisterComObjectsInTypeLibrary(szModulePath,true,filename);
+      } // of if
+    } // of if
+    else 
+      PrintRegistrationInfoUsage(hwnd);
+  }
+  catch(BVR20983Exception e)
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
+    OutputDebugFmt(_T("  Filename \"%s\" Line %d\n"),e.GetFileName(),e.GetLineNo());
+  }
+  catch(exception& e) 
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
+  catch(...)
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception\n")); }
+} // of _DllRegistrationInfo_()
 /*==========================END-OF-FILE===================================*/

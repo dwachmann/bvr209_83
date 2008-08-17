@@ -51,6 +51,7 @@
     <xs:sequence>
       <xs:element name="version"   type="versionType"/>
       <xs:element name="name"      type="xs:string"/>
+      <xs:element name="msiguid"   type="xs:string"   minOccurs="0" />
       <xs:element name="guidid"    type="xs:string"/>
       <xs:element name="company"   type="xs:string"/>
       <xs:element name="copyright" type="xs:string"/>

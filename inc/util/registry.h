@@ -21,6 +21,8 @@
 
 #include "os.h"
 #include "util/logstream.h"
+#include <iostream>
+#include <fstream>
 #include <stack>
 
 namespace bvr20983
@@ -33,6 +35,8 @@ namespace bvr20983
       RegistryKey(const RegistryKey& path,LPCTSTR subkey=NULL);
       ~RegistryKey();
       
+      void SetDumpFile(LPCTSTR dumpFilename);
+
       bool Create();
       void Open();
       void Delete(bool deep=false);
@@ -69,12 +73,14 @@ namespace bvr20983
       void Close();
       void Init(LPCTSTR path);
     
-      HKEY     m_mainKey;
-      TString  m_mainKeyStr;
-      bool     m_keyOpened;
-      HKEY     m_key;
-      VTString m_path;
-      TString  m_subpath;
+      HKEY                  m_mainKey;
+      TString               m_mainKeyStr;
+      bool                  m_keyOpened;
+      HKEY                  m_key;
+      VTString              m_path;
+      TString               m_subpath;
+      
+      basic_ostream<TCHAR>* m_pDumpFile;
   }; // of class RegistryKey
 
   template<class charT, class Traits>
@@ -110,11 +116,19 @@ namespace bvr20983
   class Registry
   {
     public:
-      Registry(const TString& key) : m_key(key.c_str())
-      { }
+      Registry(const TString& key,LPCTSTR dumpFileName=NULL) : m_key(key.c_str())
+      { if( NULL!=dumpFileName )
+        { m_dumpFileName=dumpFileName;
+          m_key.SetDumpFile(dumpFileName);
+        } // of if
+      }
 
-      Registry(LPCTSTR key) : m_key(key)
-      { }
+      Registry(LPCTSTR key,LPCTSTR dumpFileName=NULL) : m_key(key)
+      { if( NULL!=dumpFileName )
+        { m_dumpFileName=dumpFileName;
+          m_key.SetDumpFile(dumpFileName);
+        } // of if
+      }
 
       void  SetKeyValue(LPCTSTR subkey,LPCTSTR name,const TString& value)
       { SetKeyValue(subkey,name,value.c_str()); }
@@ -133,11 +147,13 @@ namespace bvr20983
                                   LPCTSTR modulePath,
                                   ITypeInfo2& rTypeInfo2,
                                   bool isControl=false,
-                                  LPCTSTR threadingModel=_T("Apartment")
+                                  LPCTSTR threadingModel=_T("Apartment"),
+                                  LPCTSTR dumpFileName=NULL
                                  );
 
       static void UnregisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                    REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion
+                                    REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion,
+                                    LPCTSTR dumpFileName=NULL
                                    );
 
       static void RegisterInterface(REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc);
@@ -145,10 +161,11 @@ namespace bvr20983
       
       static void RegisterTypeLib(REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
 
-      static void RegisterComObjectsInTypeLibrary(LPCTSTR szModulePath,bool registerTypes);
+      static void RegisterComObjectsInTypeLibrary(LPCTSTR szModulePath,bool registerTypes,LPCTSTR dumpFileName=NULL);
       
     private:
       RegistryKey m_key;
+      TString     m_dumpFileName;
   }; // of class Registry
   
 

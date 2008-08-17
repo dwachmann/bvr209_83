@@ -98,27 +98,19 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
 
       TString msiComponentFName(templateDir);
       msiComponentFName += _T("\\");
-      msiComponentFName += _T("component.idt");
+      msiComponentFName += _T("Component.idt");
 
       TString msiFileFName(templateDir);
       msiFileFName += _T("\\");
-      msiFileFName += _T("file.idt");
+      msiFileFName += _T("File.idt");
 
 #ifdef _UNICODE
-      wofstream componentIDT(msiComponentFName.c_str());
-      wofstream fileIDT(msiFileFName.c_str());
+      wofstream componentIDT(msiComponentFName.c_str(),ios_base::app);
+      wofstream fileIDT(msiFileFName.c_str(),ios_base::app);
 #else
-      ofstream componentIDT(msiComponentFName.c_str());
-      ofstream fileIDT(msiFileFName.c_str());
+      ofstream componentIDT(msiComponentFName.c_str(),ios_base::app);
+      ofstream fileIDT(msiFileFName.c_str(),ios_base::app);
 #endif
-
-      componentIDT<<_T("Component\tComponentId\tDirectory_\tAttributes\tCondition\tKeyPath")<<endl;
-      componentIDT<<_T("s72\tS38\ts72\ti2\tS255\tS72")<<endl;
-      componentIDT<<_T("Component\tComponent")<<endl;
-
-      fileIDT<<_T("File\tComponent_\tFileName\tFileSize\tVersion\tLanguage\tAttributes\tSequence")<<endl;
-      fileIDT<<_T("s72\ts72\tl255\ti4\tS72\tS20\tI2\ti2")<<endl;
-      fileIDT<<_T("File\tFile")<<endl;
 
       LOGGER_INFO<<_T("product:")<<productidValue<<endl; 
 
@@ -194,19 +186,25 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
                 cabinet.AddFile(compFileName.c_str(),NULL,compcabfilename);
 
                 TCHAR strippedCompFileName[MAX_PATH];
-
                 DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,compFileName.c_str());
 
                 LPTSTR s = strippedCompFileName;
                 for( ;*s!=_T('\0');s++ )
                   *s = tolower(*s);
 
+                TCHAR shortCompFileName[MAX_PATH];
+                TCHAR shortStrippedCompFileName[MAX_PATH];
+
+                ::GetShortPathName(compFileName.c_str(),shortCompFileName,MAX_PATH);
+                DirectoryInfo::_StripFilename(shortStrippedCompFileName,MAX_PATH,shortCompFileName);
+
+
                 s = V_BSTR(msiguidValue);
                 for( ;*s!=_T('\0');s++ )
                   *s = toupper(*s);
 
                 componentIDT<<compId<<_T("\t{")<<V_BSTR(msiguidValue)<<_T('}')<<_T("\tBVRDIR\t0\t\t")<<compcabfilename<<endl;
-                fileIDT<<compcabfilename<<_T('\t')<<compId<<_T('\t')<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+                fileIDT<<compcabfilename<<_T('\t')<<compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
               } // of if
             } // of if
           } // of if

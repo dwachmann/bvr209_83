@@ -24,10 +24,14 @@ msicab      = $(SLNDIR)\$(MSICAB_RESULT).exe
 msidb       = msidb
 msival      = msival2
 
-distribute: 
-   $(msicab) -msicab ..\..\inc\ver\versions.xml $(SLNDIR) $(CABNAME) $(TEMPLATEDIR)
+distribute: $(CABNAME)
    $(msidb) -c -d $(RESULT) -f $(TEMPLATEDIR) -i *
    $(msidb) -d $(RESULT) -a $(CABNAME)
+
+$(CABNAME): ..\..\inc\ver\versions.xml
+   @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
+   @copy $(TEMPLATEDIR)\Component.tmpl $(TEMPLATEDIR)\Component.idt
+   $(msicab) -msicab ..\..\inc\ver\versions.xml $(SLNDIR) $(CABNAME) $(TEMPLATEDIR)
 
 validate: 
    $(msival) $(RESULT) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f

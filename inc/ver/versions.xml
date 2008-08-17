@@ -25,15 +25,25 @@
   <parameter name="filenamepattern1">#{LCase("${../../@id}")}.${../../v:version/@major}</parameter>
   <parameter name="guidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../@typeid}${../../v:guidid/text()}#{zerofill("${../../v:version/@major}",4)}</parameter>
   <parameter name="typelibguidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-0000#{zerofill("${../../v:version/@major}",4)}FFFF</parameter>
-  <parameter name="msiguidpattern">${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-0100FFFFFFFF</parameter>
+  <parameter name="compmsiguidpattern">${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-0100FFFFFFFF</parameter>
+  <parameter name="prodmsiguidpattern">${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-0000-0000-0100FFFFFFFF</parameter>
 
   <product id="BVR20983">
     <version major="2" minor="0" fix="0" rev="${rev}"/>
     <name>BVR2098 Suite</name>
+    <msiguid>${prodmsiguidpattern}</msiguid>
     <guidid>BFE20983</guidid>
     <company>Dorothea Wachmann</company>
     <copyright>Copyright \251 2008 ${../../v:company/text()}</copyright>
     <filename>${filenamepattern1}</filename>
+
+    <patch template="Property.tmpl" filename="Property.idt">
+      <pattern><key>@ProductCode@</key><value>${../../../../v:msiguid/text()}</value></pattern>
+      <pattern><key>@ProductName@</key><value>${../../../../v:name/text()}</value></pattern>
+      <pattern><key>@Manufacturer@</key><value>${../../../../v:msiguid/text()}</value></pattern>
+      <pattern><key>@ProductVersion@</key><value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}</value></pattern>
+      <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}</value></pattern>
+    </patch>
 
     <patch template="Makefile.inc.tmpl" filename="Makefile.inc">
       <pattern><key>@bvr20983ccresult</key><value>${../../../../v:component[@id='cc']/v:filename/text()}</value></pattern>
@@ -78,7 +88,7 @@
     <component id="sc" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Smartcard Library</name>
-      <msiguid>${msiguidpattern}</msiguid>
+      <msiguid>${compmsiguidpattern}</msiguid>
       <guidid>0001</guidid>
       <filename>${filenamepattern}</filename>
 
@@ -223,7 +233,7 @@
     <component id="cc" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Custom Control Library</name>
-      <msiguid>${msiguidpattern}</msiguid>
+      <msiguid>${compmsiguidpattern}</msiguid>
       <guidid>0002</guidid>
       <filename>${filenamepattern}</filename>
       <patch filename="bvr20983cc-ver.h">
@@ -294,7 +304,7 @@
     <component id="msgs" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Product installation and message component</name>
-      <msiguid>${msiguidpattern}</msiguid>
+      <msiguid>${compmsiguidpattern}</msiguid>
       <guidid>0003</guidid>
       <filename>${filenamepattern}</filename>
 
@@ -320,7 +330,7 @@
     <component id="digiclock" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>A digital clock</name>
-      <msiguid>${msiguidpattern}</msiguid>
+      <msiguid>${compmsiguidpattern}</msiguid>
       <guidid>0004</guidid>
       <filename>${filenamepattern}</filename>
       <patch filename="digiclock-ver.h">
@@ -345,7 +355,7 @@
     <component id="lsstg" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list COM structure storage</name>
-      <msiguid>${msiguidpattern}</msiguid>
+      <msiguid>${compmsiguidpattern}</msiguid>
       <guidid>0005</guidid>
       <filename>${filenamepattern}</filename>
 
@@ -371,7 +381,7 @@
     <component id="lstypeinfo" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list typeinfo of registered COM objects</name>
-      <msiguid>${msiguidpattern}</msiguid>
+      <msiguid>${compmsiguidpattern}</msiguid>
       <guidid>0006</guidid>
       <filename>${filenamepattern}</filename>
 
@@ -397,7 +407,7 @@
     <component id="msicab" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>create cabinet files and necessary msi information</name>
-<!--      <msiguid>${msiguidpattern}</msiguid> -->
+<!--      <msiguid>${compmsiguidpattern}</msiguid> -->
       <guidid>0007</guidid>
       <filename>${filenamepattern}</filename>
 

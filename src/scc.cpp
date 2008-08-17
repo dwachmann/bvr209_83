@@ -30,8 +30,6 @@
 #include "exception/seexception.h"
 #include "util/logstream.h"
 
-#include <strstream>
-
 using namespace bvr20983;
 using namespace std;
 
