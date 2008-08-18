@@ -19,22 +19,7 @@
 #ifndef APPUTIL_H
 #define APPUTIL_H
 
-/*F+F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F+++F
-  Function: GetErrorMsg
-
-  Summary:  Accepts a Win32 error code and retrieves a human readable
-            system message for it.
-
-  Args:     HRESULT hr
-              SCODE error code.
-            LPTSTR pszMsg
-              Pointer string where message will be placed.
-            UINT uiSize
-              Max size of the msg string.
-
-  Returns:  BOOL
-              TRUE if hr was error; FALSE if not.
-F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F---F-F*/
 BOOL GetErrorMsg(HRESULT hr,LPTSTR pszMsg,UINT uiSize);
+BOOL IsUserInAdministrationGroup();
 
 #endif //APPUTIL_H

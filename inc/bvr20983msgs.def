@@ -17,6 +17,7 @@
 EXPORTS
   DllRegisterServer     PRIVATE
   DllUnregisterServer   PRIVATE
+  DllIsAdministratorW   PRIVATE
   EvtLogMessage
   EvtLogError
   EvtLogError2

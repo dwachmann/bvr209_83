@@ -65,4 +65,31 @@ BOOL GetErrorMsg(HRESULT hr,LPTSTR pszMsg,UINT uiSize)
 
   return bErr;
 }
+
+/*
+ * This routine returns TRUE if the caller's
+ * process is a member of the Administrators local group. Caller is NOT
+ * expected to be impersonating anyone and is expected to be able to
+ * open its own process and process token. 
+ * Return Value: 
+ * TRUE - Caller has Administrators local group. 
+ * FALSE - Caller does not have Administrators local group. --
+*/ 
+BOOL IsUserInAdministrationGroup()
+{ BOOL                     result      = FALSE;
+  SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
+  PSID                     administratorsGroup; 
+  
+  if( ::AllocateAndInitializeSid(&ntAuthority,2,SECURITY_BUILTIN_DOMAIN_RID,DOMAIN_ALIAS_RID_ADMINS,
+                                 0, 0, 0, 0, 0, 0,
+                                 &administratorsGroup
+                                ) 
+    )
+  { ::CheckTokenMembership( NULL, administratorsGroup, &result);
+
+    ::FreeSid(administratorsGroup); 
+  }
+
+  return result;
+} // of IsUserInAdministrationGroup()
 /*==========================END-OF-FILE===================================*/

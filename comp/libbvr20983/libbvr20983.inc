@@ -39,6 +39,7 @@ $(OUTDIR)\clipboard.obj \
 $(OUTDIR)\app.obj \
 $(OUTDIR)\thread.obj \
 $(OUTDIR)\registry.obj \
+$(OUTDIR)\registryutil.obj \
 $(OUTDIR)\logstreambuf.obj \
 $(OUTDIR)\logstream.obj \
 $(OUTDIR)\loglevel.obj \

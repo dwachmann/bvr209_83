@@ -25,11 +25,12 @@
 #include "util/comstring.h"
 #include "util/eventlogger.h"
 #include "util/versioninfo.h"
+#include "util/guid.h"
+#include "util/apputil.h"
 #include "com/comserver.h"
+#include <sstream>
 #include "exception/lasterrorexception.h"
 #include "exception/comexception.h"
-#include "util/guid.h"
-#include <sstream>
 
 using namespace bvr20983;
 using namespace bvr20983::COM;
@@ -148,4 +149,35 @@ STDAPI DllUnregisterServer()
   
   return hr;
 } // of DllUnregisterServer()
+
+#ifdef _UNICODE
+#define _DllIsAdministrator_ DllIsAdministratorW
+#else
+#define _DllIsAdministrator_ DllIsAdministratorA
+#endif
+
+/**
+ * rundll32 msgs.dll,DllIsAdministrator
+ */
+STDAPI_(void) _DllIsAdministrator_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+{ try
+  { OutputDebugFmt(_T("DllIsAdministrator(): <%s>\n"),lpszCmdLine);
+
+    BOOL isAdmin = IsUserInAdministrationGroup();
+
+    basic_ostringstream<TCHAR> msgStream;
+    msgStream<<_T("isAdmin=")<<isAdmin;
+
+    ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllIsAdministrator"),MB_OK | MB_ICONINFORMATION);
+
+  }
+  catch(BVR20983Exception e)
+  { OutputDebugFmt(_T("DllIsAdministrator(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
+    OutputDebugFmt(_T("  Filename \"%s\" Line %d\n"),e.GetFileName(),e.GetLineNo());
+  }
+  catch(exception& e) 
+  { OutputDebugFmt(_T("DllIsAdministrator(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
+  catch(...)
+  { OutputDebugFmt(_T("DllIsAdministrator(): Exception\n")); }
+} // of _DllRegistrationInfo_()
 /*==========================END-OF-FILE===================================*/

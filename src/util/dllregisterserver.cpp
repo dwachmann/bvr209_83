@@ -19,7 +19,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #include "os.h"
-#include "util/registry.h"
+#include "util/registryutil.h"
 #include "util/logstream.h"
 #include "util/comlogstream.h"
 #include "util/comptr.h"
@@ -53,7 +53,7 @@ STDAPI DllRegisterServer()
   compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
 
   try
-  { Registry::RegisterComObjectsInTypeLibrary(szModulePath,true);
+  { RegistryUtil::RegisterComObjectsInTypeLibrary(szModulePath,true);
 
 /*
     as marker for registration of multiple typelibs
@@ -100,7 +100,7 @@ STDAPI DllUnregisterServer()
   compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
 
   try
-  { Registry::RegisterComObjectsInTypeLibrary(szModulePath,false);
+  { RegistryUtil::RegisterComObjectsInTypeLibrary(szModulePath,false);
   }
   catch(BVR20983Exception e)
   { LOGGER_ERROR<<e<<endl;
@@ -205,7 +205,7 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 
         COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
 
-        Registry::RegisterComObjectsInTypeLibrary(szModulePath,true,filename);
+        RegistryUtil::RegisterComObjectsInTypeLibrary(szModulePath,true,filename);
       } // of if
     } // of if
     else 

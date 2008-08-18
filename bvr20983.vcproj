@@ -383,6 +383,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\registryutil.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\util\thread.h"
 						>
 					</File>
@@ -617,10 +621,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\src\util\dlluninstall.cpp"
-						>
-					</File>
-					<File
 						RelativePath=".\src\util\eventlogger.cpp"
 						>
 					</File>
@@ -654,6 +654,10 @@
 					</File>
 					<File
 						RelativePath=".\src\util\registry.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\registryutil.cpp"
 						>
 					</File>
 					<File
@@ -1018,6 +1022,18 @@
 					>
 					<File
 						RelativePath=".\comp\msgs\Makefile"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="libbvr20983"
+					>
+					<File
+						RelativePath=".\comp\libbvr20983\libbvr20983.inc"
+						>
+					</File>
+					<File
+						RelativePath=".\comp\libbvr20983\Makefile"
 						>
 					</File>
 				</Filter>

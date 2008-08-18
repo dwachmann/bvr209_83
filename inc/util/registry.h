@@ -142,27 +142,6 @@ namespace bvr20983
       const RegistryKey& GetKey() const
       { return m_key; }
       
-      static void RegisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                  REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,WORD typeVersion,
-                                  LPCTSTR modulePath,
-                                  ITypeInfo2& rTypeInfo2,
-                                  bool isControl=false,
-                                  LPCTSTR threadingModel=_T("Apartment"),
-                                  LPCTSTR dumpFileName=NULL
-                                 );
-
-      static void UnregisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                    REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion,
-                                    LPCTSTR dumpFileName=NULL
-                                   );
-
-      static void RegisterInterface(REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc);
-      static void UnregisterInterface(REFGUID objGUID);
-      
-      static void RegisterTypeLib(REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
-
-      static void RegisterComObjectsInTypeLibrary(LPCTSTR szModulePath,bool registerTypes,LPCTSTR dumpFileName=NULL);
-      
     private:
       RegistryKey m_key;
       TString     m_dumpFileName;
