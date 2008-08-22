@@ -44,7 +44,7 @@ namespace bvr20983
      */
     WndClass::WndClass(LPCTSTR clsName,WndFactory* pWndFactory,HINSTANCE hInst,WORD wIcon,HBRUSH backgroundBrush,UINT style,WNDPROC lpfnWndProc) 
       : m_inited(false),m_hInst(hInst),m_wndCls(0),m_pWndFactory(pWndFactory)
-    { memset(&m_wndClsEx,0,sizeof(m_wndClsEx));
+    { ::memset(&m_wndClsEx,0,sizeof(m_wndClsEx));
 
       m_wndClsEx.cbSize         = sizeof(m_wndClsEx);
       m_wndClsEx.style          = style;

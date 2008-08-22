@@ -31,6 +31,9 @@
 #include "util/guid.h"
 #include <sstream>
 
+#define MAX_KEY_LENGTH 255
+#define MAX_VALUE_NAME 16383
+
 using namespace bvr20983;
 
 namespace bvr20983
@@ -38,364 +41,373 @@ namespace bvr20983
   /**
    *
    */
-  RegistryKey::RegistryKey(const RegistryKey& path,LPCTSTR subkey) : m_pDumpFile(NULL)
-  { TString p = path;
-
-    if( NULL!=subkey )
-    { p += '\\';
-      p += subkey;
-    } // of if
-    
-    Init( p.c_str() ); 
-  }
-
-  /**
-   *
-   */
-  RegistryKey::RegistryKey(const TString& path) : m_pDumpFile(NULL)
+  RegKey::RegKey(const TString& path) : m_mainKey(NULL),m_key(NULL)
   { Init(path.c_str()); }
 
   /**
    *
    */
-  RegistryKey::RegistryKey(LPCTSTR path) : m_pDumpFile(NULL)
+  RegKey::RegKey(LPCTSTR path) : m_mainKey(NULL),m_key(NULL)
   { Init(path); }
 
   /**
    *
    */
-  void RegistryKey::Init(LPCTSTR path)
-  { if( NULL==path )
-      throw invalid_argument("path is NULL");
+  void RegKey::Init(LPCTSTR path)
+  { if( NULL==path || _tcslen(path)==0 )
+      throw runtime_error("path is empty");
 
-    m_keyOpened = false;
-    
-    int pathLen = _tcslen(path);
-    int i       = 0;
-    int k       = 0;
-    
-    for( ;i<=pathLen;i++ )
-    { if( path[i]==_T('\\') || path[i]==_T('\0') )
-      { TString s = TString(path,k,i-k);
+    int     i     = 0;
+    int     k     = 0;
+    LPCTSTR slash = _tcschr(path,_T('\\'));
 
-        m_path.push_back( s );
-        
-        k = i+1;
-      } // of if
-    } // of for
-      
-    if( m_path.size()>0 )
-    { const TString& first = m_path.front();
-    
-      if( first==_T("HKEY_CLASSES_ROOT") )
-      { m_mainKey    = HKEY_CLASSES_ROOT;
-        m_mainKeyStr = m_path.front();
-        m_path.erase(m_path.begin());
-      } // of if
-      else if( first==_T("HKEY_CURRENT_USER") )
-      { m_mainKey    = HKEY_CURRENT_USER;
-        m_mainKeyStr = m_path.front();
-        m_path.erase(m_path.begin());
-      } // of else if
-      else if( first==_T("HKEY_LOCAL_MACHINE") )
-      { m_mainKey    = HKEY_LOCAL_MACHINE;
-        m_mainKeyStr = m_path.front();
-        m_path.erase(m_path.begin());
-      } // of else if
-      else 
-      { m_mainKey    = HKEY_CURRENT_USER;
-        m_mainKeyStr = _T("HKEY_CURRENT_USER");
-      } // of else if
+    if( slash!=_T('\0') )
+    { TCHAR  firstPart[MAX_PATH];
+
+      _tcsncpy_s(firstPart,MAX_PATH,path,slash-path);
+
+      if( _tcscmp(firstPart,_T("HKEY_CLASSES_ROOT"))==0 )
+        m_mainKey    = HKEY_CLASSES_ROOT;
+      else if( _tcscmp(firstPart,_T("HKEY_CURRENT_USER"))==0  )
+        m_mainKey    = HKEY_CURRENT_USER;
+      else if( _tcscmp(firstPart,_T("HKEY_LOCAL_MACHINE"))==0  )
+        m_mainKey    = HKEY_LOCAL_MACHINE;
     } // of if
-    else
-      throw invalid_argument("path is empty");
-      
-    m_subpath = TString();
-    
-    VTString::iterator iter;
-  
-    for( iter=m_path.begin();iter!=m_path.end();iter++ )
-    { m_subpath += *iter;
-    
-      if( iter<m_path.end()-1 )
-        m_subpath += '\\';
-    } // of for
 
-    //LOGGER_DEBUG<<_T("RegistryKey::RegistryKey(")<<path<<_T(") <")<<m_subpath<<_T(">")<<endl;
-  } // of RegistryKey::RegistryKey()
+    if( NULL!=m_mainKey )
+      m_subKey  = slash+1;
+    else
+    { m_subKey  = path;
+      m_mainKey = HKEY_CURRENT_USER;
+    } // of else
+  } // of RegKey::Init()
+
+  /**
+   *
+   */
+  RegKey::~RegKey()
+  { Close(); }
+
+  /**
+   *
+   */
+  RegKey::operator TString() const
+  { TString result;
+
+    if( NULL!=m_mainKey )
+    { if( m_mainKey==HKEY_CLASSES_ROOT )
+        result += _T("HKEY_CLASSES_ROOT");
+      else if( m_mainKey==HKEY_LOCAL_MACHINE )
+        result += _T("HKEY_LOCAL_MACHINE");
+      else if( m_mainKey==HKEY_CURRENT_USER )
+        result += _T("HKEY_CURRENT_USER");
+      else
+        result += _T("HKEY_KNOWN");
+
+      if( !m_subKey.empty() )
+      { result += '\\';
+        result += m_subKey;
+      } // of if
+    } // of if
+
+    return result;
+  }
+
+  /**
+   *
+   */
+  bool RegKey::Create()
+  { bool   result      = false;
+    
+    if( NULL==m_key )
+    { DWORD   disposition = 0;
+      LPCTSTR subkey      = m_subKey.empty() ? NULL : m_subKey.c_str();
+      LONG    hr          = ::RegCreateKeyEx(m_mainKey,subkey,0,NULL,REG_OPTION_NON_VOLATILE,KEY_ALL_ACCESS,NULL,&m_key,&disposition);
+
+      if( hr==ERROR_SUCCESS && disposition==REG_CREATED_NEW_KEY )
+      { LOGGER_DEBUG<<_T("RegKey::Create() <")<<subkey<<_T(">")<<endl;
+    
+        result = true;
+      } // of if
+      
+      THROW_LASTERROREXCEPTION(hr);
+    } // of if
+
+    return result;
+  } // of RegKey::Create()
+
+  /**
+   *
+   */
+  bool RegKey::Open() const
+  { bool result = false;
+
+    if( NULL==m_key )
+    { LPCTSTR subkey = m_subKey.empty() ? NULL : m_subKey.c_str();
+      LONG    hr     = ::RegOpenKeyEx(m_mainKey,subkey,0,KEY_READ,const_cast<HKEY*>(&m_key));
+
+      if( hr==ERROR_SUCCESS )
+        result = true;
+      else if( hr!=ERROR_FILE_NOT_FOUND )
+      { THROW_LASTERROREXCEPTION(hr); }
+    } // of if
+
+    return result;
+  } // RegKey::Open()
+
+  /**
+   *
+   */
+  void RegKey::Close()
+  { if( NULL!=m_key )
+    { THROW_LASTERROREXCEPTION( ::RegCloseKey(m_key) ); }
+
+    m_key = NULL;
+  } // RegKey::Close()
+
+  /**
+   *
+   */
+  bool RegKey::Exists() const
+  { bool    result = false;
+    HKEY    key    = NULL;
+    LPCTSTR subkey = m_subKey.empty() ? NULL : m_subKey.c_str();
+    
+    result = ERROR_SUCCESS==::RegOpenKeyEx(m_mainKey,subkey,0,KEY_READ,&key);
+
+    if( result )
+      ::RegCloseKey(key);
+
+    return result;
+  } // RegKey::Exists()
+
+  /**
+   *
+   */
+  void RegKey::Delete(bool deep)
+  { Open();
+
+    TString key = (TString)(*this);
+
+    LOGGER_DEBUG<<_T("RegKey::Delete(deep=")<<deep<<_T(") ")<<key.c_str()<<endl;
+
+    if( deep )
+    { TCHAR keyName[MAX_KEY_LENGTH];
+      DWORD keyNameSize = MAX_KEY_LENGTH;
+      DWORD keyIndex    = 0;
+      LONG  result      = ::RegEnumKeyEx(m_key,keyIndex,keyName,&keyNameSize,NULL,NULL,NULL,NULL);
+
+      for( ;
+           result!=ERROR_NO_MORE_ITEMS;
+           keyNameSize=MAX_KEY_LENGTH,result=::RegEnumKeyEx(m_key,keyIndex++,keyName,&keyNameSize,NULL,NULL,NULL,NULL) 
+         )
+      { 
+        THROW_LASTERROREXCEPTION(result);
+
+        TString subkey = key+_T("\\")+keyName;
+
+        RegKey(subkey.c_str());
+      } // of for
+    } // of if
+
+    if( !m_subKey.empty() )
+    { THROW_LASTERROREXCEPTION( ::RegDeleteKey(m_mainKey,m_subKey.c_str()) ); }
+  } // of RegKey::Delete()
+
+  /**
+   *
+   */
+  bool RegKey::HasSubKey() const
+  { TCHAR buffer[MAX_KEY_LENGTH];
+    DWORD bufferSize = MAX_KEY_LENGTH;
+    bool  result     = false;
+
+    Open();
+  
+    LONG enumResult = ::RegEnumKeyEx(m_key,0,buffer,&bufferSize,NULL,NULL,NULL,NULL);
+
+    if( enumResult!=ERROR_NO_MORE_ITEMS )
+    { THROW_LASTERROREXCEPTION(enumResult); }
+    
+    result = enumResult==ERROR_SUCCESS;
+
+    return result;
+  } // of RegKey::HasSubKey()
+
+/**
+   *
+   */
+  void RegKey::QueryValue(LPCTSTR name,RegistryValue &value)
+  { DWORD dataType = 0;
+    DWORD dataSize = 0;
+
+    Open();
+      
+    THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,NULL,&dataSize) );
+
+    if( REG_SZ==dataType )
+    { LPTSTR dataBuffer = new TCHAR[dataSize];
+      ::memset( dataBuffer, '\0', dataSize );
+      
+      THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,(LPBYTE) dataBuffer,&dataSize) );
+
+      value = RegistryValue(name,dataBuffer,dataType);
+
+      delete[] dataBuffer;
+    } // of if
+    else if( REG_DWORD==dataType )
+    { DWORD dataValue;
+
+      dataSize = sizeof(dataValue);
+
+      THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,(LPBYTE) &dataValue,&dataSize) );
+
+      value = RegistryValue(name,dataValue,dataType);
+    } // of else if
+  } // of RegKey::QueryValue()
+
+  /**
+   *
+   */
+  void RegKey::SetValue(const RegistryValue& value)
+  { Create();
+
+    THROW_LASTERROREXCEPTION( ::RegSetValueEx(m_key,value.GetName(),0,value.GetType(),value.GetBuffer(),value.GetSize()) );
+  } // of RegistryValue::SetValue()
+
+  /**
+   *
+   */
+  RegistryValue::RegistryValue() : m_type(REG_SZ)
+  { }
+
+  /**
+   *
+   */
+  RegistryValue::RegistryValue(LPCTSTR name,LPCTSTR value,DWORD type) :
+    m_name(name),
+    m_pValue(NULL),
+    m_intValue(0),
+    m_type(type)
+  { m_pValue = new TString(NULL!=value ? value : _T("")); }
+
+  /**
+   *
+   */
+  RegistryValue::RegistryValue(LPCTSTR name,DWORD value,DWORD type) :
+    m_name(name),
+    m_pValue(NULL),
+    m_intValue(value),
+    m_type(type)
+  { }
+
+  /**
+   *
+   */
+  RegistryValue::~RegistryValue()
+  { delete m_pValue; }
+
+
+
+  /**
+   *
+   */
+  void RegistryValue::GetValue(TString &value)
+  { if( NULL!=m_pValue )
+      value = *m_pValue;
+    else
+    { TCHAR intValue[32];
+
+      _ltot_s(m_intValue,intValue,ARRAYSIZE(intValue),10);
+
+      value = intValue;
+    } // of else
+  } // of RegistryValue::GetValue()
+
+  /**
+   *
+   */
+  void RegistryValue::GetValue(DWORD& value)
+  { if( NULL!=m_pValue )
+      value = _ttol(m_pValue->c_str());
+    else
+      value = m_intValue;
+  } // of RegistryValue::GetValue()
+
+  /**
+   *
+   */
+  RegistryKey::RegistryKey(LPCTSTR key)
+  { if( NULL!=key )
+      m_key = key;
+  }
 
   /**
    *
    */
   RegistryKey::~RegistryKey()
-  { Close(); 
+  { }
 
-    SetDumpFile(NULL);
-  } // of RegistryKey::~RegistryKey()
-
-  /**
-   *
-   */
-  void RegistryKey::SetDumpFile(LPCTSTR dumpFilename)
-  { if( NULL!=m_pDumpFile )
-      m_pDumpFile->flush();
-
-    delete m_pDumpFile;
-
-    m_pDumpFile = NULL;
-
-    if( NULL!=dumpFilename )
-    {
-#ifdef _UNICODE
-      m_pDumpFile = new wofstream(dumpFilename,ios_base::app);
-#else
-      m_pDumpFile = new ofstream(dumpFilename,ios_base::app);
-#endif
-    } // of if
-  } // of RegistryKey::SetDumpFile()
-
-
-  /**
-   *
-   */
-  void RegistryKey::Close()
-  { if( m_keyOpened && NULL==m_pDumpFile )
-      ::RegCloseKey(m_key);
-      
-    m_keyOpened = false;
-  } // of RegistryKey::Close()
-
-  /**
-   *
-   */
-  bool RegistryKey::Create()
-  { bool result = false;
-
-    Close();
-
-    if( NULL==m_pDumpFile )
-    { DWORD lpdwDisposition = 0;
-
-      THROW_LASTERROREXCEPTION( ::RegCreateKeyEx(m_mainKey,m_subpath.c_str(),0,NULL,REG_OPTION_NON_VOLATILE,KEY_ALL_ACCESS,NULL,&m_key,&lpdwDisposition) );
-
-      m_keyOpened = true;
-
-      if( lpdwDisposition==REG_CREATED_NEW_KEY )
-        LOGGER_DEBUG<<_T("RegistryKey::Create() <")<<m_subpath<<_T(">")<<endl;
-    
-      result = lpdwDisposition==REG_CREATED_NEW_KEY;
-    } // of if
-    else
-    { if( !m_keyOpened )
-        result = true;
-
-      m_keyOpened = true;
-    } // of else
-
-    return result;
-  } // of RegistryKey::Create()
-
-  /**
-   *
-   */
-  bool RegistryKey::Exists()
-  { bool result = false;
-
-    if( NULL==m_pDumpFile )
-    { HKEY key = NULL;
-      
-      result = ERROR_SUCCESS==::RegOpenKeyEx(m_mainKey,m_subpath.c_str(),0,KEY_READ,&key);
-
-      if( result )
-        ::RegCloseKey(key);
-    } // of if
-    else 
-      result = true;
-
-    return result;
-  } // RegistryKey::Exists()
-
-  /**
-   *
-   */
-  void RegistryKey::Open()
-  { Close();
-    
-    if( NULL==m_pDumpFile )
-    { THROW_LASTERROREXCEPTION( ::RegOpenKeyEx(m_mainKey,m_subpath.c_str(),0,KEY_READ,&m_key) );
-    } // of if
-
-    m_keyOpened = true;
-  } // RegistryKey::Open()
-
-  /**
-   *
-   */
-  void RegistryKey::Delete(bool deep)
-  { if( NULL==m_pDumpFile )
-    { LOGGER_DEBUG<<_T("RegistryKey::Delete(deep=")<<deep<<_T(") ")<<*this<<endl;
-
-      if( !deep )
-      { THROW_LASTERROREXCEPTION( ::RegDeleteKey(m_mainKey,m_subpath.c_str()) ); }
-      else
-      { TString  keyName;
-        VTString keys;
-      
-        RegistryKeyEnum regEnum(*this,0);
-      
-        for( ;regEnum.Next(keyName); )
-          keys.push_back( keyName );
-
-        VTString::iterator iter;
-      
-        for( iter=keys.begin();iter!=keys.end();iter++ )
-        { RegistryKey k(*iter);
-        
-          k.Delete(false);
-        } // of for
-        
-        Delete(false);
-      } // of else
-    } // of if
-  } // of RegistryKey::Delete()
 
   /**
    *
    */
   void RegistryKey::SetValue(LPCTSTR name,LPCTSTR value)
-  { Create();
-
-    if( NULL==m_pDumpFile )
-    { if( NULL!=value )
-      { LOGGER_DEBUG<<_T("RegistryKey::SetValue(name=")<<(name!=NULL?name:_T("NULL"))<<_T(",value=")<<(value!=NULL?value:_T("NULL"))<<_T(")")<<endl;
-        
-        THROW_LASTERROREXCEPTION( ::RegSetValueEx(*this,name,0,REG_SZ,(BYTE *)value,(_tcslen(value)+1)*sizeof(TCHAR)) ); 
-      } // of if
-    } // of if
+  { if( m_values.empty() || m_values.find(name)==m_values.end() )
+      m_values.insert( RegistryValueP(name,RegistryValue(name,value)) );
     else
-    { (*m_pDumpFile)<<_T("[")<<m_mainKeyStr<<_T("\\")<<m_subpath<<_T("]")<<endl;
-      
-      if( NULL!=value )
-      { if( NULL==name )
-          (*m_pDumpFile)<<_T("@=\"")<<value<<_T("\"")<<endl;
-        else
-          (*m_pDumpFile)<<_T("\"")<<name<<_T("\"=\"")<<value<<_T("\"")<<endl;
-      } // of if
-
-      (*m_pDumpFile)<<endl;
-    } // of else
+      m_values.find(name)->second = RegistryValue(name,value);
   } // of RegistryKey::SetValue()
 
   /**
    *
    */
-  void RegistryKey::SetIntValue(LPCTSTR name,DWORD value)
-  { Create();
-    
-    if( NULL==m_pDumpFile )
-    { if( NULL!=value )
-      { LOGGER_DEBUG<<_T("RegistryKey::SetIntValue(name=")<<(name!=NULL?name:_T("NULL"))<<_T(",value=")<<value<<_T(")")<<endl;
-
-        THROW_LASTERROREXCEPTION( ::RegSetValueEx(*this,name,0,REG_DWORD,(BYTE *)&value,sizeof(value)) ); 
-      }
-    } // of if
+  void RegistryKey::SetValue(LPCTSTR name,DWORD value)
+  { if( m_values.empty() || m_values.find(name)==m_values.end() )
+      m_values.insert( RegistryValueP(name,RegistryValue(name,value)) );
     else
-    { (*m_pDumpFile)<<_T("[")<<m_mainKeyStr<<_T("\\")<<m_subpath<<_T("]")<<endl;
-      
-      if( NULL==name )
-        (*m_pDumpFile)<<_T("@=dword:")<<hex<<setfill(_T('0'))<<setw(8)<<value<<endl;
-      else
-        (*m_pDumpFile)<<_T("\"")<<name<<_T("\"=dword:")<<hex<<setfill(_T('0'))<<setw(8)<<value<<endl;
-
-      (*m_pDumpFile)<<endl;
-    } // of else
-  } // of RegistryKey::SetIntValue()
+      m_values.find(name)->second = RegistryValue(name,value);
+  } // of RegistryKey::SetValue()
 
   /**
    *
    */
-  void RegistryKey::QueryValue(LPCTSTR name,TString &value)
-  { Open();
+  void RegistryKey::QueryValue(LPCTSTR name,RegistryValue& value)
+  { RegistryValueM::const_iterator iter = m_values.find(name);
 
-    if( NULL==m_pDumpFile )
-    { DWORD dataType = 0;
-      DWORD dataSize = 0;
-      
-      THROW_LASTERROREXCEPTION( ::RegQueryValueEx(*this,name,0,&dataType,NULL,&dataSize) );
-
-      if( REG_SZ==dataType )
-      { LPTSTR dataBuffer = new TCHAR[dataSize];
-        memset( dataBuffer, '\0', dataSize );
-        
-        THROW_LASTERROREXCEPTION( ::RegQueryValueEx(*this,name,0,&dataType,(LPBYTE) dataBuffer,&dataSize) );
-
-        value.assign(dataBuffer,(dataSize-1)/sizeof(TCHAR));
-
-        delete[] dataBuffer;
-      } // of if
-    } // of if
+    if( iter!=m_values.end() )
+      value = iter->second;
     else
-      throw runtime_error("Could not query in dump mode");
+    { RegKey regKey(m_key);
+
+      regKey.QueryValue(name,value);
+    } // of else
   } // of RegistryKey::QueryValue()
 
-
   /**
    *
    */
-  DWORD RegistryKey::QueryIntValue(LPCTSTR name)
-  { DWORD queryResult = 0;
-    
-    Open();
-
-    if( NULL==m_pDumpFile )
-    { DWORD dataType = 0;
-      DWORD dataSize = 0;
-      
-      LONG result = ::RegQueryValueEx(*this,name,0,&dataType,NULL,&dataSize);
-      THROW_LASTERROREXCEPTION(result);
-
-      if( REG_DWORD==dataType )
-      { result = ::RegQueryValueEx(*this,name,0,&dataType,(LPBYTE) &queryResult,&dataSize);
-        THROW_LASTERROREXCEPTION(result);
-      } // of if
-    } // of if
-    else
-      throw runtime_error("Could not query in dump mode");
-      
-    return queryResult;
-  } // of RegistryKey::QueryIntValue()
-
-
-  /**
-   *
-   */
-  bool RegistryKey::HasSubKey()
-  { TCHAR buffer[256];
-    DWORD bufferSize = sizeof(buffer)/sizeof(buffer[0]);
-    bool  result     = false;
-  
-    Open();
-      
-    if( NULL==m_pDumpFile )
-    { LONG enumResult = ::RegEnumKeyEx(m_key,0,buffer,&bufferSize,NULL,NULL,NULL,NULL);
-
-      if( enumResult!=ERROR_NO_MORE_ITEMS )
-      { THROW_LASTERROREXCEPTION(enumResult); }
-      
-      result = enumResult==ERROR_SUCCESS;
-    } // of if
-    else
-      throw runtime_error("Could not query in dump mode");
+  bool RegistryKey::Prepare()
+  { bool result = false;
 
     return result;
-  } // of RegistryKey::HasSubKey()
+  } // of RegistryKey::Prepare()
+
+  /**
+   *
+   */
+  bool RegistryKey::Commit()
+  { bool result = false;
+
+    return result;
+  } // of RegistryKey::Commit()
 
   /**
    *
    */
   template<class charT, class Traits>
   basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const RegistryKey& rKey)
-  { os<<"["<<(const TString)rKey<<"]"; 
+  { os<<"["<<rKey.GetKey()<<"]"; 
   
     return os;
   }
@@ -403,186 +415,66 @@ namespace bvr20983
   /**
    *
    */
-  void Registry::SetKeyValue(LPCTSTR subkey,LPCTSTR name,LPCTSTR value)
-  { if( subkey!=NULL )
-    { RegistryKey key(m_key,subkey);
+  void Registry::SetValue(LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type)
+  { TString keyPath;
 
-      if( !m_dumpFileName.empty() )
-        key.SetDumpFile(m_dumpFileName.c_str());
+    if( !m_keyPrefix.empty() )
+      keyPath += m_keyPrefix;
 
-      key.SetValue(name,value);
-    } // of if
-    else if( value!=NULL )
-      m_key.SetValue(name,value);
-    else
-      m_key.Create();
-  } // of Registry::SetKeyValue()
-
-  /**
-   *
-   */
-  void Registry::SetKeyValue(LPCTSTR subkey,LPCTSTR name,DWORD lValue)
-  { TCHAR value[255];
-
-    _ultot_s(lValue,value,ARRAYSIZE(value),10);
-
-    if( subkey!=NULL )
-    { RegistryKey key(m_key,subkey);
-
-      if( !m_dumpFileName.empty() )
-        key.SetDumpFile(m_dumpFileName.c_str());
-
-      key.SetValue(name,value);
-    } // of if
-    else if( value!=NULL )
-      m_key.SetValue(name,value);
-    else
-      m_key.Create();
-  } // of Registry::SetKeyValue()
-
-  /**
-   *
-   */
-  void Registry::SetKeyIntValue(LPCTSTR subkey,LPCTSTR name,DWORD value)
-  { if( subkey!=NULL )
-    { RegistryKey key(m_key,subkey);
-
-      if( !m_dumpFileName.empty() )
-        key.SetDumpFile(m_dumpFileName.c_str());
-
-      key.SetIntValue(name,value);
-    }
-    else if( value!=NULL )
-      m_key.SetIntValue(name,value);
-    else
-      m_key.Create();
-  } // of Registry::SetKeyIntValue()
-
-
-  /**
-   *
-   */
-  void Registry::QueryKeyValue(LPCTSTR subkey,LPCTSTR name,TString& value)
-  { if( subkey!=NULL )
-    { RegistryKey key(m_key,subkey);
-
-      if( !m_dumpFileName.empty() )
-        key.SetDumpFile(m_dumpFileName.c_str());
-
-      key.QueryValue(name,value);
-    }
-    else
-      m_key.QueryValue(name,value);
-  } // of Registry::QueryKeyValue()
-
-
-  /**
-   *
-   */
-  template<class charT, class Traits>
-  basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const Registry& reg)
-  { os<<"Registry"<<reg.GetKey(); 
-  
-    return os;
-  }
-  
-  /**
-   *
-   */
-  RegistryKeyEnum::RegistryKeyEnum(const TString& path,UINT32 maxDepth,bool onlySubKey) 
-    : m_maxDepth(maxDepth),
-      m_onlySubKey(onlySubKey)
-  { LOGGER_DEBUG<<_T("RegistryKeyEnum::RegistryKeyEnum(): path=<")<<path<<_T("> maxDepth=")<<m_maxDepth<<endl;
-    m_stack.push(State(RegistryKey(path))); 
-    
-    m_stack.top().m_key.Open();
-  }
-
-  /**
-   *
-   */
-  bool RegistryKeyEnum::Next(TString& keyName)
-  { TCHAR buffer[256];
-    DWORD bufferSize;
-    LONG  result;
-    bool  nextResult = false;
-    
-      for( ;; )
-      { bufferSize = sizeof(buffer)/sizeof(buffer[0]);
-        
-        result = ::RegEnumKeyEx(m_stack.top().m_key,m_stack.top().m_index,buffer,&bufferSize,NULL,NULL,NULL,NULL);
-        if( result!=ERROR_NO_MORE_ITEMS )
-        { THROW_LASTERROREXCEPTION(result); }
-        
-        if( result==ERROR_SUCCESS )
-        { TString topKey(m_stack.top().m_key);
-        
-          topKey += '\\';
-          topKey += buffer;
-          
-          RegistryKey subkey( topKey );
-          
-          if( (m_maxDepth==0 || m_stack.size()<m_maxDepth) && subkey.HasSubKey() )
-          { //LOGGER_DEBUG<<_T("RegistryKeyEnum::Next() push <")<<subkey<<_T("> ")<<endl;
-            
-            m_stack.push(State(subkey)); 
-            m_stack.top().m_key.Open();
-          } // of if
-          else
-          { InternalNext(keyName);
-          
-            m_stack.top().m_index++;
-
-            //LOGGER_DEBUG<<_T("RegistryKeyEnum::Next() incr index=")<<m_stack.top().m_index<<endl;
-
-            nextResult = true;         
-
-            break;
-          } // of else
-        } // of if
-        else if( m_stack.size()>1 )
-        { m_stack.pop();
-
-          InternalNext(keyName);
-          
-          //LOGGER_DEBUG<<_T("RegistryKeyEnum::Next() pop <")<<m_stack.top().m_key<<_T("> ")<<endl;
-
-          m_stack.top().m_index++;
-          
-          nextResult = true;
-          break;
-        }
-        else
-          break;
-      } // of for
-
-    //LOGGER_DEBUG<<_T("RegistryKeyEnum::Next() <")<<m_stack.top().m_key<<_T("> ")<<m_stack.top().m_index<<_T(" result=")<<nextResult<<endl;
-    
-    return nextResult;
-  } // of RegistryKeyEnum::Next()
-
-  /**
-   *
-   */
-  void RegistryKeyEnum::InternalNext(TString& keyName)
-  { TCHAR buffer[256];
-    DWORD bufferSize = sizeof(buffer)/sizeof(buffer[0]);
-    
-    LONG  result = ::RegEnumKeyEx(m_stack.top().m_key,m_stack.top().m_index,buffer,&bufferSize,NULL,NULL,NULL,NULL);
-    if( result!=ERROR_NO_MORE_ITEMS )
-    { THROW_LASTERROREXCEPTION(result); }
-
-    keyName.clear();
-
-    if( !m_onlySubKey )
-    { keyName.assign(m_stack.top().m_key);
-      keyName += '\\';
+    if( NULL!=subkey )
+    { keyPath += _T("\\");
+      keyPath += subkey;
     } // of if
 
-    keyName += buffer;
-  } // of RegistryKeyEnum::InternalNext()
+    if( !keyPath.empty() )
+    { RegistryKey                  key;
+      RegistryKeyM::const_iterator keyIter = m_keys.find(keyPath.c_str());
+
+      if( m_keys.empty() || keyIter==m_keys.end() )
+      { key = RegistryKey(keyPath.c_str());
+
+        m_keys.insert( RegistryKeyP(keyPath.c_str(),key) );
+      } // of if
+      else
+        key = keyIter->second;
+
+      key.SetValue(name,value.c_str());
+    } // of if
+  } // of Registry::SetValue()
+
+  /**
+   *
+   */
+
+  void Registry::QueryValue(LPCTSTR subkey,LPCTSTR name,TString& value,DWORD* pType) const
+  {
+  } // of Registry::QueryValue()
+
+  /**
+   *
+   */
+  void Registry::QueryValue(LPCTSTR subkey,LPCTSTR name,DWORD& value,DWORD* pType) const
+  {
+  } // of Registry::QueryValue()
+
+  /**
+   *
+   */
+  bool Registry::Prepare()
+  { bool result = false;
+
+    return result;
+  } // of Registry::Prepare()
+
+  /**
+   *
+   */
+  bool Registry::Commit()
+  { bool result = false;
+
+    return result;
+  } // of Registry::Commit()
 } // of namespace bvr20983
 
 template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const RegistryKey&);
-template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const Registry&);
 /*==========================END-OF-FILE===================================*/

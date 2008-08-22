@@ -27,129 +27,131 @@
 
 namespace bvr20983
 {
+
+  /**
+   *
+   */
+  class RegistryValue
+  {
+    public:
+      RegistryValue();
+      RegistryValue(LPCTSTR name,LPCTSTR value,DWORD type=REG_SZ);
+      RegistryValue(LPCTSTR name,DWORD value,DWORD type=REG_SZ);
+      ~RegistryValue();
+
+      void GetValue(TString &value);
+      void GetValue(DWORD& value);
+
+      LPCTSTR GetName() const
+      { return m_name.c_str(); }
+
+      DWORD GetType() const
+      { return m_type; }
+
+      DWORD GetSize() const
+      { return NULL!=m_pValue ? (m_pValue->length()+1)*sizeof(TCHAR) : sizeof(m_intValue); }
+
+      LPBYTE GetBuffer() const
+      { return NULL!=m_pValue ? (LPBYTE)(const_cast<LPTSTR>(m_pValue->c_str())) : (LPBYTE)&m_intValue; }
+
+    private:
+      TString  m_name;
+      TString* m_pValue;
+      DWORD    m_intValue;
+      DWORD    m_type;
+  }; // of class RegistryValue
+
+  /**
+   *
+   */
+  class RegKey
+  {
+    public:
+      RegKey(const TString& path);
+      RegKey(LPCTSTR path);
+      ~RegKey();
+      
+      bool     Create();
+      bool     Open() const;
+      void     Close();
+      void     Delete(bool deep=false);
+      bool     Exists() const;
+      bool     HasSubKey() const;
+      void     QueryValue(LPCTSTR name,RegistryValue &value);
+      void     SetValue(const RegistryValue& value);
+      operator TString() const;
+
+    private:
+      void Init(LPCTSTR path);
+    
+      HKEY     m_mainKey;
+      HKEY     m_key;
+      TString  m_subKey;
+  }; // of class RegKey
+
+
+  /**
+   *
+   */
   class RegistryKey
   {
     public:
-      RegistryKey(LPCTSTR path);
-      RegistryKey(const TString& path);
-      RegistryKey(const RegistryKey& path,LPCTSTR subkey=NULL);
+      RegistryKey(LPCTSTR path=NULL);
       ~RegistryKey();
       
-      void SetDumpFile(LPCTSTR dumpFilename);
+      void     SetValue(LPCTSTR name,LPCTSTR value);
+      void     SetValue(LPCTSTR name,DWORD value);
+      void     QueryValue(LPCTSTR name,RegistryValue& value);
+      bool     Prepare();
+      bool     Commit();
 
-      bool Create();
-      void Open();
-      void Delete(bool deep=false);
-      bool Exists();
+      const TString GetKey() const
+      { return m_key; }
 
-      void  SetValue(LPCTSTR name,LPCTSTR value);
-      void  SetIntValue(LPCTSTR name,DWORD value);
-
-      void  QueryValue(LPCTSTR name,TString &value);
-      DWORD QueryIntValue(LPCTSTR name);
-
-      bool IsOpened() const
-      { return m_keyOpened; }
-      
-      bool HasSubKey();
-      
-      operator HKEY() const
-      { if( !m_keyOpened )
-          throw runtime_error("key not opened");
-          
-        return m_key; 
-      }
-
-      operator TString() const
-      { TString result = m_mainKeyStr;
-      
-        result += '\\';
-        result += m_subpath;
-        
-        return result;
-      }
-    
     private:
-      void Close();
-      void Init(LPCTSTR path);
-    
-      HKEY                  m_mainKey;
-      TString               m_mainKeyStr;
-      bool                  m_keyOpened;
-      HKEY                  m_key;
-      VTString              m_path;
-      TString               m_subpath;
-      
-      basic_ostream<TCHAR>* m_pDumpFile;
+      typedef std::pair<LPCTSTR,RegistryValue>         RegistryValueP;
+      typedef std::map <LPCTSTR,RegistryValue,strless> RegistryValueM;
+
+      TString         m_key;
+      RegistryValueM  m_values;
   }; // of class RegistryKey
 
   template<class charT, class Traits>
   std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const RegistryKey& rKey);
 
-  class Registry;
-  
-  class RegistryKeyEnum
-  {
-    public:
-      RegistryKeyEnum(const TString& path,UINT32 maxDepth=1,bool onlySubKey=false);
-
-      bool Next(TString& keyName);
-      
-      friend class Registry;
-      
-    private:
-      struct State
-      { RegistryKey m_key;
-        UINT32      m_index;
-        bool        m_leaf;
-        
-        State(RegistryKey key) : m_key(key),m_index(0),m_leaf(false) {}
-      };
-
-      void InternalNext(TString& keyName);
-      
-      stack<State> m_stack;
-      UINT32       m_maxDepth;
-      bool         m_onlySubKey;
-  }; // of class RegistryKeyEnum
-
+  /**
+   *
+   */
   class Registry
   {
     public:
-      Registry(const TString& key,LPCTSTR dumpFileName=NULL) : m_key(key.c_str())
-      { if( NULL!=dumpFileName )
-        { m_dumpFileName=dumpFileName;
-          m_key.SetDumpFile(dumpFileName);
-        } // of if
-      }
+      Registry(LPCTSTR keyPrefix) : m_keyPrefix(keyPrefix)
+      { }
 
-      Registry(LPCTSTR key,LPCTSTR dumpFileName=NULL) : m_key(key)
-      { if( NULL!=dumpFileName )
-        { m_dumpFileName=dumpFileName;
-          m_key.SetDumpFile(dumpFileName);
-        } // of if
-      }
+      void SetValue  (LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type=REG_SZ);
+      void QueryValue(LPCTSTR subkey,LPCTSTR name,TString& value      ,DWORD* pType=NULL) const;
+      void QueryValue(LPCTSTR subkey,LPCTSTR name,DWORD& value        ,DWORD* pType=NULL) const;
 
-      void  SetKeyValue(LPCTSTR subkey,LPCTSTR name,const TString& value)
-      { SetKeyValue(subkey,name,value.c_str()); }
+      void SetKeyPrefix(LPCTSTR keyPrefix)
+      { m_keyPrefix = keyPrefix; }
 
-      void  SetKeyValue(LPCTSTR subkey,LPCTSTR name,LPCTSTR value);
-      void  SetKeyValue(LPCTSTR subkey,LPCTSTR name,DWORD lValue);
-      void  SetKeyIntValue(LPCTSTR subkey,LPCTSTR name,DWORD value);
+      void GetKeyPrefix(TString& keyPrefix) const
+      { keyPrefix = m_keyPrefix; }
 
-      void  QueryKeyValue(LPCTSTR subkey,LPCTSTR name,TString& value);
+      void SetDumpFile(LPCTSTR dumpFileName)
+      { m_dumpFileName = dumpFileName; }
 
-      const RegistryKey& GetKey() const
-      { return m_key; }
+      bool Prepare();
+      bool Commit();
       
     private:
-      RegistryKey m_key;
-      TString     m_dumpFileName;
-  }; // of class Registry
-  
+      typedef std::pair<LPCTSTR,RegistryKey>         RegistryKeyP;
+      typedef std::map <LPCTSTR,RegistryKey,strless> RegistryKeyM;
 
-  template<class charT, class Traits>
-  std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const Registry& reg);
+      RegistryKeyM m_keys;
+      TString      m_keyPrefix;
+      TString      m_dumpFileName;
+  }; // of class Registry
 } // of namespace bvr20983
 
 #endif // REGISTRY_H
