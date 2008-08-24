@@ -142,42 +142,43 @@ namespace bvr20983
     TString verIndepProgIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     verIndepProgIdRegKeyStr += verIndepProgID;
 
-    Registry verIndepProgIdRegKey(verIndepProgIdRegKeyStr,dumpFileName);
-    verIndepProgIdRegKey.SetKeyValue(NULL,NULL,typeDesc);
-    verIndepProgIdRegKey.SetKeyValue(_T("CurVer"),NULL,progID);
-    verIndepProgIdRegKey.SetKeyValue(_T("CLSID"),NULL,typeID);
+    Registry registry;
+
+    registry.SetKeyPrefix(verIndepProgIdRegKeyStr);
+    registry.SetValue(NULL,NULL,typeDesc);
+    registry.SetValue(_T("CurVer"),NULL,progID);
+    registry.SetValue(_T("CLSID"),NULL,typeID);
 
     // Create ProgID keys.
     TString progIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     progIdRegKeyStr += progID;
 
-    Registry progIdRegKey(progIdRegKeyStr,dumpFileName);
-    progIdRegKey.SetKeyValue(NULL,NULL,typeDesc);
-    progIdRegKey.SetKeyValue(_T("CLSID"),NULL,typeID);
+    registry.SetKeyPrefix(progIdRegKeyStr);
+    registry.SetValue(NULL,NULL,typeDesc);
+    registry.SetValue(_T("CLSID"),NULL,typeID);
 
     // Create entries under CLSID.
     TString typeRegKeyStr(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
     typeRegKeyStr += typeID;
     
-    Registry typeRegKey(typeRegKeyStr,dumpFileName);
-
-    typeRegKey.SetKeyValue(NULL,NULL,typeDesc);
-    typeRegKey.SetKeyValue(_T("ProgID"),NULL,progID);
-    typeRegKey.SetKeyValue(_T("VersionIndependentProgID"),NULL,verIndepProgID);
-    typeRegKey.SetKeyValue(_T("NotInsertable"),NULL,(LPCTSTR)NULL);
-    typeRegKey.SetKeyValue(_T("Programmable"),NULL,(LPCTSTR)NULL);
-    typeRegKey.SetKeyValue(_T("TypeLib"),NULL,tlibID);
-    typeRegKey.SetKeyValue(_T("Version"),NULL,tlibVersion.str());
-    typeRegKey.SetKeyValue(_T("InprocServer32"),NULL,modulePath);
-    typeRegKey.SetKeyValue(_T("InprocServer32"),_T("ThreadingModel"),threadingModel);
+    registry.SetKeyPrefix(typeRegKeyStr);
+    registry.SetValue(NULL,NULL,typeDesc);
+    registry.SetValue(_T("ProgID"),NULL,progID);
+    registry.SetValue(_T("VersionIndependentProgID"),NULL,verIndepProgID);
+    registry.SetValue(_T("NotInsertable"),NULL,(LPCTSTR)NULL);
+    registry.SetValue(_T("Programmable"),NULL,(LPCTSTR)NULL);
+    registry.SetValue(_T("TypeLib"),NULL,tlibID);
+    registry.SetValue(_T("Version"),NULL,tlibVersion.str());
+    registry.SetValue(_T("InprocServer32"),NULL,modulePath);
+    registry.SetValue(_T("InprocServer32"),_T("ThreadingModel"),threadingModel);
 
     TString defaultIcon(modulePath);
     defaultIcon += _T(",1");
 
-    typeRegKey.SetKeyValue(_T("DefaultIcon"),NULL,defaultIcon);
+    registry.SetValue(_T("DefaultIcon"),NULL,defaultIcon);
 
     if( isControl ) 
-    { typeRegKey.SetKeyValue(_T("Control"),NULL,(LPCTSTR)NULL);
+    { registry.SetValue(_T("Control"),NULL,(LPCTSTR)NULL);
 
       if( NULL!=toolboxBitmap )
       { TString tBitmap;
@@ -190,18 +191,11 @@ namespace bvr20983
         else
           tBitmap += toolboxBitmap;
 
-        typeRegKey.SetKeyValue(_T("ToolboxBitmap32"),NULL,tBitmap);
+        registry.SetValue(_T("ToolboxBitmap32"),NULL,tBitmap);
       } // of if
 
       if( miscStatus!=0 )
-      { TString typeRegKeyStr(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
-        typeRegKeyStr += typeID;
-        typeRegKeyStr += _T("\\MiscStatus");
-    
-        Registry miscStatusKey(typeRegKeyStr,dumpFileName);
-
-        miscStatusKey.SetKeyValue(_T("1"),NULL,miscStatus);
-      } // of if
+        registry.SetValue(_T("MiscStatus\\1"),NULL,miscStatus,REG_DWORD);
     } // of if
 
     if( NULL==dumpFileName )
@@ -223,6 +217,9 @@ namespace bvr20983
         } // of if
       } // of for
     } // of if
+
+    if( registry.Prepare() )
+      registry.Commit();
   } // of RegistryUtil::RegisterCoClass()
 
  /**
@@ -253,24 +250,21 @@ namespace bvr20983
     TString verIndepProgIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     verIndepProgIdRegKeyStr += verIndepProgID;
 
-    RegistryKey verIndepProgIdRegKey(verIndepProgIdRegKeyStr,dumpFileName);
-    verIndepProgIdRegKey.SetDumpFile(dumpFileName);
+    RegKey verIndepProgIdRegKey(verIndepProgIdRegKeyStr);
     verIndepProgIdRegKey.Delete(true);
 
     // Create ProgID keys.
     TString progIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     progIdRegKeyStr += progID;
 
-    RegistryKey progIdRegKey(progIdRegKeyStr);
-    progIdRegKey.SetDumpFile(dumpFileName);
+    RegKey progIdRegKey(progIdRegKeyStr);
     progIdRegKey.Delete(true);
 
     // Create entries under CLSID.
     TString typeRegKeyStr(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
     typeRegKeyStr += typeID;
 
-    RegistryKey typeRegKey(typeRegKeyStr);
-    typeRegKey.SetDumpFile(dumpFileName);
+    RegKey typeRegKey(typeRegKeyStr);
     typeRegKey.Delete(true);
   } // of RegistryUtil::UnregisterCoClass()
 
@@ -291,15 +285,18 @@ namespace bvr20983
     ifStr += typeID;
 
     Registry regIf(ifStr);
-    regIf.SetKeyValue(NULL,NULL,typeDesc);
-    regIf.SetKeyValue(_T("ProxyStubClsid32"),NULL,_T("{00020420-0000-0000-C000-000000000046}"));
-    regIf.SetKeyValue(_T("TypeLib"),NULL,tlibID);
+    regIf.SetValue(NULL,NULL,typeDesc);
+    regIf.SetValue(_T("ProxyStubClsid32"),NULL,_T("{00020420-0000-0000-C000-000000000046}"));
+    regIf.SetValue(_T("TypeLib"),NULL,tlibID);
 
     basic_ostringstream<TCHAR> os;
 
     os<<majorVersion<<_T(".")<<minorVersion;
 
-    regIf.SetKeyValue(_T("TypeLib"),_T("Version"),os.str());
+    regIf.SetValue(_T("TypeLib"),_T("Version"),os.str());
+
+    if( regIf.Prepare() )
+      regIf.Commit();
   } // of RegistryUtil::RegisterInterface()
   
   /**
@@ -314,7 +311,7 @@ namespace bvr20983
     TString ifStr(_T("HKEY_CLASSES_ROOT\\Interface\\"));
     ifStr += typeID;
 
-    RegistryKey regIf(ifStr);
+    RegKey regIf(ifStr);
 
     regIf.Delete(true);
   } // of RegistryUtil::UnregisterInterface()

@@ -117,7 +117,7 @@ namespace bvr20983
    *
    */
   bool RegKey::Create()
-  { bool   result      = false;
+  { bool result = false;
     
     if( NULL==m_key )
     { DWORD   disposition = 0;
@@ -151,6 +151,8 @@ namespace bvr20983
       else if( hr!=ERROR_FILE_NOT_FOUND )
       { THROW_LASTERROREXCEPTION(hr); }
     } // of if
+    else
+      result = true;
 
     return result;
   } // RegKey::Open()
@@ -237,42 +239,50 @@ namespace bvr20983
 /**
    *
    */
-  void RegKey::QueryValue(LPCTSTR name,RegistryValue &value)
-  { DWORD dataType = 0;
+  bool RegKey::QueryValue(LPCTSTR name,RegistryValue &value) const
+  { bool  result   = false;
+    DWORD dataType = 0;
     DWORD dataSize = 0;
 
-    Open();
-      
-    THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,NULL,&dataSize) );
+    if( Open() )
+    { LONG hr = ::RegQueryValueEx(m_key,name,0,&dataType,NULL,&dataSize);
+   
+      if( hr==ERROR_SUCCESS )
+      { if( REG_SZ==dataType )
+        { LPTSTR dataBuffer = new TCHAR[dataSize];
+          ::memset( dataBuffer, '\0', dataSize );
+          
+          THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,(LPBYTE) dataBuffer,&dataSize) );
 
-    if( REG_SZ==dataType )
-    { LPTSTR dataBuffer = new TCHAR[dataSize];
-      ::memset( dataBuffer, '\0', dataSize );
-      
-      THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,(LPBYTE) dataBuffer,&dataSize) );
+          value = RegistryValue(name,dataBuffer,dataType);
 
-      value = RegistryValue(name,dataBuffer,dataType);
+          delete[] dataBuffer;
+        } // of if
+        else if( REG_DWORD==dataType )
+        { DWORD dataValue;
 
-      delete[] dataBuffer;
+          dataSize = sizeof(dataValue);
+
+          THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,(LPBYTE) &dataValue,&dataSize) );
+
+          value = RegistryValue(name,dataValue,dataType);
+        } // of else if
+
+        result = true;
+      } // of if
+      else if( hr!=ERROR_FILE_NOT_FOUND )
+        THROW_LASTERROREXCEPTION( hr );
     } // of if
-    else if( REG_DWORD==dataType )
-    { DWORD dataValue;
 
-      dataSize = sizeof(dataValue);
-
-      THROW_LASTERROREXCEPTION( ::RegQueryValueEx(m_key,name,0,&dataType,(LPBYTE) &dataValue,&dataSize) );
-
-      value = RegistryValue(name,dataValue,dataType);
-    } // of else if
+    return result;
   } // of RegKey::QueryValue()
 
   /**
    *
    */
   void RegKey::SetValue(const RegistryValue& value)
-  { Create();
-
-    THROW_LASTERROREXCEPTION( ::RegSetValueEx(m_key,value.GetName(),0,value.GetType(),value.GetBuffer(),value.GetSize()) );
+  { if( Create() )
+    { THROW_LASTERROREXCEPTION( ::RegSetValueEx(m_key,value.GetName(),0,value.GetType(),value.GetBuffer(),value.GetSize()) ); }
   } // of RegistryValue::SetValue()
 
   /**
@@ -304,9 +314,27 @@ namespace bvr20983
   /**
    *
    */
+  RegistryValue::RegistryValue(const RegistryValue& val) :
+    m_pValue(NULL),
+    m_intValue(0),
+    m_type(REG_SZ)
+  { *this = val; }
+
+  /**
+   *
+   */
   RegistryValue::~RegistryValue()
   { delete m_pValue; }
 
+
+  RegistryValue& RegistryValue::operator=(const RegistryValue& val)
+  { this->m_name     = val.m_name; 
+    this->m_pValue   = val.m_pValue; 
+    this->m_intValue = val.m_intValue; 
+    this->m_type     = val.m_type; 
+  
+    return *this; 
+  }
 
 
   /**
@@ -345,9 +373,24 @@ namespace bvr20983
   /**
    *
    */
+  RegistryKey::RegistryKey(const RegistryKey& key)
+  { *this = key; }
+
+  /**
+   *
+   */
   RegistryKey::~RegistryKey()
   { }
 
+  /**
+   *
+   */
+  RegistryKey& RegistryKey::operator=(const RegistryKey& val)
+  { this->m_key    = val.m_key;
+    this->m_values = val.m_values;
+
+    return *this;
+  }
 
   /**
    *
@@ -372,23 +415,29 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryKey::QueryValue(LPCTSTR name,RegistryValue& value)
-  { RegistryValueM::const_iterator iter = m_values.find(name);
+  bool RegistryKey::QueryValue(LPCTSTR name,RegistryValue& value) const
+  { bool                           result = false;
+    RegistryValueM::const_iterator iter   = m_values.find(name);
 
-    if( iter!=m_values.end() )
-      value = iter->second;
+    if( !m_values.empty() && iter!=m_values.end() )
+    { value = iter->second;
+
+      result = true;
+    } // of if
     else
     { RegKey regKey(m_key);
 
-      regKey.QueryValue(name,value);
+      result = regKey.QueryValue(name,value);
     } // of else
+
+    return result;
   } // of RegistryKey::QueryValue()
 
   /**
    *
    */
-  bool RegistryKey::Prepare()
-  { bool result = false;
+  bool RegistryKey::Prepare() const
+  { bool result = true;
 
     return result;
   } // of RegistryKey::Prepare()
@@ -398,6 +447,16 @@ namespace bvr20983
    */
   bool RegistryKey::Commit()
   { bool result = false;
+
+    RegKey regKey(m_key.c_str());
+
+    if( regKey.Create() )
+    {
+      for( RegistryValueM::const_iterator valueIter=m_values.begin();valueIter!=m_values.end();valueIter++ )
+        regKey.SetValue(valueIter->second);
+
+      result = true;
+    } // of if
 
     return result;
   } // of RegistryKey::Commit()
@@ -415,16 +474,28 @@ namespace bvr20983
   /**
    *
    */
-  void Registry::SetValue(LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type)
-  { TString keyPath;
+  void Registry::GetKeyPath(LPCTSTR subkey,TString& keyPath) const
+  { keyPath.clear();
 
     if( !m_keyPrefix.empty() )
       keyPath += m_keyPrefix;
+    else
+      keyPath += _T("HKEY_CURRENT_USER");
 
     if( NULL!=subkey )
     { keyPath += _T("\\");
       keyPath += subkey;
     } // of if
+  } // of Registry::GetKeyPath()
+
+
+  /**
+   *
+   */
+  void Registry::SetValue(LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type)
+  { TString keyPath;
+
+    GetKeyPath(subkey,keyPath);
 
     if( !keyPath.empty() )
     { RegistryKey                  key;
@@ -445,23 +516,66 @@ namespace bvr20983
   /**
    *
    */
+  void Registry::SetValue(LPCTSTR subkey,LPCTSTR name,DWORD value,DWORD type)
+  { TString keyPath;
 
-  void Registry::QueryValue(LPCTSTR subkey,LPCTSTR name,TString& value,DWORD* pType) const
-  {
+    GetKeyPath(subkey,keyPath);
+
+    if( !keyPath.empty() )
+    { RegistryKey                  key;
+      RegistryKeyM::const_iterator keyIter = m_keys.find(keyPath.c_str());
+
+      if( m_keys.empty() || keyIter==m_keys.end() )
+      { key = RegistryKey(keyPath.c_str());
+
+        m_keys.insert( RegistryKeyP(keyPath.c_str(),key) );
+      } // of if
+      else
+        key = keyIter->second;
+
+      key.SetValue(name,value);
+    } // of if
+  } // of Registry::SetValue()
+
+  /**
+   *
+   */
+
+  bool Registry::QueryValue(LPCTSTR subkey,LPCTSTR name,RegistryValue& value) const
+  { bool    result = false;
+    TString keyPath;
+
+    GetKeyPath(subkey,keyPath);
+
+    if( !keyPath.empty() )
+    { if(  !m_keys.empty() )
+      { RegistryKeyM::const_iterator keyIter = m_keys.find(keyPath.c_str());
+
+        if( keyIter!=m_keys.end() )
+          keyIter->second.QueryValue(name,value);
+      } // of if
+      else
+      { RegistryKey key(keyPath.c_str());
+
+        result = key.QueryValue(name,value);
+      } // of else
+    } // of if
+
+    return result;
   } // of Registry::QueryValue()
 
   /**
    *
    */
-  void Registry::QueryValue(LPCTSTR subkey,LPCTSTR name,DWORD& value,DWORD* pType) const
-  {
-  } // of Registry::QueryValue()
+  bool Registry::Prepare() const
+  { bool result = true;
 
-  /**
-   *
-   */
-  bool Registry::Prepare()
-  { bool result = false;
+    for( RegistryKeyM::const_iterator keyIter=m_keys.begin();keyIter!=m_keys.end();keyIter++ )
+    { if( !keyIter->second.Prepare() )
+      { result = false;
+        break;
+      } // of if
+    } // of for
 
     return result;
   } // of Registry::Prepare()
@@ -472,8 +586,26 @@ namespace bvr20983
   bool Registry::Commit()
   { bool result = false;
 
+    for( RegistryKeyM::iterator keyIter=m_keys.begin();keyIter!=m_keys.end();keyIter++ )
+    { if( !keyIter->second.Commit() )
+      { result = false;
+        break;
+      } // of if
+    } // of for
+
     return result;
   } // of Registry::Commit()
+
+  /**
+   *
+   */
+  bool Registry::Rollback()
+  { bool result = true;
+
+    m_keys.clear();
+
+    return result;
+  } // of Registry::Rollback()
 } // of namespace bvr20983
 
 template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const RegistryKey&);

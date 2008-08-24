@@ -42,6 +42,8 @@ namespace bvr20983
       TString coclassRegKeyStr(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
       coclassRegKeyStr += clsIdGUID;
       
+      RegistryValue tlibIDValue;
+      RegistryValue tlibVersionValue;
       TString tlibID;
       TString tlibVersion;
       
@@ -50,47 +52,51 @@ namespace bvr20983
       
       Registry coclassRegKey(coclassRegKeyStr);
   
-      coclassRegKey.QueryKeyValue(_T("TypeLib"),NULL,tlibID);
-      coclassRegKey.QueryKeyValue(_T("Version"),NULL,tlibVersion);
-      
-      LPCTSTR period = _tcsstr(tlibVersion.c_str(),_T("."));
-      TCHAR  majVer[10];
-      TCHAR  minVer[10];
-      
-      if( NULL!=period )
-      { _tcsncpy_s(majVer,ARRAYSIZE(majVer),tlibVersion.c_str(),period-tlibVersion.c_str());
-        _tcscpy_s(minVer,ARRAYSIZE(minVer),period+1);
+      if( coclassRegKey.QueryValue(_T("TypeLib"),NULL,tlibIDValue) &&
+          coclassRegKey.QueryValue(_T("Version"),NULL,tlibVersionValue)
+        )
+      { tlibIDValue.GetValue(tlibID);
+        tlibVersionValue.GetValue(tlibVersion);
         
-        wVerMajor = _tstoi(majVer);
-        wVerMinor = _tstoi(minVer);
-      } // of if
-      
-      COMPtr<ITypeLib> pTLib;
-      CGUID tlibGUID(tlibID);
-      
-      THROW_COMEXCEPTION( ::LoadRegTypeLib(tlibGUID,wVerMajor,wVerMinor,LANG_SYSTEM_DEFAULT,&pTLib) );
-      
-      UINT maxTypeInfo = pTLib->GetTypeInfoCount();
-  
-      for( UINT i=0;i<maxTypeInfo;i++ )
-      { COMPtr<ITypeInfo>  pTypeInfo;
-        TYPEATTR*          pTypeAttr = NULL;
-  
-        THROW_COMEXCEPTION( pTLib->GetTypeInfo(i,&pTypeInfo) );
-        THROW_COMEXCEPTION( pTypeInfo->GetTypeAttr(&pTypeAttr) );
-  
-        if( pTypeAttr->typekind==TKIND_INTERFACE || (pTypeAttr->typekind==TKIND_DISPATCH && pTypeAttr->wTypeFlags&TYPEFLAG_FDUAL) )
-        { COMString typeName;
-  
-          THROW_COMEXCEPTION( pTypeInfo->GetDocumentation(MEMBERID_NIL,&typeName,NULL,NULL,NULL) );
+        LPCTSTR period = _tcsstr(tlibVersion.c_str(),_T("."));
+        TCHAR  majVer[10];
+        TCHAR  minVer[10];
+        
+        if( NULL!=period )
+        { _tcsncpy_s(majVer,ARRAYSIZE(majVer),tlibVersion.c_str(),period-tlibVersion.c_str());
+          _tcscpy_s(minVer,ARRAYSIZE(minVer),period+1);
           
-          if( _tcscmp(typeName,lpszIID)==0 )
-          { *pIID = pTypeAttr->guid;
-            
-            break;
-          } // of if
+          wVerMajor = _tstoi(majVer);
+          wVerMinor = _tstoi(minVer);
         } // of if
-      } // of for
+        
+        COMPtr<ITypeLib> pTLib;
+        CGUID tlibGUID(tlibID);
+        
+        THROW_COMEXCEPTION( ::LoadRegTypeLib(tlibGUID,wVerMajor,wVerMinor,LANG_SYSTEM_DEFAULT,&pTLib) );
+        
+        UINT maxTypeInfo = pTLib->GetTypeInfoCount();
+    
+        for( UINT i=0;i<maxTypeInfo;i++ )
+        { COMPtr<ITypeInfo>  pTypeInfo;
+          TYPEATTR*          pTypeAttr = NULL;
+    
+          THROW_COMEXCEPTION( pTLib->GetTypeInfo(i,&pTypeInfo) );
+          THROW_COMEXCEPTION( pTypeInfo->GetTypeAttr(&pTypeAttr) );
+    
+          if( pTypeAttr->typekind==TKIND_INTERFACE || (pTypeAttr->typekind==TKIND_DISPATCH && pTypeAttr->wTypeFlags&TYPEFLAG_FDUAL) )
+          { COMString typeName;
+    
+            THROW_COMEXCEPTION( pTypeInfo->GetDocumentation(MEMBERID_NIL,&typeName,NULL,NULL,NULL) );
+            
+            if( _tcscmp(typeName,lpszIID)==0 )
+            { *pIID = pTypeAttr->guid;
+              
+              break;
+            } // of if
+          } // of if
+        } // of for
+      } // of if
     } // of if
   } // of COMPtrBase::GetInfo()
 

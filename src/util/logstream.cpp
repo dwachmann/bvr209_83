@@ -132,10 +132,13 @@ namespace bvr20983
     ::OutputDebugFmt(_T("Loggers::GetLoggingLevel() registry <%s>\n"),regPath.c_str());
 
     try
-    { RegistryKey regKey(regPath);
-      TString     logLevel;
+    { RegKey        regKey(regPath);
+      RegistryValue regValue;
+      TString       logLevel;
 
-      regKey.QueryValue(_T("tracelevel"),logLevel);
+      regKey.QueryValue(_T("tracelevel"),regValue);
+
+      regValue.GetValue(logLevel);
 
       result = LogLevel<charT,traits>(logLevel.c_str());
     }

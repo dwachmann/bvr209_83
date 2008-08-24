@@ -35,6 +35,7 @@ namespace bvr20983
   {
     public:
       RegistryValue();
+      RegistryValue(const RegistryValue& val);
       RegistryValue(LPCTSTR name,LPCTSTR value,DWORD type=REG_SZ);
       RegistryValue(LPCTSTR name,DWORD value,DWORD type=REG_SZ);
       ~RegistryValue();
@@ -53,6 +54,8 @@ namespace bvr20983
 
       LPBYTE GetBuffer() const
       { return NULL!=m_pValue ? (LPBYTE)(const_cast<LPTSTR>(m_pValue->c_str())) : (LPBYTE)&m_intValue; }
+
+      RegistryValue& operator=(const RegistryValue& val);
 
     private:
       TString  m_name;
@@ -77,7 +80,7 @@ namespace bvr20983
       void     Delete(bool deep=false);
       bool     Exists() const;
       bool     HasSubKey() const;
-      void     QueryValue(LPCTSTR name,RegistryValue &value);
+      bool     QueryValue(LPCTSTR name,RegistryValue &value) const;
       void     SetValue(const RegistryValue& value);
       operator TString() const;
 
@@ -97,13 +100,18 @@ namespace bvr20983
   {
     public:
       RegistryKey(LPCTSTR path=NULL);
+      RegistryKey(const TString& path)
+      { RegistryKey(path.c_str()); }
+      RegistryKey(const RegistryKey& key);
       ~RegistryKey();
       
       void     SetValue(LPCTSTR name,LPCTSTR value);
       void     SetValue(LPCTSTR name,DWORD value);
-      void     QueryValue(LPCTSTR name,RegistryValue& value);
-      bool     Prepare();
+      bool     QueryValue(LPCTSTR name,RegistryValue& value) const;
+      bool     Prepare() const;
       bool     Commit();
+
+      RegistryKey& operator=(const RegistryKey& val);
 
       const TString GetKey() const
       { return m_key; }
@@ -125,12 +133,18 @@ namespace bvr20983
   class Registry
   {
     public:
-      Registry(LPCTSTR keyPrefix) : m_keyPrefix(keyPrefix)
-      { }
+      Registry(const TString& keyPrefix)
+      { Registry(keyPrefix.c_str()); }
+
+      Registry(LPCTSTR keyPrefix=NULL)
+      { if( NULL!=keyPrefix) m_keyPrefix = keyPrefix; }
 
       void SetValue  (LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type=REG_SZ);
-      void QueryValue(LPCTSTR subkey,LPCTSTR name,TString& value      ,DWORD* pType=NULL) const;
-      void QueryValue(LPCTSTR subkey,LPCTSTR name,DWORD& value        ,DWORD* pType=NULL) const;
+      void SetValue  (LPCTSTR subkey,LPCTSTR name,DWORD value,DWORD type=REG_DWORD);
+      bool QueryValue(LPCTSTR subkey,LPCTSTR name,RegistryValue& value) const;
+
+      void SetKeyPrefix(const TString& keyPrefix)
+      { m_keyPrefix = keyPrefix; }
 
       void SetKeyPrefix(LPCTSTR keyPrefix)
       { m_keyPrefix = keyPrefix; }
@@ -141,12 +155,15 @@ namespace bvr20983
       void SetDumpFile(LPCTSTR dumpFileName)
       { m_dumpFileName = dumpFileName; }
 
-      bool Prepare();
+      bool Prepare() const;
       bool Commit();
+      bool Rollback();
       
     private:
       typedef std::pair<LPCTSTR,RegistryKey>         RegistryKeyP;
       typedef std::map <LPCTSTR,RegistryKey,strless> RegistryKeyM;
+
+      void GetKeyPath(LPCTSTR subkey,TString& keyPath) const;
 
       RegistryKeyM m_keys;
       TString      m_keyPrefix;

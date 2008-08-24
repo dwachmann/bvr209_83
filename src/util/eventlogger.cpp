@@ -85,19 +85,18 @@ namespace bvr20983
       { TString evtSrcRegKeyStr(_T("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\"));
         evtSrcRegKeyStr += serviceName;
 
-        RegistryKey k(evtSrcRegKeyStr);
+        Registry evtSrcRegKey(evtSrcRegKeyStr);
 
-        if( !k.Exists() )
-        { Registry evtSrcRegKey(evtSrcRegKeyStr);
+        OutputDebugFmt(_T("EventLogger::RegisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
 
-          OutputDebugFmt(_T("EventLogger::RegisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
+        evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),szModulePath);
+        evtSrcRegKey.SetValue(NULL,_T("TypesSupported"),EVENTLOG_ERROR_TYPE|EVENTLOG_INFORMATION_TYPE|EVENTLOG_WARNING_TYPE);
 
-          evtSrcRegKey.SetKeyValue(NULL,_T("EventMessageFile"),szModulePath);
-          evtSrcRegKey.SetKeyIntValue(NULL,_T("TypesSupported"),EVENTLOG_ERROR_TYPE|EVENTLOG_INFORMATION_TYPE|EVENTLOG_WARNING_TYPE);
+        evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),szModulePath);
+        evtSrcRegKey.SetValue(NULL,_T("CategoryCount"),3);
 
-          evtSrcRegKey.SetKeyValue(NULL,_T("CategoryMessageFile"),szModulePath);
-          evtSrcRegKey.SetKeyIntValue(NULL,_T("CategoryCount"),3);
-        } // of if
+        if( evtSrcRegKey.Prepare() )
+          evtSrcRegKey.Commit();
       } // of if
     } // of EventLogger::RegisterInRegistry()
 
@@ -109,7 +108,7 @@ namespace bvr20983
       { TString evtSrcRegKeyStr(_T("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\"));
         evtSrcRegKeyStr += serviceName;
 
-        RegistryKey k(evtSrcRegKeyStr);
+        RegKey k(evtSrcRegKeyStr);
 
         if( k.Exists() )
         { OutputDebugFmt(_T("EventLogger::UnregisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());

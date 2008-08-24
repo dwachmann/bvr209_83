@@ -58,22 +58,20 @@ void listCOMObjects(bool onlyControls,LPCTSTR typeName)
   { TString key(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
     key += k;
     
-    RegistryKey regKey(key);
+    RegKey regKey(key);
 
-    TString name;
+    RegistryValue regValue;
 
-    try
-    { regKey.QueryValue(NULL,name);
-    }
-    catch(const LastErrorException& ex)
-    { if( ex.GetErrorCode()!=ERROR_FILE_NOT_FOUND )
-        throw;
-    }
+    if( regKey.QueryValue(NULL,regValue) )
+    { TString name;
 
-    if( NULL==typeName || _tcsstr(name.c_str(),typeName)!=NULL || _tcsstr(k.c_str(),typeName)!=NULL )
-    { k = k.substr(1,k.size()-2);
+      regValue.GetValue(name);
 
-      LOGGER_INFO<<k<<_T(":")<<name<<endl;
+      if( NULL==typeName || _tcsstr(name.c_str(),typeName)!=NULL || _tcsstr(k.c_str(),typeName)!=NULL )
+      { k = k.substr(1,k.size()-2);
+
+        LOGGER_INFO<<k<<_T(":")<<name<<endl;
+      } // of if
     } // of if
   } // of for
 } // of listCOMObjects()
@@ -87,20 +85,8 @@ bool isCOMTypeRegistered(bool onlyControls,LPCTSTR typeGUID)
 
   typeRegKeyStr += typeGUID;
   typeRegKeyStr += _T("}");
-
-  RegistryKey regKey(typeRegKeyStr);
-
-  TString name;
-
-  try
-  { regKey.QueryValue(NULL,name);
-
-    result = true;
-  }
-  catch(const LastErrorException& ex)
-  { if( ex.GetErrorCode()!=ERROR_FILE_NOT_FOUND )
-      throw;
-  }
+  
+  result = RegKey(typeRegKeyStr).Exists();
 
   return result;
 } // of isCOMTypeRegistered()
@@ -116,17 +102,14 @@ bool getRegistryTypeInfo(LPCTSTR typeGUID,LPCTSTR subKey,TString &typeInfo)
   typeRegKeyStr += _T("}\\");
   typeRegKeyStr += subKey;
 
-  RegistryKey regKey(typeRegKeyStr);
+  RegKey        regKey(typeRegKeyStr);
+  RegistryValue regValue;
 
-  try
-  { regKey.QueryValue(NULL,typeInfo);
+  if( regKey.QueryValue(NULL,regValue) )
+  { regValue.GetValue(typeInfo);
 
     result = true;
-  }
-  catch(const LastErrorException& ex)
-  { if( ex.GetErrorCode()!=ERROR_FILE_NOT_FOUND )
-      throw;
-  }  
+  } // of if
 
   return result;
 } // of getRegistryTypeInfo()
@@ -150,13 +133,16 @@ void loadTypeLibrary(LPCTSTR typeGUID,COMPtr<ITypeLib>& pTLib)
     typeLibRegKeyStr += typeLibVersion;
     typeLibRegKeyStr += _T("\\0\\win32");
 
-    RegistryKey regKey(typeLibRegKeyStr);
+    RegKey        regKey(typeLibRegKeyStr);
+    RegistryValue regValue;
 
-    regKey.QueryValue(NULL,typeLibPath);
+    if( regKey.QueryValue(NULL,regValue) )
+    { regValue.GetValue(typeLibPath);
 
-    LOGGER_INFO<<_T("loading type library ")<<typeLibGUID<<_T(":")<<typeLibPath<<endl;
+      LOGGER_INFO<<_T("loading type library ")<<typeLibGUID<<_T(":")<<typeLibPath<<endl;
 
-    THROW_COMEXCEPTION( ::LoadTypeLibEx(typeLibPath.c_str(),REGKIND_NONE,&pTLib) );
+      THROW_COMEXCEPTION( ::LoadTypeLibEx(typeLibPath.c_str(),REGKIND_NONE,&pTLib) );
+    } // of if
   } // of if
 } // of loadTypeLibrary()
 
