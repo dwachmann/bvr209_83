@@ -80,6 +80,7 @@ namespace bvr20983
       void     Delete(bool deep=false);
       bool     Exists() const;
       bool     HasSubKey() const;
+      bool     EnumKey(TString& keyName,DWORD index) const;
       bool     QueryValue(LPCTSTR name,RegistryValue &value) const;
       void     SetValue(const RegistryValue& value);
       operator TString() const;
@@ -92,6 +93,28 @@ namespace bvr20983
       TString  m_subKey;
   }; // of class RegKey
 
+  /**
+   *
+   */
+  class RegKeyEnum
+  {
+    public:
+      RegKeyEnum(LPCTSTR path,UINT32 maxDepth=1);
+      RegKeyEnum(const TString& path,UINT32 maxDepth=1);
+
+      bool Next(TString& keyName);
+      
+    private:
+      struct State
+      { RegKey m_key;
+        DWORD  m_index;
+        
+        State(RegKey key) : m_key(key),m_index(0) {}
+      };
+
+      stack<State> m_stack;
+      DWORD        m_maxDepth;
+  }; // of class RegKeyEnum
 
   /**
    *
@@ -100,8 +123,7 @@ namespace bvr20983
   {
     public:
       RegistryKey(LPCTSTR path=NULL);
-      RegistryKey(const TString& path)
-      { RegistryKey(path.c_str()); }
+      RegistryKey(const TString& path);
       RegistryKey(const RegistryKey& key);
       ~RegistryKey();
       
@@ -134,7 +156,7 @@ namespace bvr20983
   {
     public:
       Registry(const TString& keyPrefix)
-      { Registry(keyPrefix.c_str()); }
+      { m_keyPrefix = keyPrefix; }
 
       Registry(LPCTSTR keyPrefix=NULL)
       { if( NULL!=keyPrefix) m_keyPrefix = keyPrefix; }

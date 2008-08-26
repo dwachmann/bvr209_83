@@ -220,23 +220,40 @@ namespace bvr20983
    *
    */
   bool RegKey::HasSubKey() const
+  { TString key;
+
+    return EnumKey(key,0);
+  } // of RegKey::HasSubKey()
+
+  /**
+   *
+   */
+  bool RegKey::EnumKey(TString& keyName,DWORD index) const
   { TCHAR buffer[MAX_KEY_LENGTH];
     DWORD bufferSize = MAX_KEY_LENGTH;
     bool  result     = false;
 
     Open();
   
-    LONG enumResult = ::RegEnumKeyEx(m_key,0,buffer,&bufferSize,NULL,NULL,NULL,NULL);
+    LONG enumResult = ::RegEnumKeyEx(m_key,index,buffer,&bufferSize,NULL,NULL,NULL,NULL);
 
     if( enumResult!=ERROR_NO_MORE_ITEMS )
     { THROW_LASTERROREXCEPTION(enumResult); }
     
     result = enumResult==ERROR_SUCCESS;
 
-    return result;
-  } // of RegKey::HasSubKey()
+    keyName.clear();
 
-/**
+    if( result )
+    { keyName = *this;
+      keyName += _T("\\");
+      keyName += buffer;
+    } // of if
+
+    return result;
+  } // of RegKey::EnumKey()
+
+  /**
    *
    */
   bool RegKey::QueryValue(LPCTSTR name,RegistryValue &value) const
@@ -288,18 +305,72 @@ namespace bvr20983
   /**
    *
    */
-  RegistryValue::RegistryValue() : m_type(REG_SZ)
+  RegKeyEnum::RegKeyEnum(LPCTSTR path,UINT32 maxDepth) : m_maxDepth(maxDepth)
+  { m_stack.push(State(RegKey(path))); 
+  }
+  /**
+   *
+   */
+  RegKeyEnum::RegKeyEnum(const TString& path,UINT32 maxDepth) : m_maxDepth(maxDepth)
+  { m_stack.push(State(RegKey(path))); 
+  }
+
+  /**
+   *
+   */
+  bool RegKeyEnum::Next(TString& keyName)
+  { bool  nextResult = false;
+    
+    for( ;; )
+    { const State& state = m_stack.top();
+      TString      key;
+
+      if( state.m_key.EnumKey(key,state.m_index) )
+      { m_stack.push(State(RegKey(key))); 
+        
+        if( m_stack.size()>=m_maxDepth )
+          break;
+      } // of if
+      else
+      { m_stack.pop();
+        break;
+      } // of else
+    } // of for
+
+    if( m_stack.size()>1 )
+    { State& state = m_stack.top();
+
+      keyName = state.m_key;
+
+      state.m_index++;
+        
+      nextResult = true;
+    } // of if
+
+    return nextResult;
+  } // of RegKeyEnum::Next()
+
+  /**
+   *
+   */
+  RegistryValue::RegistryValue() 
+    : m_type(REG_SZ),
+      m_pValue(NULL),
+      m_intValue(0)
   { }
 
   /**
    *
    */
   RegistryValue::RegistryValue(LPCTSTR name,LPCTSTR value,DWORD type) :
-    m_name(name),
     m_pValue(NULL),
     m_intValue(0),
     m_type(type)
-  { m_pValue = new TString(NULL!=value ? value : _T("")); }
+  { if( NULL!=name )
+      m_name = name;
+
+    m_pValue = new TString(NULL!=value ? value : _T("")); 
+  }
 
   /**
    *
@@ -309,7 +380,9 @@ namespace bvr20983
     m_pValue(NULL),
     m_intValue(value),
     m_type(type)
-  { }
+  { if( NULL!=name )
+      m_name = name;
+  }
 
   /**
    *
@@ -329,7 +402,7 @@ namespace bvr20983
 
   RegistryValue& RegistryValue::operator=(const RegistryValue& val)
   { this->m_name     = val.m_name; 
-    this->m_pValue   = val.m_pValue; 
+    this->m_pValue   = NULL!=val.m_pValue ? new TString(*val.m_pValue) : NULL; 
     this->m_intValue = val.m_intValue; 
     this->m_type     = val.m_type; 
   
@@ -369,6 +442,12 @@ namespace bvr20983
   { if( NULL!=key )
       m_key = key;
   }
+
+  /**
+   *
+   */
+  RegistryKey::RegistryKey(const TString& key)
+  { m_key = key; }
 
   /**
    *

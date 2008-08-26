@@ -52,14 +52,10 @@ void printUsage(LPCTSTR progName)
 void listCOMObjects(bool onlyControls,LPCTSTR typeName)
 { TString typeRegKeyStr(_T("HKEY_CLASSES_ROOT\\CLSID"));
   
-  RegistryKeyEnum regKeyEnum(typeRegKeyStr,1,true);
+  RegKeyEnum regKeyEnum(typeRegKeyStr,1);
 
-  for( TString k;regKeyEnum.Next(k); )
-  { TString key(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
-    key += k;
-    
-    RegKey regKey(key);
-
+  for( TString key;regKeyEnum.Next(key); )
+  { RegKey        regKey(key);
     RegistryValue regValue;
 
     if( regKey.QueryValue(NULL,regValue) )
@@ -67,10 +63,10 @@ void listCOMObjects(bool onlyControls,LPCTSTR typeName)
 
       regValue.GetValue(name);
 
-      if( NULL==typeName || _tcsstr(name.c_str(),typeName)!=NULL || _tcsstr(k.c_str(),typeName)!=NULL )
-      { k = k.substr(1,k.size()-2);
+      if( NULL==typeName || _tcsstr(name.c_str(),typeName)!=NULL || _tcsstr(key.c_str(),typeName)!=NULL )
+      { 
 
-        LOGGER_INFO<<k<<_T(":")<<name<<endl;
+        LOGGER_INFO<<key<<_T(":")<<name<<endl;
       } // of if
     } // of if
   } // of for
