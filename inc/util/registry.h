@@ -130,8 +130,8 @@ namespace bvr20983
       void     SetValue(LPCTSTR name,LPCTSTR value);
       void     SetValue(LPCTSTR name,DWORD value);
       bool     QueryValue(LPCTSTR name,RegistryValue& value) const;
-      bool     Prepare() const;
-      bool     Commit();
+      bool     Prepare(bool deleteKey=false) const;
+      bool     Commit(bool deleteKey=false);
 
       RegistryKey& operator=(const RegistryKey& val);
 
@@ -163,6 +163,11 @@ namespace bvr20983
 
       void SetValue  (LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type=REG_SZ);
       void SetValue  (LPCTSTR subkey,LPCTSTR name,DWORD value,DWORD type=REG_DWORD);
+
+      void DeleteKey (const TString& subkey,bool deep=false)
+      { DeleteKey(subkey.c_str(),deep); }
+      void DeleteKey (LPCTSTR subkey,bool deep=false);
+
       bool QueryValue(LPCTSTR subkey,LPCTSTR name,RegistryValue& value) const;
 
       void SetKeyPrefix(const TString& keyPrefix)
@@ -188,6 +193,7 @@ namespace bvr20983
       void GetKeyPath(LPCTSTR subkey,TString& keyPath) const;
 
       RegistryKeyM m_keys;
+      RegistryKeyM m_deletedKeys;
       TString      m_keyPrefix;
       TString      m_dumpFileName;
   }; // of class Registry

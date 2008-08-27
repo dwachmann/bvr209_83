@@ -19,6 +19,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #include "os.h"
+#include "util/registry.h"
 #include "util/registryutil.h"
 #include "util/logstream.h"
 #include "util/comlogstream.h"
@@ -53,7 +54,12 @@ STDAPI DllRegisterServer()
   compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
 
   try
-  { RegistryUtil::RegisterComObjectsInTypeLibrary(szModulePath,true);
+  { Registry registry;
+
+    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,true);
+
+    if( registry.Prepare() )
+      registry.Commit();
 
 /*
     as marker for registration of multiple typelibs
@@ -100,7 +106,12 @@ STDAPI DllUnregisterServer()
   compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
 
   try
-  { RegistryUtil::RegisterComObjectsInTypeLibrary(szModulePath,false);
+  { Registry registry;
+   
+    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,false);
+
+    if( registry.Prepare() )
+      registry.Commit();
   }
   catch(BVR20983Exception e)
   { LOGGER_ERROR<<e<<endl;
@@ -201,11 +212,12 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
       ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
 
       if( _tcscmp(cmd,_T("classes"))==0 )
-      { TCHAR szModulePath[MAX_PATH];
+      { Registry registry;
+        TCHAR    szModulePath[MAX_PATH];
 
         COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
 
-        RegistryUtil::RegisterComObjectsInTypeLibrary(szModulePath,true,filename);
+        RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,true);
       } // of if
     } // of if
     else 

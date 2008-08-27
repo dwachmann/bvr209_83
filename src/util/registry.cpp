@@ -325,29 +325,22 @@ namespace bvr20983
     { const State& state = m_stack.top();
       TString      key;
 
-      if( state.m_key.EnumKey(key,state.m_index) )
-      { m_stack.push(State(RegKey(key))); 
-        
-        if( m_stack.size()>=m_maxDepth )
-          break;
+      bool hasKey = state.m_key.EnumKey(key,state.m_index);
+
+      if( hasKey )
+        m_stack.push(State(RegKey(key))); 
+
+      if( !hasKey || m_stack.size()>=m_maxDepth )
+      { keyName = m_stack.top().m_key;
+
+        m_stack.pop();
+        m_stack.top().m_index++;
+
+        return true;
       } // of if
-      else
-      { m_stack.pop();
-        break;
-      } // of else
     } // of for
 
-    if( m_stack.size()>1 )
-    { State& state = m_stack.top();
-
-      keyName = state.m_key;
-
-      state.m_index++;
-        
-      nextResult = true;
-    } // of if
-
-    return nextResult;
+    return false;
   } // of RegKeyEnum::Next()
 
   /**
@@ -376,7 +369,6 @@ namespace bvr20983
    *
    */
   RegistryValue::RegistryValue(LPCTSTR name,DWORD value,DWORD type) :
-    m_name(name),
     m_pValue(NULL),
     m_intValue(value),
     m_type(type)
@@ -515,7 +507,7 @@ namespace bvr20983
   /**
    *
    */
-  bool RegistryKey::Prepare() const
+  bool RegistryKey::Prepare(bool deleteKey) const
   { bool result = true;
 
     return result;
@@ -524,18 +516,22 @@ namespace bvr20983
   /**
    *
    */
-  bool RegistryKey::Commit()
+  bool RegistryKey::Commit(bool deleteKey)
   { bool result = false;
 
     RegKey regKey(m_key.c_str());
 
-    if( regKey.Create() )
-    {
-      for( RegistryValueM::const_iterator valueIter=m_values.begin();valueIter!=m_values.end();valueIter++ )
-        regKey.SetValue(valueIter->second);
+    if( deleteKey )
+      regKey.Delete();
+    else
+    { if( regKey.Create() )
+      {
+        for( RegistryValueM::const_iterator valueIter=m_values.begin();valueIter!=m_values.end();valueIter++ )
+          regKey.SetValue(valueIter->second);
 
-      result = true;
-    } // of if
+        result = true;
+      } // of if
+    } // of else
 
     return result;
   } // of RegistryKey::Commit()
@@ -619,6 +615,39 @@ namespace bvr20983
   /**
    *
    */
+  void Registry::DeleteKey(LPCTSTR subkey,bool deep)
+  { TString keyPath;
+
+    GetKeyPath(subkey,keyPath);
+
+    if( !keyPath.empty() )
+    { RegistryKey                  key;
+      RegistryKeyM::const_iterator keyIter = m_deletedKeys.find(keyPath.c_str());
+
+      if( m_deletedKeys.empty() || keyIter==m_deletedKeys.end() )
+      { key = RegistryKey(keyPath.c_str());
+
+        m_deletedKeys.insert( RegistryKeyP(keyPath.c_str(),key) );
+      } // of if
+    } // of if
+
+    if( deep )
+    { TString    oldKeyPrefix;
+      RegKeyEnum regKeyEnum(keyPath.c_str(),10);
+
+      GetKeyPrefix(oldKeyPrefix);
+      SetKeyPrefix(NULL);
+
+      for( TString key;regKeyEnum.Next(key); )
+        DeleteKey(key.c_str(),false);
+
+      SetKeyPrefix(oldKeyPrefix);
+    } // of if
+  } // of Registry::DeleteKey()
+
+  /**
+   *
+   */
 
   bool Registry::QueryValue(LPCTSTR subkey,LPCTSTR name,RegistryValue& value) const
   { bool    result = false;
@@ -650,7 +679,14 @@ namespace bvr20983
   { bool result = true;
 
     for( RegistryKeyM::const_iterator keyIter=m_keys.begin();keyIter!=m_keys.end();keyIter++ )
-    { if( !keyIter->second.Prepare() )
+    { if( !keyIter->second.Prepare(false) )
+      { result = false;
+        break;
+      } // of if
+    } // of for
+
+    for( RegistryKeyM::const_iterator keyIter=m_deletedKeys.begin();keyIter!=m_deletedKeys.end();keyIter++ )
+    { if( !keyIter->second.Prepare(true) )
       { result = false;
         break;
       } // of if
@@ -666,7 +702,14 @@ namespace bvr20983
   { bool result = false;
 
     for( RegistryKeyM::iterator keyIter=m_keys.begin();keyIter!=m_keys.end();keyIter++ )
-    { if( !keyIter->second.Commit() )
+    { if( !keyIter->second.Commit(false) )
+      { result = false;
+        break;
+      } // of if
+    } // of for
+
+    for( RegistryKeyM::iterator keyIter=m_deletedKeys.begin();keyIter!=m_deletedKeys.end();keyIter++ )
+    { if( !keyIter->second.Commit(true) )
       { result = false;
         break;
       } // of if
@@ -682,6 +725,7 @@ namespace bvr20983
   { bool result = true;
 
     m_keys.clear();
+    m_deletedKeys.clear();
 
     return result;
   } // of Registry::Rollback()

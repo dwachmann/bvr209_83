@@ -31,26 +31,26 @@ namespace bvr20983
   class RegistryUtil
   {
     public:
-      static void RegisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
+      static void RegisterCoClass(Registry& reg,
+                                  TLIBATTR* pTypeLib,LPCTSTR typelibName,
                                   REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,WORD typeVersion,
                                   LPCTSTR modulePath,
                                   ITypeInfo2& rTypeInfo2,
                                   bool isControl=false,
-                                  LPCTSTR threadingModel=_T("Apartment"),
-                                  LPCTSTR dumpFileName=NULL
+                                  LPCTSTR threadingModel=_T("Apartment")
                                  );
 
-      static void UnregisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                    REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion,
-                                    LPCTSTR dumpFileName=NULL
+      static void UnregisterCoClass(Registry& reg,
+                                    TLIBATTR* pTypeLib,LPCTSTR typelibName,
+                                    REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion
                                    );
 
-      static void RegisterInterface(REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc);
-      static void UnregisterInterface(REFGUID objGUID);
+      static void RegisterInterface(Registry& reg,REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc);
+      static void UnregisterInterface(Registry& reg,REFGUID objGUID);
       
-      static void RegisterTypeLib(REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
+      static void RegisterTypeLib(Registry& reg,REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
 
-      static void RegisterComObjectsInTypeLibrary(LPCTSTR szModulePath,bool registerTypes,LPCTSTR dumpFileName=NULL);
+      static void RegisterComObjectsInTypeLibrary(Registry& reg,LPCTSTR szModulePath,bool registerTypes);
   }; // of class RegistryUtil
 } // of namespace bvr20983
 #endif // REGISTRYUTIL_H

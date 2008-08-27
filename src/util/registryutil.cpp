@@ -87,14 +87,13 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryUtil::RegisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                 REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,WORD typeVersion,
-                                 LPCTSTR modulePath,
-                                 ITypeInfo2& rTypeInfo2,
-                                 bool isControl,
-                                 LPCTSTR threadingModel,
-                                 LPCTSTR dumpFileName
-                                )
+  void RegistryUtil::RegisterCoClass(Registry& registry,TLIBATTR* pTypeLib,LPCTSTR typelibName,
+                                     REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,WORD typeVersion,
+                                     LPCTSTR modulePath,
+                                     ITypeInfo2& rTypeInfo2,
+                                     bool isControl,
+                                     LPCTSTR threadingModel
+                                    )
   { LOGGER_DEBUG<<_T("RegistryUtil::RegisterCoClass()")<<endl;
     LOGGER_DEBUG<<_T("typelibGUID=")<<pTypeLib->guid<<endl;
     LOGGER_DEBUG<<_T("typelibName=")<<typelibName<<endl;
@@ -141,8 +140,6 @@ namespace bvr20983
     // Create VersionIndependentProgID keys.
     TString verIndepProgIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     verIndepProgIdRegKeyStr += verIndepProgID;
-
-    Registry registry;
 
     registry.SetKeyPrefix(verIndepProgIdRegKeyStr);
     registry.SetValue(NULL,NULL,typeDesc);
@@ -198,7 +195,6 @@ namespace bvr20983
         registry.SetValue(_T("MiscStatus\\1"),NULL,miscStatus,REG_DWORD);
     } // of if
 
-    if( NULL==dumpFileName )
     { CATID catIds[ARRAYSIZE(g_KnownCATIDs)];
       int   catIdsCount=0;
 
@@ -217,22 +213,20 @@ namespace bvr20983
         } // of if
       } // of for
     } // of if
-
-    if( registry.Prepare() )
-      registry.Commit();
   } // of RegistryUtil::RegisterCoClass()
 
  /**
    *
    */
-  void RegistryUtil::UnregisterCoClass(TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                   REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion,
-                                   LPCTSTR dumpFileName
-                                  )
+  void RegistryUtil::UnregisterCoClass(Registry& registry,TLIBATTR* pTypeLib,LPCTSTR typelibName,
+                                       REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion
+                                      )
   { LOGGER_DEBUG<<_T("RegistryUtil::UnregisterCoClass()")<<endl;
     LOGGER_DEBUG<<_T("typeGUID   =")<<typeGUID<<endl;
     LOGGER_DEBUG<<_T("typeName   =")<<typeName<<endl;
     LOGGER_DEBUG<<_T("typeVersion=")<<typeVersion<<endl;
+
+    registry.SetKeyPrefix(NULL);
 
     basic_ostringstream<TCHAR> typeVersionStr;
     typeVersionStr<<typeVersion;
@@ -250,28 +244,25 @@ namespace bvr20983
     TString verIndepProgIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     verIndepProgIdRegKeyStr += verIndepProgID;
 
-    RegKey verIndepProgIdRegKey(verIndepProgIdRegKeyStr);
-    verIndepProgIdRegKey.Delete(true);
+    registry.DeleteKey(verIndepProgIdRegKeyStr,true);
 
     // Create ProgID keys.
     TString progIdRegKeyStr(_T("HKEY_CLASSES_ROOT\\"));
     progIdRegKeyStr += progID;
 
-    RegKey progIdRegKey(progIdRegKeyStr);
-    progIdRegKey.Delete(true);
+    registry.DeleteKey(progIdRegKeyStr,true);
 
     // Create entries under CLSID.
     TString typeRegKeyStr(_T("HKEY_CLASSES_ROOT\\CLSID\\"));
     typeRegKeyStr += typeID;
 
-    RegKey typeRegKey(typeRegKeyStr);
-    typeRegKey.Delete(true);
+    registry.DeleteKey(typeRegKeyStr,true);
   } // of RegistryUtil::UnregisterCoClass()
 
   /**
    *
    */
-  void RegistryUtil::RegisterInterface(REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc)
+  void RegistryUtil::RegisterInterface(Registry& regIf,REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc)
   { LOGGER_DEBUG<<_T("Registry::RegisterInterface()")<<endl;
     LOGGER_DEBUG<<_T("typelibGUID=")<<typelibGUID<<endl;
     LOGGER_DEBUG<<_T("typelibVer =")<<majorVersion<<_T(".")<<minorVersion<<endl;
@@ -284,7 +275,6 @@ namespace bvr20983
     TString ifStr(_T("HKEY_CLASSES_ROOT\\Interface\\"));
     ifStr += typeID;
 
-    Registry regIf(ifStr);
     regIf.SetValue(NULL,NULL,typeDesc);
     regIf.SetValue(_T("ProxyStubClsid32"),NULL,_T("{00020420-0000-0000-C000-000000000046}"));
     regIf.SetValue(_T("TypeLib"),NULL,tlibID);
@@ -294,32 +284,26 @@ namespace bvr20983
     os<<majorVersion<<_T(".")<<minorVersion;
 
     regIf.SetValue(_T("TypeLib"),_T("Version"),os.str());
-
-    if( regIf.Prepare() )
-      regIf.Commit();
   } // of RegistryUtil::RegisterInterface()
   
   /**
    *
    */
-  void RegistryUtil::UnregisterInterface(REFGUID typeGUID)
+  void RegistryUtil::UnregisterInterface(Registry& registry,REFGUID typeGUID)
   { LOGGER_DEBUG<<_T("Registry::UnregisterInterface()")<<endl;
     LOGGER_DEBUG<<_T("typeGUID   =")<<typeGUID<<endl;
     
     CGUID typeID(typeGUID);
 
-    TString ifStr(_T("HKEY_CLASSES_ROOT\\Interface\\"));
-    ifStr += typeID;
+    registry.SetKeyPrefix(_T("HKEY_CLASSES_ROOT\\Interface"));
 
-    RegKey regIf(ifStr);
-
-    regIf.Delete(true);
+    registry.DeleteKey(typeID,true);
   } // of RegistryUtil::UnregisterInterface()
   
   /**
    *
    */
-  void RegistryUtil::RegisterTypeLib(REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath)
+  void RegistryUtil::RegisterTypeLib(Registry& regIf,REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath)
   { ITypeLib*        pITypeLib       = NULL;
     ICreateTypeLib2* pICreateTypeLib = NULL;
     
@@ -338,7 +322,7 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryUtil::RegisterComObjectsInTypeLibrary(LPCTSTR szModulePath,bool registerTypes,LPCTSTR dumpFileName)
+  void RegistryUtil::RegisterComObjectsInTypeLibrary(Registry& registry,LPCTSTR szModulePath,bool registerTypes)
   { TCHAR            szWindowsDir[MAX_PATH];
     TLIBATTR*        pTLibAttr = NULL;
     COMPtr<ITypeLib> pTLib;
@@ -384,16 +368,14 @@ namespace bvr20983
         THROW_COMEXCEPTION( pTypeInfo->GetDocumentation(MEMBERID_NIL,&typeName,&typeDoc,NULL,NULL) );
 
         if( registerTypes )
-          RegisterCoClass(pTLibAttr,libName,
+          RegisterCoClass(registry,pTLibAttr,libName,
                           pTypeAttr->guid,typeName,typeDoc,pTypeAttr->wMajorVerNum,
                           szModulePath,
                           *pTypeInfo2,
-                          (pTypeAttr->wTypeFlags & TYPEFLAG_FCONTROL)!=0 ? true : false,
-                          _T("Apartment"),
-                          dumpFileName
+                          (pTypeAttr->wTypeFlags & TYPEFLAG_FCONTROL)!=0 ? true : false
                          );
         else
-          UnregisterCoClass(pTLibAttr,libName,pTypeAttr->guid,typeName,pTypeAttr->wMajorVerNum,dumpFileName);
+          UnregisterCoClass(registry,pTLibAttr,libName,pTypeAttr->guid,typeName,pTypeAttr->wMajorVerNum);
       } // of if
 
       pTypeInfo->ReleaseTypeAttr(pTypeAttr);
@@ -430,12 +412,10 @@ namespace bvr20983
 
     pTLib->ReleaseTLibAttr(pTLibAttr);
 
-    if( NULL==dumpFileName )
-    { if( registerTypes )
-      { THROW_COMEXCEPTION( ::RegisterTypeLib(pTLib,(OLECHAR *)szModulePath,szWindowsDir) ); }
-      else
-      { THROW_COMEXCEPTION( ::UnRegisterTypeLib(pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,pTLibAttr->lcid,SYS_WIN32) ); }
-    } // of if
+    if( registerTypes )
+    { THROW_COMEXCEPTION( ::RegisterTypeLib(pTLib,(OLECHAR *)szModulePath,szWindowsDir) ); }
+    else
+    { THROW_COMEXCEPTION( ::UnRegisterTypeLib(pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,pTLibAttr->lcid,SYS_WIN32) ); }
   } // of RegistryUtil::RegisterComObjectsInTypeLibrary()
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/
