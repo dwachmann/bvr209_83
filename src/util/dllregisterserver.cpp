@@ -218,6 +218,15 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
         COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
 
         RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,true);
+
+#ifdef _UNICODE
+        wofstream fos(filename);
+#else
+        ofstream fos(filename);
+#endif
+        fos<<registry;
+
+        fos.close();
       } // of if
     } // of if
     else 
@@ -232,4 +241,106 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
   catch(...)
   { OutputDebugFmt(_T("DllRegistrationInfo(): Exception\n")); }
 } // of _DllRegistrationInfo_()
+
+#ifdef _UNICODE
+#define _DllRegEdit_ DllRegEditW
+#else
+#define _DllRegEdit_ DllRegEditA
+#endif
+
+/**
+ *
+ */
+void PrintRegEditUsage(HWND hwnd)
+{ basic_ostringstream<TCHAR> msgStream;
+  msgStream<<_T("Usage: rundll32 <dllname>,DllRegEdit <read|write> [keyname] [valuename] [value]");
+
+  TString msg = msgStream.str();
+
+  ::MessageBox(hwnd,msg.c_str(),_T("DllRegEdit"),MB_OK | MB_ICONINFORMATION);
+} // of PrintRegEditUsage()
+
+/**
+ * RUNDLL32.EXE <dllname>,DllRegEdit <read|write> [keyname] [valuename] [value]
+ *
+ * hwnd        - window handle that should be used as the owner window for any windows your DLL creates
+ * hinst       - your DLL's instance handle
+ * lpszCmdLine - command line your DLL should parse
+ * nCmdShow    - describes how your DLL's windows should be displayed
+ */
+STDAPI_(void) _DllRegEdit_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+{ try
+  { OutputDebugFmt(_T("DllRegEdit(): <%s>\n"),lpszCmdLine);
+
+    TCHAR cmd[256];
+    TCHAR regkey[MAX_KEY_LENGTH];
+    TCHAR regvalname[MAX_KEY_LENGTH];
+    TCHAR regval[MAX_KEY_LENGTH];
+
+    ::memset(cmd   ,_T('\0'),ARRAYSIZE(cmd));
+    ::memset(regkey,_T('\0'),MAX_KEY_LENGTH);
+    ::memset(regvalname,_T('\0'),MAX_KEY_LENGTH);
+    ::memset(regval,_T('\0'),MAX_KEY_LENGTH);
+
+    int     i         = 0;
+    boolean stop      = false;
+    LPTSTR  nextToken = NULL;
+    for( LPTSTR tok=_tcstok_s(lpszCmdLine,_T(" "),&nextToken);NULL!=tok && !stop;tok=_tcstok_s(NULL,_T(" "),&nextToken),i++ )
+    {
+      switch( i )
+      { 
+      case 0:
+        if( _tcscmp(tok,_T("read"))==0 || _tcscmp(tok,_T("write"))==0 )
+          _tcscpy_s(cmd,ARRAYSIZE(cmd),tok);
+        else
+          stop = true;
+        break;
+      case 1:
+        _tcscpy_s(regkey,MAX_KEY_LENGTH,tok);
+
+        break;
+      case 2:
+        _tcscpy_s(regvalname,MAX_KEY_LENGTH,tok);
+        break;
+      case 3:
+        _tcscpy_s(regval,MAX_KEY_LENGTH,tok);
+        break;
+      default:
+        stop = true;
+        break;
+      } // of switch
+    } // of for
+
+    if( cmd[0]!=_T('\0') )
+    { basic_ostringstream<TCHAR> msgStream;
+      msgStream<<_T("command=")<<cmd<<_T("\n");
+
+      ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegEdit"),MB_OK | MB_ICONINFORMATION);
+
+      if( _tcscmp(cmd,_T("read"))==0 )
+      { Registry      registry(regkey);
+        RegistryValue regVal; 
+
+        if( registry.QueryValue(NULL,regvalname,regVal) )
+        {
+          basic_ostringstream<TCHAR> msgStream1;
+          msgStream1<<regkey<<_T("\n");
+          msgStream1<<regVal<<_T("\n");
+
+          ::MessageBox(hwnd,msgStream1.str().c_str(),_T("DllRegEdit"),MB_OK | MB_ICONINFORMATION);
+        } // of if
+      } // of if
+    } // of if
+    else 
+      PrintRegEditUsage(hwnd);
+  }
+  catch(BVR20983Exception e)
+  { OutputDebugFmt(_T("DllRegEdit(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
+    OutputDebugFmt(_T("  Filename \"%s\" Line %d\n"),e.GetFileName(),e.GetLineNo());
+  }
+  catch(exception& e) 
+  { OutputDebugFmt(_T("DllRegEdit(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
+  catch(...)
+  { OutputDebugFmt(_T("DllRegEdit(): Exception\n")); }
+} // of _DllRegEdit_()
 /*==========================END-OF-FILE===================================*/

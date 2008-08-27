@@ -20,3 +20,4 @@ EXPORTS
   DllRegisterServer    PRIVATE
   DllUnregisterServer  PRIVATE
   DllRegistrationInfoW PRIVATE
+  DllRegEditW          PRIVATE

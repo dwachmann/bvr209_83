@@ -162,8 +162,8 @@ namespace bvr20983
     registry.SetValue(NULL,NULL,typeDesc);
     registry.SetValue(_T("ProgID"),NULL,progID);
     registry.SetValue(_T("VersionIndependentProgID"),NULL,verIndepProgID);
-    registry.SetValue(_T("NotInsertable"),NULL,(LPCTSTR)NULL);
-    registry.SetValue(_T("Programmable"),NULL,(LPCTSTR)NULL);
+    registry.SetKey(_T("NotInsertable"));
+    registry.SetKey(_T("Programmable"));
     registry.SetValue(_T("TypeLib"),NULL,tlibID);
     registry.SetValue(_T("Version"),NULL,tlibVersion.str());
     registry.SetValue(_T("InprocServer32"),NULL,modulePath);
@@ -175,7 +175,7 @@ namespace bvr20983
     registry.SetValue(_T("DefaultIcon"),NULL,defaultIcon);
 
     if( isControl ) 
-    { registry.SetValue(_T("Control"),NULL,(LPCTSTR)NULL);
+    { registry.SetKey(_T("Control"));
 
       if( NULL!=toolboxBitmap )
       { TString tBitmap;
@@ -412,10 +412,12 @@ namespace bvr20983
 
     pTLib->ReleaseTLibAttr(pTLibAttr);
 
+/*
     if( registerTypes )
     { THROW_COMEXCEPTION( ::RegisterTypeLib(pTLib,(OLECHAR *)szModulePath,szWindowsDir) ); }
     else
     { THROW_COMEXCEPTION( ::UnRegisterTypeLib(pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,pTLibAttr->lcid,SYS_WIN32) ); }
+*/
   } // of RegistryUtil::RegisterComObjectsInTypeLibrary()
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

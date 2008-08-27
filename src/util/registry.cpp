@@ -31,8 +31,6 @@
 #include "util/guid.h"
 #include <sstream>
 
-#define MAX_KEY_LENGTH 255
-#define MAX_VALUE_NAME 16383
 
 using namespace bvr20983;
 
@@ -405,7 +403,7 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryValue::GetValue(TString &value)
+  void RegistryValue::GetValue(TString &value) const
   { if( NULL!=m_pValue )
       value = *m_pValue;
     else
@@ -420,7 +418,7 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryValue::GetValue(DWORD& value)
+  void RegistryValue::GetValue(DWORD& value) const
   { if( NULL!=m_pValue )
       value = _ttol(m_pValue->c_str());
     else
@@ -467,28 +465,33 @@ namespace bvr20983
    *
    */
   void RegistryKey::SetValue(LPCTSTR name,LPCTSTR value)
-  { if( m_values.empty() || m_values.find(name)==m_values.end() )
-      m_values.insert( RegistryValueP(name,RegistryValue(name,value)) );
+  { LPCTSTR intName = name==NULL ? _T("@") : name;
+    
+    if( m_values.empty() || m_values.find(intName)==m_values.end() )
+      m_values.insert( RegistryValueP(intName,RegistryValue(intName,value)) );
     else
-      m_values.find(name)->second = RegistryValue(name,value);
+      m_values.find(intName)->second = RegistryValue(intName,value);
   } // of RegistryKey::SetValue()
 
   /**
    *
    */
   void RegistryKey::SetValue(LPCTSTR name,DWORD value)
-  { if( m_values.empty() || m_values.find(name)==m_values.end() )
-      m_values.insert( RegistryValueP(name,RegistryValue(name,value)) );
+  { LPCTSTR intName = name==NULL ? _T("@") : name;
+
+    if( m_values.empty() || m_values.find(intName)==m_values.end() )
+      m_values.insert( RegistryValueP(intName,RegistryValue(intName,value)) );
     else
-      m_values.find(name)->second = RegistryValue(name,value);
+      m_values.find(intName)->second = RegistryValue(intName,value);
   } // of RegistryKey::SetValue()
 
   /**
    *
    */
   bool RegistryKey::QueryValue(LPCTSTR name,RegistryValue& value) const
-  { bool                           result = false;
-    RegistryValueM::const_iterator iter   = m_values.find(name);
+  { LPCTSTR                        intName = name==NULL ? _T("@") : name;
+    bool                           result  = false;
+    RegistryValueM::const_iterator iter    = m_values.find(intName);
 
     if( !m_values.empty() && iter!=m_values.end() )
     { value = iter->second;
@@ -536,15 +539,6 @@ namespace bvr20983
     return result;
   } // of RegistryKey::Commit()
 
-  /**
-   *
-   */
-  template<class charT, class Traits>
-  basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const RegistryKey& rKey)
-  { os<<"["<<rKey.GetKey()<<"]"; 
-  
-    return os;
-  }
 
   /**
    *
@@ -567,7 +561,7 @@ namespace bvr20983
   /**
    *
    */
-  void Registry::SetValue(LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type)
+  void Registry::SetKey(LPCTSTR subkey)
   { TString keyPath;
 
     GetKeyPath(subkey,keyPath);
@@ -581,10 +575,30 @@ namespace bvr20983
 
         m_keys.insert( RegistryKeyP(keyPath.c_str(),key) );
       } // of if
-      else
-        key = keyIter->second;
+    } // of if
+  } // of Registry::SetKey() 
 
-      key.SetValue(name,value.c_str());
+  /**
+   *
+   */
+  void Registry::SetValue(LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type)
+  { TString keyPath;
+
+    GetKeyPath(subkey,keyPath);
+
+    if( !keyPath.empty() )
+    { RegistryKey            key;
+      RegistryKeyM::iterator keyIter = m_keys.find(keyPath.c_str());
+
+      if( m_keys.empty() || keyIter==m_keys.end() )
+      { key = RegistryKey(keyPath.c_str());
+
+        key.SetValue(name,value.c_str());
+
+        m_keys.insert( RegistryKeyP(keyPath.c_str(),key) );
+      } // of if
+      else
+        keyIter->second.SetValue(name,value.c_str());;
     } // of if
   } // of Registry::SetValue()
 
@@ -597,18 +611,18 @@ namespace bvr20983
     GetKeyPath(subkey,keyPath);
 
     if( !keyPath.empty() )
-    { RegistryKey                  key;
-      RegistryKeyM::const_iterator keyIter = m_keys.find(keyPath.c_str());
+    { RegistryKey            key;
+      RegistryKeyM::iterator keyIter = m_keys.find(keyPath.c_str());
 
       if( m_keys.empty() || keyIter==m_keys.end() )
       { key = RegistryKey(keyPath.c_str());
 
+        key.SetValue(name,value);
+
         m_keys.insert( RegistryKeyP(keyPath.c_str(),key) );
       } // of if
       else
-        key = keyIter->second;
-
-      key.SetValue(name,value);
+        keyIter->second.SetValue(name,value);
     } // of if
   } // of Registry::SetValue()
 
@@ -729,7 +743,98 @@ namespace bvr20983
 
     return result;
   } // of Registry::Rollback()
-} // of namespace bvr20983
 
-template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const RegistryKey&);
+
+  /**
+   *
+   */
+  template<class charT, class Traits>
+  basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const RegistryValue& rVal)
+  { os<<_T("\"");
+  
+    if( rVal.IsDefaultValue() )
+      os<<_T("@");
+    else
+      os<<rVal.GetName();
+    
+    os<<_T("\"")<<_T("="); 
+
+    DWORD type=rVal.GetType();
+
+    if( REG_SZ==type )
+    { TString value;
+
+      rVal.GetValue(value);
+
+      for( DWORD i=0;i<value.length();i++ )
+      { if( value[i]==_T('\\') )
+        { value.insert(i+1,1,'\\');
+          i++;
+        } // of if
+      } // of for
+
+      os<<_T("\"")<<value.c_str()<<_T("\"");
+    } // of if
+    else if( REG_DWORD==type )
+    { DWORD value;
+
+      rVal.GetValue(value);
+
+      os<<value;
+    } // of else if
+  
+    return os;
+  }
+
+  /**
+   *
+   */
+  template<class charT, class Traits>
+  basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const RegKey& rKey)
+  { TString path = rKey;
+
+    os<<_T("[")<<path.c_str()<<_T("]"); 
+  
+    return os;
+  }
+
+  /**
+   *
+   */
+  template<class charT, class Traits>
+  basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const RegistryKey& rKey)
+  { os<<_T("[")<<rKey.GetKey()<<_T("]")<<endl; 
+
+    const RegistryKey::RegistryValueM values = rKey.GetValues();
+
+    for( RegistryKey::RegistryValueM::const_iterator it=values.begin();it!=values.end();it++ )
+      os<<it->second<<endl;
+  
+    return os;
+  }
+
+  /**
+   *
+   */
+  template<class charT, class Traits>
+  basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const Registry& reg)
+  { const Registry::RegistryKeyM& keys        = reg.GetKeys();
+    const Registry::RegistryKeyM& deletedKeys = reg.GetDeletedKeys();
+
+    os<<_T("Windows Registry Editor Version 5.00")<<endl<<endl;
+    
+    for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
+      os<<it->second<<endl;
+
+    for( Registry::RegistryKeyM::const_iterator it=deletedKeys.begin();it!=deletedKeys.end();it++ )
+      os<<_T("D:")<<it->second<<endl;
+
+    return os;
+  }
+
+  template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const RegistryValue&);
+  template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const RegistryKey&);
+  template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const RegKey&);
+  template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const Registry&);
+} // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

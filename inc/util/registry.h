@@ -25,6 +25,9 @@
 #include <fstream>
 #include <stack>
 
+#define MAX_KEY_LENGTH 255
+#define MAX_VALUE_NAME 16383
+
 namespace bvr20983
 {
 
@@ -40,11 +43,14 @@ namespace bvr20983
       RegistryValue(LPCTSTR name,DWORD value,DWORD type=REG_SZ);
       ~RegistryValue();
 
-      void GetValue(TString &value);
-      void GetValue(DWORD& value);
+      void GetValue(TString &value) const;
+      void GetValue(DWORD& value) const;
 
       LPCTSTR GetName() const
       { return m_name.c_str(); }
+
+      bool IsDefaultValue() const
+      { return m_name.empty(); }
 
       DWORD GetType() const
       { return m_type; }
@@ -122,6 +128,9 @@ namespace bvr20983
   class RegistryKey
   {
     public:
+      typedef std::pair<TString,RegistryValue>          RegistryValueP;
+      typedef std::map <TString,RegistryValue,tstrless> RegistryValueM;
+
       RegistryKey(LPCTSTR path=NULL);
       RegistryKey(const TString& path);
       RegistryKey(const RegistryKey& key);
@@ -138,16 +147,13 @@ namespace bvr20983
       const TString GetKey() const
       { return m_key; }
 
-    private:
-      typedef std::pair<LPCTSTR,RegistryValue>         RegistryValueP;
-      typedef std::map <LPCTSTR,RegistryValue,strless> RegistryValueM;
+      const RegistryValueM& GetValues() const
+      { return m_values; }
 
+    private:
       TString         m_key;
       RegistryValueM  m_values;
   }; // of class RegistryKey
-
-  template<class charT, class Traits>
-  std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const RegistryKey& rKey);
 
   /**
    *
@@ -155,12 +161,16 @@ namespace bvr20983
   class Registry
   {
     public:
+      typedef std::pair<TString,RegistryKey>          RegistryKeyP;
+      typedef std::map <TString,RegistryKey,tstrless> RegistryKeyM;
+
       Registry(const TString& keyPrefix)
       { m_keyPrefix = keyPrefix; }
 
       Registry(LPCTSTR keyPrefix=NULL)
       { if( NULL!=keyPrefix) m_keyPrefix = keyPrefix; }
 
+      void SetKey    (LPCTSTR subkey);
       void SetValue  (LPCTSTR subkey,LPCTSTR name,const TString& value,DWORD type=REG_SZ);
       void SetValue  (LPCTSTR subkey,LPCTSTR name,DWORD value,DWORD type=REG_DWORD);
 
@@ -179,25 +189,36 @@ namespace bvr20983
       void GetKeyPrefix(TString& keyPrefix) const
       { keyPrefix = m_keyPrefix; }
 
-      void SetDumpFile(LPCTSTR dumpFileName)
-      { m_dumpFileName = dumpFileName; }
-
       bool Prepare() const;
       bool Commit();
       bool Rollback();
-      
+
+      const RegistryKeyM& GetKeys() const
+      { return m_keys; }
+
+      const RegistryKeyM& GetDeletedKeys() const
+      { return m_deletedKeys; }
+
     private:
-      typedef std::pair<LPCTSTR,RegistryKey>         RegistryKeyP;
-      typedef std::map <LPCTSTR,RegistryKey,strless> RegistryKeyM;
 
       void GetKeyPath(LPCTSTR subkey,TString& keyPath) const;
 
       RegistryKeyM m_keys;
       RegistryKeyM m_deletedKeys;
       TString      m_keyPrefix;
-      TString      m_dumpFileName;
   }; // of class Registry
-} // of namespace bvr20983
 
+  template<class charT, class Traits>
+  std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const RegistryValue& rVal);
+
+  template<class charT, class Traits>
+  std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const RegKey& rKey);
+
+  template<class charT, class Traits>
+  std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const RegistryKey& rKey);
+
+  template<class charT, class Traits>
+  std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const Registry& reg);
+} // of namespace bvr20983
 #endif // REGISTRY_H
 //=================================END-OF-FILE==============================

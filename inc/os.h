@@ -127,6 +127,12 @@ struct strless : public binary_function<LPCTSTR, LPCTSTR, bool>
 	{	return _tcscmp(_Left,_Right)<0;	}
 };
 
+struct tstrless : public binary_function<const std::basic_string<TCHAR>, const std::basic_string<TCHAR>, bool>
+{	
+  bool operator()(const std::basic_string<TCHAR>& _Left, const std::basic_string<TCHAR>& _Right) const
+  {	return _Left.compare(_Right)<0;	}
+};
+
 #define IDR_MANIFEST_APP            1
 #define IDR_MANIFEST_DLL            2
 
