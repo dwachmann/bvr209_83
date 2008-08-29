@@ -751,7 +751,7 @@ namespace bvr20983
   template<class charT, class Traits>
   basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const RegistryValue& rVal)
   { os<<_T("\"");
-  
+
     if( rVal.IsDefaultValue() )
       os<<_T("@");
     else
@@ -782,7 +782,7 @@ namespace bvr20983
 
       os<<value;
     } // of else if
-  
+
     return os;
   }
 
@@ -809,25 +809,88 @@ namespace bvr20983
 
     for( RegistryKey::RegistryValueM::const_iterator it=values.begin();it!=values.end();it++ )
       os<<it->second<<endl;
-  
+
     return os;
   }
 
   /**
    *
    */
-  template<class charT, class Traits>
+  template<class charT, class Traits> 
   basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const Registry& reg)
   { const Registry::RegistryKeyM& keys        = reg.GetKeys();
     const Registry::RegistryKeyM& deletedKeys = reg.GetDeletedKeys();
+    Registry::DumpT               dumpType    = reg.GetDumpType();
 
-    os<<_T("Windows Registry Editor Version 5.00")<<endl<<endl;
-    
-    for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
-      os<<it->second<<endl;
+    if( dumpType==Registry::REGEDIT )
+    { os<<_T("Windows Registry Editor Version 5.00")<<endl<<endl;
+      
+      for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
+        os<<it->second<<endl;
 
-    for( Registry::RegistryKeyM::const_iterator it=deletedKeys.begin();it!=deletedKeys.end();it++ )
-      os<<_T("D:")<<it->second<<endl;
+      for( Registry::RegistryKeyM::const_iterator it=deletedKeys.begin();it!=deletedKeys.end();it++ )
+        os<<_T("D:")<<it->second<<endl;
+    } // of if
+    else if( dumpType==Registry::MSI )
+    { DWORD i               = 0;
+      const TString& compId = reg.GetComponentId();
+
+      for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
+      { os<<_T("reg.")<<compId<<_T('.')<<i<<_T('\t');
+
+        RegKey                            regKey(it->second.GetKey());
+        const HKEY                        mainKey = regKey.GetMainKey();
+        const TString&                    subKey  = regKey.GetSubKey();
+        const RegistryKey::RegistryValueM values  = it->second.GetValues();
+
+        if( mainKey==HKEY_CLASSES_ROOT )
+          os<<0;
+        else if( mainKey==HKEY_CURRENT_USER )
+          os<<1;
+        else if( mainKey==HKEY_LOCAL_MACHINE )
+          os<<2;
+        else if( mainKey==HKEY_USERS )
+          os<<3;
+
+        os<<_T('\t');
+        os<<subKey;
+        os<<_T('\t');
+
+        if( !values.empty() )
+        { for( RegistryKey::RegistryValueM::const_iterator it1=values.begin();it1!=values.end();it1++,i++ )
+          { const RegistryValue& rVal = it1->second;
+
+            if( !rVal.IsDefaultValue() )
+              os<<rVal.GetName();
+
+            os<<_T('\t');
+
+            DWORD type=rVal.GetType();
+
+            if( REG_SZ==type )
+            { TString value;
+
+              rVal.GetValue(value);
+
+              os<<value;
+            } // of if
+            else if( REG_DWORD==type )
+            { DWORD value;
+
+              rVal.GetValue(value);
+
+              os<<_T('#')<<value;
+            } // of else if
+          } // of for
+        } // of if
+        else
+        { i++;
+          os<<_T('\t');
+        } // of else
+        
+        os<<_T('\t')<<compId<<endl;
+      } // of for
+    } // of else
 
     return os;
   }

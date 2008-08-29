@@ -31,6 +31,66 @@
 namespace bvr20983
 {
 
+  class RegistryValue;
+
+  /**
+   *
+   */
+  class RegKey
+  {
+    public:
+      RegKey(const TString& path);
+      RegKey(LPCTSTR path);
+      ~RegKey();
+      
+      bool     Create();
+      bool     Open() const;
+      void     Close();
+      void     Delete(bool deep=false);
+      bool     Exists() const;
+      bool     HasSubKey() const;
+      bool     EnumKey(TString& keyName,DWORD index) const;
+      bool     QueryValue(LPCTSTR name,RegistryValue &value) const;
+      void     SetValue(const RegistryValue& value);
+      operator TString() const;
+
+      const TString& GetSubKey() const
+      { return m_subKey; }
+
+      const HKEY GetMainKey() const
+      { return m_mainKey; }
+
+    private:
+      void Init(LPCTSTR path);
+    
+      HKEY     m_mainKey;
+      HKEY     m_key;
+      TString  m_subKey;
+  }; // of class RegKey
+
+  /**
+   *
+   */
+  class RegKeyEnum
+  {
+    public:
+      RegKeyEnum(LPCTSTR path,UINT32 maxDepth=1);
+      RegKeyEnum(const TString& path,UINT32 maxDepth=1);
+
+      bool Next(TString& keyName);
+      
+    private:
+      struct State
+      { RegKey m_key;
+        DWORD  m_index;
+        
+        State(RegKey key) : m_key(key),m_index(0) {}
+      };
+
+      stack<State> m_stack;
+      DWORD        m_maxDepth;
+  }; // of class RegKeyEnum
+
   /**
    *
    */
@@ -64,63 +124,12 @@ namespace bvr20983
       RegistryValue& operator=(const RegistryValue& val);
 
     private:
-      TString  m_name;
-      TString* m_pValue;
-      DWORD    m_intValue;
-      DWORD    m_type;
+      TString       m_name;
+      TString*      m_pValue;
+      DWORD         m_intValue;
+      DWORD         m_type;
   }; // of class RegistryValue
 
-  /**
-   *
-   */
-  class RegKey
-  {
-    public:
-      RegKey(const TString& path);
-      RegKey(LPCTSTR path);
-      ~RegKey();
-      
-      bool     Create();
-      bool     Open() const;
-      void     Close();
-      void     Delete(bool deep=false);
-      bool     Exists() const;
-      bool     HasSubKey() const;
-      bool     EnumKey(TString& keyName,DWORD index) const;
-      bool     QueryValue(LPCTSTR name,RegistryValue &value) const;
-      void     SetValue(const RegistryValue& value);
-      operator TString() const;
-
-    private:
-      void Init(LPCTSTR path);
-    
-      HKEY     m_mainKey;
-      HKEY     m_key;
-      TString  m_subKey;
-  }; // of class RegKey
-
-  /**
-   *
-   */
-  class RegKeyEnum
-  {
-    public:
-      RegKeyEnum(LPCTSTR path,UINT32 maxDepth=1);
-      RegKeyEnum(const TString& path,UINT32 maxDepth=1);
-
-      bool Next(TString& keyName);
-      
-    private:
-      struct State
-      { RegKey m_key;
-        DWORD  m_index;
-        
-        State(RegKey key) : m_key(key),m_index(0) {}
-      };
-
-      stack<State> m_stack;
-      DWORD        m_maxDepth;
-  }; // of class RegKeyEnum
 
   /**
    *
@@ -161,13 +170,18 @@ namespace bvr20983
   class Registry
   {
     public:
+      enum DumpT
+      { REGEDIT,
+        MSI
+      };
+
       typedef std::pair<TString,RegistryKey>          RegistryKeyP;
       typedef std::map <TString,RegistryKey,tstrless> RegistryKeyM;
 
-      Registry(const TString& keyPrefix)
+      Registry(const TString& keyPrefix) : m_dumpType(REGEDIT)
       { m_keyPrefix = keyPrefix; }
 
-      Registry(LPCTSTR keyPrefix=NULL)
+      Registry(LPCTSTR keyPrefix=NULL) : m_dumpType(REGEDIT)
       { if( NULL!=keyPrefix) m_keyPrefix = keyPrefix; }
 
       void SetKey    (LPCTSTR subkey);
@@ -199,13 +213,27 @@ namespace bvr20983
       const RegistryKeyM& GetDeletedKeys() const
       { return m_deletedKeys; }
 
-    private:
+      void SetDumpType(DumpT dumpType) const
+      { const_cast<Registry*>(this)->m_dumpType = dumpType; }
 
+      DumpT GetDumpType() const
+      { return m_dumpType; }
+
+      void SetComponentId(LPCTSTR compId)
+      { m_componentId = compId; }
+
+      const TString& GetComponentId() const
+      { return m_componentId; }
+
+    private:
       void GetKeyPath(LPCTSTR subkey,TString& keyPath) const;
 
-      RegistryKeyM m_keys;
-      RegistryKeyM m_deletedKeys;
-      TString      m_keyPrefix;
+      RegistryKeyM  m_keys;
+      RegistryKeyM  m_deletedKeys;
+      TString       m_keyPrefix;
+
+      DumpT         m_dumpType;
+      TString       m_componentId;
   }; // of class Registry
 
   template<class charT, class Traits>

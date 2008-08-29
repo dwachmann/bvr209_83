@@ -165,7 +165,7 @@ void PrintRegistrationInfoUsage(HWND hwnd)
 } // of PrintRegistrationInfoUsage()
 
 /**
- * RUNDLL32.EXE <dllname>,DllRegistrationInfo <register|unregister> <filename>
+ * RUNDLL32.EXE <dllname>,DllRegistrationInfo <classes|typelib> <filename>
  *
  * hwnd        - window handle that should be used as the owner window for any windows your DLL creates
  * hinst       - your DLL's instance handle
@@ -175,6 +175,17 @@ void PrintRegistrationInfoUsage(HWND hwnd)
 STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
 { try
   { OutputDebugFmt(_T("DllRegistrationInfo(): <%s>\n"),lpszCmdLine);
+
+    LPCTSTR prodPrefix = NULL;
+    LPCTSTR compPrefix = NULL;
+    TCHAR   szModulePath[MAX_PATH];
+
+    COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
+
+    VersionInfo verInfo(szModulePath);
+
+    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
+    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
 
     TCHAR cmd[256];
     TCHAR filename[MAX_PATH];
@@ -220,10 +231,14 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
         RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,true);
 
 #ifdef _UNICODE
-        wofstream fos(filename);
+        wofstream fos(filename,ios::app);
 #else
-        ofstream fos(filename);
+        ofstream fos(filename,ios::app);
 #endif
+
+        registry.SetDumpType(Registry::MSI);
+        registry.SetComponentId(compPrefix);
+
         fos<<registry;
 
         fos.close();
