@@ -45,10 +45,13 @@ namespace bvr20983
                                     REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion
                                    );
 
-      static void RegisterInterface(Registry& reg,REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc);
+      static void RegisterInterface(Registry& reg,REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc);
       static void UnregisterInterface(Registry& reg,REFGUID objGUID);
       
-      static void RegisterTypeLib(Registry& reg,REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
+      static void RegisterTypeLib(REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
+
+      static void RegisterTypeLib(Registry& registry,REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
+      static void UnregisterTypeLib(Registry& registry,REFGUID typelibGUID,USHORT majorVersion,USHORT minorVersion);
 
       static void RegisterComObjectsInTypeLibrary(Registry& reg,LPCTSTR szModulePath,bool registerTypes);
   }; // of class RegistryUtil

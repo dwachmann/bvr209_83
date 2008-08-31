@@ -195,6 +195,24 @@ namespace bvr20983
         registry.SetValue(_T("MiscStatus\\1"),NULL,miscStatus,REG_DWORD);
     } // of if
 
+    /**
+     * use direct registry access to get information for msi
+     */
+    for( int c=0;c<ARRAYSIZE(g_KnownCATIDs);c++ )
+    { GUID catid = CUST_CATID;
+
+      catid.Data4[1] = c;
+
+      if( rTypeInfo2.GetCustData(catid,&var)==S_OK && VT_I4==V_VT(&var) && V_I4(&var)==1 )
+      { TString category(_T("Implemented Categories\\"));
+        CGUID   catid(g_KnownCATIDs[c]);
+        category += catid;
+
+        registry.SetKey(category.c_str());
+      } // of if
+    } // of for
+
+/**
     { CATID catIds[ARRAYSIZE(g_KnownCATIDs)];
       int   catIdsCount=0;
 
@@ -213,6 +231,7 @@ namespace bvr20983
         } // of if
       } // of for
     } // of if
+*/
   } // of RegistryUtil::RegisterCoClass()
 
  /**
@@ -262,11 +281,14 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryUtil::RegisterInterface(Registry& regIf,REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeDesc)
-  { LOGGER_DEBUG<<_T("Registry::RegisterInterface()")<<endl;
+  void RegistryUtil::RegisterInterface(Registry& regIf,REFGUID typelibGUID,
+                                       WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc
+                                      )
+  { LOGGER_DEBUG<<_T("RegistryUtil::RegisterInterface()")<<endl;
     LOGGER_DEBUG<<_T("typelibGUID=")<<typelibGUID<<endl;
     LOGGER_DEBUG<<_T("typelibVer =")<<majorVersion<<_T(".")<<minorVersion<<endl;
     LOGGER_DEBUG<<_T("typeGUID   =")<<typeGUID<<endl;
+    LOGGER_DEBUG<<_T("typeName   =")<<typeName<<endl;
     LOGGER_DEBUG<<_T("typeDesc   =")<<typeDesc<<endl;
     
     CGUID tlibID(typelibGUID);
@@ -275,7 +297,10 @@ namespace bvr20983
     TString ifStr(_T("HKEY_CLASSES_ROOT\\Interface\\"));
     ifStr += typeID;
 
-    regIf.SetValue(NULL,NULL,typeDesc);
+    regIf.SetKeyPrefix(ifStr);
+
+    regIf.SetValue(NULL,NULL,typeName);
+    regIf.SetValue(_T("ProxyStubClsid"),NULL,_T("{00020420-0000-0000-C000-000000000046}"));
     regIf.SetValue(_T("ProxyStubClsid32"),NULL,_T("{00020420-0000-0000-C000-000000000046}"));
     regIf.SetValue(_T("TypeLib"),NULL,tlibID);
 
@@ -303,7 +328,7 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryUtil::RegisterTypeLib(Registry& regIf,REFGUID typelibGUID,LCID lcid,LPCTSTR resId,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath)
+  void RegistryUtil::RegisterTypeLib(REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath)
   { ITypeLib*        pITypeLib       = NULL;
     ICreateTypeLib2* pICreateTypeLib = NULL;
     
@@ -317,6 +342,59 @@ namespace bvr20983
     THROW_COMEXCEPTION( ::RegisterTypeLib(pITypeLib,(LPOLESTR)modulePath,(LPOLESTR)helpPath) );
 
     pITypeLib->Release();
+  } // of RegistryUtil::RegisterTypeLib()
+
+  /**
+   *
+   */
+  void RegistryUtil::RegisterTypeLib(Registry& registry,REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath)
+  { LOGGER_DEBUG<<_T("RegistryUtil::RegisterTypeLib()")<<endl;
+    LOGGER_DEBUG<<_T("typelibGUID=")<<typelibGUID<<endl;
+    LOGGER_DEBUG<<_T("typelibVer =")<<majorVersion<<_T(".")<<minorVersion<<endl;
+
+    basic_ostringstream<TCHAR> os;
+    os<<majorVersion<<_T(".")<<minorVersion;
+
+    CGUID tlibID(typelibGUID);
+
+    TString typelibPrefix(_T("HKEY_CLASSES_ROOT\\TypeLib\\"));
+    typelibPrefix += tlibID;
+    typelibPrefix += _T("\\");
+    typelibPrefix += os.str();
+
+    registry.SetKeyPrefix(typelibPrefix);
+
+    basic_ostringstream<TCHAR> os1;
+    os1<<lcid<<_T("\\win32");
+
+    registry.SetValue(TString(os1.str()).c_str(),NULL,modulePath);
+    registry.SetValue(_T("FLAGS"),NULL,_T("0"));
+
+    if( NULL!=helpPath )
+      registry.SetValue(_T("HELPDIR"),NULL,helpPath);
+  } // of RegistryUtil::RegisterTypeLib()
+
+/**
+   *
+   */
+  void RegistryUtil::UnregisterTypeLib(Registry& registry,REFGUID typelibGUID,USHORT majorVersion,USHORT minorVersion)
+  { LOGGER_DEBUG<<_T("RegistryUtil::UnregisterTypeLib()")<<endl;
+    LOGGER_DEBUG<<_T("typelibGUID=")<<typelibGUID<<endl;
+    LOGGER_DEBUG<<_T("typelibVer =")<<majorVersion<<_T(".")<<minorVersion<<endl;
+
+    basic_ostringstream<TCHAR> os;
+    os<<majorVersion<<_T(".")<<minorVersion;
+
+    CGUID tlibID(typelibGUID);
+
+    registry.SetKeyPrefix(_T("HKEY_CLASSES_ROOT\\TypeLib"));
+
+    TString typelibPrefix(tlibID);
+    typelibPrefix += tlibID;
+    typelibPrefix += _T("\\");
+    typelibPrefix += os.str();
+
+    registry.DeleteKey(typelibPrefix,true);
   } // of RegistryUtil::RegisterTypeLib()
 
   /**
@@ -378,12 +456,6 @@ namespace bvr20983
           UnregisterCoClass(registry,pTLibAttr,libName,pTypeAttr->guid,typeName,pTypeAttr->wMajorVerNum);
       } // of if
 
-      pTypeInfo->ReleaseTypeAttr(pTypeAttr);
-    } // of for
-
-/*
- * not necessary because ::RegisterTypeLib will register all dispinterfaces
- *
       for( UINT impl=0;impl<pTypeAttr->cImplTypes;impl++ )
       { COMPtr<ITypeInfo> pRefTypeInfo;
         HREFTYPE          pRefType=NULL;
@@ -393,22 +465,32 @@ namespace bvr20983
         THROW_COMEXCEPTION( pTypeInfo->GetRefTypeInfo(pRefType,&pRefTypeInfo) );
         THROW_COMEXCEPTION( pTypeInfo->GetImplTypeFlags(impl,&refTypeAttr) );
 
-        if( refTypeAttr & IMPLTYPEFLAG_FSOURCE )
         { TYPEATTR* pRefTypeAttr = NULL;
+          COMString refTypeName;
           COMString refTypeDoc;
 
           THROW_COMEXCEPTION( pRefTypeInfo->GetTypeAttr(&pRefTypeAttr) );
-          THROW_COMEXCEPTION( pRefTypeInfo->GetDocumentation(MEMBERID_NIL,NULL,&refTypeDoc,NULL,NULL) )
+          THROW_COMEXCEPTION( pRefTypeInfo->GetDocumentation(MEMBERID_NIL,&refTypeName,&refTypeDoc,NULL,NULL) )
 
-          if( registerTypes )
-            RegisterInterface(pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,
-                              pRefTypeAttr->guid,refTypeDoc
-                             );
-          else
-            Registry::UnregisterInterface(pRefTypeAttr->guid);
-        } // of if
+          if( (refTypeAttr&IMPLTYPEFLAG_FSOURCE)!=0 || (pRefTypeAttr->typekind&TKIND_DISPATCH)!=0 )
+          { if( registerTypes )
+              RegisterInterface(registry,
+                                pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,
+                                pRefTypeAttr->guid,refTypeName,refTypeDoc
+                               );
+            else
+              UnregisterInterface(registry,pRefTypeAttr->guid);
+          } // of if
+        }
       } // of for
-*/
+
+      pTypeInfo->ReleaseTypeAttr(pTypeAttr);
+    } // of for
+
+    if( registerTypes )
+      RegisterTypeLib(registry,pTLibAttr->guid,pTLibAttr->lcid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,szModulePath,szWindowsDir);
+    else
+      UnregisterTypeLib(registry,pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum);
 
     pTLib->ReleaseTLibAttr(pTLibAttr);
 
