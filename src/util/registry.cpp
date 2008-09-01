@@ -723,7 +723,8 @@ namespace bvr20983
     } // of for
 
     for( RegistryKeyM::iterator keyIter=m_deletedKeys.begin();keyIter!=m_deletedKeys.end();keyIter++ )
-    { if( !keyIter->second.Commit(true) )
+    { 
+      if( !keyIter->second.Commit(true) )
       { result = false;
         break;
       } // of if
@@ -743,6 +744,19 @@ namespace bvr20983
 
     return result;
   } // of Registry::Rollback()
+
+  /**
+   *
+   */
+  void Registry::DeleteKeys()
+  { 
+    for( RegistryKeyM::const_iterator keyIter=m_keys.begin();keyIter!=m_keys.end();keyIter++ )
+      m_deletedKeys.insert( *keyIter );
+
+
+    
+    m_keys.clear();
+  } // of Registry::DeleteKeys()
 
 
   /**
@@ -836,29 +850,29 @@ namespace bvr20983
       const TString& compId = reg.GetComponentId();
 
       for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
-      { os<<_T("reg.")<<compId<<_T('.')<<i<<_T('\t');
-
+      { 
         RegKey                            regKey(it->second.GetKey());
         const HKEY                        mainKey = regKey.GetMainKey();
         const TString&                    subKey  = regKey.GetSubKey();
         const RegistryKey::RegistryValueM values  = it->second.GetValues();
-
-        if( mainKey==HKEY_CLASSES_ROOT )
-          os<<0;
-        else if( mainKey==HKEY_CURRENT_USER )
-          os<<1;
-        else if( mainKey==HKEY_LOCAL_MACHINE )
-          os<<2;
-        else if( mainKey==HKEY_USERS )
-          os<<3;
-
-        os<<_T('\t');
-        os<<subKey;
-        os<<_T('\t');
-
         if( !values.empty() )
         { for( RegistryKey::RegistryValueM::const_iterator it1=values.begin();it1!=values.end();it1++,i++ )
           { const RegistryValue& rVal = it1->second;
+
+            os<<_T("reg.")<<compId<<_T('.')<<i<<_T('\t');
+
+            if( mainKey==HKEY_CLASSES_ROOT )
+              os<<0;
+            else if( mainKey==HKEY_CURRENT_USER )
+              os<<1;
+            else if( mainKey==HKEY_LOCAL_MACHINE )
+              os<<2;
+            else if( mainKey==HKEY_USERS )
+              os<<3;
+
+            os<<_T('\t');
+            os<<subKey;
+            os<<_T('\t');
 
             if( !rVal.IsDefaultValue() )
               os<<rVal.GetName();
@@ -881,14 +895,35 @@ namespace bvr20983
 
               os<<_T('#')<<value;
             } // of else if
+
+            os<<_T('\t')<<compId<<endl;
           } // of for
         } // of if
         else
         { i++;
+
+          os<<_T("reg.")<<compId<<_T('.')<<i<<_T('\t');
+
+          RegKey                            regKey(it->second.GetKey());
+          const HKEY                        mainKey = regKey.GetMainKey();
+          const TString&                    subKey  = regKey.GetSubKey();
+          const RegistryKey::RegistryValueM values  = it->second.GetValues();
+
+          if( mainKey==HKEY_CLASSES_ROOT )
+            os<<0;
+          else if( mainKey==HKEY_CURRENT_USER )
+            os<<1;
+          else if( mainKey==HKEY_LOCAL_MACHINE )
+            os<<2;
+          else if( mainKey==HKEY_USERS )
+            os<<3;
+
           os<<_T('\t');
+          os<<subKey;
+          os<<_T('\t');
+          os<<_T('\t');
+          os<<_T('\t')<<compId<<endl;
         } // of else
-        
-        os<<_T('\t')<<compId<<endl;
       } // of for
     } // of else
 

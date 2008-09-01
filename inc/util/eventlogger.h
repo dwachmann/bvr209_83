@@ -19,6 +19,8 @@
 #ifndef EVENTLOGGER_H
 #define EVENTLOGGER_H
 
+#include "util/registry.h"
+
 namespace bvr20983
 {
   namespace util
@@ -31,8 +33,7 @@ namespace bvr20983
         static EventLogger* GetInstance()
         { return m_pMe; }
 
-        static void RegisterInRegistry(LPCTSTR serviceName);
-        static void UnregisterInRegistry(LPCTSTR serviceName);
+        static void RegisterInRegistry(Registry& evtSrcRegKey,LPCTSTR serviceName);
 
         void LogMessage(LPCTSTR logText);
         void LogError(LPCTSTR errText);

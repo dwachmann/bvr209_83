@@ -20,7 +20,6 @@
  */
 #include "os.h"
 #include "util/eventlogger.h"
-#include "util/registry.h"
 #include "com/comserver.h"
 #include "util/logstream.h"
 #include "msgs.h"
@@ -76,7 +75,7 @@ namespace bvr20983
     /**
      *
      */
-    void EventLogger::RegisterInRegistry(LPCTSTR serviceName)
+    void EventLogger::RegisterInRegistry(Registry& evtSrcRegKey,LPCTSTR serviceName)
     { TCHAR szModulePath[MAX_PATH];
 
       COM::COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
@@ -85,7 +84,7 @@ namespace bvr20983
       { TString evtSrcRegKeyStr(_T("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\"));
         evtSrcRegKeyStr += serviceName;
 
-        Registry evtSrcRegKey(evtSrcRegKeyStr);
+        evtSrcRegKey.SetKeyPrefix(evtSrcRegKeyStr);
 
         OutputDebugFmt(_T("EventLogger::RegisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
 
@@ -94,29 +93,8 @@ namespace bvr20983
 
         evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),szModulePath);
         evtSrcRegKey.SetValue(NULL,_T("CategoryCount"),3);
-
-        if( evtSrcRegKey.Prepare() )
-          evtSrcRegKey.Commit();
       } // of if
     } // of EventLogger::RegisterInRegistry()
-
-    /**
-     *
-     */
-    void EventLogger::UnregisterInRegistry(LPCTSTR serviceName)
-    { if( NULL!=serviceName )
-      { TString evtSrcRegKeyStr(_T("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\"));
-        evtSrcRegKeyStr += serviceName;
-
-        RegKey k(evtSrcRegKeyStr);
-
-        if( k.Exists() )
-        { OutputDebugFmt(_T("EventLogger::UnregisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
-
-          k.Delete();
-        } // of if
-      } // of if
-    } // of EventLogger::UnregisterInRegistry()
 
     /**
      *

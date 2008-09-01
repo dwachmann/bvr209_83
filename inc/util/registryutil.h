@@ -31,29 +31,45 @@ namespace bvr20983
   class RegistryUtil
   {
     public:
+      enum COMRegistrationType
+      { CLASSES_ROOT,
+        PER_MACHINE,
+        PER_USER,
+        AUTO
+      };
+
+      static void RegisterComObjectsInTypeLibrary(Registry& reg,
+                                                  LPCTSTR szModulePath,
+                                                  COMRegistrationType registrationType=CLASSES_ROOT
+                                                 );
+
       static void RegisterCoClass(Registry& reg,
                                   TLIBATTR* pTypeLib,LPCTSTR typelibName,
                                   REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,WORD typeVersion,
                                   LPCTSTR modulePath,
                                   ITypeInfo2& rTypeInfo2,
                                   bool isControl=false,
+                                  COMRegistrationType registrationType=CLASSES_ROOT,
                                   LPCTSTR threadingModel=_T("Apartment")
                                  );
 
-      static void UnregisterCoClass(Registry& reg,
-                                    TLIBATTR* pTypeLib,LPCTSTR typelibName,
-                                    REFGUID typeGUID,LPCTSTR typeName,WORD typeVersion
+      static void RegisterInterface(Registry& reg,
+                                    REFGUID typelibGUID,
+                                    WORD majorVersion,WORD minorVersion,
+                                    REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,
+                                    COMRegistrationType registrationType=CLASSES_ROOT
                                    );
 
-      static void RegisterInterface(Registry& reg,REFGUID typelibGUID,WORD majorVersion,WORD minorVersion,REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc);
-      static void UnregisterInterface(Registry& reg,REFGUID objGUID);
-      
-      static void RegisterTypeLib(REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
+      static void RegisterTypeLib(Registry& registry,
+                                  REFGUID typelibGUID,
+                                  LCID lcid,USHORT majorVersion,USHORT minorVersion,
+                                  LPCTSTR modulePath,LPCTSTR helpPath,
+                                  COMRegistrationType registrationType=CLASSES_ROOT
+                                 );
 
-      static void RegisterTypeLib(Registry& registry,REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
-      static void UnregisterTypeLib(Registry& registry,REFGUID typelibGUID,USHORT majorVersion,USHORT minorVersion);
+      static void GetKeyPrefix(COMRegistrationType registrationType,TString& keyPrefix);
 
-      static void RegisterComObjectsInTypeLibrary(Registry& reg,LPCTSTR szModulePath,bool registerTypes);
+      static void RegisterTypeLib(bool register4User,REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
   }; // of class RegistryUtil
 } // of namespace bvr20983
 #endif // REGISTRYUTIL_H

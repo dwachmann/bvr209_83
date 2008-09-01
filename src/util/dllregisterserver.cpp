@@ -56,7 +56,7 @@ STDAPI DllRegisterServer()
   try
   { Registry registry;
 
-    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,true);
+    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,RegistryUtil::AUTO);
 
     if( registry.Prepare() )
       registry.Commit();
@@ -64,8 +64,8 @@ STDAPI DllRegisterServer()
 /*
     as marker for registration of multiple typelibs
 
-    Registry::RegisterTypeLib(LIBID_BVR20983TypeLibrary,LANG_SYSTEM_DEFAULT,_T("1"),1,0,szModulePath,szWindowsDir);
-    Registry::RegisterTypeLib(LIBID_BVR20983TypeLibrary,MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_NEUTRAL), SORT_DEFAULT),_T("2"),1,0,szModulePath,szWindowsDir);
+    RegistryUtil::RegisterTypeLib(LIBID_BVR20983TypeLibrary,LANG_SYSTEM_DEFAULT,_T("1"),1,0,szModulePath,szWindowsDir);
+    RegistryUtil::RegisterTypeLib(LIBID_BVR20983TypeLibrary,MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_NEUTRAL), SORT_DEFAULT),_T("2"),1,0,szModulePath,szWindowsDir);
 */
   }
   catch(BVR20983Exception e)
@@ -108,7 +108,9 @@ STDAPI DllUnregisterServer()
   try
   { Registry registry;
    
-    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,false);
+    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,RegistryUtil::AUTO);
+
+    registry.DeleteKeys();
 
     if( registry.Prepare() )
       registry.Commit();
@@ -157,7 +159,7 @@ STDAPI DllInstall(BOOL bInstall,LPCTSTR pszCmdLine)
  */
 void PrintRegistrationInfoUsage(HWND hwnd)
 { basic_ostringstream<TCHAR> msgStream;
-  msgStream<<_T("Usage: rundll32 <dllname>,DllRegistrationInfo <classes|typelib> <filename>");
+  msgStream<<_T("Usage: rundll32 <dllname>,DllRegistrationInfo <filename>");
 
   TString msg = msgStream.str();
 
@@ -165,7 +167,7 @@ void PrintRegistrationInfoUsage(HWND hwnd)
 } // of PrintRegistrationInfoUsage()
 
 /**
- * RUNDLL32.EXE <dllname>,DllRegistrationInfo <classes|typelib> <filename>
+ * RUNDLL32.EXE <dllname>,DllRegistrationInfo <filename>
  *
  * hwnd        - window handle that should be used as the owner window for any windows your DLL creates
  * hinst       - your DLL's instance handle
@@ -187,10 +189,8 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
     prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
     compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
 
-    TCHAR cmd[256];
     TCHAR filename[MAX_PATH];
 
-    ::memset(cmd     ,_T('\0'),ARRAYSIZE(cmd));
     ::memset(filename,_T('\0'),MAX_PATH);
 
     int     i         = 0;
@@ -201,12 +201,6 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
       switch( i )
       { 
       case 0:
-        if( _tcscmp(tok,_T("classes"))==0 || _tcscmp(tok,_T("typelib"))==0 )
-          _tcscpy_s(cmd,ARRAYSIZE(cmd),tok);
-        else
-          stop = true;
-        break;
-      case 1:
         _tcscpy_s(filename,MAX_PATH,tok);
         stop = true;
         break;
@@ -216,19 +210,18 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
       } // of switch
     } // of for
 
-    if( cmd[0]!=_T('\0') && filename[0]!=_T('\0') )
+    if( filename[0]!=_T('\0') )
     { basic_ostringstream<TCHAR> msgStream;
-      msgStream<<_T("command=")<<cmd<<_T("\n")<<_T("file=")<<filename;
+      msgStream<<_T("file=")<<filename;
 
       ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
 
-      if( _tcscmp(cmd,_T("classes"))==0 )
       { Registry registry;
         TCHAR    szModulePath[MAX_PATH];
 
         COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
 
-        RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,true);
+        RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath);
 
 #ifdef _UNICODE
         wofstream fos(filename,ios::app);

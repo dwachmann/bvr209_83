@@ -203,6 +203,8 @@ namespace bvr20983
       void GetKeyPrefix(TString& keyPrefix) const
       { keyPrefix = m_keyPrefix; }
 
+      void DeleteKeys();
+
       bool Prepare() const;
       bool Commit();
       bool Rollback();

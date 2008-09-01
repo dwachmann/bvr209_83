@@ -86,7 +86,13 @@ STDAPI DllRegisterServer()
 
   try
   { if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
-      EventLogger::RegisterInRegistry((LPCTSTR)prodPrefix);
+    { Registry registry;
+
+      EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
+
+      if( registry.Prepare() )
+        registry.Commit();
+    } // of if
   }
   catch(BVR20983Exception e)
   { LOGGER_ERROR<<e<<endl;
@@ -127,7 +133,15 @@ STDAPI DllUnregisterServer()
 
   try
   { if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
-      EventLogger::UnregisterInRegistry((LPCTSTR)prodPrefix);
+    { Registry registry;
+      
+      EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
+
+      registry.DeleteKeys();
+
+      if( registry.Prepare() )
+        registry.Commit();
+    } // of if
   }
   catch(BVR20983Exception e)
   { LOGGER_ERROR<<e<<endl;
@@ -149,6 +163,105 @@ STDAPI DllUnregisterServer()
   
   return hr;
 } // of DllUnregisterServer()
+
+#ifdef _UNICODE
+#define _DllRegistrationInfo_ DllRegistrationInfoW
+#else
+#define _DllRegistrationInfo_ DllRegistrationInfoA
+#endif
+
+/**
+ *
+ */
+void PrintRegistrationInfoUsage(HWND hwnd)
+{ basic_ostringstream<TCHAR> msgStream;
+  msgStream<<_T("Usage: rundll32 <dllname>,DllRegistrationInfo <filename>");
+
+  TString msg = msgStream.str();
+
+  ::MessageBox(hwnd,msg.c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
+} // of PrintRegistrationInfoUsage()
+
+/**
+ * RUNDLL32.EXE <dllname>,DllRegistrationInfo <filename>
+ *
+ * hwnd        - window handle that should be used as the owner window for any windows your DLL creates
+ * hinst       - your DLL's instance handle
+ * lpszCmdLine - command line your DLL should parse
+ * nCmdShow    - describes how your DLL's windows should be displayed
+ */
+STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+{ try
+  { OutputDebugFmt(_T("DllRegistrationInfo(): <%s>\n"),lpszCmdLine);
+
+    LPCTSTR prodPrefix = NULL;
+    LPCTSTR compPrefix = NULL;
+    TCHAR   szModulePath[MAX_PATH];
+
+    COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
+
+    VersionInfo verInfo(szModulePath);
+
+    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
+    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+
+    TCHAR filename[MAX_PATH];
+
+    ::memset(filename,_T('\0'),MAX_PATH);
+
+    int     i         = 0;
+    boolean stop      = false;
+    LPTSTR  nextToken = NULL;
+    for( LPTSTR tok=_tcstok_s(lpszCmdLine,_T(" "),&nextToken);NULL!=tok && !stop;tok=_tcstok_s(NULL,_T(" "),&nextToken),i++ )
+    {
+      switch( i )
+      { 
+      case 0:
+        _tcscpy_s(filename,MAX_PATH,tok);
+        stop = true;
+        break;
+      default:
+        stop = true;
+        break;
+      } // of switch
+    } // of for
+
+    if( filename[0]!=_T('\0') )
+    { basic_ostringstream<TCHAR> msgStream;
+      msgStream<<_T("file=")<<filename;
+
+      ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
+
+      { Registry registry;
+
+        EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
+
+#ifdef _UNICODE
+        wofstream fos(filename,ios::app);
+#else
+        ofstream fos(filename,ios::app);
+#endif
+
+        registry.SetDumpType(Registry::MSI);
+        registry.SetComponentId(compPrefix);
+
+        fos<<registry;
+
+        fos.close();
+      } // of if
+    } // of if
+    else 
+      PrintRegistrationInfoUsage(hwnd);
+  }
+  catch(BVR20983Exception e)
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
+    OutputDebugFmt(_T("  Filename \"%s\" Line %d\n"),e.GetFileName(),e.GetLineNo());
+  }
+  catch(exception& e) 
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
+  catch(...)
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception\n")); }
+} // of _DllRegistrationInfo_()
 
 #ifdef _UNICODE
 #define _DllIsAdministrator_ DllIsAdministratorW
