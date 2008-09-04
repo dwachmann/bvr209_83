@@ -211,7 +211,11 @@ namespace bvr20983
     } // of if
 
     if( !m_subKey.empty() )
-    { THROW_LASTERROREXCEPTION( ::RegDeleteKey(m_mainKey,m_subKey.c_str()) ); }
+    { LONG hr = ::RegDeleteKey(m_mainKey,m_subKey.c_str());
+
+      if( hr!=ERROR_FILE_NOT_FOUND )
+        THROW_LASTERROREXCEPTION(hr); 
+    }
   } // of RegKey::Delete()
 
   /**
@@ -296,8 +300,11 @@ namespace bvr20983
    *
    */
   void RegKey::SetValue(const RegistryValue& value)
-  { if( Create() )
-    { THROW_LASTERROREXCEPTION( ::RegSetValueEx(m_key,value.GetName(),0,value.GetType(),value.GetBuffer(),value.GetSize()) ); }
+  { Create();
+
+    LPCTSTR valueName = value.IsDefaultValue() || _tcscmp(value.GetName(),_T("@"))==0 ? NULL : value.GetName();
+
+    THROW_LASTERROREXCEPTION( ::RegSetValueEx(m_key,valueName,0,value.GetType(),value.GetBuffer(),value.GetSize()) ); 
   } // of RegistryValue::SetValue()
 
   /**
@@ -525,15 +532,17 @@ namespace bvr20983
     RegKey regKey(m_key.c_str());
 
     if( deleteKey )
-      regKey.Delete();
-    else
-    { if( regKey.Create() )
-      {
-        for( RegistryValueM::const_iterator valueIter=m_values.begin();valueIter!=m_values.end();valueIter++ )
-          regKey.SetValue(valueIter->second);
+    { regKey.Delete();
 
-        result = true;
-      } // of if
+      result = true;
+    } // of if
+    else
+    { regKey.Create();
+
+      for( RegistryValueM::const_iterator valueIter=m_values.begin();valueIter!=m_values.end();valueIter++ )
+        regKey.SetValue(valueIter->second);
+
+      result = true;
     } // of else
 
     return result;
@@ -635,8 +644,8 @@ namespace bvr20983
     GetKeyPath(subkey,keyPath);
 
     if( !keyPath.empty() )
-    { RegistryKey                  key;
-      RegistryKeyM::const_iterator keyIter = m_deletedKeys.find(keyPath.c_str());
+    { RegistryKey                   key;
+      RegistryKeyM1::const_iterator keyIter = m_deletedKeys.find(keyPath.c_str());
 
       if( m_deletedKeys.empty() || keyIter==m_deletedKeys.end() )
       { key = RegistryKey(keyPath.c_str());
@@ -699,7 +708,7 @@ namespace bvr20983
       } // of if
     } // of for
 
-    for( RegistryKeyM::const_iterator keyIter=m_deletedKeys.begin();keyIter!=m_deletedKeys.end();keyIter++ )
+    for( RegistryKeyM1::const_iterator keyIter=m_deletedKeys.begin();keyIter!=m_deletedKeys.end();keyIter++ )
     { if( !keyIter->second.Prepare(true) )
       { result = false;
         break;
@@ -722,7 +731,7 @@ namespace bvr20983
       } // of if
     } // of for
 
-    for( RegistryKeyM::iterator keyIter=m_deletedKeys.begin();keyIter!=m_deletedKeys.end();keyIter++ )
+    for( RegistryKeyM1::iterator keyIter=m_deletedKeys.begin();keyIter!=m_deletedKeys.end();keyIter++ )
     { 
       if( !keyIter->second.Commit(true) )
       { result = false;
@@ -753,8 +762,6 @@ namespace bvr20983
     for( RegistryKeyM::const_iterator keyIter=m_keys.begin();keyIter!=m_keys.end();keyIter++ )
       m_deletedKeys.insert( *keyIter );
 
-
-    
     m_keys.clear();
   } // of Registry::DeleteKeys()
 
@@ -832,9 +839,9 @@ namespace bvr20983
    */
   template<class charT, class Traits> 
   basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const Registry& reg)
-  { const Registry::RegistryKeyM& keys        = reg.GetKeys();
-    const Registry::RegistryKeyM& deletedKeys = reg.GetDeletedKeys();
-    Registry::DumpT               dumpType    = reg.GetDumpType();
+  { const Registry::RegistryKeyM&  keys        = reg.GetKeys();
+    const Registry::RegistryKeyM1& deletedKeys = reg.GetDeletedKeys();
+    Registry::DumpT                dumpType    = reg.GetDumpType();
 
     if( dumpType==Registry::REGEDIT )
     { os<<_T("Windows Registry Editor Version 5.00")<<endl<<endl;
@@ -842,7 +849,7 @@ namespace bvr20983
       for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
         os<<it->second<<endl;
 
-      for( Registry::RegistryKeyM::const_iterator it=deletedKeys.begin();it!=deletedKeys.end();it++ )
+      for( Registry::RegistryKeyM1::const_iterator it=deletedKeys.begin();it!=deletedKeys.end();it++ )
         os<<_T("D:")<<it->second<<endl;
     } // of if
     else if( dumpType==Registry::MSI )

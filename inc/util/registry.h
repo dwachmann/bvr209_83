@@ -175,8 +175,9 @@ namespace bvr20983
         MSI
       };
 
-      typedef std::pair<TString,RegistryKey>          RegistryKeyP;
-      typedef std::map <TString,RegistryKey,tstrless> RegistryKeyM;
+      typedef std::pair<TString,RegistryKey>           RegistryKeyP;
+      typedef std::map <TString,RegistryKey,tstrless>  RegistryKeyM;
+      typedef std::map <TString,RegistryKey,tstrless1> RegistryKeyM1;
 
       Registry(const TString& keyPrefix) : m_dumpType(REGEDIT)
       { m_keyPrefix = keyPrefix; }
@@ -209,10 +210,10 @@ namespace bvr20983
       bool Commit();
       bool Rollback();
 
-      const RegistryKeyM& GetKeys() const
+      const RegistryKeyM&  GetKeys() const
       { return m_keys; }
 
-      const RegistryKeyM& GetDeletedKeys() const
+      const RegistryKeyM1& GetDeletedKeys() const
       { return m_deletedKeys; }
 
       void SetDumpType(DumpT dumpType) const
@@ -230,12 +231,12 @@ namespace bvr20983
     private:
       void GetKeyPath(LPCTSTR subkey,TString& keyPath) const;
 
-      RegistryKeyM  m_keys;
-      RegistryKeyM  m_deletedKeys;
-      TString       m_keyPrefix;
+      RegistryKeyM   m_keys;
+      RegistryKeyM1  m_deletedKeys;
+      TString        m_keyPrefix;
 
-      DumpT         m_dumpType;
-      TString       m_componentId;
+      DumpT          m_dumpType;
+      TString        m_componentId;
   }; // of class Registry
 
   template<class charT, class Traits>
