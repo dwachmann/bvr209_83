@@ -61,6 +61,7 @@ namespace bvr20983
                                    );
 
       static void RegisterTypeLib(Registry& registry,
+                                  LPCTSTR typelibDesc,
                                   REFGUID typelibGUID,
                                   LCID lcid,USHORT majorVersion,USHORT minorVersion,
                                   LPCTSTR modulePath,LPCTSTR helpPath,

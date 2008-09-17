@@ -197,6 +197,7 @@ namespace bvr20983
     } // of for
 
     RegisterTypeLib(registry,
+                    _T("TypeLib BVR20983"),
                     pTLibAttr->guid,
                     pTLibAttr->lcid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,
                     szModulePath,szWindowsDir,
@@ -405,6 +406,7 @@ namespace bvr20983
    *
    */
   void RegistryUtil::RegisterTypeLib(Registry& registry,
+                                     LPCTSTR typelibDesc,
                                      REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,
                                      LPCTSTR modulePath,LPCTSTR helpPath,
                                      COMRegistrationType registrationType
@@ -422,13 +424,23 @@ namespace bvr20983
     GetKeyPrefix(registrationType,typelibPrefix);
     typelibPrefix += _T("\\TypeLib\\");
     typelibPrefix += tlibID;
+
+    registry.SetKeyPrefix(typelibPrefix);
+    registry.SetValue(NULL,NULL,typelibDesc);
+    registry.SetKey(TString(os.str()).c_str());
+
     typelibPrefix += _T("\\");
     typelibPrefix += os.str();
 
     registry.SetKeyPrefix(typelibPrefix);
 
     basic_ostringstream<TCHAR> os1;
-    os1<<lcid<<_T("\\win32");
+    os1<<lcid;
+
+    registry.SetKey(TString(os1.str()).c_str());
+    registry.SetKeyPrefix(typelibPrefix);
+
+    os1<<_T("\\win32");
 
     registry.SetValue(TString(os1.str()).c_str(),NULL,modulePath);
     registry.SetValue(_T("FLAGS"),NULL,_T("0"));

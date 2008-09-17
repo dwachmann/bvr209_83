@@ -110,7 +110,7 @@ namespace bvr20983
       { return m_name.c_str(); }
 
       bool IsDefaultValue() const
-      { return m_name.empty(); }
+      { return m_name.empty() || _tcscmp(m_name.c_str(),_T("@"))==0; }
 
       DWORD GetType() const
       { return m_type; }

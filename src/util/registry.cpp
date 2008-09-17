@@ -302,7 +302,7 @@ namespace bvr20983
   void RegKey::SetValue(const RegistryValue& value)
   { Create();
 
-    LPCTSTR valueName = value.IsDefaultValue() || _tcscmp(value.GetName(),_T("@"))==0 ? NULL : value.GetName();
+    LPCTSTR valueName = value.IsDefaultValue() ? NULL : value.GetName();
 
     THROW_LASTERROREXCEPTION( ::RegSetValueEx(m_key,valueName,0,value.GetType(),value.GetBuffer(),value.GetSize()) ); 
   } // of RegistryValue::SetValue()
