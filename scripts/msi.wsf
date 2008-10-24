@@ -25,7 +25,7 @@
       <runtime>
           <description>Show MSI information</description>
           <named name = "File"
-                 helpstring = "Name of the msi file"
+                 helpstring = "name of the msi file"
                  type = "string"
                  required = "true"
           />
