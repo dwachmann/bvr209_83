@@ -33,7 +33,7 @@ $(SLNDIR)\libbvr20983.lib
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB_RESULT).exe
+all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB_RESULT).exe
 !endif
 
 $(OUTDIR)\$(MSICAB_RESULT).exe: $(OBJS)

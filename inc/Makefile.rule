@@ -59,11 +59,42 @@ _MAKEFILE_RULE_ = 1
 $(OUTDIR)\os.obj: $(SRCDIR)\os.cpp
   $(cc) $(cdebug) $(cflags) $(cvars) $(cvarsadd) $(ccrtprecompheader) -Fo"$(OUTDIR)\\" -Fd"$(OUTDIR)\\" $**
 
+$(RESULTDIR):
+  if not exist "$(RESULTDIR)/$(NULL)" mkdir $(RESULTDIR)
+
+$(DISTDIR):
+  if not exist "$(DISTDIR)/$(NULL)" mkdir $(DISTDIR)
+
+$(SIGNDIR):
+  if not exist "$(SIGNDIR)/$(NULL)" mkdir $(SIGNDIR)
+
+$(MSIDIR):
+  if not exist "$(MSIDIR)/$(NULL)" mkdir $(MSIDIR)
+
 $(OUTDIR):
   @if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)
 
 $(SLNDIR):
  if not exist "$(SLNDIR)/$(NULL)" mkdir $(SLNDIR)
+
+fullclean:
+  if exist $(DISTDIR)/$(NULL) rd /s /q $(DISTDIR)
+  if exist $(SIGNDIR)/$(NULL) rd /s /q $(SIGNDIR)
+  if exist $(MSIDIR)/$(NULL) rd /s /q $(MSIDIR)
+  if exist $(SLNDIR)/$(NULL) rd /s /q $(SLNDIR)
+  if exist $(RESULTDIR)/$(NULL) rd /s /q $(RESULTDIR)
+
+{$(SLNDIR)}.dll{$(SIGNDIR)}.dll:
+  @if not exist "$(signkey)" echo NO signkey GIVEN
+  @if "$(signpwd)"==""  echo NO signpwd GIVEN
+	@copy $< $@
+	@$(sign) $(signvars) /p $(signpwd) $@
+
+{$(SLNDIR)}.exe{$(SIGNDIR)}.exe:
+  @if not exist "$(signkey)" echo NO signkey GIVEN
+  @if "$(signpwd)"==""  echo NO signpwd GIVEN
+	@copy $< $@
+	@$(sign) $(signvars) /p $(signpwd) $@
 
 #ENDIF _MAKEFILE_RULE_
 !ENDIF

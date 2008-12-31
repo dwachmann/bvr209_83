@@ -1,7 +1,7 @@
 /*
  * $Id$
  * 
- * Lists the structure of COM compound storage.
+ * Create cabinet files and necessary msi information.
  * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 

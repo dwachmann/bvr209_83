@@ -497,14 +497,18 @@ OUTDIR=NT4
 
 !ENDIF
 
-#Set DEBUG
 !IF "$(NODEBUG)" == ""
-OUTDIR=$(OUTDIR)_DEBUG
-SLNDIR=..\..\debug
+OUTDIR        = $(OUTDIR)_DEBUG
+RESULTDIR     = ..\..\debug
 !ELSE
-OUTDIR=$(OUTDIR)_RETAIL
-SLNDIR=..\..\release
+OUTDIR        = $(OUTDIR)_RETAIL
+RESULTDIR     = ..\..\release
 !ENDIF
+
+SLNDIR        = $(RESULTDIR)\sln
+DISTDIR       = $(RESULTDIR)\dist
+SIGNDIR       = $(RESULTDIR)\sign
+MSIDIR        = $(RESULTDIR)\msi
 
 cinclude=-I$(INCDIR) -I$(OUTDIR)
 cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
@@ -530,6 +534,8 @@ LSTYPEINFO_RESULT=bvr20983.2.lstypeinfo.1
 MSICAB_RESULT=bvr20983.2.msicab.1
 BVR20983MSGS_RESULT=bvr20983.2.msgs.1
 BVR20983DESC=BVR2098 Suite
+BVR20983_CABMSI=bvr20983.2.cab
+BVR20983_MSI=bvr20983.2.msi
 
 #ENDIF _MAKEFILE_INC_
 !ENDIF

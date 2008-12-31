@@ -27,7 +27,7 @@ $(SLNDIR)\libbvr20983.lib
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(BVR20983MSGS_RESULT).dll
+all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(BVR20983MSGS_RESULT).dll
 !endif
 
 $(OUTDIR)\bvr20983msgs.res: $(OUTDIR)\msgs.bin $(RESDIR)\bvr20983msgs.rc

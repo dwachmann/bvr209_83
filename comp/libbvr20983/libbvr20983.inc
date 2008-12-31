@@ -78,7 +78,7 @@ $(OUTDIR)\versioninfo.obj
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LIBBVR20983).lib
+all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(LIBBVR20983).lib
 !endif
 
 $(SLNDIR)\$(LIBBVR20983).lib: $(OBJS)

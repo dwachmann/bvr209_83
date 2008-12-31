@@ -230,7 +230,7 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
     { basic_ostringstream<TCHAR> msgStream;
       msgStream<<_T("file=")<<filename;
 
-      ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
+      //::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
 
       { Registry registry;
 

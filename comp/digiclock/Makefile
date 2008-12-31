@@ -26,7 +26,7 @@ $(SLNDIR)\libbvr20983.lib
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(DIGICLOCK_RESULT).exe
+all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(DIGICLOCK_RESULT).exe
 !endif
 
 $(OUTDIR)\$(DIGICLOCK_RESULT).exe: $(OBJS)

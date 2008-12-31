@@ -15,29 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
 
-$(DISTDIR):
-  if not exist "$(DISTDIR)/$(NULL)" mkdir $(DISTDIR)
-
-$(SIGNDIR):
-  if not exist "$(SIGNDIR)/$(NULL)" mkdir $(SIGNDIR)
-
-clean:
-  if exist $(SLNDIR)/$(NULL) rd /s /q $(SLNDIR)
-  if exist $(DISTDIR)/$(NULL) rd /s /q $(DISTDIR)
-  if exist $(SIGNDIR)/$(NULL) rd /s /q $(SIGNDIR)
-
-{$(SLNDIR)}.dll{$(SIGNDIR)}.dll:
-  @if not exist "$(signkey)" echo NO signkey GIVEN
-  @if "$(signpwd)"==""  echo NO signpwd GIVEN
-	@copy $< $@
-	@$(sign) $(signvars) /p $(signpwd) $@
-
-{$(SLNDIR)}.exe{$(SIGNDIR)}.exe:
-  @if not exist "$(signkey)" echo NO signkey GIVEN
-  @if "$(signpwd)"==""  echo NO signpwd GIVEN
-	@copy $< $@
-	@$(sign) $(signvars) /p $(signpwd) $@
-
 .SUFFIXES: .dll .exe 
 
 $(PROJECTS):

@@ -31,7 +31,7 @@ $(SLNDIR)\$(BVR20983MSGS_RESULT).lib
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983-0007.tlb $(OUTDIR)\ibvr20983-0000.tlb $(SLNDIR)\$(BVR20983SC_RESULT).dll
+all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(OUTDIR)\ibvr20983-0007.tlb $(OUTDIR)\ibvr20983-0000.tlb $(SLNDIR)\$(BVR20983SC_RESULT).dll
 !endif
 
 $(OUTDIR)\ibvr20983-0007.tlb: $(INCDIR)\com\ibvr20983-0007.odl

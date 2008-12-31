@@ -26,7 +26,7 @@ $(SLNDIR)\libbvr20983.lib
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
+all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(LSTYPEINFO_RESULT).exe
 !endif
 
 $(OUTDIR)\$(LSTYPEINFO_RESULT).exe: $(OBJS)

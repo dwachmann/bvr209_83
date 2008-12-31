@@ -17,14 +17,16 @@
 !include <./inc/Makefile.inc>
 
 !IF "$(NODEBUG)" == ""
-SLNDIR  = .\debug
-DISTDIR = .\dist-debug
+RESULTDIR     = .\debug
 !ELSE
-SLNDIR  = .\release
-DISTDIR = .\dist-release
+RESULTDIR     = .\release
 !ENDIF
 
-SIGNDIR       = .\sign
+SLNDIR        = $(RESULTDIR)\sln
+DISTDIR       = $(RESULTDIR)\dist
+SIGNDIR       = $(RESULTDIR)\sign
+MSIDIR        = $(RESULTDIR)\msi
+
 INCDIR        = .\inc
 HTMLDIR       = .\res\html
 SCRIPTSDIR    = .\scripts
@@ -54,7 +56,7 @@ $(SIGNDIR)\$(LSTYPEINFO_RESULT).exe
 CABRESULT = $(SIGNDIR)\$(BVR20983_RESULT).cab
 
 !ifdef clean
-all: $(PROJECTS) clean
+all: $(PROJECTS) fullclean
 !else
 all: $(PROJECTS) 
 !endif
@@ -71,4 +73,5 @@ $(CABRESULT): $(CABCONTENT)
 	@$(cab) -s 6144 N $@ $**
 	@$(sign) $(signvars) /p $(signpwd) $@
 
+!include <./inc/Makefile.rule>
 !include <./inc/bvr.inc>

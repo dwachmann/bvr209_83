@@ -26,7 +26,7 @@ $(SLNDIR)\libbvr20983.lib
 !ifdef clean
 all: clean
 !else
-all: $(OUTDIR) $(SLNDIR) $(SLNDIR)\$(LSSTG_RESULT).exe
+all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(LSSTG_RESULT).exe
 !endif
 
 $(OUTDIR)\$(LSSTG_RESULT).exe: $(OBJS)

@@ -18,20 +18,29 @@
 !include <../../inc/Makefile.inc>
 
 TEMPLATEDIR = $(MAKEDIR)\template
-RESULT      = bvr20983.2.Msi
-CABNAME     = bvr20983.2.cab
 msicab      = $(SLNDIR)\$(MSICAB_RESULT).exe
 msidb       = msidb
 msival      = msival2
 
-distribute: $(CABNAME)
-   $(msidb) -c -d $(RESULT) -f $(TEMPLATEDIR) -i *
-   $(msidb) -d $(RESULT) -a $(CABNAME)
+distribute: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+   $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(TEMPLATEDIR) -i *
+   $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)
 
-$(CABNAME): ..\..\inc\ver\versions.xml
+$(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
    @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
    @copy $(TEMPLATEDIR)\Component.tmpl $(TEMPLATEDIR)\Component.idt
-   $(msicab) -msicab ..\..\inc\ver\versions.xml $(SLNDIR) $(CABNAME) $(TEMPLATEDIR)
+   @copy $(TEMPLATEDIR)\Registry.tmpl $(TEMPLATEDIR)\Registry.idt
+   cd $(SLNDIR)
+   rundll32.exe $(BVR20983MSGS_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
+   rundll32.exe $(BVR20983SC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
+   rundll32.exe $(BVR20983CC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
+   $(msicab) -msicab ..\..\inc\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI) $(TEMPLATEDIR)
 
 validate: 
-   $(msival) $(RESULT) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f
+   $(msival) $(MSIDIR)\$(BVR20983_MSI) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f
+
+clean:
+  if exist $(MSIDIR)\$(BVR20983_CABMSI) del /q $(MSIDIR)\$(BVR20983_CABMSI)
+  if exist $(MSIDIR)\$(BVR20983_MSI) del /q $(MSIDIR)\$(BVR20983_MSI)
+
+!include <../../inc/Makefile.rule>
