@@ -219,6 +219,9 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
       { Registry registry;
         TCHAR    szModulePath[MAX_PATH];
 
+        registry.SetDumpType(Registry::MSI);
+        registry.SetComponentId(compPrefix);
+
         COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
 
         RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath);
@@ -228,9 +231,6 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 #else
         ofstream fos(filename,ios::app);
 #endif
-
-        registry.SetDumpType(Registry::MSI);
-        registry.SetComponentId(compPrefix);
 
         fos<<registry;
 

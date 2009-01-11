@@ -42,5 +42,9 @@ validate:
 clean:
   if exist $(MSIDIR)\$(BVR20983_CABMSI) del /q $(MSIDIR)\$(BVR20983_CABMSI)
   if exist $(MSIDIR)\$(BVR20983_MSI) del /q $(MSIDIR)\$(BVR20983_MSI)
+  if exist $(TEMPLATEDIR)\File.idt del /q $(TEMPLATEDIR)\File.idt
+  if exist $(TEMPLATEDIR)\Property.idt del /q $(TEMPLATEDIR)\Property.idt
+  if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt
+  if exist $(TEMPLATEDIR)\Registry.idt del /q $(TEMPLATEDIR)\Registry.idt
 
 !include <../../inc/Makefile.rule>

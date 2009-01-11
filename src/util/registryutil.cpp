@@ -297,10 +297,25 @@ namespace bvr20983
     registry.SetKey(_T("Programmable"));
     registry.SetValue(_T("TypeLib"),NULL,tlibID);
     registry.SetValue(_T("Version"),NULL,tlibVersion.str());
-    registry.SetValue(_T("InprocServer32"),NULL,modulePath);
+
+    TString msiInprocServerName(_T("[!"));
+    msiInprocServerName += registry.GetComponentId();
+    msiInprocServerName += _T("]");
+
+    if( registry.GetDumpType()==Registry::MSI )
+      registry.SetValue(_T("InprocServer32"),NULL,msiInprocServerName);
+    else
+      registry.SetValue(_T("InprocServer32"),NULL,modulePath);
+
     registry.SetValue(_T("InprocServer32"),_T("ThreadingModel"),threadingModel);
 
-    TString defaultIcon(modulePath);
+    TString defaultIcon;
+
+    if( registry.GetDumpType()==Registry::MSI )
+      defaultIcon += msiInprocServerName;
+    else
+      defaultIcon += modulePath;
+
     defaultIcon += _T(",1");
 
     registry.SetValue(_T("DefaultIcon"),NULL,defaultIcon);
@@ -312,7 +327,12 @@ namespace bvr20983
       { TString tBitmap;
 
         if( toolboxBitmap[0]==_T('#') )
-        { tBitmap += modulePath;
+        { 
+          if( registry.GetDumpType()==Registry::MSI )
+            tBitmap += msiInprocServerName;
+          else
+            tBitmap += modulePath;
+
           tBitmap += _T(", ");
           tBitmap += (toolboxBitmap+1);
         } // of if
@@ -442,7 +462,15 @@ namespace bvr20983
 
     os1<<_T("\\win32");
 
-    registry.SetValue(TString(os1.str()).c_str(),NULL,modulePath);
+    TString msiInprocServerName(_T("[!"));
+    msiInprocServerName += registry.GetComponentId();
+    msiInprocServerName += _T("]");
+
+    if( registry.GetDumpType()==Registry::MSI )
+      registry.SetValue(TString(os1.str()).c_str(),NULL,msiInprocServerName);
+    else
+      registry.SetValue(TString(os1.str()).c_str(),NULL,modulePath);
+    
     registry.SetValue(_T("FLAGS"),NULL,_T("0"));
 
     if( NULL!=helpPath )

@@ -398,10 +398,10 @@ namespace bvr20983
 
 
   RegistryValue& RegistryValue::operator=(const RegistryValue& val)
-  { this->m_name     = val.m_name; 
-    this->m_pValue   = NULL!=val.m_pValue ? new TString(*val.m_pValue) : NULL; 
-    this->m_intValue = val.m_intValue; 
-    this->m_type     = val.m_type; 
+  { this->m_name                = val.m_name; 
+    this->m_pValue              = NULL!=val.m_pValue ? new TString(*val.m_pValue) : NULL; 
+    this->m_intValue            = val.m_intValue; 
+    this->m_type                = val.m_type; 
   
     return *this; 
   }
@@ -866,7 +866,7 @@ namespace bvr20983
         { for( RegistryKey::RegistryValueM::const_iterator it1=values.begin();it1!=values.end();it1++ )
           { const RegistryValue& rVal = it1->second;
 
-            os<<_T("reg.")<<compId<<_T('.')<<(i++)<<_T('\t');
+            os<<compId<<_T('.')<<(i++)<<_T('\t');
 
             if( mainKey==HKEY_CLASSES_ROOT )
               os<<0;
@@ -907,7 +907,7 @@ namespace bvr20983
           } // of for
         } // of if
         else
-        { os<<_T("reg.")<<compId<<_T('.')<<(i++)<<_T('\t');
+        { os<<compId<<_T('.')<<(i++)<<_T('\t');
 
           RegKey                            regKey(it->second.GetKey());
           const HKEY                        mainKey = regKey.GetMainKey();
