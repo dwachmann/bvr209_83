@@ -115,4 +115,63 @@ Installation and Deinstallation:
 - Deinstallation per product.productmajorversion
 
 
-            
+---------------------------------------------
+
+
+MSI Installation 
+- Glossary
+  ProductCode   : unique identifier for the particular product release represented as a GUID
+  ProductVersion: major.minor.build(.ignored)
+  PackageCode   : a GUID identifying a particular Windows Installer package (identifies the msi file)
+
+                  Change                        (ProductCode/ProductVersion/PackageCode)
+  small update  : An update to one or two files  N           N              Y
+  minor upgrade : A small update making changes 
+                  significant enough to warrant  N           Y              Y
+  major upgrade : A comprehensive update         Y           Y              Y                  
+
+ 
+Namespace:
+ Software
+  + Product
+    - Version   : major.minor.fix.build {i.e. svn revision}
+    - ID        : BVR20983
+    - GUIDID    : BFE20983 {used in GUID generation}
+    
+    + Component 
+      {e.g. dll or exe}
+      - Version : major.minor.fix.build
+      - ID      : sc
+      - GUIDID  : 0001 {used in GUID generation}
+      - Type    : (dll|exe)
+      - FileName: Product[@ID].Product[@Version.major].Component[@ID].Component[@Version.major].Component[@Type]
+      
+      + COMType[0..n]
+        - Type   : 
+        - Version: major
+        - GUIDID : 0001
+        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-COMType[@Type]COMType[@GUIDID]COMType[@Version.major]}
+                   {BFE20983        -0000                   -0001              -0001                     -0001          0001            0001                   }
+                    
+      + Typelib[0..n]
+        - Version: major.minor
+        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-0000Typelib[@Version.major]FFFF}
+                   {BFE20983        -0000                   -0001              -0001                     -00000001                   FFFF}
+
+ MSI  
+  + Package
+    - FileName:
+    - GUID    : PackageCode
+
+    + Product[1]
+      - ProductCode   :
+      - ProductVersion:
+      - ProductName   :
+      - UpdateCode    :
+      
+      + Component[1..n]
+        - ID  :
+        - GUID:
+        
+      + Feature[1..n]
+        - ID
