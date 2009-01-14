@@ -1,4 +1,4 @@
-# $Id: Makefile.inc.tmpl 91 2008-07-22 22:19:08Z dwachmann $
+# $Id: Makefile.inc.tmpl 131 2008-12-31 02:21:09Z dwachmann $
 # 
 # Copyright (C) 2008 Dorothea Wachmann
 # 
@@ -536,6 +536,8 @@ BVR20983MSGS_RESULT=bvr20983.2.msgs.1
 BVR20983DESC=BVR2098 Suite
 BVR20983_CABMSI=bvr20983.2.cab
 BVR20983_MSI=bvr20983.2.msi
+BVR20983_MSI_PACKAGECODE=BFE20983-0002-0000-0000-0100FFFFFFFF
+BVR20983_MSI_COMPANY=Dorothea Wachmann
 
 #ENDIF _MAKEFILE_INC_
 !ENDIF

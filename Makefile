@@ -42,7 +42,8 @@ comp\sc\~           \
 comp\digiclock\~    \
 comp\lsstg\~        \
 comp\lstypeinfo\~   \
-comp\msicab\~
+comp\msicab\~       \
+comp\msi\~
 
 CABCONTENT = \
 $(INCDIR)\$(BVR20983_RESULT).inf \

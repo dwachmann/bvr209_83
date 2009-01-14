@@ -31,16 +31,17 @@
   <product id="BVR20983">
     <version major="2" minor="0" fix="0" rev="${rev}"/>
     <name>BVR2098 Suite</name>
-    <msiguid>${prodmsiguidpattern}</msiguid>
+    <msipackagecode>${prodmsiguidpattern}</msipackagecode>
+    <msiproductcode>${prodmsiguidpattern}</msiproductcode>
     <guidid>BFE20983</guidid>
     <company>Dorothea Wachmann</company>
     <copyright>Copyright \251 2008-2009 ${../../v:company/text()}</copyright>
     <filename>${filenamepattern1}</filename>
 
     <patch template="Property.tmpl" filename="Property.idt">
-      <pattern><key>@ProductCode@</key><value>${../../../../v:msiguid/text()}</value></pattern>
+      <pattern><key>@ProductCode@</key><value>${../../../../v:msiproductcode/text()}</value></pattern>
       <pattern><key>@ProductName@</key><value>${../../../../v:name/text()}</value></pattern>
-      <pattern><key>@Manufacturer@</key><value>${../../../../v:msiguid/text()}</value></pattern>
+      <pattern><key>@Manufacturer@</key><value>${../../../../v:company/text()}</value></pattern>
       <pattern><key>@ProductVersion@</key><value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}</value></pattern>
       <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}</value></pattern>
     </patch>
@@ -55,6 +56,8 @@
       <pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983desc</key><value>${../../../../v:name/text()}</value></pattern>
+      <pattern><key>@bvr20983msipackagecode</key><value>${../../../../v:msipackagecode/text()}</value></pattern>
+      <pattern><key>@bvr20983msicompany</key><value>${../../../../v:company/text()}</value></pattern>
     </patch>
 
     <patch template="bvr20983.inf.tmpl" filename="bvr20983.2.inf">
@@ -73,7 +76,6 @@
       <pattern><key>@productid</key><value>#{LCase("${../../../../@id}")}</value></pattern>
       
       <pattern><key>@bvr20983ocx1</key><value>${../../../../v:component[@id='cc']/v:type[@id='LED']/v:guid/text()}</value></pattern>
-      
     </patch>
 
     <patch filename="bvr20983-prod.h">

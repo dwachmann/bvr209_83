@@ -21,10 +21,30 @@ TEMPLATEDIR = $(MAKEDIR)\template
 msicab      = $(SLNDIR)\$(MSICAB_RESULT).exe
 msidb       = msidb
 msival      = msival2
+msiinfo     = msiinfo
+
+!ifdef clean
+all: clean
+!else
+all: distribute
+!endif
 
 distribute: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
    $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(TEMPLATEDIR) -i *
    $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)
+   $(msiinfo) $(MSIDIR)\$(BVR20983_MSI) \
+             -T "Installation Database" \
+             -J "$(BVR20983_RESULT)" \
+             -A "$(BVR20983_MSI_COMPANY)" \
+             -K "Installer, MSI, Database" \
+             -O "$(BVR20983DESC)" \
+             -P "Intel;1033" \
+             -V {$(BVR20983_MSI_PACKAGECODE)} \
+             -G 200 \
+             -W 2 \
+             -N msidb \
+             -U 0 \
+             -L dw
 
 $(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
    @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
@@ -43,7 +63,6 @@ clean:
   if exist $(MSIDIR)\$(BVR20983_CABMSI) del /q $(MSIDIR)\$(BVR20983_CABMSI)
   if exist $(MSIDIR)\$(BVR20983_MSI) del /q $(MSIDIR)\$(BVR20983_MSI)
   if exist $(TEMPLATEDIR)\File.idt del /q $(TEMPLATEDIR)\File.idt
-  if exist $(TEMPLATEDIR)\Property.idt del /q $(TEMPLATEDIR)\Property.idt
   if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt
   if exist $(TEMPLATEDIR)\Registry.idt del /q $(TEMPLATEDIR)\Registry.idt
 

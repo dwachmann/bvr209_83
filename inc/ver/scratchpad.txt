@@ -62,7 +62,12 @@ GUID Schema for components:
     Coclass Control          0011
     Coclass noncreatable     0012
     Enum                     0020
-    MSI GUID                 0100
+    MSI UpdateCode           0100
+    MSI PackageCode          0100
+    MSI Small Update         0101
+    MSI Minor Upgrade        0102
+    MSI Major Upgrade        0103
+    MSI Component            0110
     Custom GUID              1000
 
 GUID Schema for type libraries:
@@ -78,45 +83,24 @@ GUID Schema for MSI package components:
  BFE20983-0000-0001-0001-0100|FFFF|FFFF
 
 Filename Convention:
-  DLL Name: Productname.ProductMajorVersion.ComponentName.ComponentMajorVersion.dll
-  
+  DLL Name: Product[@ID].Product[@Version.major].Component[@ID].Component[@Version.major].dll
             e.g. bvr20983.1.cc.1.dll
-            
-            
-Usage-Cases:
-1. Bug Fix in COM Type without change of interface
-   --> change of DLL Version: major.minor.FIX.REV
-   
-2. tiny feature with new method in COM type and compatible changes
-   --> change of DLL Version: major.MINOR.0.REV
-           change of typelib: major.MINOR
-           
-3. add new COM type to component           
-   --> change of DLL Version: major.MINOR.0.REV
-           change of typelib: major.MINOR
-
-4. major feature with change of API of COM type
-   --> change of COM type GUID: <comp|majv|type|no  |MAJV|prodid  |majv>
-             change of typelib: MAJOR.0
-         change of DLL Version: MAJOR.0.0.REV
-
-5. Refactoring of Components
-   --> change of typelib major versions
-       change of DLL major versions
-
-Wieviele verschiedene Versionen können koexistieren ?            
-???
-
-Installation and Deinstallation:
-- Installation Directory per product
-- Data Directory per product.component
-- Registry in LOCAL_COMPUTER and CURRENT_USER per product
-
-- Deinstallation per product.productmajorversion
 
 
 ---------------------------------------------
 
+Installation and Deinstallation:
+- Installationsverzeichnis c:\program files\Product[@ID].Product[@Version.major]
+  --> mehrere verschiedene Major Versionen eines Produktes koennen koesistieren
+- Datenverzeichnis pro User: ...\local settings\Product[@ID].Product[@Version.major]\Component[@ID].Component[@Version.major]
+- Registry 
+    HKCU\Software\Product[@ID].Product[@Version.major]
+    --> fuer Produkt
+    HKCU\Software\Product[@ID].Product[@Version.major]\Component[@ID].Component[@Version.major]
+    --> fuer Komponente
+
+- Deinstallation von Product[@ID].Product[@Version.major]
+- Wieviele verschiedene Versionen können koexistieren (muessen die Use-Cases klaeren)
 
 MSI Installation 
 - Glossary
@@ -160,18 +144,41 @@ Namespace:
 
  MSI  
   + Package
-    - FileName:
-    - GUID    : PackageCode
+    - FileName   : Product[@ID].Product[@Version.major].msi
+    - PackageCode: {Product[@GUIDID]-Product[@Version.major]-0000-0000-<msi-type><no>FFFF}
+                   {BFE20983        -0000                   -0000-0000-0100      0000FFFF}
 
     + Product[1]
       - ProductCode   :
       - ProductVersion:
-      - ProductName   :
-      - UpdateCode    :
+      - ProductName   : 
+      - UpdateCode    : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100      <no>FFFF}
+                        {BFE20983        -0000                   -0000-0000-0100      0000FFFF}
       
       + Component[1..n]
-        - ID  :
-        - GUID:
+        - ID  : Component[@ID]-Component[@Version.major]
+        - GUID: {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-0110FFFFFFFF}
         
       + Feature[1..n]
-        - ID
+        - ID  : 
+
+Usage-Cases:
+1. Bug Fix in COM Type without change of interface
+   --> change of DLL Version: major.minor.FIX.REV
+   
+2. tiny feature with new method in COM type and compatible changes
+   --> change of DLL Version: major.MINOR.0.REV
+           change of typelib: major.MINOR
+           
+3. add new COM type to component           
+   --> change of DLL Version: major.MINOR.0.REV
+           change of typelib: major.MINOR
+
+4. major feature with change of API of COM type
+   --> change of COM type GUID: <comp|majv|type|no  |MAJV|prodid  |majv>
+             change of typelib: MAJOR.0
+         change of DLL Version: MAJOR.0.0.REV
+
+5. Refactoring of Components
+   --> change of typelib major versions
+       change of DLL major versions
