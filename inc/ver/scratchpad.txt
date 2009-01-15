@@ -134,51 +134,131 @@ Namespace:
         - Type   : 
         - Version: major
         - GUIDID : 0001
-        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-COMType[@Type]COMType[@GUIDID]COMType[@Version.major]}
-                   {BFE20983        -0000                   -0001              -0001                     -0001          0001            0001                   }
+        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-COMType[@Type]COMType[@GUIDID]COMType[@Version.major]}
+                   {BFE20983        -0000                   -0001              -0000-0001          0001            0001                   }
                     
       + Typelib[0..n]
         - Version: major.minor
-        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-0000Typelib[@Version.major]FFFF}
-                   {BFE20983        -0000                   -0001              -0001                     -00000001                   FFFF}
+        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-0000Typelib[@Version.major]FFFF}
+                   {BFE20983        -0000                   -0001              -0000-00000001                   FFFF}
 
  MSI  
   + Package
     - FileName   : Product[@ID].Product[@Version.major].msi
-    - PackageCode: {Product[@GUIDID]-Product[@Version.major]-0000-0000-<msi-type><no>FFFF}
-                   {BFE20983        -0000                   -0000-0000-0100      0000FFFF}
+    - PackageCode: {Product[@GUIDID]-Product[@Version.major]-Product[@Version.minor]-Product[@Version.fix]-<msi-type><rev>   }
+                   {BFE20983        -0000                   -0000                   -0000                 -0100      00000001}
 
     + Product[1]
-      - ProductCode   :
-      - ProductVersion:
+      - ProductCode   : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100<no>    }
+                        {BFE20983        -0000                   -0000-0000-010000000001}
+      - ProductVersion: Product[@Version.major].Product[@Version.minor].0000
       - ProductName   : 
-      - UpdateCode    : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100      <no>FFFF}
-                        {BFE20983        -0000                   -0000-0000-0100      0000FFFF}
+      - UpdateCode    : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100<no>    }
+                        {BFE20983        -0000                   -0000-0000-010000000001}
       
       + Component[1..n]
         - ID  : Component[@ID]-Component[@Version.major]
-        - GUID: {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-0110FFFFFFFF}
+        - GUID: {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-011000000000}
         
       + Feature[1..n]
         - ID  : 
 
-Usage-Cases:
-1. Bug Fix in COM Type without change of interface
-   --> change of DLL Version: major.minor.FIX.REV
+UsaCases:
+- Bug Fix in COM Type without change of interface
+   + Product
+     | Version         : major.minor.FIX0.REV
+     + Component
+       | Version       : major.minor.FIX1.REV
+       | FileName      : -
+       + COM-Type
+         | Version     : -
+         | GUID        : -
+       + TypeLib
+         | Version     : -
+         | GUID        : -
+     + MSI
+       | FileName      : -
+       | ProductCode   : -
+       | ProductVersion: -
+       | PackageCode   : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0101<REV>}
+       | UpdateType    : small update {0101}                         
+       | UpdateCode    : -
+       + Component
+         | ID          : -
+         | GUID        : -
    
-2. tiny feature with new method in COM type and compatible changes
-   --> change of DLL Version: major.MINOR.0.REV
-           change of typelib: major.MINOR
-           
-3. add new COM type to component           
-   --> change of DLL Version: major.MINOR.0.REV
-           change of typelib: major.MINOR
+- tiny feature with new method in COM type and compatible changes
+- add new COM type to component           
+   + Product
+     | Version         : major.MINOR.0.REV
+     + Component
+       | Version       : major.MINOR.0.REV
+       | FileName      : -
+       + COM-Type
+         | Version     : -
+         | GUID        : -
+       + add new TypeLib
+         | Version     : major.MINOR
+         | GUID        : -
+     + MSI
+       | FileName      : -
+       | ProductCode   : -
+       | ProductVersion: Product[@Version.major].Product[@Version.MINOR].0000
+       | PackageCode   : {Product[@GUIDID]-Product[@Version.major]-Product[@Version.MINOR]-Product[@Version.FIX]-0102<REV>}
+       | UpdateType    : minor upgrade {0102}                         
+       | UpdateCode    : -
+       + Component
+         | ID          : -
+         | GUID        : -
 
-4. major feature with change of API of COM type
-   --> change of COM type GUID: <comp|majv|type|no  |MAJV|prodid  |majv>
-             change of typelib: MAJOR.0
-         change of DLL Version: MAJOR.0.0.REV
+- incompatible change of API of COM type
+   + Product
+     | Version         : major.MINOR.0.REV
+     + Component
+       | Version       : MAJOR.0.0.REV
+       | FileName      : -
+       + COM-Type
+         | Version     : MAJOR.0.0.REV
+         | GUID        : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-COMType[@Type]COMType[@GUIDID]COMType[@Version.MAJOR]}
+       + TypeLib
+         | Version     : MAJOR.0
+         | GUID        : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-0000Typelib[@Version.MAJOR]FFFF}
+     + MSI
+       | FileName      : -
+       | ProductCode   : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100< NO >}
+       | ProductVersion: Product[@Version.major].Product[@Version.MINOR].0000
+       | PackageCode   : {Product[@GUIDID]-Product[@Version.major]-Product[@Version.MINOR]-Product[@Version.FIX]-0103<REV>}
+       | UpdateType    : major upgrade {0103}                         
+       | UpdateCode    : -
+       + Component
+         | ID          : -
+         | GUID        : -
 
-5. Refactoring of Components
-   --> change of typelib major versions
-       change of DLL major versions
+- add new component
+
+- divide a component into two
+
+- merge to components
+
+- major changes of product, add major features
+   + Product
+     | Version         : MAJOR.0.0.REV
+     + Component
+       | Version       : -
+       | FileName      : -
+       + COM-Type
+         | Version     : 1
+         | GUID        : {Product[@GUIDID]-Product[@Version.MAJOR]-Component[@GUIDID]-XXXX-COMType[@Type]COMType[@GUIDID]COMType[@Version.major]}
+       + TypeLib
+         | Version     : 1.0
+         | GUID        : {Product[@GUIDID]-Product[@Version.MAJOR]-Component[@GUIDID]-XXXX-0000Typelib[@Version.MAJOR]FFFF}
+     + MSI
+       | FileName      : Product[@ID].Product[@Version.MAJOR].msi
+       | ProductCode   : {Product[@GUIDID]-Product[@Version.MAJOR]-0000-0000-0100< NO >}
+       | ProductVersion: Product[@Version.major].Product[@Version.MINOR].0000
+       | PackageCode   : {Product[@GUIDID]-Product[@Version.MAJOR]-Product[@Version.MINOR]-Product[@Version.FIX]-0100<REV>}
+       | UpdateType    : new product {0100}                         
+       | UpdateCode    : {Product[@GUIDID]-Product[@Version.MAJOR]-0000-0000-0100< NO >}
+       + Component
+         | ID          : -
+         | GUID        : -
