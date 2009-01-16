@@ -62,12 +62,6 @@ GUID Schema for components:
     Coclass Control          0011
     Coclass noncreatable     0012
     Enum                     0020
-    MSI UpdateCode           0100
-    MSI PackageCode          0100
-    MSI Small Update         0101
-    MSI Minor Upgrade        0102
-    MSI Major Upgrade        0103
-    MSI Component            0110
     Custom GUID              1000
 
 GUID Schema for type libraries:
@@ -114,125 +108,373 @@ MSI Installation
                   significant enough to warrant  N           Y              Y
   major upgrade : A comprehensive update         Y           Y              Y                  
 
+GUID Example: {BFE20983-0002-0001-0001-001000010001}
  
 Namespace:
  Software
   + Product
-    - Version   : major.minor.fix.build {i.e. svn revision}
+    - Version   : Product[@Version.major].Product[@Version.minor].Product[@Version.fix].Product[@Version.build{i.e. svn revision}] 
     - ID        : BVR20983
-    - GUIDID    : BFE20983 {used in GUID generation}
+    - No        : BFE20983 {used in GUID generation}
     
-    + Component 
+    + Component[1..n]
       {e.g. dll or exe}
-      - Version : major.minor.fix.build
-      - ID      : sc
-      - GUIDID  : 0001 {used in GUID generation}
+      - Version : Component[@Version.major].Component[@Version.minor].Component[@Version.fix].Component[@Version.build{i.e. svn revision}] 
+      - ID      : "sc"
+      - No      : 0001 {used in GUID generation}
       - Type    : (dll|exe)
       - FileName: Product[@ID].Product[@Version.major].Component[@ID].Component[@Version.major].Component[@Type]
       
       + COMType[0..n]
-        - Type   : 
-        - Version: major
-        - GUIDID : 0001
-        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-COMType[@Type]COMType[@GUIDID]COMType[@Version.major]}
-                   {BFE20983        -0000                   -0001              -0000-0001          0001            0001                   }
+        - ID      : "Smartcard"
+        - Type    : "0010"
+            Typelib                  0000
+            Interface                0001
+            Interface,dual           0002
+            DispInterface            0003
+            DispInterface,Source     0004
+            Coclass                  0010
+            Coclass Control          0011
+            Coclass noncreatable     0012
+            Enum                     0020
+            Custom GUID              1000
+        - Version : COMType[@Version.major]
+        - No      : 0001
+        - GUID    : {Product[@No]-Product[@Version.major]-COMType[@No]-COMType[@Type]-COMType[@Version.major]XXXXXXXX}
+        - VIProgID: Product[@ID].Product[@Version.major].COMType[@ID]
+        -   ProgID: Product[@ID].Product[@Version.major].COMType[@ID].COMType[@Version.major]
                     
       + Typelib[0..n]
-        - Version: major.minor
-        - GUID   : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-0000Typelib[@Version.major]FFFF}
-                   {BFE20983        -0000                   -0001              -0000-00000001                   FFFF}
+        - No     : 0001
+        - Version: Typelib[@Version.major].Typelib[@Version.minor]
+        - Type   : 0000
+        - GUID   : {Product[@No]-Product[@Version.major]-Typelib[@No]-COMType[@Type]-XXXXXXXXXXXX}
 
  MSI  
-  + Package
-    - FileName   : Product[@ID].Product[@Version.major].msi
-    - PackageCode: {Product[@GUIDID]-Product[@Version.major]-Product[@Version.minor]-Product[@Version.fix]-<msi-type><rev>   }
-                   {BFE20983        -0000                   -0000                   -0000                 -0100      00000001}
+  + MSIPackage
+    - FileName        : Product[@ID].Product[@Version.major].msi
+    - Type            :
+        PackageCode   : 0100
+        UpdateCode    : 0101
+        Small Update  : 0102
+        Minor Upgrade : 0103
+        Major Upgrade : 0104
+        Component     : 0110
+    - PackageCode     : {Product[@No]-Product[@Version.major]-Product[@Version.minor]-MSIPackage[@Type]-Product[@Version.fix]XXXXXXXX}
 
-    + Product[1]
-      - ProductCode   : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100<no>    }
-                        {BFE20983        -0000                   -0000-0000-010000000001}
-      - ProductVersion: Product[@Version.major].Product[@Version.minor].0000
-      - ProductName   : 
-      - UpdateCode    : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100<no>    }
-                        {BFE20983        -0000                   -0000-0000-010000000001}
+    + MSIProduct[1]
+      - No            : 0001
+      - ProductCode   : {Product[@No]-Product[@Version.major]-XXXX-0100-MSIProduct[@No]XXXXXXXX}
+      - ProductVersion: Product[@Version.major].Product[@Version.minor].XXXX
+      - ProductName   : Product[@name]
+      - UpgradeCode   : {Product[@No]-XXXX-0101-XXXX-XXXXXXXXXXXX}
       
-      + Component[1..n]
-        - ID  : Component[@ID]-Component[@Version.major]
-        - GUID: {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-Component[@Version.major]-011000000000}
+      + MSIComponent[1..n]
+        - ID          : Component[@ID].Component[@Version.major]
+        - GUID        : {Product[@No]-Product[@Version.major]-Component[@No]-Component[@Version.major]-XXXXXXXXXXXX}
         
-      + Feature[1..n]
-        - ID  : 
+      + MSIFeature[1..n]
+        - ID          : 
 
-UsaCases:
-- Bug Fix in COM Type without change of interface
+UseCases:
+- Initial configuration
    + Product
-     | Version         : major.minor.FIX0.REV
-     + Component
-       | Version       : major.minor.FIX1.REV
-       | FileName      : -
-       + COM-Type
-         | Version     : -
-         | GUID        : -
+     | Version         : 1.0.0.130
+     | ID              : BVR20983
+     | No              : BFE20983
+     + Component1
+       | Version       : 1.0.0.130
+       | ID            : SC
+       | No            : 0001
+       | FileName      : BVR20983.1.SC.1.DLL
+       + COM-Type1
+         | ID          : Smartcard
+         | No          : 0001
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0001-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.Smartcard
+         | ProdID      : BVR20983.1.Smartcard.1
+       + COM-Type2
+         | ID          : ATR
+         | No          : 0002
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0002-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.ATR
+         | ProdID      : BVR20983.1.ATR.1
        + TypeLib
-         | Version     : -
-         | GUID        : -
+         | No          : 0001
+         | Type        : 0000
+         | Version     : 1.0
+         | GUID        : BFE20983-0001-0001-0000-FFFFFFFFFFFF
+     + Component2
+       | Version       : 1.0.0.130
+       | ID            : CC
+       | No            : 0002
+       | FileName      : BVR20983.1.CC.1.DLL
+       + COM-Type1
+         | ID          : LED
+         | No          : 0003
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0003-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.LED
+         | ProdID      : BVR20983.1.LED.1
+       + TypeLib
+         | No          : 0002
+         | Type        : 0000
+         | Version     : 1.0
+         | GUID        : BFE20983-0001-0002-0000-FFFFFFFFFFFF
+     + Component3
+       | Version       : 1.0.0.130
+       | ID            : DIGICLOCK
+       | No            : 0003
+       | FileName      : BVR20983.1.DIGICLOCK.1.EXE
      + MSI
-       | FileName      : -
-       | ProductCode   : -
-       | ProductVersion: -
-       | PackageCode   : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0101<REV>}
-       | UpdateType    : small update {0101}                         
-       | UpdateCode    : -
-       + Component
-         | ID          : -
-         | GUID        : -
-   
-- tiny feature with new method in COM type and compatible changes
-- add new COM type to component           
+       | FileName      : BVR20983.1.MSI
+       | PackageCode   : BFE20983-0001-0000-0100-0000FFFFFFFF
+       | No            : 0001
+       | ProductCode   : BFE20983-0001-FFFF-0100-0001FFFFFFFF
+       | ProductVersion: 1.0.0
+       | ProductName   : BVR20983
+       | UpgradeCode   : BFE20983-FFFF-0101-FFFF-FFFFFFFFFFFF
+       + Component1
+         | ID          : SC
+         | GUID        : BFE20983-0001-0001-0001-FFFFFFFFFFFF
+       + Component2
+         | ID          : CC
+         | GUID        : BFE20983-0001-0002-0001-FFFFFFFFFFFF
+       + Component3
+         | ID          : DIGICLOCK
+         | GUID        : BFE20983-0001-0003-0001-FFFFFFFFFFFF
+
+
+1) Bug Fix in COM Type "Smartcard" without change of interface
    + Product
-     | Version         : major.MINOR.0.REV
-     + Component
-       | Version       : major.MINOR.0.REV
-       | FileName      : -
-       + COM-Type
-         | Version     : -
-         | GUID        : -
-       + add new TypeLib
-         | Version     : major.MINOR
-         | GUID        : -
+     | Version         : 1.0.<1>.130
+     | ID              : BVR20983
+     | No              : BFE20983
+     + Component1
+       | Version       : 1.0.<1>.130
+       | ID            : SC
+       | No            : 0001
+       | FileName      : BVR20983.1.SC.1.DLL
+       + COM-Type1
+         | ID          : Smartcard
+         | No          : 0001
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0001-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.Smartcard
+         | ProdID      : BVR20983.1.Smartcard.1
+       + COM-Type2
+         | ID          : ATR
+         | No          : 0002
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0002-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.ATR
+         | ProdID      : BVR20983.1.ATR.1
+       + TypeLib
+         | No          : 0001
+         | Type        : 0000
+         | Version     : 1.0
+         | GUID        : BFE20983-0001-0001-0000-FFFFFFFFFFFF
+     + Component2
+       | Version       : 1.0.0.130
+       | ID            : CC
+       | No            : 0002
+       | FileName      : BVR20983.1.CC.1.DLL
+       + COM-Type1
+         | ID          : LED
+         | No          : 0003
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0003-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.LED
+         | ProdID      : BVR20983.1.LED.1
+       + TypeLib
+         | No          : 0002
+         | Type        : 0000
+         | Version     : 1.0
+         | GUID        : BFE20983-0001-0002-0000-FFFFFFFFFFFF
+     + Component3
+       | Version       : 1.0.0.130
+       | ID            : DIGICLOCK
+       | No            : 0003
+       | FileName      : BVR20983.1.DIGICLOCK.1.EXE
      + MSI
-       | FileName      : -
-       | ProductCode   : -
-       | ProductVersion: Product[@Version.major].Product[@Version.MINOR].0000
-       | PackageCode   : {Product[@GUIDID]-Product[@Version.major]-Product[@Version.MINOR]-Product[@Version.FIX]-0102<REV>}
-       | UpdateType    : minor upgrade {0102}                         
-       | UpdateCode    : -
-       + Component
-         | ID          : -
-         | GUID        : -
+       | FileName      : BVR20983.1.MSI
+       | PackageCode   : BFE20983-0001-0000-0100-<0001>FFFFFFFF
+       | No            : 0001
+       | ProductCode   : BFE20983-0001-FFFF-0100-0001FFFFFFFF
+       | ProductVersion: 1.0.0
+       | ProductName   : BVR20983
+       | UpgradeCode   : BFE20983-FFFF-0101-FFFF-FFFFFFFFFFFF
+       + Component1
+         | ID          : SC
+         | GUID        : BFE20983-0001-0001-0001-FFFFFFFFFFFF
+       + Component2
+         | ID          : CC
+         | GUID        : BFE20983-0001-0002-0001-FFFFFFFFFFFF
+       + Component3
+         | ID          : DIGICLOCK
+         | GUID        : BFE20983-0001-0003-0001-FFFFFFFFFFFF
+
+2) tiny feature with new method in COM type ATR; compatible changes
+   + Product
+     | Version         : 1.0.<2>.130
+     | ID              : BVR20983
+     | No              : BFE20983
+     + Component1
+       | Version       : 1.0.<2>.130
+       | ID            : SC
+       | No            : 0001
+       | FileName      : BVR20983.1.SC.1.DLL
+       + COM-Type1
+         | ID          : Smartcard
+         | No          : 0001
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0001-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.Smartcard
+         | ProdID      : BVR20983.1.Smartcard.1
+       + COM-Type2
+         | ID          : ATR
+         | No          : 0002
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0002-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.ATR
+         | ProdID      : BVR20983.1.ATR.1
+       + TypeLib {maybe add changed typelib instead of replace it}
+         | No          : 0001
+         | Type        : 0000
+         | Version     : 1.1
+         | GUID        : BFE20983-0001-0001-0000-FFFFFFFFFFFF
+     + Component2
+       | Version       : 1.0.0.130
+       | ID            : CC
+       | No            : 0002
+       | FileName      : BVR20983.1.CC.1.DLL
+       + COM-Type1
+         | ID          : LED
+         | No          : 0003
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0003-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.LED
+         | ProdID      : BVR20983.1.LED.1
+       + TypeLib
+         | No          : 0002
+         | Type        : 0000
+         | Version     : 1.0
+         | GUID        : BFE20983-0001-0002-0000-FFFFFFFFFFFF
+     + Component3
+       | Version       : 1.0.0.130
+       | ID            : DIGICLOCK
+       | No            : 0003
+       | FileName      : BVR20983.1.DIGICLOCK.1.EXE
+     + MSI
+       | FileName      : BVR20983.1.MSI
+       | PackageCode   : BFE20983-0001-0000-0100-<0002>FFFFFFFF
+       | No            : 0001
+       | ProductCode   : BFE20983-0001-FFFF-0100-0001FFFFFFFF
+       | ProductVersion: 1.0.0
+       | ProductName   : BVR20983
+       | UpgradeCode   : BFE20983-FFFF-0101-FFFF-FFFFFFFFFFFF
+       + Component1
+         | ID          : SC
+         | GUID        : BFE20983-0001-0001-0001-FFFFFFFFFFFF
+       + Component2
+         | ID          : CC
+         | GUID        : BFE20983-0001-0002-0001-FFFFFFFFFFFF
+       + Component3
+         | ID          : DIGICLOCK
+         | GUID        : BFE20983-0001-0003-0001-FFFFFFFFFFFF
+
+3) add new COM type "LEDPropertyPage" to component2          
+   + Product
+     | Version         : 1.<1>.<0>.130
+     | ID              : BVR20983
+     | No              : BFE20983
+     + Component1
+       | Version       : 1.0.2.130
+       | ID            : SC
+       | No            : 0001
+       | FileName      : BVR20983.1.SC.1.DLL
+       + COM-Type1
+         | ID          : Smartcard
+         | No          : 0001
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0001-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.Smartcard
+         | ProdID      : BVR20983.1.Smartcard.1
+       + COM-Type2
+         | ID          : ATR
+         | No          : 0002
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0002-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.ATR
+         | ProdID      : BVR20983.1.ATR.1
+       + TypeLib {maybe add changed typelib instead of replace it}
+         | No          : 0001
+         | Type        : 0000
+         | Version     : 1.1
+         | GUID        : BFE20983-0001-0001-0000-FFFFFFFFFFFF
+     + Component2
+       | Version       : 1.<1>.0.130
+       | ID            : CC
+       | No            : 0002
+       | FileName      : BVR20983.1.CC.1.DLL
+       + COM-Type1
+         | ID          : LED
+         | No          : 0003
+         | Type        : 0010
+         | Version     : 1
+         | GUID        : BFE20983-0001-0003-0010-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.LED
+         | ProdID      : BVR20983.1.LED.1
+       + COM-Type2
+         | ID          : LEDPropertyPage
+         | No          : 0004
+         | Type        : 0013
+         | Version     : 1
+         | GUID        : BFE20983-0001-0004-0013-0001FFFFFFFF
+         | VIProdID    : BVR20983.1.LEDPropertyPage
+         | ProdID      : BVR20983.1.LEDPropertyPage.1
+       + TypeLib
+         | No          : 0002
+         | Type        : 0000
+         | Version     : 1.<1>
+         | GUID        : BFE20983-0001-0002-0000-FFFFFFFFFFFF
+     + Component3
+       | Version       : 1.0.0.130
+       | ID            : DIGICLOCK
+       | No            : 0003
+       | FileName      : BVR20983.1.DIGICLOCK.1.EXE
+     + MSI
+       | FileName      : BVR20983.1.MSI
+       | PackageCode   : BFE20983-0001-<0001>-0100-<0000>FFFFFFFF
+       | No            : 0001
+       | ProductCode   : BFE20983-0001-FFFF-0100-0001FFFFFFFF
+       | ProductVersion: 1.<1>.0
+       | ProductName   : BVR20983
+       | UpgradeCode   : BFE20983-FFFF-0101-FFFF-FFFFFFFFFFFF
+       + Component1
+         | ID          : SC
+         | GUID        : BFE20983-0001-0001-0001-FFFFFFFFFFFF
+       + Component2
+         | ID          : CC
+         | GUID        : BFE20983-0001-0002-0001-FFFFFFFFFFFF
+       + Component3
+         | ID          : DIGICLOCK
+         | GUID        : BFE20983-0001-0003-0001-FFFFFFFFFFFF
 
 - incompatible change of API of COM type
-   + Product
-     | Version         : major.MINOR.0.REV
-     + Component
-       | Version       : MAJOR.0.0.REV
-       | FileName      : -
-       + COM-Type
-         | Version     : MAJOR.0.0.REV
-         | GUID        : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-COMType[@Type]COMType[@GUIDID]COMType[@Version.MAJOR]}
-       + TypeLib
-         | Version     : MAJOR.0
-         | GUID        : {Product[@GUIDID]-Product[@Version.major]-Component[@GUIDID]-XXXX-0000Typelib[@Version.MAJOR]FFFF}
-     + MSI
-       | FileName      : -
-       | ProductCode   : {Product[@GUIDID]-Product[@Version.major]-0000-0000-0100< NO >}
-       | ProductVersion: Product[@Version.major].Product[@Version.MINOR].0000
-       | PackageCode   : {Product[@GUIDID]-Product[@Version.major]-Product[@Version.MINOR]-Product[@Version.FIX]-0103<REV>}
-       | UpdateType    : major upgrade {0103}                         
-       | UpdateCode    : -
-       + Component
-         | ID          : -
-         | GUID        : -
 
 - add new component
 
@@ -241,24 +483,3 @@ UsaCases:
 - merge to components
 
 - major changes of product, add major features
-   + Product
-     | Version         : MAJOR.0.0.REV
-     + Component
-       | Version       : -
-       | FileName      : -
-       + COM-Type
-         | Version     : 1
-         | GUID        : {Product[@GUIDID]-Product[@Version.MAJOR]-Component[@GUIDID]-XXXX-COMType[@Type]COMType[@GUIDID]COMType[@Version.major]}
-       + TypeLib
-         | Version     : 1.0
-         | GUID        : {Product[@GUIDID]-Product[@Version.MAJOR]-Component[@GUIDID]-XXXX-0000Typelib[@Version.MAJOR]FFFF}
-     + MSI
-       | FileName      : Product[@ID].Product[@Version.MAJOR].msi
-       | ProductCode   : {Product[@GUIDID]-Product[@Version.MAJOR]-0000-0000-0100< NO >}
-       | ProductVersion: Product[@Version.major].Product[@Version.MINOR].0000
-       | PackageCode   : {Product[@GUIDID]-Product[@Version.MAJOR]-Product[@Version.MINOR]-Product[@Version.FIX]-0100<REV>}
-       | UpdateType    : new product {0100}                         
-       | UpdateCode    : {Product[@GUIDID]-Product[@Version.MAJOR]-0000-0000-0100< NO >}
-       + Component
-         | ID          : -
-         | GUID        : -
