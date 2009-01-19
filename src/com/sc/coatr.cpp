@@ -33,7 +33,7 @@ namespace bvr20983
      *
      */
     COATR::COATR(IUnknown* pUnkOuter) 
-      : CODispatch(pUnkOuter,(IATR*)this,LIBID_BVR20983SC,IID_IATR,CLSID_ATR)
+      : CODispatch(pUnkOuter,(IATR*)this,LIBID_BVR20983_1_SC,IID_IATR,CLSID_ATR)
     { }
 #pragma warning(default:4355)
 #pragma endregion

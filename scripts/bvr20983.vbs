@@ -26,7 +26,7 @@ Dim smartcard , app, regCards, readers, lcid
 Sub Init()
 '  on error resume next
 
-  Set smartcard = WScript.CreateObject("BVR20983.Smartcard")
+  Set smartcard = WScript.CreateObject("BVR20983_1_SC.Smartcard")
 
 End Sub
 

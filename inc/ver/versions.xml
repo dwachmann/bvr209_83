@@ -23,27 +23,45 @@
 >
   <parameter name="filenamepattern">#{LCase("${../../../@id}")}.${../../../v:version/@major}.${../../@id}.${../../v:version/@major}</parameter>
   <parameter name="filenamepattern1">#{LCase("${../../@id}")}.${../../v:version/@major}</parameter>
-  <parameter name="guidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../@typeid}${../../v:guidid/text()}#{zerofill("${../../v:version/@major}",4)}</parameter>
-  <parameter name="typelibguidpattern">${../../../../v:guidid/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-0000#{zerofill("${../../v:version/@major}",4)}FFFF</parameter>
-  <parameter name="compmsiguidpattern">${../../../v:guidid/text()}-#{zerofill("${../../../v:version/@major}",4)}-${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-0100FFFFFFFF</parameter>
-  <parameter name="prodmsiguidpattern">${../../v:guidid/text()}-#{zerofill("${../../v:version/@major}",4)}-0000-0000-0100FFFFFFFF</parameter>
+  <parameter name="guidpattern">${../../../../v:no/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../v:no/text()}-${../../@typeid}-#{zerofill("${../../v:version/@major}",4)}FFFFFFFF</parameter>
+
+  <parameter name="typelibguidpattern">${../../../../v:no/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../v:no/text()}-${../../@typeid}-FFFFFFFFFFFF</parameter>
+  
+  <parameter name="msicomppattern">${../../../v:no/text()}-#{zerofill("${../../../v:version/@major}",4)}-0103-${../../v:no/text()}-#{zerofill("${../../v:version/@major}",4)}#{zerofill("${../../v:version/@minor}",4)}#{zerofill("${../../v:version/@fix}",4)}</parameter>
+  <parameter name="msiprodpattern">${../../v:no/text()}-#{zerofill("${../../v:version/@major}",4)}-0100-${../../v:msino/text()}-FFFFFFFFFFFF</parameter>
+  <parameter name="msipackpattern">${../../v:no/text()}-#{zerofill("${../../v:version/@major}",4)}-0101-#{zerofill("${../../v:version/@minor}",4)}-#{zerofill("${../../v:version/@fix}",4)}FFFFFFFF</parameter>
+
+<!--  <parameter name="msiupdpattern">${../../v:no/text()}-#{zerofill("${../../v:version/@major}",4)}-0102-FFFF-FFFFFFFFFFFF</parameter> -->
+  <parameter name="msiupdpattern">${../../v:no/text()}-0001-0102-FFFF-FFFFFFFFFFFF</parameter>
 
   <product id="BVR20983">
-    <version major="2" minor="0" fix="0" rev="${rev}"/>
+    <version major="1" minor="0" fix="0" rev="${rev}"/>
     <name>BVR2098 Suite</name>
-    <msipackagecode>${prodmsiguidpattern}</msipackagecode>
-    <msiproductcode>${prodmsiguidpattern}</msiproductcode>
-    <guidid>BFE20983</guidid>
+    <no>BFE20983</no>
     <company>Dorothea Wachmann</company>
     <copyright>Copyright \251 2008-2009 ${../../v:company/text()}</copyright>
     <filename>${filenamepattern1}</filename>
+    <msipackagecode>${msipackpattern}</msipackagecode>
+    <msiproductcode>${msiprodpattern}</msiproductcode>
+    <msiupgradecode>${msiupdpattern}</msiupgradecode>
+    <msino>0001</msino>
 
     <patch template="Property.tmpl" filename="Property.idt">
       <pattern><key>@ProductCode@</key><value>${../../../../v:msiproductcode/text()}</value></pattern>
       <pattern><key>@ProductName@</key><value>${../../../../v:name/text()}</value></pattern>
       <pattern><key>@Manufacturer@</key><value>${../../../../v:company/text()}</value></pattern>
-      <pattern><key>@ProductVersion@</key><value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}</value></pattern>
-      <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}</value></pattern>
+      <pattern><key>@ProductVersion@</key><value>${../../../../v:version/@major}.${../../../../v:version/@minor}.0</value></pattern>
+      <pattern><key>@ProductId@</key><value>#{UCase("${../../../../@id}")}</value></pattern>
+      <pattern><key>@URL@</key><value>http://#{LCase("${../../../../@id}")}.berlios.de/</value></pattern>
+      <pattern><key>@UpgradeCode@</key><value>#{UCase("${../../../../v:msiupgradecode/text()}")}</value></pattern>
+    </patch>
+
+    <patch template="Registry.tmpl" filename="Registry.idt">
+      <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
+      <pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
+      <pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>
+      <pattern><key>@CCID@</key><value>cc.${../../../../v:component[@id='cc']/v:version/@major}</value></pattern>
+      <pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
     </patch>
 
     <patch template="Makefile.inc.tmpl" filename="Makefile.inc">
@@ -90,8 +108,8 @@
     <component id="sc" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Smartcard Library</name>
-      <msiguid>${compmsiguidpattern}</msiguid>
-      <guidid>0001</guidid>
+      <msiguid>${msicomppattern}</msiguid>
+      <no>0001</no>
       <filename>${filenamepattern}</filename>
 
       <patch filename="bvr20983sc-ver.h">
@@ -103,6 +121,10 @@
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
         <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdVersion.+")(.+)(")</key>                              <value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.0$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msiproductcode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIPackCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msipackagecode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>                                  <value>$1${../../../../../v:msiupgradecode/text()}$3</value></pattern>
       </patch>
 
       <patch template="bvr20983sc.manifest.tmpl" filename="bvr20983sc.manifest">
@@ -114,84 +136,85 @@
 
       <type id="IAPDU" typeid="0002">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="IATR" typeid="0002">
         <version major="1"/>
-        <guidid>0002</guidid>
+        <no>0002</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="ISmartcard" typeid="0002">
         <version major="1"/>
-        <guidid>0003</guidid>
+        <no>0003</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="IWallet" typeid="0002">
         <version major="1"/>
-        <guidid>0004</guidid>
+        <no>0004</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="DISmartcardEvent" typeid="0004">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="Smartcard" typeid="0010">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="ATR" typeid="0010">
         <version major="1"/>
-        <guidid>0002</guidid>
+        <no>0002</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="Wallet" typeid="0012">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="ResponseEnum" typeid="0020">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="FeaturesEnum" typeid="0020">
         <version major="1"/>
-        <guidid>0002</guidid>
+        <no>0002</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="PinCodingEnum" typeid="0020">
         <version major="1"/>
-        <guidid>0003</guidid>
+        <no>0003</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="AttributesEnum" typeid="0020">
         <version major="1"/>
-        <guidid>0004</guidid>
+        <no>0004</no>
         <guid>${guidpattern}</guid>
       </type>
       
-      <typelib id="BVR20983SC">
+      <typelib id="SC" typeid="0000">
         <version major="1" minor="0"/>
+        <no>0001</no>
         <guid>${typelibguidpattern}</guid>
         
         <patch template="ibvr20983-0000.tmpl" filename="ibvr20983-0000.odl">
           <pattern><key>@typelibVersion</key>      <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
           <pattern><key>@typelibGUID</key>         <value>${../../../../v:guid/text()}</value>                                   </pattern>
-          <pattern><key>@typelibName</key>         <value>${../../../../@id}</value>                                             </pattern>
+          <pattern><key>@typelibName</key>         <value>${../../../../../../@id}_${../../../../../../v:version/@major}_${../../../../@id}</value>                                             </pattern>
           
           <pattern><key>@DISmartcardEventGUID</key><value>${../../../../../v:type[@id='DISmartcardEvent']/v:guid/text()}</value> </pattern>
           <pattern><key>@IAPDUGUID</key>           <value>${../../../../../v:type[@id='IAPDU']/v:guid/text()}</value>            </pattern>
@@ -212,7 +235,7 @@
         <patch template="ibvr20983-0007.tmpl" filename="ibvr20983-0007.odl">
           <pattern><key>@typelibVersion</key>      <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
           <pattern><key>@typelibGUID</key>         <value>${../../../../v:guid/text()}</value>                                   </pattern>
-          <pattern><key>@typelibName</key>         <value>${../../../../@id}</value>                                             </pattern>
+          <pattern><key>@typelibName</key>         <value>${../../../../../../@id}_${../../../../../../v:version/@major}_${../../../../@id}</value>                                             </pattern>
           
           <pattern><key>@DISmartcardEventGUID</key><value>${../../../../../v:type[@id='DISmartcardEvent']/v:guid/text()}</value> </pattern>
           <pattern><key>@IAPDUGUID</key>           <value>${../../../../../v:type[@id='IAPDU']/v:guid/text()}</value>            </pattern>
@@ -235,8 +258,8 @@
     <component id="cc" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Custom Control Library</name>
-      <msiguid>${compmsiguidpattern}</msiguid>
-      <guidid>0002</guidid>
+      <msiguid>${msicomppattern}</msiguid>
+      <no>0002</no>
       <filename>${filenamepattern}</filename>
       <patch filename="bvr20983cc-ver.h">
         <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
@@ -247,6 +270,10 @@
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
         <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdVersion.+")(.+)(")</key>                              <value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.0$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msiproductcode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIPackCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msipackagecode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>                                  <value>$1${../../../../../v:msiupgradecode/text()}$3</value></pattern>
 
         <pattern><key>(^#define.+verAboutTitle.+")(.+)(")</key>                                  <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verAboutText.+")(.+)(")</key>                                   <value>$1${../../../../v:name/text()} ${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
@@ -260,41 +287,48 @@
       </patch>
 
       <patch filename="led.html">
-        <pattern><key>(&lt;object id="led" classid="clsid:)(.*)</key><value>$1${../../../../v:type[@id='LED']/v:guid/text()}" codebase="./${../../../../../v:filename/text()}.cab#version=${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@rev}"&gt;</value></pattern>
+        <pattern><key>(classid="clsid:)(.*)(")</key>
+                 <value>$1${../../../../v:type[@id='LED']/v:guid/text()}$3</value>
+        </pattern>
+        <pattern><key>(codebase=")(.*)(")</key>
+                 <value>$1./${../../../../../v:filename/text()}.cab#version=${../../../../../v:version/@major},${../../../../../v:version/@minor},${../../../../../v:version/@fix},${../../../../../v:version/@rev}$3</value>
+        </pattern>
       </patch>
+
       
       <type id="LED" typeid="0011">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="ILED" typeid="0002">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="DLEDEvent" typeid="0004">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
       <type id="LEDPropertyPage" typeid="0013">
         <version major="1"/>
-        <guidid>0001</guidid>
+        <no>0001</no>
         <guid>${guidpattern}</guid>
       </type>
 
-      <typelib id="BVR20983CC">
+      <typelib id="CC" typeid="0000">
         <version major="1" minor="0"/>
+        <no>0002</no>
         <guid>${typelibguidpattern}</guid>
 
         <patch template="ibvr20983cc-0000.tmpl" filename="ibvr20983cc-0000.odl">
           <pattern><key>@typelibVersion</key>      <value>${../../../../v:version/@major}.${../../../../v:version/@minor}</value></pattern>
           <pattern><key>@typelibGUID</key>         <value>${../../../../v:guid/text()}</value>                                   </pattern>
-          <pattern><key>@typelibName</key>         <value>${../../../../@id}</value>                                   </pattern>
+          <pattern><key>@typelibName</key>         <value>${../../../../../../@id}_${../../../../../../v:version/@major}_${../../../../@id}</value>                                             </pattern>
           <pattern><key>@LEDGUID</key>             <value>${../../../../../v:type[@id='LED']/v:guid/text()}</value>              </pattern>
           <pattern><key>@ILEDGUID</key>            <value>${../../../../../v:type[@id='ILED']/v:guid/text()}</value>             </pattern>
           <pattern><key>@LEDPropertyPageGUID</key> <value>${../../../../../v:type[@id='LEDPropertyPage']/v:guid/text()}</value>  </pattern>
@@ -306,8 +340,8 @@
     <component id="msgs" type="dll">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Product installation and message component</name>
-      <msiguid>${compmsiguidpattern}</msiguid>
-      <guidid>0003</guidid>
+      <msiguid>${msicomppattern}</msiguid>
+      <no>0003</no>
       <filename>${filenamepattern}</filename>
 
       <patch filename="bvr20983msgs-ver.h">
@@ -319,6 +353,11 @@
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
         <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+
+        <pattern><key>(^#define.+verMSIProdVersion.+")(.+)(")</key>                              <value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.0$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msiproductcode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIPackCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msipackagecode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>                                  <value>$1${../../../../../v:msiupgradecode/text()}$3</value></pattern>
       </patch>
 
       <patch template="bvr20983msgs.manifest.tmpl" filename="bvr20983msgs.manifest">
@@ -332,8 +371,8 @@
     <component id="digiclock" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>A digital clock</name>
-      <msiguid>${compmsiguidpattern}</msiguid>
-      <guidid>0004</guidid>
+      <msiguid>${msicomppattern}</msiguid>
+      <no>0004</no>
       <filename>${filenamepattern}</filename>
       <patch filename="digiclock-ver.h">
         <pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@rev}$3</value></pattern>
@@ -344,6 +383,11 @@
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
         <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+
+        <pattern><key>(^#define.+verMSIProdVersion.+")(.+)(")</key>                              <value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.0$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msiproductcode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIPackCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msipackagecode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>                                  <value>$1${../../../../../v:msiupgradecode/text()}$3</value></pattern>
       </patch>
 
       <patch template="digiclock.manifest.tmpl" filename="digiclock.manifest">
@@ -357,8 +401,8 @@
     <component id="lsstg" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list COM structure storage</name>
-      <msiguid>${compmsiguidpattern}</msiguid>
-      <guidid>0005</guidid>
+      <msiguid>${msicomppattern}</msiguid>
+      <no>0005</no>
       <filename>${filenamepattern}</filename>
 
       <patch filename="lsstg-ver.h">
@@ -370,6 +414,11 @@
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
         <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+
+        <pattern><key>(^#define.+verMSIProdVersion.+")(.+)(")</key>                              <value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.0$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msiproductcode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIPackCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msipackagecode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>                                  <value>$1${../../../../../v:msiupgradecode/text()}$3</value></pattern>
       </patch>
 
       <patch template="lsstg.manifest.tmpl" filename="lsstg.manifest">
@@ -383,8 +432,8 @@
     <component id="lstypeinfo" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list typeinfo of registered COM objects</name>
-      <msiguid>${compmsiguidpattern}</msiguid>
-      <guidid>0006</guidid>
+      <msiguid>${msicomppattern}</msiguid>
+      <no>0006</no>
       <filename>${filenamepattern}</filename>
 
       <patch filename="lstypeinfo-ver.h">
@@ -396,6 +445,11 @@
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
         <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+
+        <pattern><key>(^#define.+verMSIProdVersion.+")(.+)(")</key>                              <value>$1${../../../../../v:version/@major}.${../../../../../v:version/@minor}.0$3</value></pattern>
+        <pattern><key>(^#define.+verMSIProdCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msiproductcode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIPackCode.+")(.+)(")</key>                                 <value>$1${../../../../../v:msipackagecode/text()}$3</value></pattern>
+        <pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>                                  <value>$1${../../../../../v:msiupgradecode/text()}$3</value></pattern>
       </patch>
 
       <patch template="lstypeinfo.manifest.tmpl" filename="lstypeinfo.manifest">
@@ -409,8 +463,8 @@
     <component id="msicab" type="exe">
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>create cabinet files and necessary msi information</name>
-<!--      <msiguid>${compmsiguidpattern}</msiguid> -->
-      <guidid>0007</guidid>
+<!--      <msiguid>${msicomppattern}</msiguid> -->
+      <no>0007</no>
       <filename>${filenamepattern}</filename>
 
       <patch filename="msicab-ver.h">

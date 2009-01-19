@@ -47,12 +47,12 @@
 #include "bvr20983sc-dispid.h"
 
  
-[ uuid(BFE20983-0002-0001-0001-00000001FFFF), 
+[ uuid(BFE20983-0001-0001-0000-FFFFFFFFFFFF), 
   helpstring("BVR20983 Type Library"), 
   lcid(1031), 
   version(1.0)
 ]
-library BVR20983SC
+library BVR20983_1_SC
 {
   importlib("STDOLE32.TLB");
 
@@ -63,7 +63,7 @@ library BVR20983SC
   /**
    * Event Interface
    */
-  [ uuid(BFE20983-0002-0001-0001-000400010001), 
+  [ uuid(BFE20983-0001-0001-0004-0001FFFFFFFF), 
     helpstring("Definition der ISmartcard Ereignisschnittstelle")
   ]
   dispinterface DISmartcardEvent
@@ -79,7 +79,7 @@ library BVR20983SC
       void WurdeEmpfangen(IUnknown* pAPDU);
   }
 
-  [ uuid(BFE20983-0002-0001-0001-000200010001),
+  [ uuid(BFE20983-0001-0001-0002-0001FFFFFFFF),
     helpstring("ApplicationProtocolDataUnit Typ"),
     oleautomation,
     dual
@@ -87,7 +87,7 @@ library BVR20983SC
   interface IAPDU : IDispatch                         
   { 
     typedef
-    [ uuid(BFE20983-0002-0001-0001-002000010001),
+    [ uuid(BFE20983-0001-0001-0020-0001FFFFFFFF),
       helpstring("Konstanten fure Antworttyp")
     ]
     enum ResponseType 
@@ -132,7 +132,7 @@ library BVR20983SC
     HRESULT Response([out, retval] IUnknown** ppResonse);    
   }
 
-  [ uuid(BFE20983-0002-0001-0001-000200020001),
+  [ uuid(BFE20983-0001-0002-0002-0001FFFFFFFF),
     helpstring("AnswerToReset Typ"),
     oleautomation,
     dual
@@ -154,14 +154,14 @@ library BVR20983SC
     HRESULT D([out, retval] unsigned long *pD);
   }
 
-  [ uuid(BFE20983-0002-0001-0001-000200030001), 
+  [ uuid(BFE20983-0001-0003-0002-0001FFFFFFFF), 
     helpstring("ISmartcard Type"), 
     oleautomation, 
     dual
   ]
   interface ISmartcard : IDispatch
   { typedef
-    [ uuid(BFE20983-0002-0001-0001-002000020001),
+    [ uuid(BFE20983-0001-0002-0020-0001FFFFFFFF),
       helpstring("Konstanten fuer Terminal Funktionalitaeten")
     ]
     enum Features 
@@ -179,7 +179,7 @@ library BVR20983SC
     } Features;
 
     typedef
-    [ uuid(BFE20983-0002-0001-0001-002000030001),
+    [ uuid(BFE20983-0001-0003-0020-0001FFFFFFFF),
       helpstring("Konstanten fuer PIN Kodierung")
     ]
     enum PinCoding 
@@ -188,7 +188,7 @@ library BVR20983SC
     } PinCoding;
 
     typedef
-    [ uuid(BFE20983-0002-0001-0001-002000040001),
+    [ uuid(BFE20983-0001-0004-0020-0001FFFFFFFF),
       helpstring("Konstanten fuer Attribute")
     ]
     enum Attributes 
@@ -259,7 +259,7 @@ library BVR20983SC
                       );
   }
 
-  [ uuid(BFE20983-0002-0001-0001-001000010001), 
+  [ uuid(BFE20983-0001-0001-0010-0001FFFFFFFF), 
     helpstring("BVR20983 Smartcard Typ"),
     version(1.0)
   ]
@@ -271,7 +271,7 @@ library BVR20983SC
   /**
    * Wallet Application Interfaces
    */
-  [ uuid(BFE20983-0002-0001-0001-000200040001), 
+  [ uuid(BFE20983-0001-0004-0002-0001FFFFFFFF), 
     helpstring("Geldboersenanwendung"), 
     oleautomation, 
     dual
@@ -290,7 +290,7 @@ library BVR20983SC
     HRESULT Authentifizieren([in] BSTR pin);
   }
 
-  [ uuid(BFE20983-0002-0001-0001-001000020001), 
+  [ uuid(BFE20983-0001-0002-0010-0001FFFFFFFF), 
     helpstring("ATR Object"),
     restricted,
     noncreatable
@@ -299,7 +299,7 @@ library BVR20983SC
   { [default]         interface     IATR;
   }
 
-  [ uuid(BFE20983-0002-0001-0001-001200010001), 
+  [ uuid(BFE20983-0001-0001-0012-0001FFFFFFFF), 
     helpstring("Wallet Object"),
     restricted,
     noncreatable

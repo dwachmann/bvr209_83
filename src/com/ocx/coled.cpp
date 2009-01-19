@@ -73,7 +73,7 @@ namespace bvr20983
       : COControl(_T("LEDCOControl"),
                   pUnkOuter,
                   (ILED*)this,
-                  LIBID_BVR20983CC,
+                  LIBID_BVR20983_1_CC,
                   IID_ILED,
                   CLSID_LED,DIID_DLEDEvent
                  )

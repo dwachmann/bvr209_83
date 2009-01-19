@@ -49,7 +49,6 @@ distribute: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
 $(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
    @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
    @copy $(TEMPLATEDIR)\Component.tmpl $(TEMPLATEDIR)\Component.idt
-   @copy $(TEMPLATEDIR)\Registry.tmpl $(TEMPLATEDIR)\Registry.idt
    cd $(SLNDIR)
    rundll32.exe $(BVR20983MSGS_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
    rundll32.exe $(BVR20983SC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
@@ -64,6 +63,5 @@ clean:
   if exist $(MSIDIR)\$(BVR20983_MSI) del /q $(MSIDIR)\$(BVR20983_MSI)
   if exist $(TEMPLATEDIR)\File.idt del /q $(TEMPLATEDIR)\File.idt
   if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt
-  if exist $(TEMPLATEDIR)\Registry.idt del /q $(TEMPLATEDIR)\Registry.idt
 
 !include <../../inc/Makefile.rule>

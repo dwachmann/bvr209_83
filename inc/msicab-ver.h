@@ -25,7 +25,7 @@
 #define verFileVer1     "1.0.0.134"
 #define verFileDesc     "create cabinet files and necessary msi information"
 #define verIntName      "msicab"
-#define verOrigName     "bvr20983.2.msicab.1.exe"
+#define verOrigName     "bvr20983.1.msicab.1.exe"
 #define verMakeDate     "2009-01-14T01:46:52.001486Z"
 #define verCompPrefix   "msicab.1"
 #define verDebugVersion "1"

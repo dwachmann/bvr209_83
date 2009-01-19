@@ -205,18 +205,23 @@ BEGIN
       BLOCK "040904E4" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=MultiLang
     #endif
     BEGIN
-      VALUE "CompanyName",     verCompName
-      VALUE "FileDescription", verFileDesc
-      VALUE "FileVersion",     verFileVer1
-      VALUE "InternalName",    verIntName
-      VALUE "LegalCopyright",  verCopyright
-      VALUE "OriginalFilename",verOrigName
-      VALUE "ProductName",     verProdName
-      VALUE "ProductVersion",  verProdVer1
-      VALUE "BuildDate",       verMakeDate
-      VALUE "ProductPrefix",   verProdPrefix
-      VALUE "ComponentPrefix", verCompPrefix
-      VALUE "DebugVersion",    verDebugVersion
+      VALUE "CompanyName",      verCompName
+      VALUE "FileDescription",  verFileDesc
+      VALUE "FileVersion",      verFileVer1
+      VALUE "InternalName",     verIntName
+      VALUE "LegalCopyright",   verCopyright
+      VALUE "OriginalFilename", verOrigName
+      VALUE "ProductName",      verProdName
+      VALUE "ProductVersion",   verProdVer1
+      VALUE "BuildDate",        verMakeDate
+      VALUE "ProductPrefix",    verProdPrefix
+      VALUE "ComponentPrefix",  verCompPrefix
+      VALUE "DebugVersion",     verDebugVersion
+      VALUE "MSIProductVersion",verMSIProdVersion
+      VALUE "MSIProductCode",   verMSIProdCode
+      VALUE "MSIPackageCode",   verMSIPackCode
+      VALUE "MSIUpgradeVersion",verMSIUpdCode
+      
     END
   END
 

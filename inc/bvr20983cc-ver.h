@@ -21,14 +21,18 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer      1,0,0,134
-#define verFileVer1     "1.0.0.134"
-#define verFileDesc     "Custom Control Library"
-#define verIntName      "cc"
-#define verOrigName     "bvr20983.2.cc.1.dll"
-#define verMakeDate     "2009-01-14T01:46:52.001486Z"
-#define verCompPrefix   "cc.1"
-#define verDebugVersion "1"
+#define verFileVer        1,0,0,134
+#define verFileVer1       "1.0.0.134"
+#define verFileDesc       "Custom Control Library"
+#define verIntName        "cc"
+#define verOrigName       "bvr20983.1.cc.1.dll"
+#define verMakeDate       "2009-01-14T01:46:52.001486Z"
+#define verCompPrefix     "cc.1"
+#define verDebugVersion   "1"
+#define verMSIProdVersion "1.0.0"
+#define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
+#define verMSIPackCode    "BFE20983-0001-0101-0000-0000FFFFFFFF"
+#define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
 #define verAboutTitle   "Custom Control Library"
 #define verAboutText    "Custom Control Library 1.0.0.134"
