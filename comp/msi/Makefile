@@ -64,4 +64,10 @@ clean:
   if exist $(TEMPLATEDIR)\File.idt del /q $(TEMPLATEDIR)\File.idt
   if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt
 
+install:
+  msiexec /i $(MSIDIR)\$(BVR20983_MSI) /log $(MSIDIR)\msiinstall.log
+
+uninstall:
+  msiexec /x $(MSIDIR)\$(BVR20983_MSI) /log $(MSIDIR)\msiuninstall.log
+
 !include <../../inc/Makefile.rule>

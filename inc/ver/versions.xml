@@ -56,6 +56,10 @@
       <pattern><key>@UpgradeCode@</key><value>#{UCase("${../../../../v:msiupgradecode/text()}")}</value></pattern>
     </patch>
 
+    <patch template="Media.tmpl" filename="Media.idt">
+      <pattern><key>@media1@</key><value>${../../../../v:filename/text()}.cab</value></pattern>
+    </patch>
+
     <patch template="Registry.tmpl" filename="Registry.idt">
       <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
       <pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>

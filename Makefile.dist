@@ -39,3 +39,13 @@ uninstall:
 publish:
   @"\Program Files\putty\pscp.exe" -load berlios .\dist-debug\*   dwachmann@shell.berlios.de:/home/groups/bvr20983/htdocs/updated
   @"\Program Files\putty\pscp.exe" -load berlios .\dist-release\* dwachmann@shell.berlios.de:/home/groups/bvr20983/htdocs/update
+
+msi-install:
+  @cd comp\msi
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) install
+  @cd ..
+
+msi-uninstall:
+  @cd comp\msi
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) uninstall
+  @cd ..
