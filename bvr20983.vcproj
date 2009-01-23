@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)\sln"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="0"
 			CharacterSet="2"
@@ -26,7 +26,7 @@
 				BuildCommandLine="nmake"
 				ReBuildCommandLine="nmake"
 				CleanCommandLine="nmake clean=1"
-				Output="$(OutDir)\bvr20983.2.msicab.1.exe"
+				Output="$(OutDir)\bvr20983.1.msicab.1.exe"
 				PreprocessorDefinitions="_UNICODE UNICODE WIN32 _WIN32"
 				IncludeSearchPath="&quot;$(SolutionDir)inc&quot;"
 				ForcedIncludes=""

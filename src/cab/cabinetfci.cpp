@@ -238,7 +238,9 @@ namespace bvr20983
      *
      */
     void CabinetFCI::AddFileA(LPCSTR fileName,LPCSTR prefix,LPCSTR addFileName,TCOMP typeCompress)
-    { char strippedName[MAX_PATH];
+    { char  strippedName[MAX_PATH];
+      char  fullPathPrefix[MAX_PATH];
+      char* pPrefix = NULL;
       
       if( NULL==m_hfci )
         return;
@@ -248,9 +250,15 @@ namespace bvr20983
 
         return;
       } // of if
+
+      if( NULL!=prefix )
+      { THROW_LASTERROREXCEPTION1( ::GetFullPathNameA(prefix,MAX_PATH,fullPathPrefix,NULL) );
+
+        pPrefix = fullPathPrefix;
+      } // of if
         
       if( DirectoryInfo::IsFileA(fileName) )
-      { DirectoryInfo::StripFilenameA(strippedName,ARRAYSIZE(strippedName),fileName,prefix);
+      { DirectoryInfo::StripFilenameA(strippedName,ARRAYSIZE(strippedName),fileName,pPrefix);
   
         if( !FCIAddFile(m_hfci,
                         const_cast<LPSTR>(fileName),      /* file to add */
@@ -269,7 +277,7 @@ namespace bvr20983
       else if( DirectoryInfo::IsDirectoryA(fileName) )
       { DirectoryInfo dirInfo(fileName,NULL,10);
 
-        CabinetFCIDirInfo dirInfoIter(prefix);
+        CabinetFCIDirInfo dirInfoIter(pPrefix);
         
         dirInfo.Iterate(dirInfoIter,this);
       } // of else if

@@ -60,7 +60,7 @@
       <pattern><key>@media1@</key><value>${../../../../v:filename/text()}.cab</value></pattern>
     </patch>
 
-    <patch template="Registry.tmpl" filename="Registry.idt">
+    <patch filename="Registry.tmpl">
       <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
       <pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
       <pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>

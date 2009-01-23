@@ -198,7 +198,6 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
                 ::GetShortPathName(compFileName.c_str(),shortCompFileName,MAX_PATH);
                 DirectoryInfo::_StripFilename(shortStrippedCompFileName,MAX_PATH,shortCompFileName);
 
-
                 s = V_BSTR(msiguidValue);
                 for( ;*s!=_T('\0');s++ )
                   *s = toupper(*s);

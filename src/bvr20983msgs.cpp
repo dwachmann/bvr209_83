@@ -234,6 +234,9 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 
       { Registry registry;
 
+        registry.SetDumpType(Registry::MSI);
+        registry.SetComponentId(compPrefix);
+
         EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
 
 #ifdef _UNICODE
@@ -241,9 +244,6 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 #else
         ofstream fos(filename,ios::app);
 #endif
-
-        registry.SetDumpType(Registry::MSI);
-        registry.SetComponentId(compPrefix);
 
         fos<<registry;
 

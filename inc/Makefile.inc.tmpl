@@ -509,6 +509,7 @@ SLNDIR        = $(RESULTDIR)\sln
 DISTDIR       = $(RESULTDIR)\dist
 SIGNDIR       = $(RESULTDIR)\sign
 MSIDIR        = $(RESULTDIR)\msi
+DISTSRCDIR    = $(RESULTDIR)\src
 
 cinclude=-I$(INCDIR) -I$(OUTDIR)
 cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"

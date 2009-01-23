@@ -22,8 +22,8 @@
 #define verProdName    "BVR2098 Suite"
 #define verCompName    "Dorothea Wachmann"
 #define verCopyright   "Copyright \251 2008-2009 Dorothea Wachmann"
-#define verProdVer     1,0,0,139
-#define verProdVer1    "1.0.0.139"
+#define verProdVer     1,0,0,140
+#define verProdVer1    "1.0.0.140"
 #define verProdPrefix  "bvr20983.1"
 
 

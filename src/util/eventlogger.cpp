@@ -87,11 +87,21 @@ namespace bvr20983
         evtSrcRegKey.SetKeyPrefix(evtSrcRegKeyStr);
 
         OutputDebugFmt(_T("EventLogger::RegisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
+        
+        TString msiInprocServerName(_T("[!"));
+        msiInprocServerName += evtSrcRegKey.GetComponentId();
+        msiInprocServerName += _T("]");
+    
+        if( evtSrcRegKey.GetDumpType()==Registry::MSI )
+        { evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),msiInprocServerName);
+          evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),msiInprocServerName);
+        } // of if
+        else
+        { evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),szModulePath);
+          evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),szModulePath);
+        } // of else
 
-        evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),szModulePath);
         evtSrcRegKey.SetValue(NULL,_T("TypesSupported"),EVENTLOG_ERROR_TYPE|EVENTLOG_INFORMATION_TYPE|EVENTLOG_WARNING_TYPE);
-
-        evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),szModulePath);
         evtSrcRegKey.SetValue(NULL,_T("CategoryCount"),3);
       } // of if
     } // of EventLogger::RegisterInRegistry()
