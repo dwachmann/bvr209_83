@@ -77,6 +77,76 @@ void dirtest(LPTSTR dirName,LPTSTR prefix,UINT maxDepth)
 /**
  *
  */
+struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
+{
+
+#ifdef _UNICODE
+  MSICABAddFileCB(wofstream& componentIDT,wofstream& fileIDT,LPCTSTR compId,LPCTSTR msiguid,LPCTSTR msidir) :
+#else
+  MSICABAddFileCB(ofstream& componentIDT,ofstream& fileIDT,LPCTSTR compId,LPCTSTR msiguid,LPCTSTR msidir) :
+#endif
+    m_componentIDT(componentIDT),
+    m_fileIDT(fileIDT),
+    m_msiguid(msiguid),
+    m_compId(compId),
+    m_componentEntryWritten(false),
+    m_msidir(msidir)
+  { LPTSTR s = const_cast<LPTSTR>(m_msiguid);
+
+    for( ;*s!=_T('\0');s++ )
+      *s = toupper(*s);
+  }
+
+  void FileAdded(LPCTSTR fileName,LPCTSTR addedFileName,int seqNo)
+  { TCHAR strippedCompFileName[MAX_PATH];
+    DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,fileName);
+
+    LPTSTR s = strippedCompFileName;
+    for( ;*s!=_T('\0');s++ )
+      *s = tolower(*s);
+
+    TCHAR shortCompFileName[MAX_PATH];
+    TCHAR shortStrippedCompFileName[MAX_PATH];
+
+    ::GetShortPathName(fileName,shortCompFileName,MAX_PATH);
+    DirectoryInfo::_StripFilename(shortStrippedCompFileName,MAX_PATH,shortCompFileName);
+
+    VersionInfo verInfo(fileName);
+    LPCTSTR fileVersion = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
+
+    if( NULL==fileVersion )
+      fileVersion = _T("");
+
+    DWORD fileSize=0;
+    DirectoryInfo::_GetFileSize(fileName,&fileSize);
+
+    if( !m_componentEntryWritten )
+    { m_componentIDT<<m_compId<<_T("\t{")<<m_msiguid<<_T('}')<<_T("\t")<<m_msidir<<_T("\t0\t\t")<<addedFileName<<endl;
+
+      m_componentEntryWritten = true;
+    } // of if
+
+    m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+  }
+
+private:
+#ifdef _UNICODE
+    wofstream& m_componentIDT;
+    wofstream& m_fileIDT;
+#else
+    ofstream&  m_componentIDT;
+    ofstream&  m_fileIDT;
+#endif
+
+    LPCTSTR m_compId;
+    LPCTSTR m_msiguid;
+    LPCTSTR m_msidir;
+    bool    m_componentEntryWritten;
+}; // of class MSICABAddFileCB
+
+/**
+ *
+ */
 void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR argv[],int argc)
 { util::XMLDocument            xmlDoc;
   COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
@@ -116,10 +186,8 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
 
       xmlDoc.GetSelection(_T("//v:component[descendant::v:msiguid]/@id"),pXMLDomNodeList);
 
-      int seqNo = 1;
-      
       if( !pXMLDomNodeList.IsNULL() )
-      { for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr = pXMLDomNodeList->nextNode(&pNode),seqNo++ )
+      { for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr = pXMLDomNodeList->nextNode(&pNode) )
         { COMString       nodeName;
           COVariant       nodeValue;
           const VARIANT*  v = nodeValue;
@@ -147,6 +215,11 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
             msiguid += compName;
             msiguid += _T("']/v:msiguid/text()");
 
+            COVariant msidirValue;
+            TString msidir = _T("//v:component[@id='");
+            msidir += compName;
+            msidir += _T("']/v:msidir/text()");
+
             COVariant compTypeValue;
             TString compType = _T("//v:component[@id='");
             compType += compName;
@@ -161,50 +234,44 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
               TString compId(compName);
               compId += _T(".");
               compId += V_BSTR(compVersionValue);
+
+              TString msiCompDir = _T("BVRDIR");
+              if( xmlDoc.GetNodeValue(msidir.c_str(),msidirValue,true) )
+                msiCompDir = V_BSTR(msidirValue);
               
               LOGGER_INFO<<_T("    compId:")<<compId<<endl; 
               LOGGER_INFO<<_T("  filename:")<<filenameValue<<endl; 
               LOGGER_INFO<<_T("  comptype:")<<compTypeValue<<endl; 
               LOGGER_INFO<<_T("   msiguid:")<<msiguidValue<<endl; 
+              LOGGER_INFO<<_T("    msidir:")<<msiCompDir<<endl; 
 
               TString compFileName(compDir);
               compFileName += _T("\\");
               compFileName += V_BSTR(filenameValue);
-              compFileName += _T(".");
-              compFileName += V_BSTR(compTypeValue);
 
-              if( DirectoryInfo::_IsFile(compFileName.c_str()) )
-              { VersionInfo verInfo(compFileName.c_str());
-                LPCTSTR fileVersion = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
+              if( _tcscmp(V_BSTR(compTypeValue),_T("dll"))==0 || _tcscmp(V_BSTR(compTypeValue),_T("exe"))==0 )
+              { compFileName += _T(".");
+                compFileName += V_BSTR(compTypeValue);
 
-                TCHAR compcabfilename[MAX_PATH];
-                _tcscpy_s(compcabfilename,MAX_PATH,compId.c_str());
+                if( DirectoryInfo::_IsFile(compFileName.c_str())  )
+                { MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(msiguidValue),msiCompDir.c_str());
+                  
+                  TCHAR compcabfilename[MAX_PATH];
+                  _tcscpy_s(compcabfilename,MAX_PATH,compId.c_str());
 
-                DWORD fileSize=0;
-                DirectoryInfo::_GetFileSize(compFileName.c_str(),&fileSize);
+                  cabinet.SetAddFileCallback(&addFileCB);
 
-                cabinet.AddFile(compFileName.c_str(),NULL,compcabfilename);
-
-                TCHAR strippedCompFileName[MAX_PATH];
-                DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,compFileName.c_str());
-
-                LPTSTR s = strippedCompFileName;
-                for( ;*s!=_T('\0');s++ )
-                  *s = tolower(*s);
-
-                TCHAR shortCompFileName[MAX_PATH];
-                TCHAR shortStrippedCompFileName[MAX_PATH];
-
-                ::GetShortPathName(compFileName.c_str(),shortCompFileName,MAX_PATH);
-                DirectoryInfo::_StripFilename(shortStrippedCompFileName,MAX_PATH,shortCompFileName);
-
-                s = V_BSTR(msiguidValue);
-                for( ;*s!=_T('\0');s++ )
-                  *s = toupper(*s);
-
-                componentIDT<<compId<<_T("\t{")<<V_BSTR(msiguidValue)<<_T('}')<<_T("\tBVRDIR\t0\t\t")<<compcabfilename<<endl;
-                fileIDT<<compcabfilename<<_T('\t')<<compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+                  cabinet.AddFile(compFileName.c_str(),NULL,compcabfilename);
+                } // of if
               } // of if
+              else if( _tcscmp(V_BSTR(compTypeValue),_T("data"))==0 && DirectoryInfo::_IsDirectory(compFileName.c_str()) )
+              { 
+                MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(msiguidValue),msiCompDir.c_str());
+
+                cabinet.SetAddFileCallback(&addFileCB);
+
+                cabinet.AddFile(compFileName.c_str());
+              } // of else if
             } // of if
           } // of if
         } // of for
@@ -214,6 +281,7 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
     } // of if
   } // of if
 } // of msicab()
+
 
 /**
  *

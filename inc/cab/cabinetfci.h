@@ -71,14 +71,24 @@ namespace bvr20983
       void StoreCabName(LPSTR cabname, int iCab);
     }; // of struct CabFCIParameter
 
+    class CabinetFCI;
+
+    /**
+     *
+     */
+    struct CabinetFCIAddFileCB
+    {
+      virtual void FileAdded(LPCTSTR fileName,LPCTSTR addedFileName,int seqNo)=0;
+    };
+
     /**
      *
      */
     class CabinetFCI
     {
     public:
-      CabinetFCI();
-      CabinetFCI(const CabFCIParameter& parameter);
+      CabinetFCI(CabinetFCIAddFileCB* pAddFileCB=NULL);
+      CabinetFCI(const CabFCIParameter& parameter,CabinetFCIAddFileCB* pAddFileCB=NULL);
       ~CabinetFCI();
 
       void Flush(boolean flushFolder=false);
@@ -87,12 +97,17 @@ namespace bvr20983
       void AddFileW(LPCWSTR fileName,LPCWSTR prefix=NULL,LPCWSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
       void AddFile(LPCTSTR fileName,LPCTSTR prefix=NULL,LPCTSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
 
+      void SetAddFileCallback(CabinetFCIAddFileCB* pAddFileCB)
+      { this->m_pAddFileCB = pAddFileCB; }
+
     private:
-      long            m_totalCompressedSize;    /* total compressed size so far */
-      long            m_totalUncompressedSize;  /* total uncompressed size so far */
-      HFCI            m_hfci;
-      ERF             m_erf;
-      CabFCIParameter m_parameter;
+      long                 m_totalCompressedSize;    /* total compressed size so far */
+      long                 m_totalUncompressedSize;  /* total uncompressed size so far */
+      HFCI                 m_hfci;
+      ERF                  m_erf;
+      CabFCIParameter      m_parameter;
+      CabinetFCIAddFileCB* m_pAddFileCB;
+      int                  m_seqNo;
 
       int  GetPercentage(unsigned long a, unsigned long b);
       void Init();

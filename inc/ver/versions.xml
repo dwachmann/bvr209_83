@@ -60,12 +60,16 @@
       <pattern><key>@media1@</key><value>${../../../../v:filename/text()}.cab</value></pattern>
     </patch>
 
-    <patch filename="Registry.tmpl">
+    <patch template="Registry.tmpl" filename="Registry0.tmpl">
       <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
       <pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
       <pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>
       <pattern><key>@CCID@</key><value>cc.${../../../../v:component[@id='cc']/v:version/@major}</value></pattern>
       <pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
+    </patch>
+
+    <patch template="Directory.tmpl" filename="Directory.idt">
+      <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
     </patch>
 
     <patch template="Makefile.inc.tmpl" filename="Makefile.inc">
@@ -113,6 +117,7 @@
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Smartcard Library</name>
       <msiguid>${msicomppattern}</msiguid>
+      <msidir>BINDIR</msidir>
       <no>0001</no>
       <filename>${filenamepattern}</filename>
 
@@ -263,6 +268,7 @@
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Custom Control Library</name>
       <msiguid>${msicomppattern}</msiguid>
+      <msidir>BINDIR</msidir>
       <no>0002</no>
       <filename>${filenamepattern}</filename>
       <patch filename="bvr20983cc-ver.h">
@@ -345,6 +351,7 @@
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>Product installation and message component</name>
       <msiguid>${msicomppattern}</msiguid>
+      <msidir>BINDIR</msidir>
       <no>0003</no>
       <filename>${filenamepattern}</filename>
 
@@ -376,6 +383,7 @@
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>A digital clock</name>
       <msiguid>${msicomppattern}</msiguid>
+      <msidir>BINDIR</msidir>
       <no>0004</no>
       <filename>${filenamepattern}</filename>
       <patch filename="digiclock-ver.h">
@@ -406,6 +414,7 @@
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list COM structure storage</name>
       <msiguid>${msicomppattern}</msiguid>
+      <msidir>BINDIR</msidir>
       <no>0005</no>
       <filename>${filenamepattern}</filename>
 
@@ -437,6 +446,7 @@
       <version major="1" minor="0" fix="0" rev="${rev}"/>
       <name>list typeinfo of registered COM objects</name>
       <msiguid>${msicomppattern}</msiguid>
+      <msidir>BINDIR</msidir>
       <no>0006</no>
       <filename>${filenamepattern}</filename>
 
@@ -490,5 +500,22 @@
       </patch>
     </component>
 
+    <component id="doc" type="data">
+      <version major="1" minor="0" fix="0" rev="${rev}"/>
+      <name>documentation files</name>
+      <msiguid>${msicomppattern}</msiguid>
+      <msidir>DOCDIR</msidir>
+      <no>0008</no>
+      <filename>documentation</filename>
+    </component>
+
+    <component id="sample" type="data">
+      <version major="1" minor="0" fix="0" rev="${rev}"/>
+      <name>sample files</name>
+      <msiguid>${msicomppattern}</msiguid>
+      <msidir>SAMPLEDIR</msidir>
+      <no>0009</no>
+      <filename>samples</filename>
+    </component>
   </product>
 </versions>

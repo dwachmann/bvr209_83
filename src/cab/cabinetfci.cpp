@@ -136,21 +136,25 @@ namespace bvr20983
     /*
      *
      */
-    CabinetFCI::CabinetFCI() :
+    CabinetFCI::CabinetFCI(CabinetFCIAddFileCB* pAddFileCB) :
       m_totalCompressedSize(0),
       m_totalUncompressedSize(0),
-      m_hfci(NULL)
+      m_hfci(NULL),
+      m_pAddFileCB(pAddFileCB),
+      m_seqNo(0)
     { Init(); }
 
 
     /*
      *
      */
-    CabinetFCI::CabinetFCI(const CabFCIParameter& parameter) :
+    CabinetFCI::CabinetFCI(const CabFCIParameter& parameter,CabinetFCIAddFileCB* pAddFileCB) :
       m_totalCompressedSize(0),
       m_totalUncompressedSize(0),
       m_hfci(NULL),
-      m_parameter(parameter)
+      m_parameter(parameter),
+      m_pAddFileCB(pAddFileCB),
+      m_seqNo(0)
     { Init(); }
 
     /*
@@ -221,7 +225,7 @@ namespace bvr20983
       if( NULL!=fileName )
       { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, fileName, -1,fileNameA, MAX_PATH, NULL, NULL ) ); }
 
-      if( NULL!=prefix )
+      if( NULL!=prefix && prefix[0]!=_T('\0') )
       { THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, prefix, -1,prefixA, MAX_PATH, NULL, NULL ) ); }
 
       if( NULL!=addFileName )
@@ -251,7 +255,7 @@ namespace bvr20983
         return;
       } // of if
 
-      if( NULL!=prefix )
+      if( NULL!=prefix && prefix[0]!=_T('\0') )
       { THROW_LASTERROREXCEPTION1( ::GetFullPathNameA(prefix,MAX_PATH,fullPathPrefix,NULL) );
 
         pPrefix = fullPathPrefix;
@@ -273,6 +277,23 @@ namespace bvr20983
                        )
           )
           THROW_CABEXCEPTION((FCIERROR)m_erf.erfOper);
+
+        m_seqNo++;
+
+        if( NULL!=m_pAddFileCB )
+        { 
+#ifdef _UNICODE
+          WCHAR fileNameW[MAX_PATH];
+          WCHAR AddedfileNameW[MAX_PATH];
+
+          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameW, MAX_PATH) );
+          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, addFileName==NULL ? strippedName : addFileName, -1,AddedfileNameW, MAX_PATH) );
+
+          m_pAddFileCB->FileAdded(fileNameW,AddedfileNameW,m_seqNo);
+#else
+          m_pAddFileCB->FileAdded(fileName,addFileName==NULL ? strippedName : addFileName,m_seqNo);
+#endif
+        } // of if
       } // of if
       else if( DirectoryInfo::IsDirectoryA(fileName) )
       { DirectoryInfo dirInfo(fileName,NULL,10);
@@ -281,7 +302,7 @@ namespace bvr20983
         
         dirInfo.Iterate(dirInfoIter,this);
       } // of else if
-    } // of CabinetFCI::AddFile()
+    } // of CabinetFCI::AddFileA()
 
     /**
      *

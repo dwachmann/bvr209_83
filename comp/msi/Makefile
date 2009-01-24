@@ -31,7 +31,8 @@ all: distribute
 
 distribute: msi
 
-msi: clean distsrc $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+msi: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+   @copy $(TEMPLATEDIR)\Registry0.tmpl /B + $(TEMPLATEDIR)\Registry1.tmpl /B $(TEMPLATEDIR)\Registry.idt /B
    $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(TEMPLATEDIR) -i *
    $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)
    $(msiinfo) $(MSIDIR)\$(BVR20983_MSI) \
@@ -51,11 +52,10 @@ msi: clean distsrc $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
 $(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
    @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
    @copy $(TEMPLATEDIR)\Component.tmpl $(TEMPLATEDIR)\Component.idt
-   @copy $(TEMPLATEDIR)\Registry.tmpl $(TEMPLATEDIR)\Registry.idt
    cd $(SLNDIR)
-   rundll32.exe $(BVR20983MSGS_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
-   rundll32.exe $(BVR20983SC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
-   rundll32.exe $(BVR20983CC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry.idt
+   rundll32.exe $(BVR20983MSGS_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry1.tmpl
+   rundll32.exe $(BVR20983SC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry1.tmpl
+   rundll32.exe $(BVR20983CC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry1.tmpl
    $(msicab) -msicab ..\..\inc\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI) $(TEMPLATEDIR)
 
 validate: 
@@ -70,6 +70,7 @@ clean:
   if exist $(MSIDIR)\$(BVR20983_MSI) del /q $(MSIDIR)\$(BVR20983_MSI)
   if exist $(TEMPLATEDIR)\File.idt del /q $(TEMPLATEDIR)\File.idt
   if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt
+  if exist $(TEMPLATEDIR)\Registry1.tmpl del /q $(TEMPLATEDIR)\Registry1.tmpl
   if exist $(TEMPLATEDIR)\Registry.idt del /q $(TEMPLATEDIR)\Registry.idt
   if exist $(DISTSRCDIR)/$(NULL) rd /s /q $(DISTSRCDIR)
   if exist $(RESULTDIR)\$(BVR20983_RESULT)-src.cab del /q $(RESULTDIR)\$(BVR20983_RESULT)-src.cab

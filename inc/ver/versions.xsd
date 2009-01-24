@@ -70,6 +70,7 @@
       <xs:element name="version"   type="versionType"/>
       <xs:element name="name"      type="xs:string"/>
       <xs:element name="msiguid"   type="xs:string"   minOccurs="0" />
+      <xs:element name="msidir"    type="xs:string"   minOccurs="0" />
       <xs:element name="no"        type="xs:string"   minOccurs="0" />
       <xs:element name="filename"  type="xs:string"/>
       <xs:element name="patch"     type="patchType"   minOccurs="0" maxOccurs="unbounded"/>
@@ -132,6 +133,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="dll"/>
       <xs:enumeration value="exe"/>
+      <xs:enumeration value="data"/>
     </xs:restriction>
   </xs:simpleType>
 
