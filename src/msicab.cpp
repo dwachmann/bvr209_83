@@ -174,12 +174,18 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
       msiFileFName += _T("\\");
       msiFileFName += _T("File.idt");
 
+      TString msiMediaFName(templateDir);
+      msiMediaFName += _T("\\");
+      msiMediaFName += _T("Media.idt");
+
 #ifdef _UNICODE
       wofstream componentIDT(msiComponentFName.c_str(),ios_base::app);
       wofstream fileIDT(msiFileFName.c_str(),ios_base::app);
+      wofstream mediaIDT(msiMediaFName.c_str(),ios_base::app);
 #else
       ofstream componentIDT(msiComponentFName.c_str(),ios_base::app);
       ofstream fileIDT(msiFileFName.c_str(),ios_base::app);
+      ofstream mediaIDT(msiMediaFName.c_str(),ios_base::app);
 #endif
 
       LOGGER_INFO<<_T("product:")<<productidValue<<endl; 
@@ -277,6 +283,12 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
         } // of for
 
         cabinet.Flush();
+        
+        TCHAR strippedCabName[MAX_PATH];
+        
+        DirectoryInfo::_StripFilename(strippedCabName,MAX_PATH,cabName);
+        
+        mediaIDT<<_T("1")<<_T('\t')<<cabinet.GetSequenceNo()<<_T('\t')<<_T("1")<<_T("\t#")<<strippedCabName<<_T('\t')<<_T("DISK1")<<_T('\t')<<endl;
       } // of if
     } // of if
   } // of if

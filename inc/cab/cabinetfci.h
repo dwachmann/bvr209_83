@@ -99,6 +99,9 @@ namespace bvr20983
 
       void SetAddFileCallback(CabinetFCIAddFileCB* pAddFileCB)
       { this->m_pAddFileCB = pAddFileCB; }
+      
+      int GetSequenceNo() const
+      { return m_seqNo; }
 
     private:
       long                 m_totalCompressedSize;    /* total compressed size so far */

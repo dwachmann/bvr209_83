@@ -52,6 +52,13 @@ msi: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
 $(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
    @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
    @copy $(TEMPLATEDIR)\Component.tmpl $(TEMPLATEDIR)\Component.idt
+   @copy $(TEMPLATEDIR)\Media.tmpl $(TEMPLATEDIR)\Media.idt
+   if not exist "$(SLNDIR)\documentation/$(NULL)" mkdir $(SLNDIR)\documentation
+   if not exist "$(SLNDIR)\samples/$(NULL)" mkdir $(SLNDIR)\samples
+   @xcopy ..\..\res\html\* $(SLNDIR)\samples /S
+   @copy ..\..\scripts\bvr20983.vbs $(SLNDIR)\samples
+   @copy ..\..\scripts\test1.vbs    $(SLNDIR)\samples
+   @xcopy ..\..\doc\* $(SLNDIR)\documentation /S
    cd $(SLNDIR)
    rundll32.exe $(BVR20983MSGS_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry1.tmpl
    rundll32.exe $(BVR20983SC_RESULT).dll,DllRegistrationInfo $(TEMPLATEDIR)\Registry1.tmpl
@@ -68,11 +75,14 @@ distsrc:
 clean:
   if exist $(MSIDIR)\$(BVR20983_CABMSI) del /q $(MSIDIR)\$(BVR20983_CABMSI)
   if exist $(MSIDIR)\$(BVR20983_MSI) del /q $(MSIDIR)\$(BVR20983_MSI)
+  if exist $(TEMPLATEDIR)\Media.idt del /q $(TEMPLATEDIR)\Media.idt
   if exist $(TEMPLATEDIR)\File.idt del /q $(TEMPLATEDIR)\File.idt
   if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt
   if exist $(TEMPLATEDIR)\Registry1.tmpl del /q $(TEMPLATEDIR)\Registry1.tmpl
   if exist $(TEMPLATEDIR)\Registry.idt del /q $(TEMPLATEDIR)\Registry.idt
   if exist $(DISTSRCDIR)/$(NULL) rd /s /q $(DISTSRCDIR)
+  if exist $(SLNDIR)\documentation/$(NULL) rd /s /q $(SLNDIR)\documentation
+  if exist $(SLNDIR)\samples/$(NULL) rd /s /q $(SLNDIR)\samples
   if exist $(RESULTDIR)\$(BVR20983_RESULT)-src.cab del /q $(RESULTDIR)\$(BVR20983_RESULT)-src.cab
 
 install:
