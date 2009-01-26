@@ -36,6 +36,7 @@ patch         = cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INC
 
 PROJECTS =          \
 comp\libbvr20983\~  \
+comp\res\~          \
 comp\msgs\~         \
 comp\cc\~           \
 comp\sc\~           \

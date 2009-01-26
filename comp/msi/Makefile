@@ -33,6 +33,7 @@ distribute: msi
 
 msi: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
    @copy $(TEMPLATEDIR)\Registry0.tmpl /B + $(TEMPLATEDIR)\Registry1.tmpl /B $(TEMPLATEDIR)\Registry.idt /B
+   @copy $(SLNDIR)\$(BVR20983RES_RESULT).dll $(TEMPLATEDIR)\Icon\bvr20983res.exe.ibd
    $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(TEMPLATEDIR) -i *
    $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)
    $(msiinfo) $(MSIDIR)\$(BVR20983_MSI) \
@@ -48,6 +49,9 @@ msi: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
              -N msidb \
              -U 0 \
              -L dw
+
+msi1: 
+   $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(TEMPLATEDIR) -i *
 
 $(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
    @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
@@ -80,6 +84,7 @@ clean:
   if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt
   if exist $(TEMPLATEDIR)\Registry1.tmpl del /q $(TEMPLATEDIR)\Registry1.tmpl
   if exist $(TEMPLATEDIR)\Registry.idt del /q $(TEMPLATEDIR)\Registry.idt
+  if exist $(TEMPLATEDIR)\Icon\bvr20983res.exe.ibd del /q $(TEMPLATEDIR)\Icon\bvr20983res.exe.ibd
   if exist $(DISTSRCDIR)/$(NULL) rd /s /q $(DISTSRCDIR)
   if exist $(SLNDIR)\documentation/$(NULL) rd /s /q $(SLNDIR)\documentation
   if exist $(SLNDIR)\samples/$(NULL) rd /s /q $(SLNDIR)\samples

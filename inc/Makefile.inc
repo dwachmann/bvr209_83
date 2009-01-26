@@ -526,6 +526,7 @@ makeopts = clean=1
 makeopts = $(makeopts) nodebug=1
 !endif
 
+BVR20983RES_RESULT=bvr20983.1.res.1
 BVR20983CC_RESULT=bvr20983.1.cc.1
 BVR20983SC_RESULT=bvr20983.1.sc.1
 DIGICLOCK_RESULT=bvr20983.1.digiclock.1

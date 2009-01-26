@@ -16,22 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-#if !defined(BVR20983SCVER_H)
-#define BVR20983SCVER_H
+#if !defined(BVR20983RESRES_H)
+#define BVR20983RESRES_H
 
-#include "bvr20983-prod.h"
+#define IDI_APP_ICON                  1
+#define IDI_STATE_0                   10
+#define IDI_STATE_1                   11
+#define IDI_STATE_2                   12
 
-#define verFileVer        1,0,0,143
-#define verFileVer1       "1.0.0.143"
-#define verFileDesc       "Smartcard Library"
-#define verIntName        "sc"
-#define verOrigName       "bvr20983.1.sc.1.dll"
-#define verMakeDate       "2009-01-25T01:55:37.034166Z"
-#define verCompPrefix     "sc.1"
-#define verDebugVersion   "1"
-#define verMSIProdVersion "1.0.0"
-#define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
-#define verMSIPackCode    "BFE20983-0001-0101-0000-0000FFFFFFFF"
-#define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
-
-#endif // BVR20983SCVER_H
+#endif // BVR20983RESRES_H
