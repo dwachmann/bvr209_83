@@ -270,9 +270,9 @@ MsiPatchCertificate	DigitalCertificate_	N			MsiDigitalCertificate	1	Identifier		
 MsiPatchCertificate	PatchCertificate	N					Identifier		Primary key. A unique identifier for the row.
 MsiPatchHeaders	Header	N					Binary		Binary stream. The patch header, used for patch validation.
 MsiPatchHeaders	StreamRef	N					Identifier		Primary key. A unique identifier for the row.
-MsiPatchMetaData	Company	Y					Identifier		Name of company. Null for standard MSI metadata properties. Non-null for company specific metadata. Patch-only table.
-MsiPatchMetaData	Property	N					Identifier		Name of property. Never null or empty. Patch-only table.
-MsiPatchMetaData	Value	N					Text		String value for property.  Never null or empty. Patch-only table.
+MsiPatchMetadata	Company	Y					Identifier		Name of company. Null for standard MSI metadata properties. Non-null for company specific metadata. Patch-only table.
+MsiPatchMetadata	Property	N					Identifier		Name of property. Never null or empty. Patch-only table.
+MsiPatchMetadata	Value	N					Text		String value for property.  Never null or empty. Patch-only table.
 MsiPatchOldAssemblyFile	Assembly_	N			MsiPatchOldAssemblyName	1	Identifier		Foreign key into MsiPatchOldAssemblyName table.
 MsiPatchOldAssemblyFile	File_	N			File	1	Identifier		Foreign key into File table. Patch-only table.
 MsiPatchOldAssemblyName	Assembly	N					Identifier		A unique identifier for the row.

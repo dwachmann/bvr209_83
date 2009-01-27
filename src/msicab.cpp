@@ -81,14 +81,15 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
 {
 
 #ifdef _UNICODE
-  MSICABAddFileCB(wofstream& componentIDT,wofstream& fileIDT,LPCTSTR compId,LPCTSTR msiguid,LPCTSTR msidir) :
+  MSICABAddFileCB(wofstream& componentIDT,wofstream& fileIDT,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
 #else
-  MSICABAddFileCB(ofstream& componentIDT,ofstream& fileIDT,LPCTSTR compId,LPCTSTR msiguid,LPCTSTR msidir) :
+  MSICABAddFileCB(ofstream& componentIDT,ofstream& fileIDT,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
 #endif
     m_componentIDT(componentIDT),
     m_fileIDT(fileIDT),
     m_msiguid(msiguid),
     m_compId(compId),
+    m_compType(compType),
     m_componentEntryWritten(false),
     m_msidir(msidir)
   { LPTSTR s = const_cast<LPTSTR>(m_msiguid);
@@ -121,13 +122,20 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
     DirectoryInfo::_GetFileSize(fileName,&fileSize);
 
     if( !m_componentEntryWritten )
-    { m_componentIDT<<m_compId<<_T("\t{")<<m_msiguid<<_T('}')<<_T("\t")<<m_msidir<<_T("\t0\t\t")<<addedFileName<<endl;
+    { 
+      if( _tcscmp(m_compType,_T("dll"))==0 || _tcscmp(m_compType,_T("exe"))==0 )
+        m_componentIDT<<m_compId<<_T("\t{")<<m_msiguid<<_T('}')<<_T("\t")<<m_msidir<<_T("\t0\t\t")<<m_compId<<endl;
+      else
+        m_componentIDT<<m_compId<<_T("\t{")<<m_msiguid<<_T('}')<<_T("\t")<<m_msidir<<_T("\t0\t\t")<<endl;
 
       m_componentEntryWritten = true;
     } // of if
 
-    m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
-  }
+    if( _tcscmp(m_compType,_T("dll"))==0 || _tcscmp(m_compType,_T("exe"))==0 )
+      m_fileIDT<<m_compId<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+    else
+      m_fileIDT<<_T("file")<<seqNo<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+  } // of FileAdded()
 
 private:
 #ifdef _UNICODE
@@ -139,6 +147,7 @@ private:
 #endif
 
     LPCTSTR m_compId;
+    LPCTSTR m_compType;
     LPCTSTR m_msiguid;
     LPCTSTR m_msidir;
     bool    m_componentEntryWritten;
@@ -260,7 +269,7 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
                 compFileName += V_BSTR(compTypeValue);
 
                 if( DirectoryInfo::_IsFile(compFileName.c_str())  )
-                { MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(msiguidValue),msiCompDir.c_str());
+                { MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(compTypeValue),V_BSTR(msiguidValue),msiCompDir.c_str());
                   
                   TCHAR compcabfilename[MAX_PATH];
                   _tcscpy_s(compcabfilename,MAX_PATH,compId.c_str());
@@ -272,7 +281,7 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
               } // of if
               else if( _tcscmp(V_BSTR(compTypeValue),_T("data"))==0 && DirectoryInfo::_IsDirectory(compFileName.c_str()) )
               { 
-                MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(msiguidValue),msiCompDir.c_str());
+                MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(compTypeValue),V_BSTR(msiguidValue),msiCompDir.c_str());
 
                 cabinet.SetAddFileCallback(&addFileCB);
 

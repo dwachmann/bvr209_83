@@ -1,9 +1,9 @@
 Dialog_	Control	Type	X	Y	Width	Height	Attributes	Property	Text	Control_Next	Help
 s72	s50	s20	i2	i2	i2	i2	I4	S50	L0	S50	L50
 Control	Dialog_	Control
-AdminBrowseDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	PathEdit	
-AdminBrowseDlg	BannerLine	Line	0	44	374	0	1				
-AdminBrowseDlg	BottomLine	Line	0	234	374	0	1				
+AdminBrowseDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	PathEdit	
+AdminBrowseDlg	BannerLine	Line	0	44	370	0	1				
+AdminBrowseDlg	BottomLine	Line	0	234	370	0	1				
 AdminBrowseDlg	Cancel	PushButton	240	243	56	17	3		[ButtonText_Cancel]	ComboLabel	
 AdminBrowseDlg	ComboLabel	Text	25	58	44	10	3		&Look in:	DirectoryCombo	
 AdminBrowseDlg	Description	Text	25	23	280	15	196611		Browse to the destination folder		
@@ -16,9 +16,9 @@ AdminBrowseDlg	PathLabel	Text	25	205	59	10	3		&Folder name:	BannerBitmap
 AdminBrowseDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Change current destination folder		
 AdminBrowseDlg	Up	PushButton	298	55	19	19	3670019		Up	NewFolder	Up One Level|
 AdminInstallPointDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Next	
-AdminInstallPointDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	Text	
-AdminInstallPointDlg	BannerLine	Line	0	44	374	0	1				
-AdminInstallPointDlg	BottomLine	Line	0	234	374	0	1				
+AdminInstallPointDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	Text	
+AdminInstallPointDlg	BannerLine	Line	0	44	370	0	1				
+AdminInstallPointDlg	BottomLine	Line	0	234	370	0	1				
 AdminInstallPointDlg	Browse	PushButton	289	119	56	17	3		[ButtonText_Browse]	Back	
 AdminInstallPointDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 AdminInstallPointDlg	Description	Text	25	20	280	20	196611		Please specify a network location for the server image of [ProductName] product		
@@ -27,9 +27,9 @@ AdminInstallPointDlg	PathEdit	PathEdit	25	93	320	18	3	TARGETDIR		Browse
 AdminInstallPointDlg	Text	Text	25	80	320	10	3		&Enter a new network location or click Browse to browse to one.	PathEdit	
 AdminInstallPointDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Network Location		
 AdminRegistrationDlg	Back	PushButton	180	243	56	17	65539		[ButtonText_Back]	Next	
-AdminRegistrationDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	OrganizationLabel	
-AdminRegistrationDlg	BannerLine	Line	0	44	374	0	1				
-AdminRegistrationDlg	BottomLine	Line	0	234	374	0	1				
+AdminRegistrationDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	OrganizationLabel	
+AdminRegistrationDlg	BannerLine	Line	0	44	370	0	1				
+AdminRegistrationDlg	BottomLine	Line	0	234	370	0	1				
 AdminRegistrationDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 AdminRegistrationDlg	CDKeyEdit	MaskedEdit	45	143	250	16	3	PIDKEY	[PIDTemplate]	Back	
 AdminRegistrationDlg	CDKeyLabel	Text	45	130	50	10	3		CD &Key:	CDKeyEdit	
@@ -40,14 +40,14 @@ AdminRegistrationDlg	OrganizationLabel	Text	45	71	285	30	3		&Please enter the na
 AdminRegistrationDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Company Information		
 AdminWelcomeDlg	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Next	
 AdminWelcomeDlg	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Back	
-AdminWelcomeDlg	BottomLine	Line	0	234	374	0	1				
+AdminWelcomeDlg	BottomLine	Line	0	234	370	0	1				
 AdminWelcomeDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	Bitmap	
 AdminWelcomeDlg	Description	Text	135	70	220	30	196611		The [Wizard] will create a server image of [ProductName], at a specified network location.  Click Next to continue or Cancel to exit the [Wizard].		
 AdminWelcomeDlg	Next	PushButton	236	243	56	17	3		[ButtonText_Next]	Cancel	
 AdminWelcomeDlg	Title	Text	135	20	220	60	196611		Welcome to the [ProductName] [Wizard]		
-BrowseDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	PathEdit	
-BrowseDlg	BannerLine	Line	0	44	374	0	1				
-BrowseDlg	BottomLine	Line	0	234	374	0	1				
+BrowseDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	PathEdit	
+BrowseDlg	BannerLine	Line	0	44	370	0	1				
+BrowseDlg	BottomLine	Line	0	234	370	0	1				
 BrowseDlg	Cancel	PushButton	240	243	56	17	3		[ButtonText_Cancel]	ComboLabel	
 BrowseDlg	ComboLabel	Text	25	58	44	10	3		&Look in:	DirectoryCombo	
 BrowseDlg	Description	Text	25	23	280	15	196611		Browse to the destination folder		
@@ -64,9 +64,9 @@ CancelDlg	No	PushButton	132	57	56	17	3		[ButtonText_No]	Yes
 CancelDlg	Text	Text	48	15	194	30	3		Are you sure you want to cancel [ProductName] installation?		
 CancelDlg	Yes	PushButton	72	57	56	17	3		[ButtonText_Yes]	No	
 CustomizeDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Next	
-CustomizeDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	Tree	
-CustomizeDlg	BannerLine	Line	0	44	374	0	1				
-CustomizeDlg	BottomLine	Line	0	234	374	0	1				
+CustomizeDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	Tree	
+CustomizeDlg	BannerLine	Line	0	44	370	0	1				
+CustomizeDlg	BottomLine	Line	0	234	370	0	1				
 CustomizeDlg	Box	GroupBox	210	81	140	98	1				
 CustomizeDlg	Browse	PushButton	304	200	56	17	3		[ButtonText_Browse]	Reset	
 CustomizeDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
@@ -81,9 +81,9 @@ CustomizeDlg	Reset	PushButton	42	243	56	17	3		[ButtonText_Reset]	DiskCost
 CustomizeDlg	Text	Text	25	55	320	20	3		Click on the icons in the tree below to change the way features will be installed.		
 CustomizeDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Custom Setup		
 CustomizeDlg	Tree	SelectionTree	25	85	175	95	7	_BrowseProperty	Tree of selections	Browse	
-DiskCostDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	OK	
-DiskCostDlg	BannerLine	Line	0	44	374	0	1				
-DiskCostDlg	BottomLine	Line	0	234	374	0	1				
+DiskCostDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	OK	
+DiskCostDlg	BannerLine	Line	0	44	370	0	1				
+DiskCostDlg	BottomLine	Line	0	234	370	0	1				
 DiskCostDlg	Description	Text	20	20	280	20	196611		The disk space required for the installation of the selected features.		
 DiskCostDlg	OK	PushButton	304	243	56	17	3		[ButtonText_OK]	BannerBitmap	
 DiskCostDlg	Text	Text	20	53	330	40	3		The highlighted volumes (if any) do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination drive(s).		
@@ -100,22 +100,22 @@ ErrorDlg	R	PushButton	100	80	56	17	3		[ButtonText_Retry]
 ErrorDlg	Y	PushButton	100	80	56	17	3		[ButtonText_Yes]		
 ExitDialog	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Finish	
 ExitDialog	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Back	
-ExitDialog	BottomLine	Line	0	234	374	0	1				
+ExitDialog	BottomLine	Line	0	234	370	0	1				
 ExitDialog	Cancel	PushButton	304	243	56	17	1		[ButtonText_Cancel]	Bitmap	
 ExitDialog	Description	Text	135	70	220	20	196611		Click the Finish button to exit the [Wizard].		
 ExitDialog	Finish	PushButton	236	243	56	17	3		[ButtonText_Finish]	Cancel	
 ExitDialog	Title	Text	135	20	220	60	196611		{\VerdanaBold13}Completing the [ProductName] [Wizard]		
 FatalError	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Finish	
 FatalError	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Back	
-FatalError	BottomLine	Line	0	234	374	0	1				
+FatalError	BottomLine	Line	0	234	370	0	1				
 FatalError	Cancel	PushButton	304	243	56	17	1		[ButtonText_Cancel]	Bitmap	
 FatalError	Description1	Text	135	70	220	40	196611		[ProductName] setup ended prematurely because of an error.  Your system has not been modified.  To install this program at a later time, please run the installation again.		
 FatalError	Description2	Text	135	115	220	20	196611		Click the Finish button to exit the [Wizard].		
 FatalError	Finish	PushButton	236	243	56	17	3		[ButtonText_Finish]	Cancel	
 FatalError	Title	Text	135	20	220	60	196611		{\VerdanaBold13}[ProductName] [Wizard] ended prematurely		
-FilesInUse	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	Retry	
-FilesInUse	BannerLine	Line	0	44	374	0	1				
-FilesInUse	BottomLine	Line	0	234	374	0	1				
+FilesInUse	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	Retry	
+FilesInUse	BannerLine	Line	0	44	370	0	1				
+FilesInUse	BottomLine	Line	0	234	370	0	1				
 FilesInUse	Description	Text	20	23	280	20	196611		Some files that need to be updated are currently in use.		
 FilesInUse	Exit	PushButton	166	243	56	17	3		[ButtonText_Exit]	BannerBitmap	
 FilesInUse	Ignore	PushButton	235	243	56	17	3		[ButtonText_Ignore]	Exit	
@@ -125,18 +125,18 @@ FilesInUse	Text	Text	20	55	330	30	3		The following applications are using files 
 FilesInUse	Title	Text	15	6	200	15	196611		[DlgTitleFont]Files in Use		
 LicenseAgreementDlg	AgreementText	ScrollableText	20	60	330	120	7		{\rtf1\adeflang1025\ansi\ansicpg1252\uc1\adeff0\deff0\stshfdbch0\stshfloch0\stshfhich0\stshfbi0\deflang1033\deflangfe1033{\fonttbl{\f0\froman\fcharset0\fprq2{\*\panose 02020603050405020304}Times New Roman;}{\f2\fmodern\fcharset0\fprq1{\*\panose 02070309020205020404}Courier New;}{\f37\froman\fcharset238\fprq2 Times New Roman CE;}{\f38\froman\fcharset204\fprq2 Times New Roman Cyr;}{\f40\froman\fcharset161\fprq2 Times New Roman Greek;}{\f41\froman\fcharset162\fprq2 Times New Roman Tur;}{\f42\fbidi \froman\fcharset177\fprq2 Times New Roman (Hebrew);}{\f43\fbidi \froman\fcharset178\fprq2 Times New Roman (Arabic);}{\f44\froman\fcharset186\fprq2 Times New Roman Baltic;}{\f45\froman\fcharset163\fprq2 Times New Roman (Vietnamese);}{\f57\fmodern\fcharset238\fprq1 Courier New CE;}{\f58\fmodern\fcharset204\fprq1 Courier New Cyr;}{\f60\fmodern\fcharset161\fprq1 Courier New Greek;}{\f61\fmodern\fcharset162\fprq1 Courier New Tur;}{\f62\fbidi \fmodern\fcharset177\fprq1 Courier New (Hebrew);}{\f63\fbidi \fmodern\fcharset178\fprq1 Courier New (Arabic);}{\f64\fmodern\fcharset186\fprq1 Courier New Baltic;}{\f65\fmodern\fcharset163\fprq1 Courier New (Vietnamese);}}{\colortbl;\red0\green0\blue0;\red0\green0\blue255;\red0\green255\blue255;\red0\green255\blue0;\red255\green0\blue255;\red255\green0\blue0;\red255\green255\blue0;\red255\green255\blue255;\red0\green0\blue128;\red0\green128\blue128;\red0\green128\blue0;\red128\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red128\green128\blue128;\red192\green192\blue192;\red153\green204\blue0;}{\stylesheet{\ql \li0\ri0\widctlpar\wrapdefault\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0 \rtlch\fcs1 \af0\afs24\alang1025 \ltrch\fcs0 \fs24\lang1033\langfe1033\cgrid\langnp1033\langfenp1033 \snext0 Normal;}{\*\cs10 \additive \ssemihidden Default Paragraph Font;}{\*\ts11\tsrowd\trftsWidthB3\trpaddl108\trpaddr108\trpaddfl3\trpaddft3\trpaddfb3\trpaddfr3\trcbpat1\trcfpat1\tblind0\tblindtype3\tscellwidthfts0\tsvertalt\tsbrdrt\tsbrdrl\tsbrdrb\tsbrdrr\tsbrdrdgl\tsbrdrdgr\tsbrdrh\tsbrdrv \ql \li0\ri0\widctlpar\wrapdefault\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0 \rtlch\fcs1 \af0\afs20 \ltrch\fcs0 \fs20\lang1024\langfe1024\cgrid\langnp1024\langfenp1024 \snext11 \ssemihidden Normal Table;}{\s15\ql \li0\ri0\widctlpar\wrapdefault\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0 \rtlch\fcs1 \af2\afs20\alang1025 \ltrch\fcs0 \f2\fs20\lang1033\langfe1033\cgrid\langnp1033\langfenp1033 \sbasedon0 \snext15 \styrsid1002853 Plain Text;}{\*\cs16 \additive \rtlch\fcs1 \af0 \ltrch\fcs0 \ul\cf2 \sbasedon10 \styrsid3889441 Hyperlink;}}{\*\latentstyles\lsdstimax156\lsdlockeddef0}{\*\rsidtbl \rsid1002853\rsid3026243\rsid3889441\rsid8198667\rsid8932810\rsid9190895\rsid11686121\rsid14446805}{\*\generator Microsoft Word 11.0.8134;}{\info{\title Copyright (C) 2008-2009 Dorothea Wachmann}{\author Dorothea Wachmann}{\operator Dorothea Wachmann}{\creatim\yr2008\mo8\dy17\hr4\min41}{\revtim\yr2008\mo8\dy17\hr4\min54}{\version7}{\edmins3}{\nofpages1}{\nofwords103}{\nofchars591}{\*\company bvr20983}{\nofcharsws693}{\vern24611}{\*\password 00000000}}{\*\xmlnstbl {\xmlns1 http://schemas.microsoft.com/office/word/2003/wordml}}\paperw12240\paperh15840\margl1319\margr1319\margt1440\margb1440\gutter0\ltrsect \widowctrl\ftnbj\aenddoc\donotembedsysfont0\donotembedlingdata0\grfdocevents0\validatexml1\showplaceholdtext0\ignoremixedcontent0\saveinvalidxml0\showxmlerrors1\noxlattoyen\expshrtn\noultrlspc\dntblnsbdb\nospaceforul\formshade\horzdoc\dgmargin\dghspace180\dgvspace180\dghorigin1701\dgvorigin1984\dghshow1\dgvshow1\jexpand\viewkind4\viewscale150\pgbrdrhead\pgbrdrfoot\splytwnine\ftnlytwnine\htmautsp\nolnhtadjtbl\useltbaln\alntblind\lytcalctblwd\lyttblrtgr\lnbrkrule\nobrkwrptbl\snaptogridincell\allowfieldendsel\wrppunct\asianbrkrule\rsidroot1002853\newtblstyruls\nogrowautofit \fet0{\*\wgrffmtfilter 013f}\ilfomacatclnup0\ltrpar \sectd \ltrsect\linex0\headery708\footery708\colsx708\endnhere\sectlinegrid360\sectdefaultcl\sectrsid1002853\sftnbj {\*\pnseclvl1\pnucrm\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl2\pnucltr\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl3\pndec\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl4\pnlcltr\pnstart1\pnindent720\pnhang {\pntxta )}}{\*\pnseclvl5\pndec\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl6\pnlcltr\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl7\pnlcrm\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl8\pnlcltr\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl9\pnlcrm\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}\pard\plain \ltrpar\s15\ql \li0\ri0\widctlpar\wrapdefault\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0\pararsid9190895 \rtlch\fcs1 \af2\afs20\alang1025 \ltrch\fcs0 \f2\fs20\lang1033\langfe1033\cgrid\langnp1033\langfenp1033 {\rtlch\fcs1 \af2 \ltrch\fcs0 \b\insrsid9190895\charrsid3026243 Copyright (C) 2008-2009}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895  Dorothea Wachmann\par \par This program is free software: you can redistribute it and/or modify}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810  }{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 it under the terms of the }{\rtlch\fcs1 \af2 \ltrch\fcs0 \b\cf17\insrsid9190895\charrsid3026243 GNU General Public License}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895  as published by}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810  }{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 the Free Software Foundation, either version 3 of the License, or}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810  (at your option) any later v}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 ersion.\par \par This program is distributed in the hope that it will be useful,}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810  }{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 but }{\rtlch\fcs1 \af2 \ltrch\fcs0 \b\i\insrsid9190895\charrsid14446805 WITHOUT ANY WARRANTY}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 ; without even the implied warranty of}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810  }{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 M}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810 ERCHANTABILITY or FITNESS FOR A }{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 PARTICULAR PURPOSE.  See the}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810  }{\rtlch\fcs1 \af2 \ltrch\fcs0 \b\cf17\insrsid9190895\charrsid14446805 GNU General Public License}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895  for more details.\par \par You should have received a copy of the GNU General Public License}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid8932810  }{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 along with this program.  If not, see }{\field{\*\fldinst {\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid3889441  HYPERLINK "http://www.gnu.org/licenses/" }{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid3889441 {\*\datafield 00d0c9ea79f9bace118c8200aa004ba90b0200000003000000e0c9ea79f9bace118c8200aa004ba90b5200000068007400740070003a002f002f007700770077002e0067006e0075002e006f00720067002f006c006900630065006e007300650073002f000000795881f43b1d7f48af2c825dc485276300000000a5ab0000}}}{\fldrslt {\rtlch\fcs1 \af2 \ltrch\fcs0 \cs16\ul\cf2\insrsid9190895\charrsid3889441 http://www.gnu.org/licenses/}}}\sectd \linex0\headery708\footery708\colsx708\endnhere\sectlinegrid360\sectdefaultcl\sectrsid1002853\sftnbj {\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895 .}{\rtlch\fcs1 \af2 \ltrch\fcs0 \insrsid9190895\charrsid1002853 \par }}	Buttons	
 LicenseAgreementDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Next	
-LicenseAgreementDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	AgreementText	
-LicenseAgreementDlg	BannerLine	Line	0	44	374	0	1				
-LicenseAgreementDlg	BottomLine	Line	0	234	374	0	1				
+LicenseAgreementDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	AgreementText	
+LicenseAgreementDlg	BannerLine	Line	0	44	370	0	1				
+LicenseAgreementDlg	BottomLine	Line	0	234	370	0	1				
 LicenseAgreementDlg	Buttons	RadioButtonGroup	20	187	330	40	3	IAgree		Back	
 LicenseAgreementDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 LicenseAgreementDlg	Description	Text	25	23	280	15	196611		Please read the following license agreement carefully		
 LicenseAgreementDlg	Next	PushButton	236	243	56	17	3		[ButtonText_Next]	Cancel	
 LicenseAgreementDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]End-User License Agreement		
 MaintenanceTypeDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Next	
-MaintenanceTypeDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	ChangeLabel	
-MaintenanceTypeDlg	BannerLine	Line	0	44	374	0	1				
-MaintenanceTypeDlg	BottomLine	Line	0	234	374	0	1				
+MaintenanceTypeDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	ChangeLabel	
+MaintenanceTypeDlg	BannerLine	Line	0	44	370	0	1				
+MaintenanceTypeDlg	BottomLine	Line	0	234	370	0	1				
 MaintenanceTypeDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 MaintenanceTypeDlg	ChangeButton	PushButton	50	65	38	38	5767171		[CustomSetupIcon]	RepairLabel	Modify Installation|
 MaintenanceTypeDlg	ChangeLabel	Text	105	65	100	10	3		[DlgTitleFont]&Modify	ChangeButton	
@@ -152,22 +152,22 @@ MaintenanceTypeDlg	RepairText	Text	105	127	230	30	3		Repairs errors in the most 
 MaintenanceTypeDlg	Title	Text	15	6	240	15	196611		[DlgTitleFont]Modify, Repair or Remove installation		
 MaintenanceWelcomeDlg	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Next	
 MaintenanceWelcomeDlg	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Back	
-MaintenanceWelcomeDlg	BottomLine	Line	0	234	374	0	1				
+MaintenanceWelcomeDlg	BottomLine	Line	0	234	370	0	1				
 MaintenanceWelcomeDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	Bitmap	
 MaintenanceWelcomeDlg	Description	Text	135	70	220	60	196611		The [Wizard] will allow you to change the way [ProductName] features are installed on your computer or even to remove [ProductName] from your computer.  Click Next to continue or Cancel to exit the [Wizard].		
 MaintenanceWelcomeDlg	Next	PushButton	236	243	56	17	3		[ButtonText_Next]	Cancel	
 MaintenanceWelcomeDlg	Title	Text	135	20	220	60	196611		{\VerdanaBold13}Welcome to the [ProductName] [Wizard]		
-OutOfDiskDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	OK	
-OutOfDiskDlg	BannerLine	Line	0	44	374	0	1				
-OutOfDiskDlg	BottomLine	Line	0	234	374	0	1				
+OutOfDiskDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	OK	
+OutOfDiskDlg	BannerLine	Line	0	44	370	0	1				
+OutOfDiskDlg	BottomLine	Line	0	234	370	0	1				
 OutOfDiskDlg	Description	Text	20	20	280	20	196611		Disk space required for the installation exceeds available disk space.		
 OutOfDiskDlg	OK	PushButton	304	243	56	17	3		[ButtonText_OK]	BannerBitmap	
 OutOfDiskDlg	Text	Text	20	53	330	40	3		The highlighted volumes do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination drive(s).		
 OutOfDiskDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Out of Disk Space		
 OutOfDiskDlg	VolumeList	VolumeCostList	20	100	330	120	393223		{120}{70}{70}{70}{70}		
-OutOfRbDiskDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	No	
-OutOfRbDiskDlg	BannerLine	Line	0	44	374	0	1				
-OutOfRbDiskDlg	BottomLine	Line	0	234	374	0	1				
+OutOfRbDiskDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	No	
+OutOfRbDiskDlg	BannerLine	Line	0	44	370	0	1				
+OutOfRbDiskDlg	BottomLine	Line	0	234	370	0	1				
 OutOfRbDiskDlg	Description	Text	20	20	280	20	196611		Disk space required for the installation exceeds available disk space.		
 OutOfRbDiskDlg	No	PushButton	304	243	56	17	3		[ButtonText_No]	Yes	
 OutOfRbDiskDlg	Text	Text	20	53	330	40	3		The highlighted volumes do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination drive(s).		
@@ -179,16 +179,16 @@ PrepareDlg	ActionData	Text	135	125	220	30	196611
 PrepareDlg	ActionText	Text	135	100	220	20	196611				
 PrepareDlg	Back	PushButton	180	243	56	17	1		[ButtonText_Back]		
 PrepareDlg	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Cancel	
-PrepareDlg	BottomLine	Line	0	234	374	0	1				
+PrepareDlg	BottomLine	Line	0	234	370	0	1				
 PrepareDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	Bitmap	
 PrepareDlg	Description	Text	135	70	220	20	196611		Please wait while the [Wizard] prepares to guide you through the installation.		
 PrepareDlg	Next	PushButton	236	243	56	17	1		[ButtonText_Next]		
 PrepareDlg	Title	Text	135	20	220	60	196611		{\VerdanaBold13}Welcome to the [ProductName] [Wizard]		
 ProgressDlg	ActionText	Text	70	100	265	10	3				
 ProgressDlg	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Next	
-ProgressDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	Back	
-ProgressDlg	BannerLine	Line	0	44	374	0	1				
-ProgressDlg	BottomLine	Line	0	234	374	0	1				
+ProgressDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	Back	
+ProgressDlg	BannerLine	Line	0	44	370	0	1				
+ProgressDlg	BottomLine	Line	0	234	370	0	1				
 ProgressDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 ProgressDlg	Next	PushButton	236	243	56	17	1		[ButtonText_Next]	Cancel	
 ProgressDlg	ProgressBar	ProgressBar	35	115	300	10	65537		Progress done		
@@ -197,15 +197,15 @@ ProgressDlg	Text	Text	35	65	300	20	3		Please wait while the [Wizard] [Progress2]
 ProgressDlg	Title	Text	20	15	200	15	196611		[DlgTitleFont][Progress1] [ProductName]		
 ResumeDlg	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Install	
 ResumeDlg	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Back	
-ResumeDlg	BottomLine	Line	0	234	374	0	1				
+ResumeDlg	BottomLine	Line	0	234	370	0	1				
 ResumeDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	Bitmap	
 ResumeDlg	Description	Text	135	70	220	30	196611		The [Wizard] will complete the installation of [ProductName] on your computer.  Click Install to continue or Cancel to exit the [Wizard].		
 ResumeDlg	Install	PushButton	236	243	56	17	3		[ButtonText_Install]	Cancel	
 ResumeDlg	Title	Text	135	20	220	60	196611		{\VerdanaBold13}Resuming the [ProductName] [Wizard]		
 SetupTypeDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Next	
-SetupTypeDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	TypicalLabel	
-SetupTypeDlg	BannerLine	Line	0	44	374	0	1				
-SetupTypeDlg	BottomLine	Line	0	234	374	0	1				
+SetupTypeDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	TypicalLabel	
+SetupTypeDlg	BannerLine	Line	0	44	370	0	1				
+SetupTypeDlg	BottomLine	Line	0	234	370	0	1				
 SetupTypeDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 SetupTypeDlg	CompleteButton	PushButton	50	171	38	38	5767171		[CompleteSetupIcon]	Back	Complete Installation|
 SetupTypeDlg	CompleteLabel	Text	105	171	100	10	3		[DlgTitleFont]C&omplete	CompleteButton	
@@ -221,16 +221,16 @@ SetupTypeDlg	TypicalLabel	Text	105	65	100	10	3		[DlgTitleFont]&Typical	TypicalBu
 SetupTypeDlg	TypicalText	Text	105	78	230	20	3		Installs the most common program features. Recommended for most users.		
 UserExit	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Finish	
 UserExit	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Back	
-UserExit	BottomLine	Line	0	234	374	0	1				
+UserExit	BottomLine	Line	0	234	370	0	1				
 UserExit	Cancel	PushButton	304	243	56	17	1		[ButtonText_Cancel]	Bitmap	
 UserExit	Description1	Text	135	70	220	40	196611		[ProductName] setup was interrupted.  Your system has not been modified.  To install this program at a later time, please run the installation again.		
 UserExit	Description2	Text	135	115	220	20	196611		Click the Finish button to exit the [Wizard].		
 UserExit	Finish	PushButton	236	243	56	17	3		[ButtonText_Finish]	Cancel	
 UserExit	Title	Text	135	20	220	60	196611		{\VerdanaBold13}[ProductName] [Wizard] was interrupted		
 UserRegistrationDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Next	
-UserRegistrationDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	NameLabel	
-UserRegistrationDlg	BannerLine	Line	0	44	374	0	1				
-UserRegistrationDlg	BottomLine	Line	0	234	374	0	1				
+UserRegistrationDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	NameLabel	
+UserRegistrationDlg	BannerLine	Line	0	44	370	0	1				
+UserRegistrationDlg	BottomLine	Line	0	234	370	0	1				
 UserRegistrationDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 UserRegistrationDlg	CDKeyEdit	MaskedEdit	45	159	250	16	3	PIDKEY	[PIDTemplate]	Back	
 UserRegistrationDlg	CDKeyLabel	Text	45	147	50	10	3		CD &Key:	CDKeyEdit	
@@ -242,27 +242,27 @@ UserRegistrationDlg	OrganizationEdit	Edit	45	122	220	18	3	COMPANYNAME	{80}	CDKey
 UserRegistrationDlg	OrganizationLabel	Text	45	110	100	15	3		&Organization:	OrganizationEdit	
 UserRegistrationDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Customer Information		
 VerifyReadyDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Install	
-VerifyReadyDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	Back	
-VerifyReadyDlg	BannerLine	Line	0	44	374	0	1				
-VerifyReadyDlg	BottomLine	Line	0	234	374	0	1				
+VerifyReadyDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	Back	
+VerifyReadyDlg	BannerLine	Line	0	44	370	0	1				
+VerifyReadyDlg	BottomLine	Line	0	234	370	0	1				
 VerifyReadyDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 VerifyReadyDlg	Description	Text	25	23	280	15	196611		The [Wizard] is ready to begin the [InstallMode] installation		
 VerifyReadyDlg	Install	PushButton	236	243	56	17	3		[ButtonText_Install]	Cancel	
 VerifyReadyDlg	Text	Text	25	70	320	20	3		Click Install to begin the installation.  If you want to review or change any of your installation settings, click Back.  Click Cancel to exit the wizard.		
 VerifyReadyDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Ready to Install		
 VerifyRemoveDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Remove	
-VerifyRemoveDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	Back	
-VerifyRemoveDlg	BannerLine	Line	0	44	374	0	1				
-VerifyRemoveDlg	BottomLine	Line	0	234	374	0	1				
+VerifyRemoveDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	Back	
+VerifyRemoveDlg	BannerLine	Line	0	44	370	0	1				
+VerifyRemoveDlg	BottomLine	Line	0	234	370	0	1				
 VerifyRemoveDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 VerifyRemoveDlg	Description	Text	25	23	280	15	196611		You have chosen to remove the program from your computer.		
 VerifyRemoveDlg	Remove	PushButton	236	243	56	17	3		[ButtonText_Remove]	Cancel	
 VerifyRemoveDlg	Text	Text	25	70	320	30	3		Click Remove to remove [ProductName] from your computer.  If you want to review or change any of your installation settings, click Back.  Click Cancel to exit the wizard.		
 VerifyRemoveDlg	Title	Text	15	6	200	15	196611		[DlgTitleFont]Remove [ProductName]		
 VerifyRepairDlg	Back	PushButton	180	243	56	17	3		[ButtonText_Back]	Repair	
-VerifyRepairDlg	BannerBitmap	Bitmap	0	0	374	44	1		[BannerBitmap]	Back	
-VerifyRepairDlg	BannerLine	Line	0	44	374	0	1				
-VerifyRepairDlg	BottomLine	Line	0	234	374	0	1				
+VerifyRepairDlg	BannerBitmap	Bitmap	0	0	370	44	1		[BannerBitmap]	Back	
+VerifyRepairDlg	BannerLine	Line	0	44	370	0	1				
+VerifyRepairDlg	BottomLine	Line	0	234	370	0	1				
 VerifyRepairDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	BannerBitmap	
 VerifyRepairDlg	Description	Text	25	23	280	15	196611		The [Wizard] is ready to begin the repair of [ProductName].		
 VerifyRepairDlg	Repair	PushButton	236	243	56	17	3		[ButtonText_Repair]	Cancel	
@@ -273,7 +273,7 @@ WaitForCostingDlg	Return	PushButton	102	57	56	17	3		[ButtonText_Return]
 WaitForCostingDlg	Text	Text	48	15	194	30	3		Please wait while the installer finishes determining your disk space requirements.		
 WelcomeDlg	Back	PushButton	180	243	56	17	1		[ButtonText_Back]	Next	
 WelcomeDlg	Bitmap	Bitmap	0	0	370	234	1		[DialogBitmap]	Back	
-WelcomeDlg	BottomLine	Line	0	234	374	0	1				
+WelcomeDlg	BottomLine	Line	0	234	370	0	1				
 WelcomeDlg	Cancel	PushButton	304	243	56	17	3		[ButtonText_Cancel]	Bitmap	
 WelcomeDlg	Description	Text	135	70	220	30	196611		The [Wizard] will install [ProductName] on your computer.  Click Next to continue or Cancel to exit the [Wizard].		
 WelcomeDlg	Next	PushButton	236	243	56	17	3		[ButtonText_Next]	Cancel	
