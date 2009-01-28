@@ -126,7 +126,6 @@ Function GetProperty(propName)
   End If
 End Function
 
-
 '
 ' CheckError
 '
@@ -143,6 +142,14 @@ Sub CheckError
   
   Fail message
 End Sub
+
+'
+' DecodeVersion
+'
+Function DecodeVersion(version)    
+  version = CLng(version)    
+  DecodeVersion = version\65536\256 & "." & (version\65535 MOD 256) & "." & (version Mod 65536)
+End Function
 
 '
 ' Fail

@@ -141,7 +141,7 @@ namespace bvr20983
       m_totalUncompressedSize(0),
       m_hfci(NULL),
       m_pAddFileCB(pAddFileCB),
-      m_seqNo(0)
+      m_seqNo(1)
     { Init(); }
 
 
@@ -154,7 +154,7 @@ namespace bvr20983
       m_hfci(NULL),
       m_parameter(parameter),
       m_pAddFileCB(pAddFileCB),
-      m_seqNo(0)
+      m_seqNo(1)
     { Init(); }
 
     /*
@@ -244,6 +244,7 @@ namespace bvr20983
     void CabinetFCI::AddFileA(LPCSTR fileName,LPCSTR prefix,LPCSTR addFileName,TCOMP typeCompress)
     { char  strippedName[MAX_PATH];
       char  fullPathPrefix[MAX_PATH];
+      char  cabFileName[MAX_PATH];
       char* pPrefix = NULL;
       
       if( NULL==m_hfci )
@@ -263,12 +264,36 @@ namespace bvr20983
         
       if( DirectoryInfo::IsFileA(fileName) )
       { DirectoryInfo::StripFilenameA(strippedName,ARRAYSIZE(strippedName),fileName,pPrefix);
+
+        strcpy_s(cabFileName,MAX_PATH,strippedName);
+
+        if( NULL!=addFileName )
+          strcpy_s(cabFileName,MAX_PATH,addFileName);
+
+        bool shouldAdd = true;
+
+        if( NULL!=m_pAddFileCB )
+        { 
+#ifdef _UNICODE
+          WCHAR fileNameW[MAX_PATH];
+          WCHAR AddedfileNameW[MAX_PATH];
+
+          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameW, MAX_PATH) );
+          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, cabFileName, -1,AddedfileNameW, MAX_PATH) );
+
+          shouldAdd = m_pAddFileCB->AddFile(fileNameW,AddedfileNameW,MAX_PATH,m_seqNo);
+
+          THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, AddedfileNameW, -1,cabFileName, MAX_PATH, NULL, NULL ) );
+#else
+          shouldAdd = m_pAddFileCB->AddFile(fileName,cabFileName,MAX_PATH,m_seqNo);
+#endif
+        } // of if
+
   
-        if( !FCIAddFile(m_hfci,
+        if( shouldAdd && 
+            !FCIAddFile(m_hfci,
                         const_cast<LPSTR>(fileName),      /* file to add */
-                        addFileName==NULL ? 
-                          strippedName : 
-                          const_cast<LPSTR>(addFileName), /* file name in CabinetFCI file */
+                        cabFileName,                      /* file name in CabinetFCI file */
                         FALSE,                            /* file is not executable */
                         fci_getnextcabinet,
                         fci_progress,
@@ -279,21 +304,6 @@ namespace bvr20983
           THROW_CABEXCEPTION((FCIERROR)m_erf.erfOper);
 
         m_seqNo++;
-
-        if( NULL!=m_pAddFileCB )
-        { 
-#ifdef _UNICODE
-          WCHAR fileNameW[MAX_PATH];
-          WCHAR AddedfileNameW[MAX_PATH];
-
-          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameW, MAX_PATH) );
-          THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, addFileName==NULL ? strippedName : addFileName, -1,AddedfileNameW, MAX_PATH) );
-
-          m_pAddFileCB->FileAdded(fileNameW,AddedfileNameW,m_seqNo);
-#else
-          m_pAddFileCB->FileAdded(fileName,addFileName==NULL ? strippedName : addFileName,m_seqNo);
-#endif
-        } // of if
       } // of if
       else if( DirectoryInfo::IsDirectoryA(fileName) )
       { DirectoryInfo dirInfo(fileName,NULL,10);

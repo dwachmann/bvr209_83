@@ -98,7 +98,7 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
       *s = toupper(*s);
   }
 
-  void FileAdded(LPCTSTR fileName,LPCTSTR addedFileName,int seqNo)
+  bool AddFile(LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)
   { TCHAR strippedCompFileName[MAX_PATH];
     DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,fileName);
 
@@ -132,10 +132,18 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
     } // of if
 
     if( _tcscmp(m_compType,_T("dll"))==0 || _tcscmp(m_compType,_T("exe"))==0 )
-      m_fileIDT<<m_compId<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+    { _tcscpy_s(addedFileName,addedFileNameMaxLen,m_compId);
+
+      m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+    } // of if
     else
-      m_fileIDT<<_T("file")<<seqNo<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
-  } // of FileAdded()
+    { _stprintf_s(addedFileName,addedFileNameMaxLen,_T("file%d"),seqNo);
+      
+      m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+    } // of else
+
+    return true;
+  } // of AddFile()
 
 private:
 #ifdef _UNICODE
