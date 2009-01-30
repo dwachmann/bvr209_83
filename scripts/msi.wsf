@@ -69,7 +69,7 @@
                  type = "string"
                  required = "true"
           />
-          <example>Example: //Job:addproperty msi.wsf /File:msifile /Table:File</example>
+          <example>Example: //Job:addproperty msi.wsf /File:msifile </example>
       </runtime>
 
       <script language="VBScript" src="libmsi.vbs"/>
@@ -87,6 +87,33 @@
             QueryDB "select * from Property"
 
             database.Commit            
+          Else
+            WScript.Arguments.ShowUsage
+          End If
+        ]]>
+      </script>
+   </job>
+
+   <job id="listproduct">
+      <runtime>
+          <description>List registered products</description>
+          <named name = "Product"
+                 helpstring = "Product Name or ProductCode"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //Job:listproduct msi.wsf /Product:product</example>
+      </runtime>
+
+      <script language="VBScript" src="libmsi.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          
+          Init
+          
+          If WScript.Arguments.Named.Exists("Product") Then
+            ListProduct WScript.Arguments.Named.Item("Product")
           Else
             WScript.Arguments.ShowUsage
           End If

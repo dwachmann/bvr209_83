@@ -57,6 +57,7 @@ $(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
    @copy $(TEMPLATEDIR)\File.tmpl $(TEMPLATEDIR)\File.idt
    @copy $(TEMPLATEDIR)\Component.tmpl $(TEMPLATEDIR)\Component.idt
    @copy $(TEMPLATEDIR)\Media.tmpl $(TEMPLATEDIR)\Media.idt
+   @copy $(TEMPLATEDIR)\MsiFileHash.tmpl $(TEMPLATEDIR)\MsiFileHash.idt
    if not exist "$(SLNDIR)\documentation/$(NULL)" mkdir $(SLNDIR)\documentation
    if not exist "$(SLNDIR)\samples/$(NULL)" mkdir $(SLNDIR)\samples
    @xcopy ..\..\res\html\* $(SLNDIR)\samples /S
@@ -79,6 +80,7 @@ distsrc:
 clean:
   if exist $(MSIDIR)\$(BVR20983_CABMSI) del /q $(MSIDIR)\$(BVR20983_CABMSI)
   if exist $(MSIDIR)\$(BVR20983_MSI) del /q $(MSIDIR)\$(BVR20983_MSI)
+  if exist $(TEMPLATEDIR)\MsiFileHash.idt del /q $(TEMPLATEDIR)\MsiFileHash.idt
   if exist $(TEMPLATEDIR)\Media.idt del /q $(TEMPLATEDIR)\Media.idt
   if exist $(TEMPLATEDIR)\File.idt del /q $(TEMPLATEDIR)\File.idt
   if exist $(TEMPLATEDIR)\Component.idt del /q $(TEMPLATEDIR)\Component.idt

@@ -22,6 +22,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <Msi.h>
 #include "cab/cabinetfci.h"
 #include "cab/cabinetfdi.h"
 #include "util/logstream.h"
@@ -81,12 +82,13 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
 {
 
 #ifdef _UNICODE
-  MSICABAddFileCB(wofstream& componentIDT,wofstream& fileIDT,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
+  MSICABAddFileCB(wofstream& componentIDT,wofstream& fileIDT,wofstream& msiFileHashIDT,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
 #else
-  MSICABAddFileCB(ofstream& componentIDT,ofstream& fileIDT,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
+  MSICABAddFileCB(ofstream& componentIDT,ofstream& fileIDT,ofstream& msiFileHashIDT,,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
 #endif
     m_componentIDT(componentIDT),
     m_fileIDT(fileIDT),
+    m_msiFileHashIDT(msiFileHashIDT),
     m_msiguid(msiguid),
     m_compId(compId),
     m_compType(compType),
@@ -113,9 +115,10 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
     DirectoryInfo::_StripFilename(shortStrippedCompFileName,MAX_PATH,shortCompFileName);
 
     VersionInfo verInfo(fileName);
-    LPCTSTR fileVersion = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
+    LPCTSTR fileVersion    = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
+    bool    hasFileVersion = NULL!=fileVersion;
 
-    if( NULL==fileVersion )
+    if( !hasFileVersion )
       fileVersion = _T("");
 
     DWORD fileSize=0;
@@ -142,6 +145,21 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
       m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
     } // of else
 
+    if( !hasFileVersion )
+    { MSIFILEHASHINFO msiHash;
+
+      ::memset(&msiHash,0,sizeof(msiHash));
+      msiHash.dwFileHashInfoSize = sizeof(msiHash);
+
+      THROW_LASTERROREXCEPTION( ::MsiGetFileHash(fileName,0,&msiHash) );
+
+      m_msiFileHashIDT<<addedFileName<<_T('\t')<<_T('0')<<_T('\t')
+                      <<(long)msiHash.dwData[0]<<_T('\t')
+                      <<(long)msiHash.dwData[1]<<_T('\t')
+                      <<(long)msiHash.dwData[2]<<_T('\t')
+                      <<(long)msiHash.dwData[3]<<endl;
+    } // of if
+
     return true;
   } // of AddFile()
 
@@ -149,9 +167,11 @@ private:
 #ifdef _UNICODE
     wofstream& m_componentIDT;
     wofstream& m_fileIDT;
+    wofstream& m_msiFileHashIDT;
 #else
     ofstream&  m_componentIDT;
     ofstream&  m_fileIDT;
+    ofstream&  m_msiFileHashIDT;
 #endif
 
     LPCTSTR m_compId;
@@ -191,6 +211,10 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
       msiFileFName += _T("\\");
       msiFileFName += _T("File.idt");
 
+      TString msiFileHashFName(templateDir);
+      msiFileHashFName += _T("\\");
+      msiFileHashFName += _T("MsiFileHash.idt");
+
       TString msiMediaFName(templateDir);
       msiMediaFName += _T("\\");
       msiMediaFName += _T("Media.idt");
@@ -198,10 +222,12 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
 #ifdef _UNICODE
       wofstream componentIDT(msiComponentFName.c_str(),ios_base::app);
       wofstream fileIDT(msiFileFName.c_str(),ios_base::app);
+      wofstream msiFileHashIDT(msiFileHashFName.c_str(),ios_base::app);
       wofstream mediaIDT(msiMediaFName.c_str(),ios_base::app);
 #else
       ofstream componentIDT(msiComponentFName.c_str(),ios_base::app);
       ofstream fileIDT(msiFileFName.c_str(),ios_base::app);
+      ofstream msiFileHashIDT(msiFileHashFName.c_str(),ios_base::app);
       ofstream mediaIDT(msiMediaFName.c_str(),ios_base::app);
 #endif
 
@@ -277,7 +303,7 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
                 compFileName += V_BSTR(compTypeValue);
 
                 if( DirectoryInfo::_IsFile(compFileName.c_str())  )
-                { MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(compTypeValue),V_BSTR(msiguidValue),msiCompDir.c_str());
+                { MSICABAddFileCB addFileCB(componentIDT,fileIDT,msiFileHashIDT,compId.c_str(),V_BSTR(compTypeValue),V_BSTR(msiguidValue),msiCompDir.c_str());
                   
                   TCHAR compcabfilename[MAX_PATH];
                   _tcscpy_s(compcabfilename,MAX_PATH,compId.c_str());
@@ -289,7 +315,7 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
               } // of if
               else if( _tcscmp(V_BSTR(compTypeValue),_T("data"))==0 && DirectoryInfo::_IsDirectory(compFileName.c_str()) )
               { 
-                MSICABAddFileCB addFileCB(componentIDT,fileIDT,compId.c_str(),V_BSTR(compTypeValue),V_BSTR(msiguidValue),msiCompDir.c_str());
+                MSICABAddFileCB addFileCB(componentIDT,fileIDT,msiFileHashIDT,compId.c_str(),V_BSTR(compTypeValue),V_BSTR(msiguidValue),msiCompDir.c_str());
 
                 cabinet.SetAddFileCallback(&addFileCB);
 

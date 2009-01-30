@@ -21,12 +21,12 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer      1,0,0,144
-#define verFileVer1     "1.0.0.144"
+#define verFileVer      1,0,0,146
+#define verFileVer1     "1.0.0.146"
 #define verFileDesc     "create cabinet files and necessary msi information"
 #define verIntName      "msicab"
 #define verOrigName     "bvr20983.1.msicab.1.exe"
-#define verMakeDate     "2009-01-26T00:13:58.814321Z"
+#define verMakeDate     "2009-01-27T10:52:14.063815Z"
 #define verCompPrefix   "msicab.1"
 #define verDebugVersion "1"
 

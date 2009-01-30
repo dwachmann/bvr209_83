@@ -21,12 +21,12 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer        1,0,0,144
-#define verFileVer1       "1.0.0.144"
+#define verFileVer        1,0,0,146
+#define verFileVer1       "1.0.0.146"
 #define verFileDesc       "Resource Library"
 #define verIntName        "res"
 #define verOrigName       "bvr20983.1.res.1.dll"
-#define verMakeDate       "2009-01-26T00:13:58.814321Z"
+#define verMakeDate       "2009-01-27T10:52:14.063815Z"
 #define verCompPrefix     "res.1"
 #define verDebugVersion   "1"
 #define verMSIProdVersion "1.0.0"
@@ -35,6 +35,6 @@
 #define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
 #define verAboutTitle   "Resource Library"
-#define verAboutText    "Resource Library 1.0.0.144"
+#define verAboutText    "Resource Library 1.0.0.146"
 
 #endif // BVR20983RESVER_H

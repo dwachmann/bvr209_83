@@ -53,6 +53,8 @@
       <pattern><key>@ProductVersion@</key><value>${../../../../v:version/@major}.${../../../../v:version/@minor}.0</value></pattern>
       <pattern><key>@ProductId@</key><value>#{UCase("${../../../../@id}")}</value></pattern>
       <pattern><key>@URL@</key><value>http://#{LCase("${../../../../@id}")}.berlios.de/</value></pattern>
+      <pattern><key>@URL1@</key><value>http://developer.berlios.de/projects/#{LCase("${../../../../@id}")}</value></pattern>
+      <pattern><key>@URL2@</key><value>http://svn.berlios.de/wsvn/#{LCase("${../../../../@id}")}</value></pattern>
       <pattern><key>@UpgradeCode@</key><value>#{UCase("${../../../../v:msiupgradecode/text()}")}</value></pattern>
     </patch>
 
