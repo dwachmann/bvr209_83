@@ -66,6 +66,29 @@
       <pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
     </patch>
 
+    <patch template="Shortcut.tmpl" filename="Shortcut.idt">
+      <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
+      <pattern><key>@DigiclockID@</key><value>digiclock.${../../../../v:component[@id='digiclock']/v:version/@major}</value></pattern>
+      <pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
+      <pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>
+      <pattern><key>@CCID@</key><value>cc.${../../../../v:component[@id='cc']/v:version/@major}</value></pattern>
+      <pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
+    </patch>
+
+    <patch template="FeatureComponents.tmpl" filename="FeatureComponents.idt">
+      <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
+      <pattern><key>@DigiclockID@</key><value>digiclock.${../../../../v:component[@id='digiclock']/v:version/@major}</value></pattern>
+      <pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
+      <pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>
+      <pattern><key>@CCID@</key><value>cc.${../../../../v:component[@id='cc']/v:version/@major}</value></pattern>
+      <pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
+
+      <pattern><key>@SampleID@</key><value>sample.${../../../../v:component[@id='sample']/v:version/@major}</value></pattern>
+      <pattern><key>@DocID@</key><value>doc.${../../../../v:component[@id='doc']/v:version/@major}</value></pattern>
+      <pattern><key>@ResID@</key><value>res.${../../../../v:component[@id='res']/v:version/@major}</value></pattern>
+      <pattern><key>@MsgsID@</key><value>msgs.${../../../../v:component[@id='msgs']/v:version/@major}</value></pattern>
+    </patch>
+
     <patch template="Directory.tmpl" filename="Directory.idt">
       <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:version/@major}</value></pattern>
     </patch>

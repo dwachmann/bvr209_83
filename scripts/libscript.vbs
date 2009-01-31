@@ -91,7 +91,7 @@ End Sub
 Sub PatchFile(tmpl,f,re,va)
   Dim f0,f1,r0
   Dim fullTmplPath,fullPath
-  Dim i
+  Dim i,lineno
 
   fullTmplPath = FindFile(tmpl)
   If IsNull(fullTmplPath) Then Exit Sub End If
@@ -108,6 +108,8 @@ Sub PatchFile(tmpl,f,re,va)
   Set f0 = fso.OpenTextFile(fullTmplPath, ForReading)
   Set f1 = fso.CreateTextFile(fullPath,True)
   
+  lineno = 0
+  
   Do While Not f0.AtEndOfStream 
     r0 = f0.ReadLine
     
@@ -116,6 +118,8 @@ Sub PatchFile(tmpl,f,re,va)
     Next
     
     f1.WriteLine(r0)
+    
+    lineno = lineno + 1
   Loop
   
   f0.Close
