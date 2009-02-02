@@ -1,0 +1,13 @@
+Name	Value
+s72	L0
+Properties	Name
+AllowProductCodeMismatches	1
+AllowProductVersionMajorMismatches	1
+ApiPatchingSymbolFlags	0x00000000
+DontRemoveTempFolderWhenFinished	1
+IncludeWholeFilesOnly	0
+ListOfPatchGUIDsToReplace	
+ListOfTargetProductCodes	*
+PatchGUID	{BFE20983-0001-0103-0004-00010000ABCD}
+PatchOutputPath	c:\temp\bvr20983.1.msp
+PatchSourceList	PatchSourceList

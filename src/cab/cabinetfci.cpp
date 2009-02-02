@@ -277,15 +277,19 @@ namespace bvr20983
 #ifdef _UNICODE
           WCHAR fileNameW[MAX_PATH];
           WCHAR AddedfileNameW[MAX_PATH];
+          WCHAR PrefixW[MAX_PATH];
 
           THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, fileName, -1,fileNameW, MAX_PATH) );
           THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, cabFileName, -1,AddedfileNameW, MAX_PATH) );
 
-          shouldAdd = m_pAddFileCB->AddFile(fileNameW,AddedfileNameW,MAX_PATH,m_seqNo);
+          if( NULL!=pPrefix )
+          { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, pPrefix, -1,PrefixW, MAX_PATH) ); }
+
+          shouldAdd = m_pAddFileCB->AddFile(NULL!=pPrefix ? PrefixW : NULL,fileNameW,AddedfileNameW,MAX_PATH,m_seqNo);
 
           THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, AddedfileNameW, -1,cabFileName, MAX_PATH, NULL, NULL ) );
 #else
-          shouldAdd = m_pAddFileCB->AddFile(fileName,cabFileName,MAX_PATH,m_seqNo);
+          shouldAdd = m_pAddFileCB->AddFile(pPrefix,fileName,cabFileName,MAX_PATH,m_seqNo);
 #endif
         } // of if
 

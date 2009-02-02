@@ -1,0 +1,3 @@
+Family	FTK	FilePath	SymbolPaths	IgnoreOffsets	IgnoreLengths	RetainOffsets	Order
+s8	s128	s255	S255	S255	S255	S255	i2
+ExternalFiles	Family	FTK	FilePath

@@ -1,0 +1,4 @@
+Family	MediaSrcPropName	MediaDiskId	FileSequenceStart	DiskPrompt	VolumeLabel
+s8	S72	I2	I2	S128	S32
+ImageFamilies	Family
+MNPapps	MNPSrcPropName	2	17		

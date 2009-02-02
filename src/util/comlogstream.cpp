@@ -551,7 +551,7 @@ namespace bvr20983
     hr = penum->Next( 1, &statpropsetstg, NULL );
     THROW_COMEXCEPTION( hr );
 
-    while( S_OK==hr )
+    while( S_OK==hr && statpropsetstg.fmtid!=GUID_NULL )
     { { auto_ptr<COM::COPropertySet> pPropertySet(new COM::COPropertySet(statpropsetstg.fmtid));
 
         pPropertySet->Read(pPropSetStg);

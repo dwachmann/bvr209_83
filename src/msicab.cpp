@@ -100,7 +100,7 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
       *s = toupper(*s);
   }
 
-  bool AddFile(LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)
+  bool AddFile(LPCTSTR prefix,LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)
   { TCHAR strippedCompFileName[MAX_PATH];
     DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,fileName);
 
@@ -140,7 +140,9 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
       m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
     } // of if
     else
-    { _stprintf_s(addedFileName,addedFileNameMaxLen,_T("file%d"),seqNo);
+    { 
+      ConvertFilename(prefix,fileName,addedFileName,addedFileNameMaxLen);
+      //_stprintf_s(addedFileName,addedFileNameMaxLen,_T("file%d"),seqNo);
       
       m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
     } // of else
@@ -162,6 +164,34 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
 
     return true;
   } // of AddFile()
+
+private:
+  /**
+   *
+   */
+  void ConvertFilename(LPCTSTR prefix,LPCTSTR fName,LPTSTR convFName,int maxLen)
+  { int i=0;
+
+    if( NULL!=convFName )
+    { convFName[0] = _T('\0');
+
+      if( NULL!=prefix )
+      { i = _tcslen(prefix);
+
+        if( fName[i]==_T('\\') )
+          i++;
+      } // of if
+
+      for( ;fName[i]!=_T('\0') && i<maxLen;i++ )
+      { int   c0 = fName[i] & 0x00ff;
+        TCHAR c1[10];
+        
+        _itot_s(c0,c1,sizeof(c1)/sizeof(c1[0]),16);
+
+        _tcscat_s(convFName,maxLen,c1);
+      } // of for
+    } // of if
+  } // of convertFilename()
 
 private:
 #ifdef _UNICODE
@@ -319,7 +349,7 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
 
                 cabinet.SetAddFileCallback(&addFileCB);
 
-                cabinet.AddFile(compFileName.c_str());
+                cabinet.AddFile(compFileName.c_str(),compFileName.c_str());
               } // of else if
             } // of if
           } // of if

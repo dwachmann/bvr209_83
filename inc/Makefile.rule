@@ -96,5 +96,11 @@ fullclean:
 	@copy $< $@
 	@$(sign) $(signvars) /p $(signpwd) $@
 
+{$(MSIDIR)}.msi{$(SIGNDIR)}.msi:
+  @if not exist "$(signkey)" echo NO signkey GIVEN
+  @if "$(signpwd)"==""  echo NO signpwd GIVEN
+	@copy $< $@
+	@$(sign) $(signvars) /p $(signpwd) $@
+
 #ENDIF _MAKEFILE_RULE_
 !ENDIF

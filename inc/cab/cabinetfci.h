@@ -78,7 +78,7 @@ namespace bvr20983
      */
     struct CabinetFCIAddFileCB
     {
-      virtual bool AddFile(LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)=0;
+      virtual bool AddFile(LPCTSTR prefix,LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)=0;
     };
 
     /**

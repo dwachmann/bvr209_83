@@ -1,0 +1,11 @@
+Company	Property	Value
+S72	s72	l0
+PatchMetadata	Company	Property
+	AllowRemoval	1
+	Classification	update
+	CreationTimeUTC	1/1/2004 1:04
+	Description	Test Patch
+	DisplayName	Test
+	ManufacturerName	MS
+	MoreInfoURL	http://www.microsoft.com
+	TargetProductName	Test Product

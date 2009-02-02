@@ -18,9 +18,11 @@
 !include <../../inc/Makefile.inc>
 
 TEMPLATEDIR = $(MAKEDIR)\template
+PATCHDIR    = $(MAKEDIR)\patch
 msicab      = $(SLNDIR)\$(MSICAB_RESULT).exe
 msidb       = msidb
 msival      = msival2
+msimsp      = msimsp
 msiinfo     = msiinfo
 
 !ifdef clean
@@ -73,9 +75,44 @@ $(MSIDIR)\$(BVR20983_CABMSI): ..\..\inc\ver\versions.xml
 validate: 
    $(msival) $(MSIDIR)\$(BVR20983_MSI) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f
 
+
+bla:
+   $(msiinfo) $(MSIDIR)\target\bvr20983.1.msi \
+             -T "Installation Database" \
+             -J "$(BVR20983_RESULT)" \
+             -A "$(BVR20983_MSI_COMPANY)" \
+             -K "Installer, MSI, Database" \
+             -O "$(BVR20983DESC)" \
+             -P "Intel;1033" \
+             -V {$(BVR20983_MSI_PACKAGECODE)} \
+             -G 200 \
+             -W 0 \
+             -N msidb \
+             -U 0 \
+             -L dw
+   $(msiinfo) $(MSIDIR)\upgraded\bvr20983.1.msi \
+             -T "Installation Database" \
+             -J "$(BVR20983_RESULT)" \
+             -A "$(BVR20983_MSI_COMPANY)" \
+             -K "Installer, MSI, Database" \
+             -O "$(BVR20983DESC)" \
+             -P "Intel;1033" \
+             -V {BFE20983-0001-0101-0000-0001FFFFFFFF} \
+             -G 200 \
+             -W 0 \
+             -N msidb \
+             -U 0 \
+             -L dw
+
 distsrc: 
    svn export ..\.. $(DISTSRCDIR)
    $(msicab) c $(RESULTDIR)\$(BVR20983_RESULT)-src.cab $(DISTSRCDIR)
+
+$(MSIDIR)\patch.pcp:
+   $(msidb) -c -d $(MSIDIR)\patch.pcp -f $(PATCHDIR) -i *
+
+$(MSIDIR)\patch.msp: $(MSIDIR)\patch.pcp
+  $(msimsp) -s $(MSIDIR)\patch.pcp -p $(MSIDIR)\patch.msp -l $(MSIDIR)\patch.log
 
 clean:
   if exist $(MSIDIR)\$(BVR20983_CABMSI) del /q $(MSIDIR)\$(BVR20983_CABMSI)
