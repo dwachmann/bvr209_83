@@ -3,9 +3,9 @@ S72	s72	l0
 PatchMetadata	Company	Property
 	AllowRemoval	1
 	Classification	update
-	CreationTimeUTC	1/1/2004 1:04
+	CreationTimeUTC	5/2/2009 0:33
 	Description	Test Patch
 	DisplayName	Test
-	ManufacturerName	MS
-	MoreInfoURL	http://www.microsoft.com
-	TargetProductName	Test Product
+	ManufacturerName	D.Wachmann
+	MoreInfoURL	http://bvr20983.berlios.de
+	TargetProductName	BVR20983 Suite

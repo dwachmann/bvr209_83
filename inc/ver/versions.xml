@@ -22,7 +22,7 @@
           xsi:schemaLocation="http://bvr20983.berlios.de versions.xsd"
 >
   <parameter name="filenamepattern">#{LCase("${../../../@id}")}.${../../../v:version/@major}.${../../@id}.${../../v:version/@major}</parameter>
-  <parameter name="filenamepattern1">#{LCase("${../../@id}")}.${../../v:version/@major}</parameter>
+  <parameter name="filenamepattern1">#{LCase("${../../@id}")}.${../../v:version/@major}.${../../v:version/@minor}.${../../v:version/@fix}</parameter>
   <parameter name="guidpattern">${../../../../v:no/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../v:no/text()}-${../../@typeid}-#{zerofill("${../../v:version/@major}",4)}FFFFFFFF</parameter>
 
   <parameter name="typelibguidpattern">${../../../../v:no/text()}-#{zerofill("${../../../../v:version/@major}",4)}-${../../v:no/text()}-${../../@typeid}-FFFFFFFFFFFF</parameter>
@@ -35,7 +35,7 @@
   <parameter name="msiupdpattern">${../../v:no/text()}-0001-0102-FFFF-FFFFFFFFFFFF</parameter>
 
   <product id="BVR20983">
-    <version major="1" minor="0" fix="0" rev="${rev}"/>
+    <version major="1" minor="0" fix="1" rev="${rev}"/>
     <name>BVR2098 Suite</name>
     <no>BFE20983</no>
     <company>Dorothea Wachmann</company>

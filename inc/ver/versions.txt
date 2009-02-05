@@ -155,13 +155,13 @@ Namespace:
         ~ GUID   : {Product[@No]-Product[@Version.major]-Typelib[@No]-COMType[@Type]-XXXXXXXXXXXX}
 
  MSI  
-  + MSIPackage
     ~ FileName        : Product[@ID].Product[@Version.major].msi
     - Type            :
         ProductCode   : 0100
         PackageCode   : 0101
         UpdateCode    : 0102
         Component     : 0103
+        Patch         : 0104
     ~ PackageCode     : {Product[@No]-Product[@Version.major]-0101-Product[@Version.minor]-Product[@Version.fix]XXXXXXXX}
 
     + MSIProduct[1]
@@ -177,6 +177,11 @@ Namespace:
         
       + MSIFeature[1..n]
         - ID          : 
+
+  + MSIPatch
+    - Patch[@no]      : 
+    ~ PatchGUID       : {Product[@No]-Product[@Version.major]-0104-Product[@Version.minor]-Product[@Version.fix-old]Product[@Version.fix]Patch[@no]}
+    ~ FileName        : Product[@ID].Product[@Version.major].Product[@Version.minor].Product[@Version.fix].msp
 
 UseCases:
 - Initial configuration

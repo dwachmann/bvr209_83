@@ -44,9 +44,9 @@
 
 
 
-#define verFileVer        1,0,0,147
+#define verFileVer        1,0,0,148
 
-#define verFileVer1       "1.0.0.147"
+#define verFileVer1       "1.0.0.148"
 
 #define verFileDesc       "Custom Control Library"
 
@@ -54,7 +54,7 @@
 
 #define verOrigName       "bvr20983.1.cc.1.dll"
 
-#define verMakeDate       "2009-01-31T01:29:16.060620Z"
+#define verMakeDate       "2009-01-31T02:18:00.866284Z"
 
 #define verCompPrefix     "cc.1"
 
@@ -64,7 +64,7 @@
 
 #define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
 
-#define verMSIPackCode    "BFE20983-0001-0101-0000-0000FFFFFFFF"
+#define verMSIPackCode    "BFE20983-0001-0101-0000-0001FFFFFFFF"
 
 #define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
@@ -72,7 +72,7 @@
 
 #define verAboutTitle   "Custom Control Library"
 
-#define verAboutText    "Custom Control Library 1.0.0.147"
+#define verAboutText    "Custom Control Library 1.0.0.148"
 
 
 

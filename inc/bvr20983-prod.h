@@ -46,11 +46,11 @@
 
 #define verCopyright   "Copyright \251 2008-2009 Dorothea Wachmann"
 
-#define verProdVer     1,0,0,147
+#define verProdVer     1,0,1,148
 
-#define verProdVer1    "1.0.0.147"
+#define verProdVer1    "1.0.1.148"
 
-#define verProdPrefix  "bvr20983.1"
+#define verProdPrefix  "bvr20983.1.0.1"
 
 
 
