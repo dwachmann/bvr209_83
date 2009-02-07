@@ -113,9 +113,12 @@ $(MSIDIR)\patch.pcp:
    $(msidb) -c -d $(MSIDIR)\patch.pcp -f $(PATCHDIR) -i *
 
 $(MSIDIR)\patch.msp: $(MSIDIR)\patch.pcp
-  $(msiexec) /a c:\Projects\smartcard\applications\windows\bvr20983\msi\bvr20983.1.0.0.msi /qb TARGETDIR=c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\upgraded
-  $(msiexec) /a c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\$(BVR20983_MSI) /qb TARGETDIR=c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\target
+  $(msiexec) /a c:\Projects\smartcard\applications\windows\bvr20983\msi\bvr20983.1.0.0.msi /qb TARGETDIR=c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\target
+  $(msiexec) /a c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\$(BVR20983_MSI) /qb TARGETDIR=c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\upgraded
   $(msimsp) -s $(MSIDIR)\patch.pcp -p c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\bvr20983.1.0.1.msp -l $(MSIDIR)\patch.log
+
+execpatch: 
+  $(msiexec) /p c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\bvr20983.1.0.1.msp REINSTALL=ALL REINSTALLMODE=omus /log c:\Projects\smartcard\applications\windows\bvr20983\debug\msi\patch-exec.log
 
 clean:
   if exist $(MSIDIR)\$(BVR20983_CABMSI) del /q $(MSIDIR)\$(BVR20983_CABMSI)

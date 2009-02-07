@@ -1,4 +1,4 @@
 Upgraded	MsiPath	PatchMsiPath	SymbolPaths	Family
 s13	s255	S255	S255	s8
 UpgradedImages	Upgraded
-MNP_fixed	C:\Projects\smartcard\applications\windows\bvr20983\debug\msi\upgraded\bvr20983.1.0.0.msi			MNPapps
+MNP_fixed	C:\Projects\smartcard\applications\windows\bvr20983\debug\msi\upgraded\bvr20983.1.0.1.msi			MNPapps

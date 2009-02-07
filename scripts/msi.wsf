@@ -47,7 +47,7 @@
           Init
           
           If WScript.Arguments.Named.Exists("File") and fso.FileExists(WScript.Arguments.Named.Item("File")) Then
-            OpenDB WScript.Arguments.Named.Item("File"),msiOpenDatabaseModeReadOnly
+            OpenDB WScript.Arguments.Named.Item("File"),msiOpenDatabasePatchFile
             
             If WScript.Arguments.Named.Exists("Table") Then
               query = "select * from " & WScript.Arguments.Named.Item("Table")

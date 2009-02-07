@@ -18,6 +18,7 @@ Option explicit
 
 Const msiOpenDatabaseModeReadOnly = 0
 Const msiOpenDatabaseModeTransact = 1
+Const msiOpenDatabasePatchFile    = 32
 
 Const msiInstallStateNotUsed      = -7
 Const msiInstallStateBadConfig    = -6
