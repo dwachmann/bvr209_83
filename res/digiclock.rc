@@ -214,6 +214,7 @@ BEGIN
       VALUE "ProductName",      verProdName
       VALUE "ProductVersion",   verProdVer1
       VALUE "BuildDate",        verMakeDate
+      VALUE "SVNRevision",      verSvnRevision
       VALUE "ProductPrefix",    verProdPrefix
       VALUE "ComponentPrefix",  verCompPrefix
       VALUE "DebugVersion",     verDebugVersion

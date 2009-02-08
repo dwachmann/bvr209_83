@@ -102,9 +102,9 @@ _MAKEFILE_INC_ = 1
 APPVER=5.01
 _WIN32_IE=0x0600
 
-SRCDIR=..\..\src
-INCDIR=..\..\inc
-RESDIR=..\..\res
+SRCDIR=C:\Projects\smartcard\applications\windows\bvr20983\src
+INCDIR=C:\Projects\smartcard\applications\windows\bvr20983\inc
+RESDIR=C:\Projects\smartcard\applications\windows\bvr20983\res
 
 # -------------------------------------------------------------------------
 # Get CPU Type - exit if CPU environment variable is not defined
@@ -499,10 +499,10 @@ OUTDIR=NT4
 
 !IF "$(NODEBUG)" == ""
 OUTDIR        = $(OUTDIR)_DEBUG
-RESULTDIR     = ..\..\debug
+RESULTDIR     = C:\Projects\smartcard\applications\windows\bvr20983\debug
 !ELSE
 OUTDIR        = $(OUTDIR)_RETAIL
-RESULTDIR     = ..\..\release
+RESULTDIR     = C:\Projects\smartcard\applications\windows\bvr20983\release
 !ENDIF
 
 SLNDIR        = $(RESULTDIR)\sln
@@ -516,7 +516,7 @@ cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
 ccrtprecompheader=-Yc"os.h" -Fp"$(OUTDIR)\precomp.pch"
 cvars= $(cvars) -EHa $(cinclude)
 
-lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:..\..\lib\cab
+lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:C:\Projects\smartcard\applications\windows\bvr20983\lib\cab
 
 !ifdef clean
 makeopts = clean=1

@@ -4,8 +4,9 @@ Product:
     Major: Major Features, incompatible changes
     Minor: Minor Features, compatible changes
     Fix  : Bug Fixes
-    Rev  : Revision Number in Subversion
-           --> define file for revision
+    Build: 0
+    
+    Rev  : Revision Number in Subversion as File Resource
 
    ProdId: 8 hex digits used in GUID, i.e. BFE20983 for BVR20983
            
@@ -15,8 +16,9 @@ Components:
     Major: Major Features, incompatible changes
     Minor: Minor Features, compatible changes
     Fix  : Bug Fixes
-    Rev  : Revision Number in Subversion
-           --> define file for revision
+    Build: 0
+
+    Rev  : Revision Number in Subversion as File Resource
            
    CompId: 4 hex digits, i.e. 0001 for sc
    

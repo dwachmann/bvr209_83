@@ -415,7 +415,7 @@ Sub GetRevisionAndDate(f)
   WScript.Echo "rev="       & rev
   WScript.Echo "builddate=" & d
   
-  argsKey   = Array("rev","builddate")
+  argsKey   = Array("svnrevision","builddate")
   argsValue = Array(rev,d)
 End Sub
 

@@ -190,6 +190,10 @@ namespace bvr20983
 
         LOGGER_INFO<<_T(" (build ");
         LogStringInfo(_T("BuildDate"));
+
+        LOGGER_INFO<<_T(" revision ");
+        LogStringInfo(_T("SVNRevision"));
+
         LOGGER_INFO<<_T(")");
         LOGGER_INFO<<endl;
 
@@ -204,6 +208,18 @@ namespace bvr20983
         LOGGER_INFO<<_T("  ");
         LogStringInfo(_T("FileDescription"));
         LOGGER_INFO<<endl;
+
+        LOGGER_INFO<<_T("  MSI ProductVersion ");
+        LogStringInfo(_T("MSIProductVersion"));
+        LOGGER_INFO<<endl;
+
+        LOGGER_INFO<<_T("  MSI ProductVersion {");
+        LogStringInfo(_T("MSIProductCode"));
+        LOGGER_INFO<<_T("}")<<endl;
+
+        LOGGER_INFO<<_T("  MSI PackageCode {");
+        LogStringInfo(_T("MSIPackageCode"));
+        LOGGER_INFO<<_T("}")<<endl;
 
         LOGGER_INFO<<_T("  ");
         LogStringInfo(_T("LegalCopyright"));
