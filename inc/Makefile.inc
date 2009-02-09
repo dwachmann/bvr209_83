@@ -102,9 +102,9 @@ _MAKEFILE_INC_ = 1
 APPVER=5.01
 _WIN32_IE=0x0600
 
-SRCDIR=C:\Projects\smartcard\applications\windows\bvr20983\src
-INCDIR=C:\Projects\smartcard\applications\windows\bvr20983\inc
-RESDIR=C:\Projects\smartcard\applications\windows\bvr20983\res
+SRCDIR=$(PROJECTDIR)\src
+INCDIR=$(PROJECTDIR)\inc
+RESDIR=$(PROJECTDIR)\res
 
 # -------------------------------------------------------------------------
 # Get CPU Type - exit if CPU environment variable is not defined
@@ -499,10 +499,10 @@ OUTDIR=NT4
 
 !IF "$(NODEBUG)" == ""
 OUTDIR        = $(OUTDIR)_DEBUG
-RESULTDIR     = C:\Projects\smartcard\applications\windows\bvr20983\debug
+RESULTDIR     = $(PROJECTDIR)\debug
 !ELSE
 OUTDIR        = $(OUTDIR)_RETAIL
-RESULTDIR     = C:\Projects\smartcard\applications\windows\bvr20983\release
+RESULTDIR     = $(PROJECTDIR)\release
 !ENDIF
 
 SLNDIR        = $(RESULTDIR)\sln
@@ -511,12 +511,20 @@ SIGNDIR       = $(RESULTDIR)\sign
 MSIDIR        = $(RESULTDIR)\msi
 DISTSRCDIR    = $(RESULTDIR)\src
 
+HTMLDIR       = $(PROJECTDIR)\res\html
+SCRIPTSDIR    = $(PROJECTDIR)\scripts
+DOCDIR        = $(PROJECTDIR)\doc
+MSIINVENTORYDIR= $(PROJECTDIR)\msi
+MSITEMPLATEDIR= $(PROJECTDIR)\comp\msi\template
+MSIPATCHDIR   = $(PROJECTDIR)\comp\msi\patch
+
+
 cinclude=-I$(INCDIR) -I$(OUTDIR)
 cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
 ccrtprecompheader=-Yc"os.h" -Fp"$(OUTDIR)\precomp.pch"
 cvars= $(cvars) -EHa $(cinclude)
 
-lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:C:\Projects\smartcard\applications\windows\bvr20983\lib\cab
+lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:$(PROJECTDIR)\lib\cab
 
 !ifdef clean
 makeopts = clean=1
@@ -526,19 +534,21 @@ makeopts = clean=1
 makeopts = $(makeopts) nodebug=1
 !endif
 
+makeopts = $(makeopts) PROJECTDIR=$(PROJECTDIR)
+
 BVR20983RES_RESULT=bvr20983.1.res.1
 BVR20983CC_RESULT=bvr20983.1.cc.1
 BVR20983SC_RESULT=bvr20983.1.sc.1
 DIGICLOCK_RESULT=bvr20983.1.digiclock.1
-BVR20983_RESULT=bvr20983.1.0.1
+BVR20983_RESULT=bvr20983.1.11.42
 LSSTG_RESULT=bvr20983.1.lsstg.1
 LSTYPEINFO_RESULT=bvr20983.1.lstypeinfo.1
 MSICAB_RESULT=bvr20983.1.msicab.1
 BVR20983MSGS_RESULT=bvr20983.1.msgs.1
 BVR20983DESC=BVR2098 Suite
-BVR20983_CABMSI=bvr20983.1.0.1.cab
-BVR20983_MSI=bvr20983.1.0.1.msi
-BVR20983_MSI_PACKAGECODE=BFE20983-0001-0101-0000-0001FFFFFFFF
+BVR20983_CABMSI=bvr20983.1.11.42.cab
+BVR20983_MSI=bvr20983.1.11.42.msi
+BVR20983_MSI_PACKAGECODE=BFE20983-0001-0101-0011-0042FFFFFFFF
 BVR20983_MSI_COMPANY=Dorothea Wachmann
 
 #ENDIF _MAKEFILE_INC_

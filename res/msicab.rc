@@ -66,6 +66,10 @@ BEGIN
       VALUE "ProductPrefix",   verProdPrefix
       VALUE "ComponentPrefix", verCompPrefix
       VALUE "DebugVersion",    verDebugVersion
+      VALUE "MSIProductVersion",verMSIProdVersion
+      VALUE "MSIProductCode",   verMSIProdCode
+      VALUE "MSIPackageCode",   verMSIPackCode
+      VALUE "MSIUpgradeVersion",verMSIUpdCode
     END
   END
 

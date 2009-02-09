@@ -14,22 +14,11 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/.
+
+PROJECTDIR    = $(MAKEDIR)
+
 !include <./inc/Makefile.inc>
 
-!IF "$(NODEBUG)" == ""
-RESULTDIR     = .\debug
-!ELSE
-RESULTDIR     = .\release
-!ENDIF
-
-SLNDIR        = $(RESULTDIR)\sln
-DISTDIR       = $(RESULTDIR)\dist
-SIGNDIR       = $(RESULTDIR)\sign
-MSIDIR        = $(RESULTDIR)\msi
-
-INCDIR        = .\inc
-HTMLDIR       = .\res\html
-SCRIPTSDIR    = .\scripts
 SIGNPUBKEYTOK = 93425facf1ef717a
 signvars      = sign /f $(signkey) /d "$(BVR20983DESC)" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll
 patch         = cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/" 
@@ -68,8 +57,25 @@ distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
   @copy $(HTMLDIR)\*.jpg                  $(DISTDIR)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
 
+
 patch:
   @$(patch) signpubkeytok $(SIGNPUBKEYTOK) crtlib $(MSVCRTLIB) debugver $(DEBUGVER)
+  
+msi: comp\msi\~
+
+msipatch: comp\msi\~createpatch
+
+comp\msi\~:
+  @IF EXIST $(@D)\makefile <<nmaketmp.bat
+  @cd $(@D)
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts)
+<<
+
+comp\msi\~createpatch:
+  @IF EXIST $(@D)\makefile <<nmaketmp.bat
+  @cd $(@D)
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) createpatch
+<<
 
 $(CABRESULT): $(CABCONTENT)
 	@$(cab) -s 6144 N $@ $**

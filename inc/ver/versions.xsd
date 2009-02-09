@@ -49,21 +49,17 @@
 
   <xs:complexType name="productType">
     <xs:sequence>
-      <xs:element name="version"        type="versionType"/>
+      <xs:element name="version"        type="productVersionType"/>
+      <xs:element name="versionhistory" type="versionHistoryType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="name"           type="xs:string"/>
       <xs:element name="no"             type="xs:string"/>
       <xs:element name="company"        type="xs:string"/>
       <xs:element name="copyright"      type="xs:string"/>
       <xs:element name="filename"       type="xs:string"/>
-      <xs:element name="msipackagecode" type="xs:string"   minOccurs="0" />
-      <xs:element name="msiproductcode" type="xs:string"   minOccurs="0" />
-      <xs:element name="msiupgradecode" type="xs:string"   minOccurs="0" />
-      <xs:element name="msino"          type="xs:string"   minOccurs="0" />
       <xs:element name="patch"          type="patchType"     minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="component"      type="componentType" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
-    <xs:attribute name="id"       type="xs:ID"      use="required"/>
-    <xs:attribute name="revision" type="revType"    use="required"/>
+    <xs:attribute name="id"        type="xs:ID"      use="required"/>
   </xs:complexType>
 
   <xs:complexType name="componentType">
@@ -129,6 +125,26 @@
     <xs:attribute name="build" type="xs:nonNegativeInteger" />
   </xs:complexType>
 
+  <xs:complexType name="versionHistoryType">
+    <xs:sequence>
+      <xs:element name="version" type="productVersionType"  minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="productVersionType">
+    <xs:sequence>
+      <xs:element name="msipackagecode" type="xs:string"   minOccurs="0" />
+      <xs:element name="msiproductcode" type="xs:string"   minOccurs="0" />
+      <xs:element name="msiupgradecode" type="xs:string"   minOccurs="0" />
+      <xs:element name="msino"          type="xs:string"   minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="major"    type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="minor"    type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="fix"      type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="build"    type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="revision" type="revType"               use="required"/>
+    <xs:attribute name="tag"      type="xs:string"   />
+  </xs:complexType>
 
   <xs:simpleType name="comptypeType">
     <xs:restriction base="xs:string">

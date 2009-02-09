@@ -18,6 +18,6 @@
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
   @echo *** $(@D) *** $(MAKE) /$(MAKEFLAGS) $(makeopts)
-  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) 
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts)
   @cd ..
 <<

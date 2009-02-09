@@ -102,9 +102,9 @@ _MAKEFILE_INC_ = 1
 APPVER=5.01
 _WIN32_IE=0x0600
 
-SRCDIR=..\..\src
-INCDIR=..\..\inc
-RESDIR=..\..\res
+SRCDIR=$(PROJECTDIR)\src
+INCDIR=$(PROJECTDIR)\inc
+RESDIR=$(PROJECTDIR)\res
 
 # -------------------------------------------------------------------------
 # Get CPU Type - exit if CPU environment variable is not defined
@@ -499,10 +499,10 @@ OUTDIR=NT4
 
 !IF "$(NODEBUG)" == ""
 OUTDIR        = $(OUTDIR)_DEBUG
-RESULTDIR     = ..\..\debug
+RESULTDIR     = $(PROJECTDIR)\debug
 !ELSE
 OUTDIR        = $(OUTDIR)_RETAIL
-RESULTDIR     = ..\..\release
+RESULTDIR     = $(PROJECTDIR)\release
 !ENDIF
 
 SLNDIR        = $(RESULTDIR)\sln
@@ -511,12 +511,20 @@ SIGNDIR       = $(RESULTDIR)\sign
 MSIDIR        = $(RESULTDIR)\msi
 DISTSRCDIR    = $(RESULTDIR)\src
 
+HTMLDIR       = $(PROJECTDIR)\res\html
+SCRIPTSDIR    = $(PROJECTDIR)\scripts
+DOCDIR        = $(PROJECTDIR)\doc
+MSIINVENTORYDIR= $(PROJECTDIR)\msi
+MSITEMPLATEDIR= $(PROJECTDIR)\comp\msi\template
+MSIPATCHDIR   = $(PROJECTDIR)\comp\msi\patch
+
+
 cinclude=-I$(INCDIR) -I$(OUTDIR)
 cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
 ccrtprecompheader=-Yc"os.h" -Fp"$(OUTDIR)\precomp.pch"
 cvars= $(cvars) -EHa $(cinclude)
 
-lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:..\..\lib\cab
+lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:$(PROJECTDIR)\lib\cab
 
 !ifdef clean
 makeopts = clean=1
@@ -525,6 +533,8 @@ makeopts = clean=1
 !ifdef nodebug
 makeopts = $(makeopts) nodebug=1
 !endif
+
+makeopts = $(makeopts) PROJECTDIR=$(PROJECTDIR)
 
 BVR20983RES_RESULT=@bvr20983resresult
 BVR20983CC_RESULT=@bvr20983ccresult
