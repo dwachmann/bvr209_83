@@ -67,7 +67,7 @@
       <runtime>
           <description>Evaluate the patch element and patch file according to the defined regexp pattern</description>
           <named name = "File"
-                 helpstring = "Name of the xml file that should be parsed"
+                 helpstring = "Name of the version file"
                  type = "string"
                  required = "true"
           />
@@ -109,7 +109,7 @@
                  type = "string"
                  required = "true"
           />
-          <example>Example: //job:svninfo patch.wsf /File:xmlfile /Select:select</example>
+          <example>Example: //job:svninfo patch.wsf /File:xmlfile</example>
       </runtime>
 
       <script language="VBScript" src="libscript.vbs"/>
@@ -138,6 +138,37 @@
               argsValue(1) = d
 
               WScript.Echo "d=" & GetVarValue(doc,"builddate",False) & " rev=" & GetVarValue(doc,"rev",False)
+            Else
+              WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            End If
+          Else
+            WScript.Arguments.ShowUsage
+          End If
+        ]]>
+      </script>
+   </job>
+
+   <job id="msipatch">
+      <runtime>
+          <description>evaluate the versioninfo elements and create msi template files to create msi patch package</description>
+          <named name = "File"
+                 helpstring = "Name of the version file"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //job:msipatch patch.wsf /File:xmlfile</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          
+          If WScript.Arguments.Named.Exists("File") Then
+            Init
+
+            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              MsiPatchInfo WScript.Arguments.Named.Item("File")
             Else
               WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
             End If

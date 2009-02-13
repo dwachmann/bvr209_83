@@ -36,7 +36,28 @@
   <product id="BVR20983">
 
     <versionhistory>
-	    <version major="1" minor="11" fix="42" build="0" revision="${svnrevision}">
+	    <version major="01" minor="1" fix="42" build="0" revision="${svnrevision}">
+		    <msipackagecode>${msipackpattern}</msipackagecode>
+		    <msiproductcode>${msiprodpattern}</msiproductcode>
+		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
+		    <msino>0001</msino>
+		  </version>
+
+	    <version major="1" minor="1" fix="1" build="0" revision="145" tag="">
+	      <msipackagecode>${msipackpattern}</msipackagecode>
+	      <msiproductcode>${msiprodpattern}</msiproductcode>
+		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
+		    <msino>0001</msino>
+	    </version>
+
+	    <version major="1" minor="1" fix="0" build="0" revision="139" tag="">
+	      <msipackagecode>${msipackpattern}</msipackagecode>
+	      <msiproductcode>${msiprodpattern}</msiproductcode>
+		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
+		    <msino>0001</msino>
+	    </version>
+
+	    <version major="1" minor="0" fix="3" build="0" revision="${svnrevision}">
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
 		    <msiupgradecode>${msiupdpattern}</msiupgradecode>

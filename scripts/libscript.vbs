@@ -435,4 +435,86 @@ Sub MoveFile(f)
   Set f0 = fso.GetFile(filename & tmpFileSuffix)
   f0.Move(filename)
 End Sub
+
+'
+' evaluate the versioninfo elements and create msi template files to create msi patch package
+'
+Sub MsiPatchInfo(f)
+  Dim objNodeList,o,ch
+  Dim major,minor,fix,msipackagecode,msiproductcode,msiupgradecode
+  Dim major0,minor0,fix0,msipackagecode0,msiproductcode0,msiupgradecode0
+  Dim major1,minor1,fix1,msipackagecode1,msiproductcode1,msiupgradecode1
+  Dim versionCount
+  
+  xmlDoc.load(f)
+  
+  If xmlDoc.parseError.errorCode<>0 Then
+    WScript.Echo xmlDoc.parseError.reason
+  Else
+    'WScript.Echo xmlDoc.xml
+  End If
+  
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/v:versions//v:versionhistory/v:version")
+  
+  If objNodeList.length>0 Then
+    versionCount = 0
+    
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        major          = o.GetAttributeNode("major").text
+        minor          = o.GetAttributeNode("minor").text
+        fix            = o.GetAttributeNode("fix").text
+        msipackagecode = Null
+        msiproductcode = Null
+        msiupgradecode = Null
+        
+        For Each ch in o.childNodes
+          If TypeName(ch)="IXMLDOMElement" and ch.tagName="msipackagecode" Then
+            msipackagecode = GetValue(ch.firstChild,ch.firstChild.text)
+          ElseIf TypeName(ch)="IXMLDOMElement" and ch.tagName="msiproductcode" Then
+            msiproductcode = GetValue(ch.firstChild,ch.firstChild.text)
+          ElseIf TypeName(ch)="IXMLDOMElement" and ch.tagName="msiupgradecode" Then
+            msiupgradecode = GetValue(ch.firstChild,ch.firstChild.text)
+          End If
+        Next
+        
+        If versionCount=0 Then
+          major0          = CInt(major)
+          minor0          = CInt(minor)
+          fix0            = CInt(fix)
+          msipackagecode0 = msipackagecode
+          msiproductcode0 = msiproductcode
+          msiupgradecode0 = msiupgradecode
+          
+        Else
+          major1          = CInt(major)
+          minor1          = CInt(minor)
+          fix1            = CInt(fix)
+          msipackagecode1 = msipackagecode
+          msiproductcode1 = msiproductcode
+          msiupgradecode1 = msiupgradecode
+
+          If major0=major1 and minor0=minor1 Then
+            WScript.Echo "Version " & major1 & "." & minor1 & "." & fix1 & " ==> " & major0 & "." & minor0 & "." & fix0
+            WScript.Echo "  packagecode="& msipackagecode1 & " ==> " & msipackagecode0
+            WScript.Echo "  productcode="& msiproductcode1 & " ==> " & msiproductcode0
+            WScript.Echo "  upgradecode="& msiupgradecode1 & " ==> " & msiupgradecode0
+          Else
+            Exit For
+            WScript.Echo 
+
+            major0          = CInt(major)
+            minor0          = CInt(minor)
+            fix0            = CInt(fix)
+            msipackagecode0 = msipackagecode
+            msiproductcode0 = msiproductcode
+            msiupgradecode0 = msiupgradecode
+          End If
+        End If
+
+        versionCount = versionCount + 1
+      End If
+    Next
+  End If
+End Sub
 '=======================================END-OF-FILE==========================
