@@ -27,56 +27,20 @@
 
   <parameter name="typelibguidpattern">${../../../../v:no/text()}-#{zerofill("${../../../../v:versionhistory/v:version[1]/@major}",4)}-${../../v:no/text()}-${../../@typeid}-FFFFFFFFFFFF</parameter>
   
-  <parameter name="msicomppattern">${../../../../v:no/text()}-#{zerofill("${../../../v:version/@major}",4)}-0103-${../../v:no/text()}-#{zerofill("${../../v:version/@major}",4)}#{zerofill("${../../v:version/@minor}",4)}#{zerofill("${../../v:version/@fix}",4)}</parameter>
+  <parameter name="msicomppattern">${../../../v:no/text()}-#{zerofill("${../../../v:versionhistory/v:version[1]/@major}",4)}-0103-${../../v:no/text()}-#{zerofill("${../../v:version/@major}",4)}#{zerofill("${../../v:version/@minor}",4)}#{zerofill("${../../v:version/@fix}",4)}</parameter>
   <parameter name="msiprodpattern">${../../../../v:no/text()}-#{zerofill("${../../@major}",4)}-0100-${../../v:msino/text()}-FFFFFFFFFFFF</parameter>
   <parameter name="msipackpattern">${../../../../v:no/text()}-#{zerofill("${../../@major}",4)}-0101-#{zerofill("${../../@minor}",4)}-#{zerofill("${../../@fix}",4)}FFFFFFFF</parameter>
-
   <parameter name="msiupdpattern">${../../../../v:no/text()}-0001-0102-FFFF-FFFFFFFFFFFF</parameter>
 
   <product id="BVR20983">
-
     <versionhistory>
-	    <version major="01" minor="1" fix="42" build="0" revision="${svnrevision}">
+	    <version major="1" minor="0" fix="0" build="0" revision="${svnrevision}">
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
 		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
 		    <msino>0001</msino>
 		  </version>
 
-	    <version major="1" minor="1" fix="1" build="0" revision="145" tag="">
-	      <msipackagecode>${msipackpattern}</msipackagecode>
-	      <msiproductcode>${msiprodpattern}</msiproductcode>
-		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
-		    <msino>0001</msino>
-	    </version>
-
-	    <version major="1" minor="1" fix="0" build="0" revision="139" tag="">
-	      <msipackagecode>${msipackpattern}</msipackagecode>
-	      <msiproductcode>${msiprodpattern}</msiproductcode>
-		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
-		    <msino>0001</msino>
-	    </version>
-
-	    <version major="1" minor="0" fix="3" build="0" revision="${svnrevision}">
-		    <msipackagecode>${msipackpattern}</msipackagecode>
-		    <msiproductcode>${msiprodpattern}</msiproductcode>
-		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
-		    <msino>0001</msino>
-		  </version>
-
-	    <version major="1" minor="0" fix="1" build="0" revision="145" tag="">
-	      <msipackagecode>${msipackpattern}</msipackagecode>
-	      <msiproductcode>${msiprodpattern}</msiproductcode>
-		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
-		    <msino>0001</msino>
-	    </version>
-
-	    <version major="1" minor="0" fix="0" build="0" revision="139" tag="">
-	      <msipackagecode>${msipackpattern}</msipackagecode>
-	      <msiproductcode>${msiprodpattern}</msiproductcode>
-		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
-		    <msino>0001</msino>
-	    </version>
 	  </versionhistory>
 
     <name>BVR2098 Suite</name>

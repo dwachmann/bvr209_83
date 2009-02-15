@@ -49,7 +49,6 @@
 
   <xs:complexType name="productType">
     <xs:sequence>
-      <xs:element name="version"        type="productVersionType"/>
       <xs:element name="versionhistory" type="versionHistoryType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="name"           type="xs:string"/>
       <xs:element name="no"             type="xs:string"/>

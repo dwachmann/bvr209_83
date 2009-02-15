@@ -395,7 +395,9 @@ End Function
 ' GetSvnInfo
 '
 Function GetSvnInfo(f)
-  xmlDoc.loadXml(ExecuteProgram("svn info --xml " & f))
+  WScript.Echo 'Retrieving subversion info...'
+  
+  xmlDoc.loadXml(ExecuteProgram("svn info --xml -r HEAD " & f))
   
   Set GetSvnInfo = xmlDoc.documentElement
 End Function
@@ -410,13 +412,15 @@ Sub GetRevisionAndDate(f)
   Set doc = GetSvnInfo(WScript.Arguments.Named.Item("File"))
   
   rev = doc.selectSingleNode("/info/entry/@revision").nodeValue
-  d   = doc.selectSingleNode("/info/entry/wc-info/text-updated/text()").text
+  'd   = doc.selectSingleNode("/info/entry/wc-info/text-updated/text()").text
+  
+  d = FormatDateTime(Date, 2) & " " & FormatDateTime(Now,4)
   
   WScript.Echo "rev="       & rev
   WScript.Echo "builddate=" & d
   
   argsKey   = Array("svnrevision","builddate")
-  argsValue = Array(rev,d)
+  argsValue = Array(rev+1,d)
 End Sub
 
 '
