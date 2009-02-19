@@ -1,0 +1,55 @@
+Property	Value
+s72	l0
+Property	Property
+ALLUSERS	2
+ARPHELPLINK	http://bvr20983.berlios.de/
+ARPURLINFOABOUT	http://developer.berlios.de/projects/bvr20983
+ARPURLUPDATEINFO	http://svn.berlios.de/wsvn/bvr20983
+ARPPRODUCTICON	installer.ico
+BannerBitmap	bannrbmp
+ButtonText_Back	< &Back
+ButtonText_Browse	Br&owse
+ButtonText_Cancel	Cancel
+ButtonText_Exit	&Exit
+ButtonText_Finish	&Finish
+ButtonText_Ignore	&Ignore
+ButtonText_Install	&Install
+ButtonText_Next	&Next >
+ButtonText_No	&No
+ButtonText_OK	OK
+ButtonText_Remove	&Remove
+ButtonText_Repair	&Repair
+ButtonText_Reset	&Reset
+ButtonText_Resume	&Resume
+ButtonText_Retry	&Retry
+ButtonText_Return	&Return
+ButtonText_Yes	&Yes
+CompleteSetupIcon	completi
+ComponentDownload	http://bvr20983.berlios.de/update/
+CustomSetupIcon	custicon
+DefaultUIFont	DlgFont8
+DialogBitmap	dlgbmp
+DlgTitleFont	{&DlgFontBold8}
+ErrorDialog	ErrorDlg
+ExclamationIcon	exclamic
+IAgree	No
+InfoIcon	info
+InstallerIcon	insticon
+INSTALLLEVEL	1
+InstallMode	Typical
+Manufacturer	Dorothea Wachmann
+PIDTemplate	12345<###-%%%%%%%>@@@@@
+ProductCode	{BFE20983-0001-0100-0001-FFFFFFFFFFFF}
+ProductID	123-3334567
+ProductLanguage	1033
+ProductName	BVR2098 Suite
+ProductVersion	1.0.0
+Progress1	Installing
+Progress2	installs
+PROMPTROLLBACKCOST	P
+RemoveIcon	removico
+RepairIcon	repairic
+Setup	Installation
+ShowUserRegistrationDlg	0
+Wizard	Installation Wizard
+UpgradeCode	{BFE20983-0001-0102-FFFF-FFFFFFFFFFFF}

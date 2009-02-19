@@ -81,7 +81,7 @@ $(MSIDIR)\$(BVR20983_RESULT).pcp:
    $(msidb) -c -d $(MSIDIR)\$(BVR20983_RESULT).pcp -f $(MSIPATCHDIR) -i *
 
 createpatch: $(MSIDIR)\$(BVR20983_RESULT).pcp
-  $(msiexec) /a $(MSIINVENTORYDIR)\bvr20983.1.0.0.msi /qb TARGETDIR=$(MSIDIR)\target
+  $(msiexec) /a $(MSIDIR)\bvr20983.1.0.0.msi /qb TARGETDIR=$(MSIDIR)\target
   $(msiexec) /a $(MSIDIR)\$(BVR20983_MSI) /qb TARGETDIR=$(MSIDIR)\upgraded
   $(msimsp) -s $(MSIDIR)\$(BVR20983_RESULT).pcp -p $(MSIDIR)\$(BVR20983_RESULT).msp -l $(MSIDIR)\$(BVR20983_RESULT)-createpatch.log
 

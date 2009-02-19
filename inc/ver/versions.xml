@@ -41,6 +41,15 @@
 		    <msino>0001</msino>
 		  </version>
 
+<!--
+	    <version major="1" minor="0" fix="1" build="0" revision="${svnrevision}">
+		    <msipackagecode>${msipackpattern}</msipackagecode>
+		    <msiproductcode>${msiprodpattern}</msiproductcode>
+		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
+		    <msino>0001</msino>
+		  </version>
+-->
+
 	  </versionhistory>
 
     <name>BVR2098 Suite</name>

@@ -505,18 +505,17 @@ OUTDIR        = $(OUTDIR)_RETAIL
 RESULTDIR     = $(PROJECTDIR)\release
 !ENDIF
 
-SLNDIR        = $(RESULTDIR)\sln
-DISTDIR       = $(RESULTDIR)\dist
-SIGNDIR       = $(RESULTDIR)\sign
-MSIDIR        = $(RESULTDIR)\msi
-DISTSRCDIR    = $(RESULTDIR)\src
+SLNDIR         = $(RESULTDIR)\sln
+DISTDIR        = $(RESULTDIR)\dist
+SIGNDIR        = $(RESULTDIR)\sign
+MSIDIR         = $(RESULTDIR)\msi
+DISTSRCDIR     = $(RESULTDIR)\src
 
-HTMLDIR       = $(PROJECTDIR)\res\html
-SCRIPTSDIR    = $(PROJECTDIR)\scripts
-DOCDIR        = $(PROJECTDIR)\doc
-MSIINVENTORYDIR= $(PROJECTDIR)\msi
-MSITEMPLATEDIR= $(PROJECTDIR)\comp\msi\template
-MSIPATCHDIR   = $(PROJECTDIR)\comp\msi\patch
+HTMLDIR        = $(PROJECTDIR)\res\html
+SCRIPTSDIR     = $(PROJECTDIR)\scripts
+DOCDIR         = $(PROJECTDIR)\doc
+MSITEMPLATEDIR = $(PROJECTDIR)\comp\msi\template
+MSIPATCHDIR    = $(PROJECTDIR)\comp\msi\patch
 
 
 cinclude=-I$(INCDIR) -I$(OUTDIR)

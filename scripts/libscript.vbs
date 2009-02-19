@@ -443,12 +443,12 @@ End Sub
 '
 ' evaluate the versioninfo elements and create msi template files to create msi patch package
 '
-Sub MsiPatchInfo(f)
+Sub MsiPatchInfo(f,msidir)
   Dim objNodeList,o,ch
   Dim major,minor,fix,msipackagecode,msiproductcode,msiupgradecode
   Dim major0,minor0,fix0,msipackagecode0,msiproductcode0,msiupgradecode0
   Dim major1,minor1,fix1,msipackagecode1,msiproductcode1,msiupgradecode1
-  Dim versionCount
+  Dim versionCount,productId,msifilename,msicmd
   
   xmlDoc.load(f)
   
@@ -459,6 +459,9 @@ Sub MsiPatchInfo(f)
   End If
   
   Set objNodeList = xmlDoc.documentElement.selectNodes("/v:versions//v:versionhistory/v:version")
+  Set productId   = xmlDoc.documentElement.selectSingleNode("/v:versions//v:product/@id")
+  
+  WScript.Echo "  productId="& LCase(productId.text)
   
   If objNodeList.length>0 Then
     versionCount = 0
@@ -503,6 +506,15 @@ Sub MsiPatchInfo(f)
             WScript.Echo "  packagecode="& msipackagecode1 & " ==> " & msipackagecode0
             WScript.Echo "  productcode="& msiproductcode1 & " ==> " & msiproductcode0
             WScript.Echo "  upgradecode="& msiupgradecode1 & " ==> " & msiupgradecode0
+            
+            msifilename  = fso.GetAbsolutePathName(msidir & "\" & LCase(productId.text) & "." & major1 & "." & minor1 & "." & fix1)
+
+            If fso.FileExists(msifilename&".msi") Then
+              msicmd = "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msifilename
+              WScript.Echo msicmd
+              
+              ExecuteProgram(msicmd)
+            End If
           Else
             Exit For
             WScript.Echo 

@@ -156,7 +156,13 @@
                  type = "string"
                  required = "true"
           />
-          <example>Example: //job:msipatch patch.wsf /File:xmlfile</example>
+
+          <named name = "Dir"
+                 helpstring = "Directory with msi packages"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //job:msipatch patch.wsf /File:xmlfile /Dir:msi directory</example>
       </runtime>
 
       <script language="VBScript" src="libscript.vbs"/>
@@ -164,13 +170,15 @@
         <![CDATA[
           Option explicit
           
-          If WScript.Arguments.Named.Exists("File") Then
+          If WScript.Arguments.Named.Exists("File") and WScript.Arguments.Named.Exists("Dir") Then
             Init
 
-            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
-              MsiPatchInfo WScript.Arguments.Named.Item("File")
-            Else
+            If not fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
               WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            Elseif not fso.FolderExists( WScript.Arguments.Named.Item("Dir") ) Then
+              WScript.Echo "Directory " & WScript.Arguments.Named.Item("Dir") & " doesnt exist"
+            Else
+              MsiPatchInfo WScript.Arguments.Named.Item("File"),WScript.Arguments.Named.Item("Dir")
             End If
           Else
             WScript.Arguments.ShowUsage
