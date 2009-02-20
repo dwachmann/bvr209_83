@@ -181,6 +181,8 @@ private:
         if( fName[i]==_T('\\') )
           i++;
       } // of if
+      
+      _tcscat_s(convFName,maxLen,_T("_"));
 
       for( ;fName[i]!=_T('\0') && i<maxLen;i++ )
       { int   c0 = fName[i] & 0x00ff;
