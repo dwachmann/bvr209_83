@@ -28,13 +28,13 @@
 #define verFileDesc       "list COM structure storage"
 #define verIntName        "lsstg"
 #define verOrigName       "bvr20983.1.lsstg.1.exe"
-#define verMakeDate       "20.02.2009 00:31"
-#define verSvnRevision    "160"
+#define verMakeDate       "21.02.2009 00:24"
+#define verSvnRevision    "163"
 #define verCompPrefix     "lsstg.1"
 #define verDebugVersion   "1"
 #define verMSIProdVersion "1.0.0"
 #define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
-#define verMSIPackCode    "BFE20983-0001-0101-0000-0000FFFFFFFF"
+#define verMSIPackCode    "BFE20983-0001-0101-0000-0001FFFFFFFF"
 #define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
 #endif // LSSTGVER_H

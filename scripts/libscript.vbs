@@ -17,10 +17,15 @@
 Option explicit
 Dim fso,xmlDoc
 Dim projectPath,searchPath()
-Dim argsKey,argsValue
+Dim argsKey,argsValue,vbTab
 
 Const ForReading    = 1
+Const ForWriting    = 2
+Const ForAppending  = 8
 Const tmpFileSuffix = ".tmp"
+
+vbTab = chr(9)
+
 
 '
 ' evaluate the patch element and patch file according to the defined regexp pattern
@@ -443,12 +448,13 @@ End Sub
 '
 ' evaluate the versioninfo elements and create msi template files to create msi patch package
 '
-Sub MsiPatchInfo(f,msidir)
+Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
   Dim objNodeList,o,ch
   Dim major,minor,fix,msipackagecode,msiproductcode,msiupgradecode
   Dim major0,minor0,fix0,msipackagecode0,msiproductcode0,msiupgradecode0
   Dim major1,minor1,fix1,msipackagecode1,msiproductcode1,msiupgradecode1
-  Dim versionCount,productId,msifilename,msicmd
+  Dim versionCount,productId,msifilename,msicmd,msitargetdir,basename
+  Dim upgradedImages,targetImages
   
   xmlDoc.load(f)
   
@@ -461,7 +467,15 @@ Sub MsiPatchInfo(f,msidir)
   Set objNodeList = xmlDoc.documentElement.selectNodes("/v:versions//v:versionhistory/v:version")
   Set productId   = xmlDoc.documentElement.selectSingleNode("/v:versions//v:product/@id")
   
-  WScript.Echo "  productId="& LCase(productId.text)
+  WScript.Echo "        productId="& LCase(productId.text)
+  WScript.Echo "           msidir="& msidir
+  WScript.Echo "      msipatchdir="& msipatchdir
+  WScript.Echo "  msipatchtmpldir="& msipatchtemplatedir
+  
+  fso.CopyFile msipatchtemplatedir & "\*.idt", msipatchdir
+  
+  Set upgradedImages = fso.OpenTextFile(msipatchdir&"\UpgradedImages.idt", ForAppending)
+  Set targetImages   = fso.OpenTextFile(msipatchdir&"\TargetImages.idt", ForAppending)
   
   If objNodeList.length>0 Then
     versionCount = 0
@@ -493,6 +507,19 @@ Sub MsiPatchInfo(f,msidir)
           msiproductcode0 = msiproductcode
           msiupgradecode0 = msiupgradecode
           
+          basename        = LCase(productId.text) & "." & major0 & "." & minor0 & "." & fix0
+
+          msifilename  = fso.GetAbsolutePathName(msidir & "\" & basename)
+          msitargetdir = fso.GetAbsolutePathName(msipatchdir & "\" & basename)
+
+          If fso.FileExists(msifilename&".msi") and not fso.FolderExists(msitargetdir) Then
+            msicmd = "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msitargetdir
+            WScript.Echo msicmd
+            
+            ExecuteProgram(msicmd)
+          End If
+
+          upgradedImages.WriteLine("MNP_fixed"&vbTab&msitargetdir&"\"&LCase(productId.text) & "." & major0 & "." & minor0 & "." & fix0&".msi"&vbTab&vbTab&vbTab&"MNPapps")
         Else
           major1          = CInt(major)
           minor1          = CInt(minor)
@@ -508,13 +535,16 @@ Sub MsiPatchInfo(f,msidir)
             WScript.Echo "  upgradecode="& msiupgradecode1 & " ==> " & msiupgradecode0
             
             msifilename  = fso.GetAbsolutePathName(msidir & "\" & LCase(productId.text) & "." & major1 & "." & minor1 & "." & fix1)
+            msitargetdir = fso.GetAbsolutePathName(msipatchdir & "\" & LCase(productId.text) & "." & major1 & "." & minor1 & "." & fix1)
 
-            If fso.FileExists(msifilename&".msi") Then
-              msicmd = "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msifilename
+            If fso.FileExists(msifilename&".msi") and not fso.FolderExists(msitargetdir) Then
+              msicmd = "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msitargetdir
               WScript.Echo msicmd
               
               ExecuteProgram(msicmd)
             End If
+            
+            targetImages.WriteLine("MNP_error"&vbTab&msitargetdir&"\"&LCase(productId.text) & "." & major1 & "." & minor1 & "." & fix1&".msi"&vbTab&vbTab&"MNP_fixed"&vbTab&"1"&vbTab&vbTab&"0")
           Else
             Exit For
             WScript.Echo 
@@ -531,6 +561,15 @@ Sub MsiPatchInfo(f,msidir)
         versionCount = versionCount + 1
       End If
     Next
+
+    upgradedImages.Close
+    targetImages.Close
+
+    msicmd = "msidb -c -d " & msipatchdir & "\" & basename & ".pcp -f " & msipatchdir & " -i *.idt"
+    WScript.Echo msicmd
+    
+    ExecuteProgram(msicmd)
+
   End If
 End Sub
 '=======================================END-OF-FILE==========================

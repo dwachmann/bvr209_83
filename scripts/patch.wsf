@@ -157,8 +157,20 @@
                  required = "true"
           />
 
-          <named name = "Dir"
+          <named name = "MSIDir"
                  helpstring = "Directory with msi packages"
+                 type = "string"
+                 required = "true"
+          />
+
+          <named name = "MSIPatchDir"
+                 helpstring = "Directory for patch creation"
+                 type = "string"
+                 required = "true"
+          />
+
+          <named name = "MSIPatchTemplateDir"
+                 helpstring = "Directory with template files for patch creation"
                  type = "string"
                  required = "true"
           />
@@ -170,15 +182,19 @@
         <![CDATA[
           Option explicit
           
-          If WScript.Arguments.Named.Exists("File") and WScript.Arguments.Named.Exists("Dir") Then
+          If WScript.Arguments.Named.Exists("File") and WScript.Arguments.Named.Exists("MSIDir") and WScript.Arguments.Named.Exists("MSIPatchDir") and WScript.Arguments.Named.Exists("MSIPatchTemplateDir") Then
             Init
 
             If not fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
               WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
-            Elseif not fso.FolderExists( WScript.Arguments.Named.Item("Dir") ) Then
-              WScript.Echo "Directory " & WScript.Arguments.Named.Item("Dir") & " doesnt exist"
+            Elseif not fso.FolderExists( WScript.Arguments.Named.Item("MSIDir") ) Then
+              WScript.Echo "MSIDirectory " & WScript.Arguments.Named.Item("MSIDir") & " doesnt exist"
+            Elseif not fso.FolderExists( WScript.Arguments.Named.Item("MSIPatchDir") ) Then
+              WScript.Echo "MSIPatchDir " & WScript.Arguments.Named.Item("MSIPatchDir") & " doesnt exist"
+            Elseif not fso.FolderExists( WScript.Arguments.Named.Item("MSIPatchTemplateDir") ) Then
+              WScript.Echo "MSIPatchTemplateDir " & WScript.Arguments.Named.Item("MSIPatchTemplateDir") & " doesnt exist"
             Else
-              MsiPatchInfo WScript.Arguments.Named.Item("File"),WScript.Arguments.Named.Item("Dir")
+              MsiPatchInfo WScript.Arguments.Named.Item("File"),WScript.Arguments.Named.Item("MSIDir"),WScript.Arguments.Named.Item("MSIPatchDir"),WScript.Arguments.Named.Item("MSIPatchTemplateDir")
             End If
           Else
             WScript.Arguments.ShowUsage

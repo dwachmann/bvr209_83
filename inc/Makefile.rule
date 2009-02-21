@@ -71,6 +71,9 @@ $(SIGNDIR):
 $(MSIDIR):
   if not exist "$(MSIDIR)/$(NULL)" mkdir $(MSIDIR)
 
+$(MSIPATCHDIR):
+  if not exist "$(MSIPATCHDIR)/$(NULL)" mkdir $(MSIPATCHDIR)
+
 $(OUTDIR):
   @if not exist "$(OUTDIR)/$(NULL)" mkdir $(OUTDIR)
 

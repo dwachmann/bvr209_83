@@ -23,6 +23,7 @@ msival      = msival2
 msimsp      = msimsp
 msiinfo     = msiinfo
 msiexec     = msiexec
+cscript     = cscript
 
 !ifndef PROJECTDIR
 all: warning
@@ -32,9 +33,9 @@ all: clean
 all: distribute
 !endif
 
-distribute: msi
+distribute:
 
-msi: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+createmsi: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
    @copy $(MSITEMPLATEDIR)\Registry0.tmpl /B + $(MSITEMPLATEDIR)\Registry1.tmpl /B $(MSITEMPLATEDIR)\Registry.idt /B
    @copy $(SLNDIR)\$(BVR20983RES_RESULT).dll $(MSITEMPLATEDIR)\Icon\bvr20983res.exe.ibd
    $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(MSITEMPLATEDIR) -i *
@@ -77,13 +78,15 @@ distsrc:
    svn export $(PROJECTDIR) $(DISTSRCDIR)
    $(msicab) c $(RESULTDIR)\$(BVR20983_RESULT)-src.cab $(DISTSRCDIR)
 
-$(MSIDIR)\$(BVR20983_RESULT).pcp:
-   $(msidb) -c -d $(MSIDIR)\$(BVR20983_RESULT).pcp -f $(MSIPATCHDIR) -i *
+createpatch: $(MSIPATCHDIR)
+  $(cscript) //job:msipatch $(SCRIPTSDIR)\patch.wsf /File:$(INCDIR)\ver\versions.xml /MSIDir:$(MSIDIR) /MSIPatchDir:$(MSIPATCHDIR)  /MSIPatchTemplateDir:$(MSIPATCHTMPLDIR)
 
-createpatch: $(MSIDIR)\$(BVR20983_RESULT).pcp
+createpatch1: $(MSIPATCHDIR)
+  $(cscript) //job:msipatch $(SCRIPTSDIR)\patch.wsf /File:$(INCDIR)\ver\versions.xml /MSIDir:$(MSIDIR) /MSIPatchDir:$(MSIPATCHDIR)  /MSIPatchTemplateDir:$(MSIPATCHTMPLDIR)
   $(msiexec) /a $(MSIDIR)\bvr20983.1.0.0.msi /qb TARGETDIR=$(MSIDIR)\target
   $(msiexec) /a $(MSIDIR)\$(BVR20983_MSI) /qb TARGETDIR=$(MSIDIR)\upgraded
-  $(msimsp) -s $(MSIDIR)\$(BVR20983_RESULT).pcp -p $(MSIDIR)\$(BVR20983_RESULT).msp -l $(MSIDIR)\$(BVR20983_RESULT)-createpatch.log
+  $(msidb) -c -d $(MSIPATCHDIR)\$(BVR20983_RESULT).pcp -f $(MSIPATCHTMPLDIR) -i *
+  $(msimsp) -s $(MSIPATCHDIR)\$(BVR20983_RESULT).pcp -p $(MSIPATCHDIR)\$(BVR20983_RESULT).msp -l $(MSIPATCHDIR)\$(BVR20983_RESULT)-createpatch.log
 
 applypatch: 
   $(msiexec) /p $(MSIDIR)\$(BVR20983_RESULT).msp REINSTALL=ALL REINSTALLMODE=omus /log $(MSIDIR)\$(BVR20983_RESULT)-applypatch.log
@@ -99,6 +102,7 @@ clean:
   if exist $(MSITEMPLATEDIR)\Registry.idt del /q $(MSITEMPLATEDIR)\Registry.idt
   if exist $(MSITEMPLATEDIR)\Icon\bvr20983res.exe.ibd del /q $(MSITEMPLATEDIR)\Icon\bvr20983res.exe.ibd
   if exist $(DISTSRCDIR)/$(NULL) rd /s /q $(DISTSRCDIR)
+  if exist $(MSIPATCHDIR)/$(NULL) rd /s /q $(MSIPATCHDIR)
   if exist $(SLNDIR)\documentation/$(NULL) rd /s /q $(SLNDIR)\documentation
   if exist $(SLNDIR)\samples/$(NULL) rd /s /q $(SLNDIR)\samples
   if exist $(RESULTDIR)\$(BVR20983_RESULT)-src.cab del /q $(RESULTDIR)\$(BVR20983_RESULT)-src.cab

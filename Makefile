@@ -32,7 +32,8 @@ comp\sc\~           \
 comp\digiclock\~    \
 comp\lsstg\~        \
 comp\lstypeinfo\~   \
-comp\msicab\~       
+comp\msicab\~       \
+comp\msi\~       
 
 CABCONTENT = \
 #$(INCDIR)\$(BVR20983_RESULT).inf \
@@ -61,14 +62,14 @@ distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
 patch:
   @$(patch) signpubkeytok $(SIGNPUBKEYTOK) crtlib $(MSVCRTLIB) debugver $(DEBUGVER)
   
-msi: comp\msi\~
+msi: comp\msi\~createmsi
 
 msipatch: comp\msi\~createpatch
 
-comp\msi\~:
+comp\msi\~createmsi:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
-  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts)
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) createmsi
 <<
 
 comp\msi\~createpatch:
