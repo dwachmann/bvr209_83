@@ -35,19 +35,28 @@
                  type = "string"
                  required = "false"
           />
-          <example>Example: msi.wsf /File:msifile /Table:File</example>
+          <example>Example: msi.wsf /File:msifile /Table:table</example>
       </runtime>
 
       <script language="VBScript" src="libmsi.vbs"/>
       <script language="VBScript">
         <![CDATA[
           Option explicit
-          Dim query : query = "select * from _Tables"
-          
+          Dim query     : query = "select * from _Tables"
+          Dim patchMode : patchMode = 0
+        
           Init
           
           If WScript.Arguments.Named.Exists("File") and fso.FileExists(WScript.Arguments.Named.Item("File")) Then
-            OpenDB WScript.Arguments.Named.Item("File"),msiOpenDatabasePatchFile
+            If LCase(GetExtension(WScript.Arguments.Named.Item("File"))) = ".msp" Then 
+              patchMode = msiOpenDatabasePatchFile 
+            Else 
+              patchMode = 0
+            End If
+            
+            WScript.Echo "patchMode=" & patchMode
+
+            OpenDB WScript.Arguments.Named.Item("File"),msiOpenDatabaseModeReadOnly + patchMode
             
             If WScript.Arguments.Named.Exists("Table") Then
               query = "select * from " & WScript.Arguments.Named.Item("Table")
@@ -56,6 +65,45 @@
             QueryDB query
           Else
             WScript.Arguments.ShowUsage
+            WScript.Quit(1)
+          End If
+        ]]>
+      </script>
+   </job>
+
+   <job id="nextsequenceno">
+      <runtime>
+          <description>Get the last sequence no from media table</description>
+          <named name = "File"
+                 helpstring = "name of the msi file"
+                 type = "string"
+                 required = "true"
+          />
+
+          <example>Example: msi.wsf /File:msifile</example>
+      </runtime>
+
+      <script language="VBScript" src="libmsi.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          Dim nextSequenceNo
+          
+          Init
+          
+          If WScript.Arguments.Named.Exists("File") and fso.FileExists(WScript.Arguments.Named.Item("File")) Then
+            OpenDB WScript.Arguments.Named.Item("File"),msiOpenDatabaseModeReadOnly
+            
+            nextSequenceNo = GetLastSequenceNo()
+            
+            If nextSequenceNo=-1 Then
+              WScript.Quit(2)
+            End If
+
+            WScript.StdOut.Write(nextSequenceNo + 1)
+          Else
+            WScript.Arguments.ShowUsage
+            WScript.Quit(1)
           End If
         ]]>
       </script>
@@ -89,6 +137,7 @@
             database.Commit            
           Else
             WScript.Arguments.ShowUsage
+            WScript.Quit(1)
           End If
         ]]>
       </script>
@@ -116,6 +165,7 @@
             ListProduct WScript.Arguments.Named.Item("Product")
           Else
             WScript.Arguments.ShowUsage
+            WScript.Quit(1)
           End If
         ]]>
       </script>

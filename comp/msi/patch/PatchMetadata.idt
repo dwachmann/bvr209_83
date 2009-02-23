@@ -3,9 +3,8 @@ S72	s72	l0
 PatchMetadata	Company	Property
 	AllowRemoval	1
 	Classification	update
-	CreationTimeUTC	5/2/2009 0:33
-	Description	BVR20983 Patch
-	DisplayName	BVR20983 Suite Update
-	ManufacturerName	D.Wachmann
-	MoreInfoURL	http://bvr20983.berlios.de
-	TargetProductName	BVR20983 Suite
+	Description	bvr20983 MSI Patch
+	DisplayName	BVR2098 Suite Update
+	ManufacturerName	Dorothea Wachmann
+	MoreInfoURL	http://bvr20983.berlios.de/
+	TargetProductName	BVR2098 Suite

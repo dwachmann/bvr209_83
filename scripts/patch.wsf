@@ -58,6 +58,7 @@
             End If
           Else
             WScript.Arguments.ShowUsage
+            WScript.Quit(1)
           End If
         ]]>
       </script>
@@ -96,6 +97,7 @@
             End If
           Else
             WScript.Arguments.ShowUsage
+            WScript.Quit(1)
           End If
         ]]>
       </script>
@@ -143,6 +145,7 @@
             End If
           Else
             WScript.Arguments.ShowUsage
+            WScript.Quit(1)
           End If
         ]]>
       </script>
@@ -198,6 +201,7 @@
             End If
           Else
             WScript.Arguments.ShowUsage
+            WScript.Quit(1)
           End If
         ]]>
       </script>

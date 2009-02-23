@@ -30,6 +30,7 @@
   <parameter name="msicomppattern">${../../../v:no/text()}-#{zerofill("${../../../v:versionhistory/v:version[1]/@major}",4)}-0103-${../../v:no/text()}-#{zerofill("${../../v:version/@major}",4)}#{zerofill("${../../v:version/@minor}",4)}#{zerofill("${../../v:version/@fix}",4)}</parameter>
   <parameter name="msiprodpattern">${../../../../v:no/text()}-#{zerofill("${../../@major}",4)}-0100-${../../v:msino/text()}-FFFFFFFFFFFF</parameter>
   <parameter name="msipackpattern">${../../../../v:no/text()}-#{zerofill("${../../@major}",4)}-0101-#{zerofill("${../../@minor}",4)}-#{zerofill("${../../@fix}",4)}FFFFFFFF</parameter>
+  <parameter name="msipatchpattern">${../../../../v:no/text()}-#{zerofill("${../../@major}",4)}-0104-#{zerofill("${../../@minor}",4)}-#{zerofill("${../../@fix}",4)}FFFFFFFF</parameter>
   <parameter name="msiupdpattern">${../../../../v:no/text()}-0001-0102-FFFF-FFFFFFFFFFFF</parameter>
 
   <product id="BVR20983">
@@ -38,6 +39,7 @@
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
 		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
+		    <msipatchcode>${msipatchpattern}</msipatchcode>
 		    <msino>0001</msino>
 		  </version>
 
@@ -45,6 +47,7 @@
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
 		    <msiupgradecode>${msiupdpattern}</msiupgradecode>
+		    <msipatchcode>${msipatchpattern}</msipatchcode>
 		    <msino>0001</msino>
 		  </version>
 	  </versionhistory>
@@ -66,6 +69,15 @@
       <pattern><key>@URL2@</key><value>http://svn.berlios.de/wsvn/#{LCase("${../../../../@id}")}</value></pattern>
       <pattern><key>@UpgradeCode@</key><value>#{UCase("${../../../../v:versionhistory/v:version[1]/v:msiupgradecode/text()}")}</value></pattern>
     </patch>
+
+    <patch filename="PatchMetadata.idt">
+      <pattern><key>(ManufacturerName[\t])(.+)</key><value>$1${../../../../v:company/text()}</value></pattern>
+      <pattern><key>(MoreInfoURL[\t])(.+)</key><value>$1http://#{LCase("${../../../../@id}")}.berlios.de/</value></pattern>
+      <pattern><key>(TargetProductName[\t])(.+)</key><value>$1${../../../../v:name/text()}</value></pattern>
+      <pattern><key>(DisplayName[\t])(.+)</key><value>$1${../../../../v:name/text()} Update</value></pattern>
+      <pattern><key>(Description[\t])(.+)</key><value>$1#{LCase("${../../../../@id}")} MSI Patch</value></pattern>
+    </patch>
+
 
     <patch template="Registry.tmpl" filename="Registry0.tmpl">
       <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}</value></pattern>

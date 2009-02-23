@@ -8,6 +8,4 @@ DontRemoveTempFolderWhenFinished	1
 IncludeWholeFilesOnly	0
 ListOfPatchGUIDsToReplace	
 ListOfTargetProductCodes	*
-PatchGUID	{BFE20983-0001-0104-0001-000000010001}
-PatchOutputPath	C:\Projects\smartcard\applications\windows\bvr20983\debug\msi\bvr20983.1.0.1.msp
 PatchSourceList	PatchSourceList

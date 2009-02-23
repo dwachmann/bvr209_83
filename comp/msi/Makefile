@@ -81,13 +81,6 @@ distsrc:
 createpatch: $(MSIPATCHDIR)
   $(cscript) //job:msipatch $(SCRIPTSDIR)\patch.wsf /File:$(INCDIR)\ver\versions.xml /MSIDir:$(MSIDIR) /MSIPatchDir:$(MSIPATCHDIR)  /MSIPatchTemplateDir:$(MSIPATCHTMPLDIR)
 
-createpatch1: $(MSIPATCHDIR)
-  $(cscript) //job:msipatch $(SCRIPTSDIR)\patch.wsf /File:$(INCDIR)\ver\versions.xml /MSIDir:$(MSIDIR) /MSIPatchDir:$(MSIPATCHDIR)  /MSIPatchTemplateDir:$(MSIPATCHTMPLDIR)
-  $(msiexec) /a $(MSIDIR)\bvr20983.1.0.0.msi /qb TARGETDIR=$(MSIDIR)\target
-  $(msiexec) /a $(MSIDIR)\$(BVR20983_MSI) /qb TARGETDIR=$(MSIDIR)\upgraded
-  $(msidb) -c -d $(MSIPATCHDIR)\$(BVR20983_RESULT).pcp -f $(MSIPATCHTMPLDIR) -i *
-  $(msimsp) -s $(MSIPATCHDIR)\$(BVR20983_RESULT).pcp -p $(MSIPATCHDIR)\$(BVR20983_RESULT).msp -l $(MSIPATCHDIR)\$(BVR20983_RESULT)-createpatch.log
-
 applypatch: 
   $(msiexec) /p $(MSIDIR)\$(BVR20983_RESULT).msp REINSTALL=ALL REINSTALLMODE=omus /log $(MSIDIR)\$(BVR20983_RESULT)-applypatch.log
 

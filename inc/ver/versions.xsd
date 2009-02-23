@@ -135,6 +135,7 @@
       <xs:element name="msipackagecode" type="xs:string"   minOccurs="0" />
       <xs:element name="msiproductcode" type="xs:string"   minOccurs="0" />
       <xs:element name="msiupgradecode" type="xs:string"   minOccurs="0" />
+      <xs:element name="msipatchcode"   type="xs:string"   minOccurs="0" />
       <xs:element name="msino"          type="xs:string"   minOccurs="0" />
     </xs:sequence>
     <xs:attribute name="major"    type="xs:nonNegativeInteger" use="required"/>

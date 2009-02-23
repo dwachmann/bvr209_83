@@ -94,6 +94,32 @@ Sub QueryDB(query)
 End Sub
 
 '
+' GetLastSequenceNo retrieves this information from the media table
+'
+Function GetLastSequenceNo()
+  On Error Resume Next
+  Dim view, record,lastSeqNo,seqNo
+  
+  lastSeqNo = -1
+
+  Set view = database.OpenView("select LastSequence from Media") : CheckError
+  view.Execute : CheckError
+
+  Do
+    Set record = view.Fetch
+    If record Is Nothing Then Exit Do
+    
+    seqNo = record.IntegerData(1)
+    
+    If seqNo>lastSeqNo Then
+      lastSeqNo = seqNo
+    End If
+  Loop
+  
+  GetLastSequenceNo = lastSeqNo
+End Function
+
+'
 ' AddProperty
 '
 Sub AddProperty(args)
@@ -288,3 +314,18 @@ Sub Fail(message)
   Wscript.Echo message
   Wscript.Quit 2
 End Sub
+
+'
+' extracts the filename extension
+'
+Function GetExtension(path)
+  Dim dot    : dot    = InStrRev(path, ".")
+  Dim bslash : bslash = InStrRev(path, "\")
+  
+  If dot > bslash Then
+    GetExtension = Mid(path, dot)
+  Else
+    GetExtension = Empty
+  End If
+End Function
+

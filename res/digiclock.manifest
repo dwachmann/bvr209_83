@@ -6,7 +6,7 @@
 
   <dependency>
     <dependentAssembly>
-      <assemblyIdentity name='Microsoft.VC80.DebugCRT' version='8.0.50727.762' publicKeyToken='1fc8b3b9a1e18e3b'
+      <assemblyIdentity name='Microsoft.VC80.CRT' version='8.0.50727.762' publicKeyToken='1fc8b3b9a1e18e3b'
                         type='win32' processorArchitecture='x86'/>
     </dependentAssembly>
   </dependency>

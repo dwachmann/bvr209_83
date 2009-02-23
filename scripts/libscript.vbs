@@ -333,7 +333,7 @@ Sub Init
   projectPath = Left(WScript.ScriptFullName,InStrRev(WScript.ScriptFullName,"\")-1)
   projectPath = Left(projectPath,InStrRev(projectPath,"\"))
   
-  Redim searchPath(6)
+  Redim searchPath(7)
   
   searchPath(0) = "inc\"
   searchPath(1) = "inc\ver\"
@@ -341,6 +341,7 @@ Sub Init
   searchPath(3) = "res\"
   searchPath(4) = "res\html\"
   searchPath(5) = "comp\msi\template\"
+  searchPath(6) = "comp\msi\patch\"
 End Sub
 
 '
@@ -367,10 +368,10 @@ Function FindFile(filename)
 End Function
 
 '
-' GetInfo starts external program and returns stdout
+' starts external program and returns stdout
 '
-Function ExecuteProgram(cmd)
-  Dim WshShell, oExec,cmdOut
+Function ExecuteProgram(cmd,ByRef cmdOut,printInfo,quitOnError)
+  Dim WshShell, oExec
 
   Set WshShell = CreateObject("WScript.Shell")
   Set oExec    = WshShell.Exec(cmd)
@@ -391,20 +392,34 @@ Function ExecuteProgram(cmd)
     WScript.Sleep 100
   Loop
   
-  'WScript.Echo "cmdOut=" & cmdOut
+  If printInfo Then
+    WScript.Echo cmd
+    WScript.Echo oExec.ExitCode & ":" & cmdOut
+  End If
   
-  ExecuteProgram = cmdOut
+  If quitOnError and oExec.ExitCode<>0 Then
+    WScript.Quit(oExec.ExitCode)
+  End If
+  
+  ExecuteProgram = oExec.ExitCode
 End Function
+
 
 '
 ' GetSvnInfo
 '
 Function GetSvnInfo(f)
-  WScript.Echo 'Retrieving subversion info...'
+  Dim svnOutput
   
-  xmlDoc.loadXml(ExecuteProgram("svn info --xml -r HEAD " & f))
+  WScript.Echo "Retrieving subversion info..."
   
-  Set GetSvnInfo = xmlDoc.documentElement
+  If ExecuteProgram("svn info --xml -r HEAD " & f,svnOutput,False,False)=0 Then
+    xmlDoc.loadXml(svnOutput)
+    
+    Set GetSvnInfo = xmlDoc.documentElement
+  Else
+    Set GetSvnInfo = Nothing
+  End If
 End Function
 
 
@@ -416,8 +431,12 @@ Sub GetRevisionAndDate(f)
 
   Set doc = GetSvnInfo(WScript.Arguments.Named.Item("File"))
   
-  rev = doc.selectSingleNode("/info/entry/@revision").nodeValue
-  'd   = doc.selectSingleNode("/info/entry/wc-info/text-updated/text()").text
+  If not doc is Nothing Then
+    rev = doc.selectSingleNode("/info/entry/@revision").nodeValue
+    'd   = doc.selectSingleNode("/info/entry/wc-info/text-updated/text()").text
+  Else
+    rev = -1
+  End If
   
   d = FormatDateTime(Date, 2) & " " & FormatDateTime(Now,4)
   
@@ -450,11 +469,11 @@ End Sub
 '
 Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
   Dim objNodeList,o,ch
-  Dim major,minor,fix,msipackagecode,msiproductcode,msiupgradecode
-  Dim major0,minor0,fix0,msipackagecode0,msiproductcode0,msiupgradecode0
+  Dim major,minor,fix,msipackagecode,msiproductcode,msiupgradecode,msipatchcode
+  Dim major0,minor0,fix0,msipackagecode0,msiproductcode0,msiupgradecode0,msipatchcode0
   Dim major1,minor1,fix1,msipackagecode1,msiproductcode1,msiupgradecode1
-  Dim versionCount,productId,msifilename,msicmd,msitargetdir,basename
-  Dim upgradedImages,targetImages
+  Dim versionCount,productId,msifilename,msicmdout,msitargetdir,basename
+  Dim upgradedImages,targetImages,imageFamilies,properties,patchMetadata
   
   xmlDoc.load(f)
   
@@ -476,6 +495,9 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
   
   Set upgradedImages = fso.OpenTextFile(msipatchdir&"\UpgradedImages.idt", ForAppending)
   Set targetImages   = fso.OpenTextFile(msipatchdir&"\TargetImages.idt", ForAppending)
+  Set imageFamilies  = fso.OpenTextFile(msipatchdir&"\ImageFamilies.idt", ForAppending)
+  Set properties     = fso.OpenTextFile(msipatchdir&"\Properties.idt", ForAppending)
+  Set patchMetadata  = fso.OpenTextFile(msipatchdir&"\PatchMetadata.idt", ForAppending)
   
   If objNodeList.length>0 Then
     versionCount = 0
@@ -488,6 +510,7 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
         msipackagecode = Null
         msiproductcode = Null
         msiupgradecode = Null
+        msipatchcode   = Null
         
         For Each ch in o.childNodes
           If TypeName(ch)="IXMLDOMElement" and ch.tagName="msipackagecode" Then
@@ -496,6 +519,8 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
             msiproductcode = GetValue(ch.firstChild,ch.firstChild.text)
           ElseIf TypeName(ch)="IXMLDOMElement" and ch.tagName="msiupgradecode" Then
             msiupgradecode = GetValue(ch.firstChild,ch.firstChild.text)
+          ElseIf TypeName(ch)="IXMLDOMElement" and ch.tagName="msipatchcode" Then
+            msipatchcode = GetValue(ch.firstChild,ch.firstChild.text)
           End If
         Next
         
@@ -506,6 +531,7 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
           msipackagecode0 = msipackagecode
           msiproductcode0 = msiproductcode
           msiupgradecode0 = msiupgradecode
+          msipatchcode0   = msipatchcode
           
           basename        = LCase(productId.text) & "." & major0 & "." & minor0 & "." & fix0
 
@@ -513,13 +539,12 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
           msitargetdir = fso.GetAbsolutePathName(msipatchdir & "\" & basename)
 
           If fso.FileExists(msifilename&".msi") and not fso.FolderExists(msitargetdir) Then
-            msicmd = "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msitargetdir
-            WScript.Echo msicmd
-            
-            ExecuteProgram(msicmd)
+            ExecuteProgram "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msitargetdir,msicmdout,True,True
           End If
 
-          upgradedImages.WriteLine("MNP_fixed"&vbTab&msitargetdir&"\"&LCase(productId.text) & "." & major0 & "." & minor0 & "." & fix0&".msi"&vbTab&vbTab&vbTab&"MNPapps")
+          upgradedImages.WriteLine("U_" & major0 & "_" & minor0 & "_" & fix0&vbTab&msitargetdir&"\"&LCase(productId.text) & "." & major0 & "." & minor0 & "." & fix0&".msi"&vbTab&vbTab&vbTab&UCase(productId.text))
+          
+          properties.WriteLine("PatchGUID" & vbTab & "{" & msipatchcode0 & "}" )
         Else
           major1          = CInt(major)
           minor1          = CInt(minor)
@@ -538,13 +563,15 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
             msitargetdir = fso.GetAbsolutePathName(msipatchdir & "\" & LCase(productId.text) & "." & major1 & "." & minor1 & "." & fix1)
 
             If fso.FileExists(msifilename&".msi") and not fso.FolderExists(msitargetdir) Then
-              msicmd = "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msitargetdir
-              WScript.Echo msicmd
-              
-              ExecuteProgram(msicmd)
+              ExecuteProgram "msiexec /a " & msifilename & ".msi /qb TARGETDIR=" & msitargetdir,msicmdout,True,True
+
             End If
             
-            targetImages.WriteLine("MNP_error"&vbTab&msitargetdir&"\"&LCase(productId.text) & "." & major1 & "." & minor1 & "." & fix1&".msi"&vbTab&vbTab&"MNP_fixed"&vbTab&"1"&vbTab&vbTab&"0")
+            targetImages.WriteLine("T_" & major1 & "_" & minor1 & "_" & fix1&vbTab&msitargetdir&"\"&LCase(productId.text) & "." & major1 & "." & minor1 & "." & fix1&".msi"&vbTab&vbTab&"U_" & major0 & "_" & minor0 & "_" & fix0&vbTab&"1"&vbTab&vbTab&"0")
+            
+            If ExecuteProgram(WScript.FullName & " /nologo /job:nextsequenceno " & fso.GetParentFolderName(WScript.ScriptFullName) & "\msi.wsf /File:" & msifilename & ".msi",msicmdout,True,True)=0 Then
+              imageFamilies.WriteLine(UCase(productId.text)&vbTab&"MNPSrcPropName"&vbTab&"2"&vbTab&msicmdout&vbTab&vbTab)
+            End If
           Else
             Exit For
             WScript.Echo 
@@ -562,14 +589,18 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
       End If
     Next
 
+    properties.WriteLine("PatchOutputPath" & vbTab & msipatchdir & "\" & basename & ".msp" )
+    
+    patchMetadata.WriteLine(vbTab & "CreationTimeUTC" & vbTab & FormatDateTime(Date, 2) & " " & FormatDateTime(Now,4))
+
     upgradedImages.Close
     targetImages.Close
+    imageFamilies.Close
+    properties.Close
+    patchMetadata.Close
 
-    msicmd = "msidb -c -d " & msipatchdir & "\" & basename & ".pcp -f " & msipatchdir & " -i *.idt"
-    WScript.Echo msicmd
-    
-    ExecuteProgram(msicmd)
-
+    ExecuteProgram "msidb -c -d " & msipatchdir & "\" & basename & ".pcp -f " & msipatchdir & " -i *.idt",msicmdout,True,True
+    ExecuteProgram "msimsp -s " & msipatchdir & "\" & basename & ".pcp -p " & msipatchdir & "\" & basename & ".msp -l " & msipatchdir & "\" & basename & "-createpatch.log",msicmdout,True,True
   End If
 End Sub
 '=======================================END-OF-FILE==========================
