@@ -69,8 +69,8 @@ void xmltest(LPTSTR fName,LPTSTR xPath,LPTSTR argv[],int argc)
 /**
  *
  */
-void dirtest(LPTSTR dirName,LPTSTR prefix,UINT maxDepth)
-{ DirectoryInfo dirInfo(dirName,prefix,maxDepth);
+void dirtest(LPTSTR dirName,LPTSTR filemask,UINT maxDepth)
+{ DirectoryInfo dirInfo(dirName,filemask,maxDepth);
 
   dirInfo.Dump();
 } // of dirtest()
@@ -84,7 +84,7 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
 #ifdef _UNICODE
   MSICABAddFileCB(wofstream& componentIDT,wofstream& fileIDT,wofstream& msiFileHashIDT,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
 #else
-  MSICABAddFileCB(ofstream& componentIDT,ofstream& fileIDT,ofstream& msiFileHashIDT,,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
+  MSICABAddFileCB(ofstream& componentIDT,ofstream& fileIDT,ofstream& msiFileHashIDT,LPCTSTR compId,LPCTSTR compType,LPCTSTR msiguid,LPCTSTR msidir) :
 #endif
     m_componentIDT(componentIDT),
     m_fileIDT(fileIDT),
@@ -373,8 +373,173 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
 /**
  *
  */
+struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
+{
+
+#ifdef _UNICODE
+  MSICABAddFile1CB(wofstream& msicab) :
+#else
+  MSICABAddFile1CB(ofstream& msicab) :
+#endif
+    m_msicab(msicab)
+  { m_msicab<<_T("<?xml version='1.0' encoding='UTF-8' ?>")<<endl<<endl; 
+    
+    m_msicab<<_T("<cabinet>")<<endl;
+  }
+
+  ~MSICABAddFile1CB()
+  { m_msicab<<_T("</cabinet>")<<endl;
+  }
+
+  bool AddFile(LPCTSTR prefix,LPCTSTR filePath,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)
+  { TCHAR fileName[MAX_PATH];
+    TCHAR strippedFilePath[MAX_PATH];
+    TCHAR strippedCompFileName[MAX_PATH];
+    TCHAR guid[MAX_PATH];
+
+    DirectoryInfo::_StripFilename(strippedFilePath,MAX_PATH,filePath,prefix);
+    DirectoryInfo::_StripFilename(fileName,MAX_PATH,filePath);
+
+    m_msicab<<_T("  <file ");
+
+    _stprintf_s(addedFileName,addedFileNameMaxLen,_T("_%08X"),seqNo);
+
+    _stprintf_s(guid,MAX_PATH,_T("BFE20983-0001-0103-0004-0001%08X"),seqNo);
+
+    m_msicab<<_T(" id='")<<addedFileName<<_T("' ");
+
+    m_msicab<<_T(" guid='")<<guid<<_T("' ");
+
+    m_msicab<<_T(" no='")<<seqNo<<_T("' ");
+
+    DWORD fileSize=0;
+    DirectoryInfo::_GetFileSize(filePath,&fileSize);
+
+    m_msicab<<_T(" size='")<<fileSize<<_T("' ");
+
+    m_msicab<<_T(">")<<endl;
+    m_msicab<<_T("    <path>")<<strippedFilePath<<_T("</path>")<<endl;
+    m_msicab<<_T("    <name>")<<fileName<<_T("</name>")<<endl;
+
+    LPTSTR s = strippedCompFileName;
+    for( ;*s!=_T('\0');s++ )
+      *s = tolower(*s);
+
+    TCHAR shortFilePath[MAX_PATH];
+    TCHAR shortStrippedFileName[MAX_PATH];
+
+    ::GetShortPathName(filePath,shortFilePath,MAX_PATH);
+    DirectoryInfo::_StripFilename(shortStrippedFileName,MAX_PATH,shortFilePath);
+
+    m_msicab<<_T("    <shortname>")<<shortStrippedFileName<<_T("</shortname>")<<endl;
+
+    VersionInfo verInfo(filePath);
+    LPCTSTR fileVersion  = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
+    
+    if( NULL!=fileVersion )
+      m_msicab<<_T("    <version>")<<fileVersion<<_T("</version>")<<endl;
+    else
+    { MSIFILEHASHINFO msiHash;
+
+      ::memset(&msiHash,0,sizeof(msiHash));
+      msiHash.dwFileHashInfoSize = sizeof(msiHash);
+
+      THROW_LASTERROREXCEPTION( ::MsiGetFileHash(filePath,0,&msiHash) );
+
+      m_msicab<<_T("    <msihash");
+
+      m_msicab<<_T(" id0='")<<(long)msiHash.dwData[0]<<_T("' ");
+      m_msicab<<_T(" id1='")<<(long)msiHash.dwData[1]<<_T("' ");
+      m_msicab<<_T(" id2='")<<(long)msiHash.dwData[2]<<_T("' ");
+      m_msicab<<_T(" id3='")<<(long)msiHash.dwData[3]<<_T("'/>")<<endl;
+    } // of if
+
+    m_msicab<<_T("  </file>")<<endl;
+
+    LOGGER_INFO<<_T(" File ")<<filePath<<_T(" as ")<<addedFileName<<endl;
+    
+    return true;
+  } // of AddFile()
+
+private:
+#ifdef _UNICODE
+    wofstream& m_msicab;
+#else
+    ofstream&  m_msicab;
+#endif
+
+}; // of class MSICABAddFile1CB
+
+
+/**
+ *
+ */
+void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
+{ util::XMLDocument            xmlDoc;
+  COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
+  COMPtr<IXMLDOMNode>          pNode;
+  util::XMLDocument::PropertyM props;
+
+  for( int i=0;i<argc && i+1<argc;i+=2 )
+    props.insert( util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
+
+  xmlDoc.SetProperties(props);
+
+  if( xmlDoc.Load(fName) )
+  { 
+    COVariant productidValue;
+
+    if( xmlDoc.GetNodeValue(_T("//v:product/@id"),productidValue,true) )
+    { CabFCIParameter cabParameter(cabName,CabFCIParameter::CDROM_SIZE);
+      CabinetFCI      cabinet(cabParameter);
+      
+      TCHAR fullCompDir[MAX_PATH];
+      TCHAR fullCabName[MAX_PATH];
+      TCHAR strippedCabName[MAX_PATH];
+      
+      ::GetFullPathName(cabName,MAX_PATH,fullCabName,NULL);
+      ::GetFullPathName(compDir,MAX_PATH,fullCompDir,NULL);
+      
+      LPCTSTR p = ::_tcsrchr(fullCabName, _T('.'));
+      
+      if( NULL!=p )
+        ::_tcsncpy_s(strippedCabName,MAX_PATH,fullCabName,p-fullCabName);
+      else
+        ::_tcscpy_s(strippedCabName,MAX_PATH,fullCabName);
+        
+      ::_tcscat_s(strippedCabName,MAX_PATH,_T(".xml"));
+
+#ifdef _UNICODE
+      wofstream msicab(strippedCabName);
+#else
+      ofstream msicab(strippedCabName);
+#endif
+
+      if( DirectoryInfo::_IsDirectory(fullCompDir) )
+      { MSICABAddFile1CB addFileCB(msicab);
+
+        cabinet.SetAddFileCallback(&addFileCB);
+
+        cabinet.AddFile(fullCompDir,fullCompDir);
+      } // of else if
+
+      msicab.close();
+
+      cabinet.SetAddFileCallback(NULL);
+      cabinet.AddFile(strippedCabName,NULL,_T("_FFFFFFFF"));
+
+      cabinet.Flush();
+    } // of if
+  } // of if
+} // of msicab1()
+
+/**
+ *
+ */
 void printUsage(LPCTSTR progName)
-{ LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab <versions file> <component dir> <cabname> <templatedir>")<<endl;
+{ LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab  <versions file> <component dir> <cabname> <templatedir>")<<endl;
+  LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab1 <versions file> <component dir> <cabname>")<<endl;
+  LOGGER_INFO<<_T("Usage: "<<progName<<" -dir     <dirname> [filemask] [maxdepth]")<<endl;
   LOGGER_INFO<<endl;
   
   LOGGER_INFO<<_T("Usage: "<<progName<<" [options] command cabfile [files] [dest_dir]")<<endl;
@@ -423,6 +588,12 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
     else if( _tcscmp(argv[1],_T("-msicab"))==0 )
     { if( argc>=6 )
         msicab(argv[2],argv[3],argv[4],argv[5],argc>6 ? &argv[6] : NULL,argc-6);
+      else
+        printUsage(argv[0]);
+    } // of else if
+    else if( _tcscmp(argv[1],_T("-msicab1"))==0 )
+    { if( argc>=5 )
+        msicab1(argv[2],argv[3],argv[4],argc>6 ? &argv[6] : NULL,argc-6);
       else
         printUsage(argv[0]);
     } // of else if
