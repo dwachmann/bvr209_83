@@ -32,8 +32,10 @@ namespace bvr20983
      */
     struct DumpDirIterator : public DirIterator
     {
-      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
-      { dirInfo.DumpFindData();
+      bool Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p)
+      { LOGGER_INFO<<_T("[")<<depth<<_T("]");
+
+        dirInfo.DumpFindData();
   
         return true;
       } // of DumpDirIterator::Next()
@@ -44,7 +46,7 @@ namespace bvr20983
      */
     struct RemoveFileIterator : public DirIterator
     {
-      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p);
+      bool Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p);
     };
 
     /**
@@ -52,7 +54,7 @@ namespace bvr20983
      */
     struct RemoveDirectoryIterator : public DirIterator
     {
-      boolean Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p);
+      bool Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p);
     };
 
     /*
@@ -164,8 +166,8 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::GetFullNameA(LPSTR path,int cPath)
-    { boolean result = false;
+    bool DirectoryInfo::GetFullNameA(LPSTR path,int cPath)
+    { bool result = false;
 
       if( NULL!=path )
       { WCHAR pathW[MAX_PATH];
@@ -183,8 +185,8 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::GetFullNameW(LPWSTR path,int cPath)
-    { boolean result = false;
+    bool DirectoryInfo::GetFullNameW(LPWSTR path,int cPath)
+    { bool result = false;
 
       if( NULL!=path )
       { ::wcscpy_s(path,cPath,m_baseDirectory);
@@ -201,41 +203,55 @@ namespace bvr20983
     /*
      *
      */
-    void DirectoryInfo::Iterate(DirIterator& iter,void* p)
-    { do
-      { 
-        if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
+    bool DirectoryInfo::Iterate(DirIterator& iter,int depth,void* p)
+    { VDirInfo dirs;
+
+      do
+      { if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
             (::wcscmp(m_findData.cFileName,L".")==0 || ::wcscmp(m_findData.cFileName,L"..")==0)
           )
           continue;
         
-        if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && m_maxDepth>0 )
-        { WCHAR dir[MAX_PATH];
-          
-          ::wcscpy_s(dir,MAX_PATH,m_baseDirectory);
-          ::wcscat_s(dir,MAX_PATH,L"\\");
-          ::wcscat_s(dir,MAX_PATH,m_findData.cFileName);
-
-          DirectoryInfo d(dir,m_fileMask,m_maxDepth-1);
-        
-          d.Iterate(iter,p);
+        if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 )
+        { if( m_maxDepth>0 )
+            dirs.push_back(m_findData);
         } // of if
-
-        if( !iter.Next(*this,m_findData,p) )
-          return;
+        else if( !iter.Next(*this,m_findData,depth,p) )
+          return false;
 
       } while( ::FindNextFileW(m_hFind, &m_findData)!=0 );
 
       DWORD dwError = ::GetLastError();
-      
       if( ERROR_NO_MORE_FILES!=dwError ) 
         THROW_LASTERROREXCEPTION3(dwError);
+
+      VDirInfo::const_iterator dirIter;
+
+      for( dirIter=dirs.begin();dirIter!=dirs.end();dirIter++ )
+      { WCHAR fullDirName[MAX_PATH];
+
+        m_findData = *dirIter;
+          
+        ::wcscpy_s(fullDirName,MAX_PATH,m_baseDirectory);
+        ::wcscat_s(fullDirName,MAX_PATH,L"\\");
+        ::wcscat_s(fullDirName,MAX_PATH,m_findData.cFileName);
+
+        if( !iter.Next(*this,m_findData,depth+1,p) )
+          return false;
+
+        DirectoryInfo d(fullDirName,m_fileMask,m_maxDepth-1);
+        if( !d.Iterate(iter,depth+1,p) ) 
+          return false;
+
+      } // of for
+
+      return true;
     } // of DirectoryInfo::Iterate()
 
     /*
      *
      */
-    boolean DirectoryInfo::IsFileA(LPCSTR fName) 
+    bool DirectoryInfo::IsFileA(LPCSTR fName) 
     { WCHAR fNameW[MAX_PATH];
 
       if( NULL!=fName )
@@ -247,8 +263,8 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::IsFileW(LPCWSTR fName) 
-    { boolean          result = false;
+    bool DirectoryInfo::IsFileW(LPCWSTR fName) 
+    { bool          result = false;
     
       if( NULL!=fName )
       { HANDLE           hFind  = INVALID_HANDLE_VALUE;
@@ -268,7 +284,7 @@ namespace bvr20983
     /*
      * 
      */
-    boolean DirectoryInfo::GetFileSizeA(LPCSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh) 
+    bool DirectoryInfo::GetFileSizeA(LPCSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh) 
     { WCHAR fNameW[MAX_PATH];
 
       if( NULL!=fName )
@@ -280,8 +296,8 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::GetFileSizeW(LPCWSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh) 
-    { boolean result = false;
+    bool DirectoryInfo::GetFileSizeW(LPCWSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh) 
+    { bool result = false;
     
       if( NULL!=fName )
       { HANDLE           hFind  = INVALID_HANDLE_VALUE;
@@ -309,7 +325,7 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::IsDirectoryA(LPCSTR dirName)
+    bool DirectoryInfo::IsDirectoryA(LPCSTR dirName)
     { WCHAR dirNameW[MAX_PATH];
 
       if( NULL!=dirName )
@@ -321,8 +337,8 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::IsDirectoryW(LPCWSTR dirName)
-    { boolean          result = false;
+    bool DirectoryInfo::IsDirectoryW(LPCWSTR dirName)
+    { bool          result = false;
       HANDLE           hFind  = INVALID_HANDLE_VALUE;
       WIN32_FIND_DATAW findData;
 
@@ -339,7 +355,7 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::CreateDirectoryA(LPCSTR dirName)
+    bool DirectoryInfo::CreateDirectoryA(LPCSTR dirName)
     { WCHAR dirNameW[MAX_PATH];
 
       if( NULL!=dirName )
@@ -351,8 +367,8 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::CreateDirectoryW(LPCWSTR dirName)
-    { boolean result = true;
+    bool DirectoryInfo::CreateDirectoryW(LPCWSTR dirName)
+    { bool result = true;
       
       if( NULL!=dirName && NULL==::wcschr(dirName,L'*') && NULL==::wcschr(dirName,L'?') )
       { WCHAR   path[MAX_PATH];
@@ -374,7 +390,7 @@ namespace bvr20983
 
           THROW_LASTERROREXCEPTION1( ::GetFullPathNameW(path,MAX_PATH,fullPath,&filePart) );
           
-          boolean isDir = IsDirectoryW(fullPath);
+          bool isDir = IsDirectoryW(fullPath);
           
           if( !IsDirectoryW(fullPath) )
           {
@@ -394,8 +410,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean RemoveFileIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
-    { boolean result = true;
+    bool RemoveFileIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p)
+    { bool result = true;
       
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
       { WCHAR fullPath[MAX_PATH];
@@ -420,8 +436,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean RemoveDirectoryIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
-    { boolean result = true;
+    bool RemoveDirectoryIterator::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p)
+    { bool result = true;
       
       if( findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY )
       { WCHAR fullPath[MAX_PATH];
@@ -439,7 +455,7 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::RemoveDirectoryA(LPCSTR dirName,boolean recursive)
+    bool DirectoryInfo::RemoveDirectoryA(LPCSTR dirName,bool recursive)
     { WCHAR dirNameW[MAX_PATH];
 
       if( NULL!=dirName )
@@ -451,8 +467,8 @@ namespace bvr20983
     /*
      *
      */
-    boolean DirectoryInfo::RemoveDirectoryW(LPCWSTR dirName,boolean recursive)
-    { boolean result = true;
+    bool DirectoryInfo::RemoveDirectoryW(LPCWSTR dirName,bool recursive)
+    { bool result = true;
       
       if( NULL!=dirName && NULL==::wcschr(dirName,L'*') && NULL==::wcschr(dirName,L'?') )
       { WCHAR   fullPath[MAX_PATH];
@@ -460,7 +476,7 @@ namespace bvr20983
         
         THROW_LASTERROREXCEPTION1( ::GetFullPathNameW(dirName,MAX_PATH,fullPath,&filePart) );
         
-        boolean isDir = IsDirectoryW(fullPath);
+        bool isDir = IsDirectoryW(fullPath);
         
         if( IsDirectoryW(fullPath) )
         {
@@ -569,19 +585,19 @@ namespace bvr20983
     } // of CabFCIParameter::DivideFilenameW()
 
 #ifdef _UNICODE
-    boolean DirectoryInfo::_GetFullName(LPTSTR path,int cPath)
+    bool DirectoryInfo::_GetFullName(LPTSTR path,int cPath)
     { return GetFullNameW(path,cPath); }
     
-    boolean DirectoryInfo::_IsFile(LPCTSTR fName)
+    bool DirectoryInfo::_IsFile(LPCTSTR fName)
     { return IsFileW(fName); }
     
-    boolean DirectoryInfo::_IsDirectory(LPCTSTR dirName)
+    bool DirectoryInfo::_IsDirectory(LPCTSTR dirName)
     { return IsDirectoryW(dirName); }
     
-    boolean DirectoryInfo::_CreateDirectory(LPCTSTR dirName)
+    bool DirectoryInfo::_CreateDirectory(LPCTSTR dirName)
     { return CreateDirectoryW(dirName); }
 
-    boolean DirectoryInfo::_RemoveDirectory(LPCTSTR dirName,boolean recursive)
+    bool DirectoryInfo::_RemoveDirectory(LPCTSTR dirName,bool recursive)
     { return RemoveDirectoryW(dirName,recursive); }
 
     void DirectoryInfo::_StripFilename(LPTSTR strippedFilename, int cbMaxFileName,LPCTSTR fileName,LPCTSTR prefix)
@@ -590,22 +606,22 @@ namespace bvr20983
     void DirectoryInfo::_DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName)
     { return DivideFilenameW(dirName,fName,cbMaxFileName,fileName); }
 
-    boolean DirectoryInfo::_GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh)
+    bool DirectoryInfo::_GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh)
     { return GetFileSizeW(fName,nFileSizeLow,nFileSizeHigh); }
 #else
-    boolean DirectoryInfo::_GetFullName(LPTSTR path,int cPath)
+    bool DirectoryInfo::_GetFullName(LPTSTR path,int cPath)
     { return GetFullNameA(path,cPath); }
     
-    boolean DirectoryInfo::_IsFile(LPCTSTR fName)
+    bool DirectoryInfo::_IsFile(LPCTSTR fName)
     { return IsFileA(fName); }
     
-    boolean DirectoryInfo::_IsDirectory(LPCTSTR dirName)
+    bool DirectoryInfo::_IsDirectory(LPCTSTR dirName)
     { return IsDirectoryA(dirName); }
     
-    boolean DirectoryInfo::_CreateDirectory(LPCTSTR dirName)
+    bool DirectoryInfo::_CreateDirectory(LPCTSTR dirName)
     { return CreateDirectoryA(dirName); }
   
-    boolean DirectoryInfo::_RemoveDirectory(LPCTSTR dirName,boolean recursive)
+    bool DirectoryInfo::_RemoveDirectory(LPCTSTR dirName,bool recursive)
     { return RemoveDirectoryA(dirName); }
 
     void DirectoryInfo::_StripFilename(LPTSTR strippedFilename, int cbMaxFileName,LPCTSTR fileName,LPCTSTR prefix)
@@ -614,7 +630,7 @@ namespace bvr20983
     void DirectoryInfo::_DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName)
     { return DivideFilenameA(dirName,fName,cbMaxFileName,fileName); }
 
-    boolean DirectoryInfo::_GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh)
+    bool DirectoryInfo::_GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh)
     { return GetFileSizeA(fName,nFileSizeLow,nFileSizeHigh); }
 #endif        
 

@@ -31,7 +31,7 @@ namespace bvr20983
      */
     struct DirIterator
     {
-      virtual boolean Next(DirectoryInfo& dirInfo,const _WIN32_FIND_DATAW& findData,void* p)=0;
+      virtual bool Next(DirectoryInfo& dirInfo,const _WIN32_FIND_DATAW& findData,int depth,void* p)=0;
     };
 
     /**
@@ -45,34 +45,34 @@ namespace bvr20983
         ~DirectoryInfo();
 
         void           Dump();
-        void           Iterate(DirIterator& iter,void* p=NULL);
+        bool           Iterate(DirIterator& iter,int depth=0,void* p=NULL);
 
-        boolean        GetFullNameA(LPSTR path,int cPath);
-        static boolean IsFileA(LPCSTR fName);
-        static boolean IsDirectoryA(LPCSTR dirName);
-        static boolean CreateDirectoryA(LPCSTR dirName);
-        static boolean RemoveDirectoryA(LPCSTR dirName,boolean recursive);
+        bool           GetFullNameA(LPSTR path,int cPath);
+        static bool    IsFileA(LPCSTR fName);
+        static bool    IsDirectoryA(LPCSTR dirName);
+        static bool    CreateDirectoryA(LPCSTR dirName);
+        static bool    RemoveDirectoryA(LPCSTR dirName,bool recursive);
         static void    StripFilenameA(LPSTR strippedFilename, int cbMaxFileName,LPCSTR fileName,LPCSTR prefix=NULL);
         static void    DivideFilenameA(LPSTR dirName,LPSTR fName, int cbMaxFileName,LPCSTR fileName);
-        static boolean GetFileSizeA(LPCSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh);
+        static bool    GetFileSizeA(LPCSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh);
 
-        boolean        GetFullNameW(LPWSTR path,int cPath);
-        static boolean IsFileW(LPCWSTR fName);
-        static boolean IsDirectoryW(LPCWSTR dirName);
-        static boolean CreateDirectoryW(LPCWSTR dirName);
-        static boolean RemoveDirectoryW(LPCWSTR dirName,boolean recursive);
+        bool           GetFullNameW(LPWSTR path,int cPath);
+        static bool    IsFileW(LPCWSTR fName);
+        static bool    IsDirectoryW(LPCWSTR dirName);
+        static bool    CreateDirectoryW(LPCWSTR dirName);
+        static bool    RemoveDirectoryW(LPCWSTR dirName,bool recursive);
         static void    StripFilenameW(LPWSTR strippedFilename, int cbMaxFileName,LPCWSTR fileName,LPCWSTR prefix=NULL);
         static void    DivideFilenameW(LPWSTR dirName,LPWSTR fName, int cbMaxFileName,LPCWSTR fileName);
-        static boolean GetFileSizeW(LPCWSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh=NULL); 
+        static bool    GetFileSizeW(LPCWSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh=NULL); 
 
-        boolean        _GetFullName(LPTSTR path,int cPath);
-        static boolean _IsFile(LPCTSTR fName);
-        static boolean _IsDirectory(LPCTSTR dirName);
-        static boolean _CreateDirectory(LPCTSTR dirName);
-        static boolean _RemoveDirectory(LPCTSTR dirName,boolean recursive);
+        bool           _GetFullName(LPTSTR path,int cPath);
+        static bool    _IsFile(LPCTSTR fName);
+        static bool    _IsDirectory(LPCTSTR dirName);
+        static bool    _CreateDirectory(LPCTSTR dirName);
+        static bool    _RemoveDirectory(LPCTSTR dirName,bool recursive);
         static void    _StripFilename(LPTSTR strippedFilename, int cbMaxFileName,LPCTSTR fileName,LPCTSTR prefix=NULL);
         static void    _DivideFilename(LPTSTR dirName,LPTSTR fName, int cbMaxFileName,LPCTSTR fileName);
-        static boolean _GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh=NULL); 
+        static bool    _GetFileSize(LPCTSTR fName,DWORD* nFileSizeLow,DWORD* nFileSizeHigh=NULL); 
 
         typedef std::vector<_WIN32_FIND_DATAW> VDirInfo;
 

@@ -187,7 +187,7 @@ namespace bvr20983
     /**
      *
      */
-    void CabinetFCI::Flush(boolean flushFolder)
+    void CabinetFCI::Flush(bool flushFolder)
     { if( NULL==m_hfci )
         return;
         
@@ -314,7 +314,7 @@ namespace bvr20983
 
         CabinetFCIDirInfo dirInfoIter(pPrefix);
         
-        dirInfo.Iterate(dirInfoIter,this);
+        dirInfo.Iterate(dirInfoIter,0,this);
       } // of else if
     } // of CabinetFCI::AddFileA()
 
@@ -345,10 +345,10 @@ namespace bvr20983
     /**
      *
      */
-    boolean CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,void* p)
+    bool CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p)
     { CabinetFCI* cab = (CabinetFCI*)p;
 
-      LOGGER_DEBUG<<_T("CabinetFCIDirInfo::Next():")<<findData.cFileName<<endl;
+      LOGGER_DEBUG<<_T("CabinetFCIDirInfo::Next(")<<depth<<_T("):")<<findData.cFileName<<endl;
       
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 )
         cab->Flush(true);

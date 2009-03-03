@@ -36,7 +36,7 @@ namespace bvr20983
       CabinetFCIDirInfo(LPCWSTR prefix);
       CabinetFCIDirInfo(LPCSTR prefix=NULL);
       
-      boolean Next(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,void* p);
+      bool Next(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATA& findData,int depth,void* p);
       
     private:
       char m_prefix[MAX_PATH];  
@@ -91,7 +91,7 @@ namespace bvr20983
       CabinetFCI(const CabFCIParameter& parameter,CabinetFCIAddFileCB* pAddFileCB=NULL);
       ~CabinetFCI();
 
-      void Flush(boolean flushFolder=false);
+      void Flush(bool flushFolder=false);
 
       void AddFileA(LPCSTR fileName,LPCSTR prefix=NULL,LPCSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
       void AddFileW(LPCWSTR fileName,LPCWSTR prefix=NULL,LPCWSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);

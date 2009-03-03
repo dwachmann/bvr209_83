@@ -73,6 +73,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <stack>
 
 #include "bvr20983-prod.h"
 
