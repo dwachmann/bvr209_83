@@ -70,7 +70,7 @@ void xmltest(LPTSTR fName,LPTSTR xPath,LPTSTR argv[],int argc)
  *
  */
 void dirtest(LPTSTR dirName,LPTSTR filemask,UINT maxDepth)
-{ DirectoryInfo dirInfo(dirName,filemask,maxDepth);
+{ DirectoryInfo dirInfo(dirName,filemask,maxDepth,NULL);
 
   dirInfo.Dump();
 } // of dirtest()

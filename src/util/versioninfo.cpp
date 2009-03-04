@@ -213,7 +213,7 @@ namespace bvr20983
         LogStringInfo(_T("MSIProductVersion"));
         LOGGER_INFO<<endl;
 
-        LOGGER_INFO<<_T("  MSI ProductVersion {");
+        LOGGER_INFO<<_T("  MSI ProductCode {");
         LogStringInfo(_T("MSIProductCode"));
         LOGGER_INFO<<_T("}")<<endl;
 

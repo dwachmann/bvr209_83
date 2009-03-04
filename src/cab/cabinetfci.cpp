@@ -310,7 +310,7 @@ namespace bvr20983
         m_seqNo++;
       } // of if
       else if( DirectoryInfo::IsDirectoryA(fileName) )
-      { DirectoryInfo dirInfo(fileName,NULL,10);
+      { DirectoryInfo dirInfo(fileName,NULL,10,NULL);
 
         CabinetFCIDirInfo dirInfoIter(pPrefix);
         

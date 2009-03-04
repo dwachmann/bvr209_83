@@ -27,13 +27,23 @@ namespace bvr20983
 {
   namespace util
   {
+ 
+    UINT DirectoryInfo::m_gDirId = 0;
+
     /**
      *
      */
     struct DumpDirIterator : public DirIterator
     {
       bool Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p)
-      { LOGGER_INFO<<_T("[")<<depth<<_T("]");
+      { LOGGER_INFO<<_T("[");
+
+        if( NULL!=dirInfo.getParentDirInfo() )
+          LOGGER_INFO<<dirInfo.getParentDirInfo()->getId()<<_T(",");
+        else
+          LOGGER_INFO<<_T("-,");
+      
+        LOGGER_INFO<<dirInfo.getId()<<_T(",")<<depth<<_T("]");
 
         dirInfo.DumpFindData();
   
@@ -60,9 +70,11 @@ namespace bvr20983
     /*
      *
      */
-    DirectoryInfo::DirectoryInfo(LPCSTR baseDirectory,LPCSTR fileMask,UINT maxDepth) :
+    DirectoryInfo::DirectoryInfo(LPCSTR baseDirectory,LPCSTR fileMask,UINT maxDepth,const DirectoryInfo* parentDir) :
       m_hFind(INVALID_HANDLE_VALUE),
-      m_maxDepth(maxDepth)
+      m_maxDepth(maxDepth),
+      m_dirId(m_gDirId++),
+      m_parentDir(parentDir)
     { WCHAR baseDirectoryW[MAX_PATH];
       WCHAR fileMaskW[MAX_PATH];
 
@@ -77,9 +89,11 @@ namespace bvr20983
     /*
      *
      */
-    DirectoryInfo::DirectoryInfo(LPCWSTR baseDirectory,LPCWSTR fileMask,UINT maxDepth) :
+    DirectoryInfo::DirectoryInfo(LPCWSTR baseDirectory,LPCWSTR fileMask,UINT maxDepth,const DirectoryInfo* parentDir) :
       m_hFind(INVALID_HANDLE_VALUE),
-      m_maxDepth(maxDepth)
+      m_maxDepth(maxDepth),
+      m_dirId(m_gDirId++),
+      m_parentDir(parentDir)
     { Init(baseDirectory,fileMask); }
 
 
@@ -207,13 +221,16 @@ namespace bvr20983
     { VDirInfo dirs;
 
       do
-      { if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && 
-            (::wcscmp(m_findData.cFileName,L".")==0 || ::wcscmp(m_findData.cFileName,L"..")==0)
+      { if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 && ::wcscmp(m_findData.cFileName,L"..")==0
           )
           continue;
         
         if( (m_findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 )
-        { if( m_maxDepth>0 )
+        { if( ::wcscmp(m_findData.cFileName,L".")==0 )
+          { if( !iter.Next(*this,m_findData,depth,p) )
+              return false;
+          } // of if
+          else if( m_maxDepth>0 )
             dirs.push_back(m_findData);
         } // of if
         else if( !iter.Next(*this,m_findData,depth,p) )
@@ -236,10 +253,10 @@ namespace bvr20983
         ::wcscat_s(fullDirName,MAX_PATH,L"\\");
         ::wcscat_s(fullDirName,MAX_PATH,m_findData.cFileName);
 
-        if( !iter.Next(*this,m_findData,depth+1,p) )
-          return false;
+//        if( !iter.Next(*this,m_findData,depth+1,p) )
+//          return false;
 
-        DirectoryInfo d(fullDirName,m_fileMask,m_maxDepth-1);
+        DirectoryInfo d(fullDirName,m_fileMask,m_maxDepth-1,this);
         if( !d.Iterate(iter,depth+1,p) ) 
           return false;
 

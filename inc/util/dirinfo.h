@@ -40,12 +40,18 @@ namespace bvr20983
     class DirectoryInfo
     {
       public:
-        DirectoryInfo(LPCWSTR baseDirectory,LPCWSTR fileMask=NULL,UINT maxDepth=0);
-        DirectoryInfo(LPCSTR baseDirectory,LPCSTR fileMask=NULL,UINT maxDepth=0);
+        DirectoryInfo(LPCWSTR baseDirectory,LPCWSTR fileMask=NULL,UINT maxDepth=0,const DirectoryInfo* parentDir=NULL);
+        DirectoryInfo(LPCSTR baseDirectory,LPCSTR fileMask=NULL,UINT maxDepth=0,const DirectoryInfo* parentDir=NULL);
         ~DirectoryInfo();
 
         void           Dump();
         bool           Iterate(DirIterator& iter,int depth=0,void* p=NULL);
+
+        UINT           getId() const
+        { return m_dirId; }
+
+        const DirectoryInfo* getParentDirInfo() const
+        { return m_parentDir; }
 
         bool           GetFullNameA(LPSTR path,int cPath);
         static bool    IsFileA(LPCSTR fName);
@@ -77,11 +83,15 @@ namespace bvr20983
         typedef std::vector<_WIN32_FIND_DATAW> VDirInfo;
 
       private:
-        WCHAR            m_baseDirectory[MAX_PATH];
-        WCHAR            m_fileMask[MAX_PATH];
-        int              m_maxDepth;
-        HANDLE           m_hFind;
-        WIN32_FIND_DATAW m_findData;
+        WCHAR                m_baseDirectory[MAX_PATH];
+        WCHAR                m_fileMask[MAX_PATH];
+        int                  m_maxDepth;
+        HANDLE               m_hFind;
+        WIN32_FIND_DATAW     m_findData;
+        UINT                 m_dirId;
+        const DirectoryInfo* m_parentDir;
+
+        static UINT      m_gDirId;
 
         friend struct DumpDirIterator;
 
