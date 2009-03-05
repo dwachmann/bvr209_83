@@ -38,12 +38,12 @@ namespace bvr20983
       bool Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p)
       { LOGGER_INFO<<_T("[");
 
-        if( NULL!=dirInfo.getParentDirInfo() )
-          LOGGER_INFO<<dirInfo.getParentDirInfo()->getId()<<_T(",");
+        if( NULL!=dirInfo.GetParentDirInfo() )
+          LOGGER_INFO<<dirInfo.GetParentDirInfo()->GetName()<<_T(".")<<dirInfo.GetParentDirInfo()->GetId()<<_T(",");
         else
           LOGGER_INFO<<_T("-,");
       
-        LOGGER_INFO<<dirInfo.getId()<<_T(",")<<depth<<_T("]");
+        LOGGER_INFO<<dirInfo.GetId()<<_T(",")<<depth<<_T("]");
 
         dirInfo.DumpFindData();
   
@@ -106,6 +106,13 @@ namespace bvr20983
       LPWSTR filePart = NULL;
       
       THROW_LASTERROREXCEPTION1( ::GetFullPathNameW(baseDirectory,MAX_PATH,m_baseDirectory,&filePart) );
+
+      LPCWSTR p = ::wcsrchr(m_baseDirectory, L'\\');
+
+      if( NULL!=p )
+        ::wcscpy_s(m_dirName,MAX_PATH,p+1);
+      else
+        ::wcscpy_s(m_dirName,MAX_PATH,_T(""));
       
       if( NULL==fileMask )
         ::wcscpy_s(m_fileMask,MAX_PATH,L"*.*");

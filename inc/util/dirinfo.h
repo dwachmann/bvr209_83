@@ -47,10 +47,13 @@ namespace bvr20983
         void           Dump();
         bool           Iterate(DirIterator& iter,int depth=0,void* p=NULL);
 
-        UINT           getId() const
+        UINT           GetId() const
         { return m_dirId; }
 
-        const DirectoryInfo* getParentDirInfo() const
+        LPCWSTR        GetName() const
+        { return m_dirName; }
+
+        const DirectoryInfo* GetParentDirInfo() const
         { return m_parentDir; }
 
         bool           GetFullNameA(LPSTR path,int cPath);
@@ -90,6 +93,7 @@ namespace bvr20983
         WIN32_FIND_DATAW     m_findData;
         UINT                 m_dirId;
         const DirectoryInfo* m_parentDir;
+        WCHAR                m_dirName[MAX_PATH];
 
         static UINT      m_gDirId;
 

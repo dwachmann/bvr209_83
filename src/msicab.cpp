@@ -78,6 +78,22 @@ void dirtest(LPTSTR dirName,LPTSTR filemask,UINT maxDepth)
 /**
  *
  */
+struct MSIDirectoryInfo
+{
+  MSIDirectoryInfo()
+  { m_dirId[0] = m_parentId[0] = m_dirName[0] = _T('\0'); }
+
+  TCHAR m_dirId[72];
+  TCHAR m_parentId[72];
+  TCHAR m_dirName[MAX_PATH];
+}; // of struct MSICABAddFileCB
+
+typedef std::vector<MSIDirectoryInfo> VMSIDirInfoT;
+
+
+/**
+ *
+ */
 struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
 {
 
@@ -98,9 +114,31 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
 
     for( ;*s!=_T('\0');s++ )
       *s = toupper(*s);
-  }
+  } // of MSICABAddFileCB()
 
-  bool AddFile(LPCTSTR prefix,LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)
+  /**
+   *
+   */
+  bool DirectoryStarted(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth)
+  { bool result = true;
+
+    MSIDirectoryInfo d;
+
+    ::_tcscpy_s(d.m_dirName,MAX_PATH,dirInfo.GetName());
+    ::_stprintf_s(d.m_dirId,72,_T("DIR_%d"),dirInfo.GetId());
+
+    if( NULL!=dirInfo.GetParentDirInfo() )
+      ::_stprintf_s(d.m_parentId,72,_T("DIR_%d"),dirInfo.GetParentDirInfo()->GetId());
+
+    m_dirInfo.push_back(d);
+
+    return result;
+  } // of DirectoryStarted()
+
+  /**
+   *
+   */
+  bool AddFile(LPCTSTR prefix,LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)
   { TCHAR strippedCompFileName[MAX_PATH];
     DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,fileName);
 
@@ -206,12 +244,14 @@ private:
     ofstream&  m_msiFileHashIDT;
 #endif
 
-    LPCTSTR m_compId;
-    LPCTSTR m_compType;
-    LPCTSTR m_msiguid;
-    LPCTSTR m_msidir;
-    bool    m_componentEntryWritten;
-}; // of class MSICABAddFileCB
+    LPCTSTR      m_compId;
+    LPCTSTR      m_compType;
+    LPCTSTR      m_msiguid;
+    LPCTSTR      m_msidir;
+    bool         m_componentEntryWritten;
+    
+    VMSIDirInfoT m_dirInfo;
+}; // of struct MSICABAddFileCB
 
 /**
  *
@@ -387,11 +427,56 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     m_msicab<<_T("<cabinet>")<<endl;
   }
 
+  /**
+   *
+   */
   ~MSICABAddFile1CB()
   { m_msicab<<_T("</cabinet>")<<endl;
   }
 
-  bool AddFile(LPCTSTR prefix,LPCTSTR filePath,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)
+  /**
+   *
+   */
+  bool DirectoryStarted(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth)
+  { bool result = true;
+
+    MSIDirectoryInfo d;
+
+    ::_tcscpy_s(d.m_dirName,MAX_PATH,dirInfo.GetName());
+    ::_stprintf_s(d.m_dirId,72,_T("DIR_%d"),dirInfo.GetId());
+
+    if( NULL!=dirInfo.GetParentDirInfo() )
+      ::_stprintf_s(d.m_parentId,72,_T("DIR_%d"),dirInfo.GetParentDirInfo()->GetId());
+
+    m_dirInfo.push_back(d);
+
+    return result;
+  } // of DirectoryStarted()
+
+  /**
+   *
+   */
+  void DumpDirectoryInfo()
+  { VMSIDirInfoT::const_iterator iter;
+
+    m_msicab<<_T("  <directories>")<<endl;
+
+    for( iter=m_dirInfo.begin();iter!=m_dirInfo.end();iter++ )
+    { m_msicab<<_T("    <directory id='")<<iter->m_dirId<<_T("'");
+
+      if( _tcslen(iter->m_parentId)>0 )
+        m_msicab<<_T(" parentid='")<<iter->m_parentId<<_T("'");
+
+      m_msicab<<_T(">")<<iter->m_dirName<<_T("</directory>")<<endl;
+    } // of for
+
+    m_msicab<<_T("  </directories>")<<endl;
+  } // of DumpDirectoryInfo()
+
+  /**
+   *
+   */
+  bool AddFile(LPCTSTR prefix,LPCTSTR filePath,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)
   { TCHAR fileName[MAX_PATH];
     TCHAR strippedFilePath[MAX_PATH];
     TCHAR strippedCompFileName[MAX_PATH];
@@ -411,6 +496,9 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     m_msicab<<_T(" guid='")<<guid<<_T("' ");
 
     m_msicab<<_T(" no='")<<seqNo<<_T("' ");
+
+    if( NULL!=pDirInfo )
+      m_msicab<<_T(" directoryid='DIR_")<<pDirInfo->GetId()<<_T("' ");
 
     DWORD fileSize=0;
     DirectoryInfo::_GetFileSize(filePath,&fileSize);
@@ -468,6 +556,7 @@ private:
     ofstream&  m_msicab;
 #endif
 
+    VMSIDirInfoT m_dirInfo;
 }; // of class MSICABAddFile1CB
 
 
@@ -521,6 +610,8 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
         cabinet.SetAddFileCallback(&addFileCB);
 
         cabinet.AddFile(fullCompDir,fullCompDir);
+
+        addFileCB.DumpDirectoryInfo();
       } // of else if
 
       msicab.close();

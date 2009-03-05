@@ -22,6 +22,7 @@
 #include "cab/fci.h"
 #include "util/dirinfo.h"
 
+
 namespace bvr20983
 {
   namespace cab
@@ -78,7 +79,8 @@ namespace bvr20983
      */
     struct CabinetFCIAddFileCB
     {
-      virtual bool AddFile(LPCTSTR prefix,LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo)=0;
+      virtual bool DirectoryStarted(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth)=0;
+      virtual bool AddFile(LPCTSTR prefix,LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)=0;
     };
 
     /**
@@ -93,9 +95,9 @@ namespace bvr20983
 
       void Flush(bool flushFolder=false);
 
-      void AddFileA(LPCSTR fileName,LPCSTR prefix=NULL,LPCSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
-      void AddFileW(LPCWSTR fileName,LPCWSTR prefix=NULL,LPCWSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
-      void AddFile(LPCTSTR fileName,LPCTSTR prefix=NULL,LPCTSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP);
+      void AddFileA(LPCSTR fileName,LPCSTR prefix=NULL,LPCSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP,util::DirectoryInfo* pDirInfo=NULL);
+      void AddFileW(LPCWSTR fileName,LPCWSTR prefix=NULL,LPCWSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP,util::DirectoryInfo* pDirInfo=NULL);
+      void AddFile(LPCTSTR fileName,LPCTSTR prefix=NULL,LPCTSTR addFileName=NULL,TCOMP typeCompress=tcompTYPE_MSZIP,util::DirectoryInfo* pDirInfo=NULL);
 
       void SetAddFileCallback(CabinetFCIAddFileCB* pAddFileCB)
       { this->m_pAddFileCB = pAddFileCB; }
@@ -115,6 +117,8 @@ namespace bvr20983
       int  GetPercentage(unsigned long a, unsigned long b);
       void Init();
 
+      bool DirectoryStarted(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth);
+
       int  FCIOpen(char FAR *pszFile, int oflag, int pmode, int FAR *err);
       UINT FCIRead(int hf, void FAR *memory, UINT cb, int FAR *err);
       UINT FCIWrite(int hf, void FAR *memory, UINT cb, int FAR *err);
@@ -126,6 +130,8 @@ namespace bvr20983
       long FCIProgress(UINT typeStatus,ULONG  cb1,ULONG  cb2);
       BOOL FCIGetNextCabinet(PCCAB pccab,ULONG  cbPrevCab);
       int  FCIGetOpenInfo(char* pszName,USHORT *pdate,USHORT *ptime,USHORT *pattribs,int FAR *err);
+
+      friend struct CabinetFCIDirInfo;
 
       static FNFCIALLOC(fci_memalloc);
       static FNFCIFREE(fci_memfree);

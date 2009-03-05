@@ -204,12 +204,12 @@ namespace bvr20983
     /**
      *
      */
-    void CabinetFCI::AddFile(LPCTSTR fileName,LPCTSTR prefix,LPCTSTR addFileName,TCOMP typeCompress)
+    void CabinetFCI::AddFile(LPCTSTR fileName,LPCTSTR prefix,LPCTSTR addFileName,TCOMP typeCompress,util::DirectoryInfo* pDirInfo)
     {
 #ifdef _UNICODE
-      AddFileW(fileName,prefix,addFileName,typeCompress);
+      AddFileW(fileName,prefix,addFileName,typeCompress,pDirInfo);
 #else
-      AddFileA(fileName,prefix,addFileName,typeCompress);
+      AddFileA(fileName,prefix,addFileName,typeCompress,pDirInfo);
 #endif
     } // of CabinetFCI::AddFile()
 
@@ -217,7 +217,7 @@ namespace bvr20983
     /**
      *
      */
-    void CabinetFCI::AddFileW(LPCWSTR fileName,LPCWSTR prefix,LPCWSTR addFileName,TCOMP typeCompress)
+    void CabinetFCI::AddFileW(LPCWSTR fileName,LPCWSTR prefix,LPCWSTR addFileName,TCOMP typeCompress,util::DirectoryInfo* pDirInfo)
     { char fileNameA[MAX_PATH];
       char prefixA[MAX_PATH];
       char addFileNameA[MAX_PATH];
@@ -234,14 +234,15 @@ namespace bvr20983
       AddFileA(NULL!=fileName    ? fileNameA    : NULL,
                NULL!=prefix      ? prefixA      : NULL,
                NULL!=addFileName ? addFileNameA : NULL,
-               typeCompress
+               typeCompress,
+               pDirInfo
               );
     } // of CabinetFCI::AddFileW()
 
     /**
      *
      */
-    void CabinetFCI::AddFileA(LPCSTR fileName,LPCSTR prefix,LPCSTR addFileName,TCOMP typeCompress)
+    void CabinetFCI::AddFileA(LPCSTR fileName,LPCSTR prefix,LPCSTR addFileName,TCOMP typeCompress,util::DirectoryInfo* pDirInfo)
     { char  strippedName[MAX_PATH];
       char  fullPathPrefix[MAX_PATH];
       char  cabFileName[MAX_PATH];
@@ -285,14 +286,13 @@ namespace bvr20983
           if( NULL!=pPrefix )
           { THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, pPrefix, -1,PrefixW, MAX_PATH) ); }
 
-          shouldAdd = m_pAddFileCB->AddFile(NULL!=pPrefix ? PrefixW : NULL,fileNameW,AddedfileNameW,MAX_PATH,m_seqNo);
+          shouldAdd = m_pAddFileCB->AddFile(NULL!=pPrefix ? PrefixW : NULL,fileNameW,AddedfileNameW,MAX_PATH,m_seqNo,pDirInfo);
 
           THROW_LASTERROREXCEPTION1( ::WideCharToMultiByte( CP_ACP, 0, AddedfileNameW, -1,cabFileName, MAX_PATH, NULL, NULL ) );
 #else
-          shouldAdd = m_pAddFileCB->AddFile(pPrefix,fileName,cabFileName,MAX_PATH,m_seqNo);
+          shouldAdd = m_pAddFileCB->AddFile(pPrefix,fileName,cabFileName,MAX_PATH,m_seqNo,pDirInfo);
 #endif
         } // of if
-
   
         if( shouldAdd && 
             !FCIAddFile(m_hfci,
@@ -346,25 +346,40 @@ namespace bvr20983
      *
      */
     bool CabinetFCIDirInfo::Next(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth,void* p)
-    { CabinetFCI* cab = (CabinetFCI*)p;
+    { bool        result = true;
+      CabinetFCI* cab    = (CabinetFCI*)p;
 
       LOGGER_DEBUG<<_T("CabinetFCIDirInfo::Next(")<<depth<<_T("):")<<findData.cFileName<<endl;
       
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0 )
-        cab->Flush(true);
+        result = cab->DirectoryStarted(dirInfo,findData,depth);
 
       if( (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0 )
       { char path[MAX_PATH];
         
         dirInfo.GetFullNameA(path,MAX_PATH);
 
-        cab->AddFileA(path,m_prefix);
+        cab->AddFileA(path,m_prefix,NULL,tcompTYPE_MSZIP,&dirInfo);
       } // of if
 
-      return true;
+      return result;
     } // of CabinetFCIDirInfo::Next()
       
 
+    /**
+     *
+     */
+    bool CabinetFCI::DirectoryStarted(DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth)
+    { bool result = true;
+
+      if( NULL!=m_pAddFileCB )
+        result = m_pAddFileCB->DirectoryStarted(dirInfo,findData,depth);
+
+      if( result ) 
+        Flush(true);
+
+      return result;
+    } // of CabinetFCI::DirectoryStarted()
 
     /**
      *
