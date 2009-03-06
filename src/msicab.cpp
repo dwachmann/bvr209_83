@@ -86,6 +86,7 @@ struct MSIDirectoryInfo
   TCHAR m_dirId[72];
   TCHAR m_parentId[72];
   TCHAR m_dirName[MAX_PATH];
+  TCHAR m_dirShortName[MAX_PATH];
 }; // of struct MSICABAddFileCB
 
 typedef std::vector<MSIDirectoryInfo> VMSIDirInfoT;
@@ -417,14 +418,16 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 {
 
 #ifdef _UNICODE
-  MSICABAddFile1CB(wofstream& msicab) :
+  MSICABAddFile1CB(wofstream& msicab,LPCTSTR msiCompIdPattern) :
 #else
-  MSICABAddFile1CB(ofstream& msicab) :
+  MSICABAddFile1CB(ofstream& msicab,LPCTSTR msiCompIdPattern) :
 #endif
-    m_msicab(msicab)
+    m_msicab(msicab),
+    m_msiCompIdPattern(msiCompIdPattern)
   { m_msicab<<_T("<?xml version='1.0' encoding='UTF-8' ?>")<<endl<<endl; 
     
     m_msicab<<_T("<cabinet>")<<endl;
+    m_msicab<<_T("<files>")<<endl;
   }
 
   /**
@@ -443,6 +446,8 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     MSIDirectoryInfo d;
 
     ::_tcscpy_s(d.m_dirName,MAX_PATH,dirInfo.GetName());
+    ::_tcscpy_s(d.m_dirShortName,MAX_PATH,dirInfo.GetShortName());
+
     ::_stprintf_s(d.m_dirId,72,_T("DIR_%d"),dirInfo.GetId());
 
     if( NULL!=dirInfo.GetParentDirInfo() )
@@ -459,15 +464,20 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
   void DumpDirectoryInfo()
   { VMSIDirInfoT::const_iterator iter;
 
+    m_msicab<<_T("  </files>")<<endl<<endl;
+
     m_msicab<<_T("  <directories>")<<endl;
 
     for( iter=m_dirInfo.begin();iter!=m_dirInfo.end();iter++ )
     { m_msicab<<_T("    <directory id='")<<iter->m_dirId<<_T("'");
 
       if( _tcslen(iter->m_parentId)>0 )
-        m_msicab<<_T(" parentid='")<<iter->m_parentId<<_T("'");
+        m_msicab<<_T(" parentid='")<<iter->m_parentId<<_T("'>")<<endl;
 
-      m_msicab<<_T(">")<<iter->m_dirName<<_T("</directory>")<<endl;
+      m_msicab<<_T("      <name>")<<iter->m_dirName<<_T("</name>")<<endl;
+      m_msicab<<_T("      <shortname>")<<iter->m_dirShortName<<_T("</shortname>")<<endl;
+
+      m_msicab<<_T("    </directory>")<<endl;
     } // of for
 
     m_msicab<<_T("  </directories>")<<endl;
@@ -489,11 +499,11 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
     _stprintf_s(addedFileName,addedFileNameMaxLen,_T("_%08X"),seqNo);
 
-    _stprintf_s(guid,MAX_PATH,_T("BFE20983-0001-0103-0004-0001%08X"),seqNo);
+    _stprintf_s(guid,MAX_PATH,_T("%08X"),seqNo);
 
     m_msicab<<_T(" id='")<<addedFileName<<_T("' ");
 
-    m_msicab<<_T(" guid='")<<guid<<_T("' ");
+    m_msicab<<_T(" guid='")<<m_msiCompIdPattern<<guid<<_T("' ");
 
     m_msicab<<_T(" no='")<<seqNo<<_T("' ");
 
@@ -557,6 +567,7 @@ private:
 #endif
 
     VMSIDirInfoT m_dirInfo;
+    LPCTSTR      m_msiCompIdPattern;
 }; // of class MSICABAddFile1CB
 
 
@@ -598,28 +609,32 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
         
       ::_tcscat_s(strippedCabName,MAX_PATH,_T(".xml"));
 
+
+      COVariant msiComponentID;
+
+      if( xmlDoc.GetNodeValue(_T("//v:versions//v:product//v:versionhistory/v:version[1]//v:msicomponent//text()"),msiComponentID,true) &&
+          DirectoryInfo::_IsDirectory(fullCompDir)
+        )
+      {
 #ifdef _UNICODE
-      wofstream msicab(strippedCabName);
+        wofstream msicab(strippedCabName);
 #else
-      ofstream msicab(strippedCabName);
+        ofstream msicab(strippedCabName);
 #endif
 
-      if( DirectoryInfo::_IsDirectory(fullCompDir) )
-      { MSICABAddFile1CB addFileCB(msicab);
+        MSICABAddFile1CB addFileCB(msicab,V_BSTR(msiComponentID));
 
         cabinet.SetAddFileCallback(&addFileCB);
-
         cabinet.AddFile(fullCompDir,fullCompDir);
-
         addFileCB.DumpDirectoryInfo();
-      } // of else if
 
-      msicab.close();
+        msicab.close();
 
-      cabinet.SetAddFileCallback(NULL);
-      cabinet.AddFile(strippedCabName,NULL,_T("_FFFFFFFF"));
+        cabinet.SetAddFileCallback(NULL);
+        cabinet.AddFile(strippedCabName,NULL,_T("_FFFFFFFF"));
 
-      cabinet.Flush();
+        cabinet.Flush();
+      } // of if
     } // of if
   } // of if
 } // of msicab1()

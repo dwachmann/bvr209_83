@@ -103,9 +103,13 @@ namespace bvr20983
     void DirectoryInfo::Init(LPCWSTR baseDirectory,LPCWSTR fileMask)
     { ::memset(&m_findData,'\0',sizeof(m_findData));
 
+      WCHAR baseDirShort[MAX_PATH];
+
       LPWSTR filePart = NULL;
       
       THROW_LASTERROREXCEPTION1( ::GetFullPathNameW(baseDirectory,MAX_PATH,m_baseDirectory,&filePart) );
+
+      THROW_LASTERROREXCEPTION1( ::GetShortPathName(m_baseDirectory,baseDirShort,MAX_PATH) );
 
       LPCWSTR p = ::wcsrchr(m_baseDirectory, L'\\');
 
@@ -113,7 +117,14 @@ namespace bvr20983
         ::wcscpy_s(m_dirName,MAX_PATH,p+1);
       else
         ::wcscpy_s(m_dirName,MAX_PATH,_T(""));
-      
+
+      p = ::wcsrchr(baseDirShort, L'\\');
+
+      if( NULL!=p )
+        ::wcscpy_s(m_dirShortName,MAX_PATH,p+1);
+      else
+        ::wcscpy_s(m_dirShortName,MAX_PATH,_T(""));
+
       if( NULL==fileMask )
         ::wcscpy_s(m_fileMask,MAX_PATH,L"*.*");
       else

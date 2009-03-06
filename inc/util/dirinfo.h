@@ -53,6 +53,9 @@ namespace bvr20983
         LPCWSTR        GetName() const
         { return m_dirName; }
 
+        LPCWSTR        GetShortName() const
+        { return m_dirShortName; }
+
         const DirectoryInfo* GetParentDirInfo() const
         { return m_parentDir; }
 
@@ -94,6 +97,7 @@ namespace bvr20983
         UINT                 m_dirId;
         const DirectoryInfo* m_parentDir;
         WCHAR                m_dirName[MAX_PATH];
+        WCHAR                m_dirShortName[MAX_PATH];
 
         static UINT      m_gDirId;
 
