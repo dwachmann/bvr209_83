@@ -19,6 +19,7 @@ EXPORTS
   DllUnregisterServer   PRIVATE
   DllIsAdministratorW   PRIVATE
   DllRegistrationInfoW  PRIVATE
+  BitsCreateJobW        PRIVATE
   EvtLogMessage
   EvtLogError
   EvtLogError2
@@ -26,4 +27,10 @@ EXPORTS
   EvtLogFunctionError
   EvtLogFunctionMessage
   EvtLogInstall
+  BtxCreateJob
+  BtxAddFile
+  BtxResume
+  BtxSuspend
+  BtxCancel
+  BtxComplete
   

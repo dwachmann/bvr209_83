@@ -119,7 +119,9 @@ namespace bvr20983
       void CreateCOM(REFIID clsId,REFIID riid,DWORD dwClsContext,LPUNKNOWN pOutUnknown)
       { ICom* pIUnk = NULL;
 
-        THROW_COMEXCEPTION( ::CoCreateInstance(clsId,pOutUnknown,dwClsContext,riid,(LPVOID*)&pIUnk) );
+        HRESULT hr = ::CoCreateInstance(clsId,pOutUnknown,dwClsContext,riid,(LPVOID*)&pIUnk);
+
+        THROW_COMEXCEPTION( hr );
 
         Init(pIUnk); 
 
