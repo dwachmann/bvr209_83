@@ -73,7 +73,9 @@ $(OUTDIR)\coconnectionpoint.obj \
 $(OUTDIR)\cocollection.obj \
 $(OUTDIR)\dllgetclass.obj \
 $(OUTDIR)\coclassfactory.obj \
-$(OUTDIR)\versioninfo.obj
+$(OUTDIR)\versioninfo.obj \
+$(OUTDIR)\handle.obj \
+$(OUTDIR)\md5sum.obj
 
 !ifdef clean
 all: clean

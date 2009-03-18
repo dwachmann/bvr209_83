@@ -335,6 +335,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\backgroundtransfer.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\util\criticalsection.h"
 						>
 					</File>
@@ -348,6 +352,10 @@
 					</File>
 					<File
 						RelativePath=".\inc\util\guid.h"
+						>
+					</File>
+					<File
+						RelativePath=".\inc\util\handle.h"
 						>
 					</File>
 					<File
@@ -372,6 +380,10 @@
 					</File>
 					<File
 						RelativePath=".\inc\util\logstreambuf.h"
+						>
+					</File>
+					<File
+						RelativePath=".\inc\util\md5sum.h"
 						>
 					</File>
 					<File
@@ -609,6 +621,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\src\util\backgroundtransfer.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\src\util\dirinfo.cpp"
 						>
 					</File>
@@ -646,6 +662,10 @@
 					</File>
 					<File
 						RelativePath=".\src\util\logstreambuf.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\md5sum.cpp"
 						>
 					</File>
 					<File
