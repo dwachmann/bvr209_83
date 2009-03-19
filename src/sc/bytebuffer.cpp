@@ -203,7 +203,6 @@ namespace bvr20983
     return os;
   }
 
-
   template<class charT, class Traits>
   basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const ByteBuffer& e)
   { return e.Dump(os); }

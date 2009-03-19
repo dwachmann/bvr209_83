@@ -31,6 +31,7 @@
 #include "util/xmldocument.h"
 #include "util/dirinfo.h"
 #include "util/comstring.h"
+#include "util/md5sum.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -42,6 +43,21 @@ using namespace bvr20983::cab;
 using namespace bvr20983::util;
 using namespace bvr20983::COM;
 using namespace std;
+
+/**
+ *
+ */
+void md5sum(LPTSTR fName,LPTSTR argv[],int argc)
+{ MD5Sum               md5sum;
+  auto_ptr<CryptoHash> hash;
+
+  md5sum.CalcFileHash(fName,hash);
+
+  CryptoHash* pHash = hash.get();
+
+  if( NULL!=pHash )
+  { LOGGER_INFO<<_T("md5sum:")<<*pHash<<endl; }
+} // of md5sum()
 
 /**
  *
@@ -705,6 +721,8 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
     } // of else if
     else if( _tcscmp(argv[1],_T("-dir"))==0 && argc>=3 )
       dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? _tstoi(argv[4]) : 0);
+    else if( _tcscmp(argv[1],_T("-md5"))==0 && argc>=3 )
+      md5sum(argv[2],argc>3 ? &argv[3] : NULL,argc-3);
     else
     { TCHAR command = _T('\0');
       int   i       = 1;

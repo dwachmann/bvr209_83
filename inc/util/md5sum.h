@@ -28,7 +28,7 @@ namespace bvr20983
     class CryptoContext
     { 
       public:
-        CryptoContext(DWORD dwProvType=PROV_RSA_SIG,DWORD dwFlags=CRYPT_VERIFYCONTEXT);
+        CryptoContext(DWORD dwProvType=PROV_RSA_FULL,DWORD dwFlags=CRYPT_VERIFYCONTEXT,LPCTSTR pszProvider=MS_DEF_PROV);
         ~CryptoContext();
 
         HCRYPTPROV operator*()  const
@@ -45,31 +45,35 @@ namespace bvr20983
         ~CryptoHash();
 
         void  Put(BYTE* pBuffer,DWORD bufferLen);
-        DWORD Get(auto_ptr<BYTE>& pBuffer);
+        DWORD Get(auto_ptr<BYTE>& pBuffer) const;
 
         HCRYPTHASH operator*()  const
         { return m_hHash; }
+
+#ifdef _UNICODE      
+        virtual wostream& Dump(wostream& os) const;
+#else
+        virtual ostream& Dump(ostream& os) const;
+#endif
 
       private:
         HCRYPTHASH m_hHash;
     }; // of CryptoHash
 
+    template<class charT, class Traits>
+    basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const CryptoHash& e);
+
+
     class MD5Sum
     {
       public:
-        static MD5Sum* GetInstance();
-        static void    DeleteInstance();
-
-        void CalcFileHash(LPCTSTR fileName);
-
-      private:
         MD5Sum();
         ~MD5Sum();
 
-        static MD5Sum* m_pMe;
+        void CalcFileHash(LPCTSTR fileName,auto_ptr<CryptoHash>& hash);
 
+      private:
         CryptoContext m_cryptoCtx;
-
     }; // of class MD5Sum
   } // of namespace util
 } // of namespace bvr20983

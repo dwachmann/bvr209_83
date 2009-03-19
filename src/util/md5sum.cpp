@@ -30,14 +30,12 @@ namespace bvr20983
 {
   namespace util
   {
-    MD5Sum* MD5Sum::m_pMe = NULL;
-
     /**
      *
      */
-    CryptoContext::CryptoContext(DWORD dwProvType,DWORD dwFlags) :
+    CryptoContext::CryptoContext(DWORD dwProvType,DWORD dwFlags,LPCTSTR pszProvider) :
       m_hCryptProv(NULL)
-    { THROW_LASTERROREXCEPTION1( ::CryptAcquireContext(&m_hCryptProv,NULL,NULL,dwProvType,dwFlags) );
+    { THROW_LASTERROREXCEPTION1( ::CryptAcquireContext(&m_hCryptProv,NULL,pszProvider,dwProvType,dwFlags) );
     }
 
     /**
@@ -79,7 +77,7 @@ namespace bvr20983
     /**
      *
      */
-    DWORD CryptoHash::Get(auto_ptr<BYTE>& pBuffer)
+    DWORD CryptoHash::Get(auto_ptr<BYTE>& pBuffer) const
     { DWORD dwHashLen = 0;
 
       if( NULL!=m_hHash )
@@ -97,33 +95,69 @@ namespace bvr20983
       return dwHashLen;
     } // of CryptoHash::Get()
 
-    /**
-     *
-     */
-    MD5Sum* MD5Sum::GetInstance()
-    { if( m_pMe==NULL )
-        m_pMe = new MD5Sum();
+
+  #ifdef _UNICODE
+    wostream& CryptoHash::Dump(wostream& os) const
+  #else
+    ostream& CryptoHash::Dump(ostream& os) const
+  #endif  
+    { ios_base::iostate err = 0;
     
-      return m_pMe; 
-    }
+  #ifdef _UNICODE
+      wostream::sentry opfx(os);
+  #else
+      ostream::sentry opfx(os);
+  #endif  
+
+      try
+      {
+        if( opfx && NULL!=m_hHash )
+        { os<<setfill(_T('0'))<<setw(2)<<hex;
+        
+          auto_ptr<BYTE> hashValue;
+
+          DWORD hashLen = this->Get(hashValue);
+
+          BYTE* pBuffer = hashValue.get();
+
+          if( NULL!=pBuffer )
+            for( DWORD i=0;i<hashLen;i++ )
+              os<<pBuffer[i];
+          
+          os.width(0);
+          os.fill(_T(' '));
+        } // of if
+      }
+      catch(...)
+      { bool flag = false;
+      
+        try
+        { os.setstate(ios_base::failbit); }
+        catch(...)
+        { flag = true; }
+        
+        if( flag ) 
+          throw;
+      } 
+      
+      if( err )
+        os.setstate(err);
+      
+      return os;
+    } // of CryptoHash::Dump()
 
     /**
      *
      */
-    void MD5Sum::DeleteInstance()
-    { if( NULL!=m_pMe )
-      { if( NULL!=m_pMe )
-          delete m_pMe;
-          
-        m_pMe = NULL;
-      } // of if
-    }
+    template<class charT, class Traits>
+    basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const CryptoHash& h)
+    { return h.Dump(os); }
 
-    /**
+     /**
      *
      */
     MD5Sum::MD5Sum() :
-      m_cryptoCtx(PROV_RSA_SIG,CRYPT_VERIFYCONTEXT)
+      m_cryptoCtx(PROV_RSA_FULL,CRYPT_VERIFYCONTEXT)
     { 
     }
 
@@ -137,11 +171,12 @@ namespace bvr20983
     /**
      *
      */
-    void MD5Sum::CalcFileHash(LPCTSTR fileName)
-    { FileHandle dataFile(fileName);
-      CryptoHash hash(m_cryptoCtx,CALG_MD5);
-      BYTE       pbBuffer[1024];
-      DWORD      dwBytesRead;
+    void MD5Sum::CalcFileHash(LPCTSTR fileName,auto_ptr<CryptoHash>& hash)
+    { FileHandle  dataFile(fileName);
+      BYTE        pbBuffer[1024];
+      DWORD       dwBytesRead;
+
+      hash.reset( new CryptoHash(m_cryptoCtx,CALG_MD5) );
       
       do
       { dwBytesRead = 0;
@@ -154,23 +189,11 @@ namespace bvr20983
         if( dwBytesRead==0 ) 
           break;
 
-        hash.Put(pbBuffer, dwBytesRead);
+        hash->Put(pbBuffer, dwBytesRead);
       } while( dwBytesRead>=sizeof(pbBuffer) );
-
-      auto_ptr<BYTE> hashValue;
-
-      DWORD hashLen = hash.Get(hashValue);
-
-      LOGGER_INFO<<_T("MD5:")<<setw(2)<<hex;
-
-      BYTE* pBuffer = hashValue.get();
-
-      if( NULL!=pBuffer )
-        for( DWORD i=0;i<hashLen;i++ )
-          LOGGER_INFO<<pBuffer[i];
-
-      LOGGER_INFO<<endl;
     } // of MD5Sum::CalcFileHash()
   } // of namespace util
 } // of namespace bvr20983
+
+template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::util::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const bvr20983::util::CryptoHash&);
 /*==========================END-OF-FILE===================================*/

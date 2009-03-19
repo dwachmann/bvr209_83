@@ -27,7 +27,9 @@ namespace bvr20983
 {
   namespace util
   {
-
+    /**
+     *
+     */
     FileHandle::FileHandle(LPCTSTR fileName)
     { m_hHandle = ::CreateFile(fileName, 
                                GENERIC_READ, 
@@ -38,9 +40,9 @@ namespace bvr20983
                                NULL
                               );
 
-        if( m_hHandle==INVALID_HANDLE_VALUE )
-        { THROW_LASTERROREXCEPTION2; }
-      }
+      if( m_hHandle==INVALID_HANDLE_VALUE )
+      { THROW_LASTERROREXCEPTION2; }
+    } // of FileHandle::FileHandle()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

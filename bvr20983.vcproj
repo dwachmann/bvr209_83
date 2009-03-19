@@ -645,6 +645,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\src\util\handle.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\src\util\hr.cpp"
 						>
 					</File>
