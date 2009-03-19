@@ -21,6 +21,7 @@
 #include "os.h"
 #include "util/backgroundtransfer.h"
 #include "util/logstream.h"
+#include "util/guid.h"
 #include "exception/lasterrorexception.h"
 #include "exception/comexception.h"
 #include <sstream>
@@ -31,30 +32,6 @@ namespace bvr20983
 {
   namespace util
   {
-    BackgroundTransfer* BackgroundTransfer::m_pMe = NULL;
-
-    /**
-     *
-     */
-    BackgroundTransfer* BackgroundTransfer::GetInstance()
-    { if( m_pMe==NULL )
-        m_pMe = new BackgroundTransfer();
-    
-      return m_pMe; 
-    }
-
-    /**
-     *
-     */
-    void BackgroundTransfer::DeleteInstance()
-    { if( NULL!=m_pMe )
-      { if( NULL!=m_pMe )
-          delete m_pMe;
-          
-        m_pMe = NULL;
-      } // of if
-    }
-
     /**
      *
      */
@@ -73,19 +50,70 @@ namespace bvr20983
     /**
      *
      */
-    void BackgroundTransfer::CreateJob(LPCTSTR jobName)
+    void BackgroundTransfer::CreateJob(LPCTSTR jobName,CGUID& jobId)
     { GUID                       bitsJobId;
       COMPtr<IBackgroundCopyJob> bitsJob;
 
-      HRESULT hr = m_BITSManager->CreateJob(jobName, 
-                                            BG_JOB_TYPE_DOWNLOAD, 
-                                            &bitsJobId, 
-                                            &bitsJob
-                                           );
+      THROW_COMEXCEPTION( m_BITSManager->CreateJob(jobName, 
+                                                   BG_JOB_TYPE_DOWNLOAD, 
+                                                   &bitsJobId, 
+                                                   &bitsJob
+                                                  ) 
+                        );
 
-      THROW_COMEXCEPTION( hr );
-    }
+      jobId = bitsJobId;
+    } // of BackgroundTransfer::CreateJob()
 
+   /**
+     *
+     */
+    bool BackgroundTransfer::GetJob(LPCTSTR displayName,CGUID& foundJobId)
+    { bool                            found        = false;
+      LPTSTR                          pDisplayName = NULL;
+      COMPtr<IEnumBackgroundCopyJobs> pJobs;
+
+      THROW_COMEXCEPTION( m_BITSManager->EnumJobs(0, &pJobs) );
+
+      foundJobId = GUID_NULL;
+
+      for( ;; )
+      { COMPtr<IBackgroundCopyJob> pJob;
+        HRESULT                    hr = pJobs->Next(1, &pJob, NULL);
+
+        if( S_FALSE==hr )
+          break;
+
+        THROW_COMEXCEPTION(hr);
+
+        pDisplayName = NULL;
+        pJob->GetDisplayName(&pDisplayName);
+
+        if( _tcscmp(displayName,pDisplayName)==0 )
+        { GUID jobId = GUID_NULL;
+
+          if( SUCCEEDED(pJob->GetId(&jobId)) )
+          { foundJobId = jobId;
+            found      = true;
+          } // of if
+
+          break;
+        } // of if
+
+        ::CoTaskMemFree(pDisplayName);
+      } // of for
+
+      ::CoTaskMemFree(pDisplayName);
+
+      return found;
+    } // of BackgroundTransfer::GetJob()
+
+    /**
+     *
+     */
+    bool BackgroundTransfer::GetJob(const CGUID& jobId,COMPtr<IBackgroundCopyJob>& job)
+    { return m_BITSManager->GetJob(jobId,&job)==S_OK;
+    } // of BackgroundTransfer::GetJob()
+    
     /**
      *
      */
@@ -120,7 +148,48 @@ namespace bvr20983
     void BackgroundTransfer::Complete(LPCTSTR jobName)
     {
     }
-  } // of namespace util
+
+    /**
+     *
+     */
+    void BackgroundTransfer::List()
+    { COMPtr<IEnumBackgroundCopyJobs> pJobs;
+      ULONG                           cJobCount=0;
+
+      THROW_COMEXCEPTION( m_BITSManager->EnumJobs(0, &pJobs) );
+
+      pJobs->GetCount(&cJobCount);
+
+      for( ;; )
+      { COMPtr<IBackgroundCopyJob> pJob;
+        HRESULT                    hr = pJobs->Next(1, &pJob, NULL);
+
+        if( S_FALSE==hr )
+          break;
+
+        THROW_COMEXCEPTION(hr);
+
+        LPTSTR  pDescription = NULL;
+        LPTSTR  pDisplayName = NULL;
+        GUID    jobId;
+        TString sJobId;
+
+        pJob->GetDescription(&pDescription);
+        pJob->GetDisplayName(&pDisplayName);
+
+        if( SUCCEEDED(pJob->GetId(&jobId)) )
+          sJobId = CGUID(jobId);
+
+        OutputDebugFmt(_T("%s %s [%s]\n"),sJobId.c_str(),pDisplayName,pDescription);
+
+        ::CoTaskMemFree(pDescription);
+        ::CoTaskMemFree(pDisplayName);
+      } // of for
+
+      OutputDebugFmt(_T("Listed %ld job(s).\n"),cJobCount);
+    } // of BackgroundTransfer::List()
+
+   } // of namespace util
 } // of namespace bvr20983
 
 
@@ -128,85 +197,9 @@ namespace bvr20983
  * exportwrapper
  */
 STDAPI_(void) BtxCreateJob(LPCTSTR jobName)
-{ bvr20983::util::BackgroundTransfer::GetInstance()->CreateJob(jobName); }
-
-STDAPI_(void) BtxAddFile(LPCTSTR jobName,LPCTSTR url,LPCTSTR fileName)
-{ bvr20983::util::BackgroundTransfer::GetInstance()->AddFile(jobName,url,fileName); }
-
-STDAPI_(void) BtxResume(LPCTSTR jobName)
-{ bvr20983::util::BackgroundTransfer::GetInstance()->Resume(jobName); }
-
-STDAPI_(void) BtxSuspend(LPCTSTR jobName)
-{ bvr20983::util::BackgroundTransfer::GetInstance()->Suspend(jobName); }
-
-STDAPI_(void) BtxCancel(LPCTSTR jobName)
-{ bvr20983::util::BackgroundTransfer::GetInstance()->Cancel(jobName); }
-
-STDAPI_(void) BtxComplete(LPCTSTR jobName)
-{ bvr20983::util::BackgroundTransfer::GetInstance()->Complete(jobName); }
-
-
-#ifdef _UNICODE
-#define _BitsCreateJob_ BitsCreateJobW
-#else
-#define _BitsCreateJob_ BitsCreateJobA
-#endif
-
-/**
- *
- */
-void PrintBtxCreateJob(HWND hwnd)
-{ basic_ostringstream<TCHAR> msgStream;
-  msgStream<<_T("Usage: rundll32 <dllname>,BtxCreateJob jobname");
-
-  TString msg = msgStream.str();
-
-  ::MessageBox(hwnd,msg.c_str(),_T("BackgroundTransfer"),MB_OK | MB_ICONINFORMATION);
-} // of PrintBtxCreateJob()
-
-STDAPI_(void) _BitsCreateJob_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
-{ ::CoInitialize(NULL);
-
-  try
-  { OutputDebugFmt(_T("BitsCreateJob(): <%s>\n"),lpszCmdLine);
-
-    TCHAR jobname[MAX_PATH];
-
-    ::memset(jobname,_T('\0'),MAX_PATH);
-
-    int     i         = 0;
-    boolean stop      = false;
-    LPTSTR  nextToken = NULL;
-    for( LPTSTR tok=_tcstok_s(lpszCmdLine,_T(" "),&nextToken);NULL!=tok && !stop;tok=_tcstok_s(NULL,_T(" "),&nextToken),i++ )
-    {
-      switch( i )
-      { 
-      case 0:
-        _tcscpy_s(jobname,MAX_PATH,tok);
-        stop = true;
-        break;
-      default:
-        stop = true;
-        break;
-      } // of switch
-    } // of for
-
-    if( jobname[0]!=_T('\0') )
-    { 
-      BtxCreateJob(jobname);
-      
-    } // of if
-    else 
-      PrintBtxCreateJob(hwnd);
-  }
-  catch(BVR20983Exception e)
-  { OutputDebugFmt(_T("BitsCreateJob(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
-  }
-  catch(exception& e) 
-  { OutputDebugFmt(_T("BitsCreateJob(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
-  catch(...)
-  { OutputDebugFmt(_T("BitsCreateJob(): Exception\n")); }
-
-  ::CoUninitialize();
-} // of _BitsCreateJob_()
+{ CGUID                              jobId;
+  auto_ptr<util::BackgroundTransfer> btx(new util::BackgroundTransfer());
+  
+  btx->CreateJob(jobName,jobId); 
+}
 /*==========================END-OF-FILE===================================*/

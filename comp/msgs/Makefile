@@ -1,6 +1,6 @@
 # $Id$
 # 
-# Copyright (C) 2008 Dorothea Wachmann
+# Copyright (C) 2008-2009 Dorothea Wachmann
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ $(OUTDIR)\os.obj \
 $(OUTDIR)\bvr20983msgs.obj \
 $(OUTDIR)\bvr20983msgs.res \
 $(OUTDIR)\eventlogger.obj \
-$(OUTDIR)\backgroundtransfer.obj \
 $(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
@@ -35,7 +34,7 @@ $(OUTDIR)\bvr20983msgs.res: $(OUTDIR)\msgs.bin $(RESDIR)\bvr20983msgs.rc
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983msgs.rc
 
 $(OUTDIR)\$(BVR20983MSGS_RESULT).dll: $(OBJS)
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983msgs.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) bits.lib $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983msgs.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) $(OBJS)
 
 $(SLNDIR)\$(BVR20983MSGS_RESULT).dll: $(OUTDIR)\$(BVR20983MSGS_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983MSGS_RESULT).dll $(SLNDIR)

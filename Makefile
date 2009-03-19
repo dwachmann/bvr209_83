@@ -27,6 +27,7 @@ PROJECTS =          \
 comp\libbvr20983\~  \
 comp\res\~          \
 comp\msgs\~         \
+comp\update\~       \
 comp\cc\~           \
 comp\sc\~           \
 comp\digiclock\~    \
@@ -38,6 +39,7 @@ comp\msi\~
 CABCONTENT = \
 #$(INCDIR)\$(BVR20983_RESULT).inf \
 $(SIGNDIR)\$(BVR20983MSGS_RESULT).dll \
+$(SIGNDIR)\$(BVR20983UPDATE_RESULT).dll \
 $(SIGNDIR)\$(BVR20983SC_RESULT).dll \
 $(SIGNDIR)\$(BVR20983CC_RESULT).dll \
 $(SIGNDIR)\$(DIGICLOCK_RESULT).exe \

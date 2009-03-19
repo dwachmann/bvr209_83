@@ -26,9 +26,13 @@ namespace bvr20983
   class CGUID
   {
     public:
+      CGUID();
       CGUID(const TString& guid);
       CGUID(REFGUID guid);
-      
+
+      CGUID& operator=(const CGUID& cGUID);
+      CGUID& operator=(REFGUID guid);
+
       operator REFGUID() const
       { return m_guid; }
 
@@ -44,6 +48,8 @@ namespace bvr20983
     private:
       GUID     m_guid;
       TString  m_guidStr;
+
+      void Init(REFGUID guid);
   }; // of class CGUID
 } // of namespace bvr20983
 

@@ -27,20 +27,52 @@ namespace bvr20983
   /**
    *
    */
-  CGUID::CGUID(REFGUID guid) : m_guid(guid)
-  { TCHAR szCLSID[GUID_SIZE+1];
-  
-    ::StringFromGUID2(m_guid,szCLSID, GUID_SIZE);
-    
-    m_guidStr = TString(szCLSID);
+  CGUID::CGUID() : m_guid(GUID_NULL)
+  { }
+
+  /**
+   *
+   */
+  CGUID::CGUID(REFGUID guid) : m_guid(GUID_NULL)
+  { Init(guid);
   }
 
   /**
    *
    */
   CGUID::CGUID(const TString& guid) : m_guidStr(guid),m_guid(GUID_NULL)
-  { THROW_COMEXCEPTION( ::CLSIDFromString((LPOLESTR)guid.c_str(),&m_guid) );
+  { THROW_COMEXCEPTION( ::CLSIDFromString((LPOLESTR)guid.c_str(),&m_guid) ); 
   }
 
+  /**
+   *
+   */
+  void CGUID::Init(REFGUID guid)
+  { m_guid = guid;
+
+    TCHAR szCLSID[GUID_SIZE+1];
+  
+    ::StringFromGUID2(m_guid,szCLSID, GUID_SIZE);
+    
+    m_guidStr = TString(szCLSID);
+  } // of CGUID::Init()
+
+  /**
+   *
+   */
+  CGUID& CGUID::operator=(const CGUID& cGUID)
+  { Init(cGUID.m_guid);
+
+    return *this;
+  }
+
+  /**
+   *
+   */
+  CGUID& CGUID::operator=(REFGUID guid)
+  { Init(guid);
+
+    return *this;
+  }
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/
