@@ -94,6 +94,9 @@ namespace bvr20983
       
       switch( message )
       { 
+      case WM_TIMER:
+        OnTimer();
+        break;
       case WM_COMMAND:
         switch(LOWORD(wParam))
         { 
@@ -122,6 +125,12 @@ namespace bvr20983
      */
     BOOL Dialog::InitDialog()
     { return TRUE; }
+
+    /**
+     *
+     */
+    void Dialog::EndDialog(INT_PTR nResult)
+    { ::EndDialog(m_hWnd,nResult); }
 
     /**
      *

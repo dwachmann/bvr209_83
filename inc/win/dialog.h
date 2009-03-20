@@ -20,7 +20,7 @@
 #define DIALOG_H
 
 #include "os.h"
-#include "wnd.h"
+#include "win/wnd.h"
 
 namespace bvr20983
 {
@@ -37,6 +37,8 @@ namespace bvr20983
 
         int  Show(LPCTSTR dlgName,HWND hWnd,HINSTANCE hInstance=NULL);
         HWND Modeless(LPCTSTR dlgName,HWND hWnd,HINSTANCE hInstance=NULL);
+
+        void EndDialog(INT_PTR nResult);
 
         friend INT_PTR CALLBACK DlgProc(HWND hDlg,UINT message,WPARAM wParam,LPARAM lParam);
 

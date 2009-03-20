@@ -1,0 +1,79 @@
+/*
+ * $Id: $
+ * 
+ * Resource definition file for LSSTG
+ * 
+ * Copyright (C) 2008-2009 Dorothea Wachmann
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/.
+ */
+
+// If being read in by AppStudio we don't confuse it with this Version Info.
+#ifndef APSTUDIO_INVOKED
+
+// The version information for the binary.
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    verFileVer
+PRODUCTVERSION verProdVer
+FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifndef DEBUG
+  FILEFLAGS    0
+#else
+  FILEFLAGS    VS_FF_DEBUG | VS_FF_PRERELEASE
+#endif
+FILEOS         VOS_NT_WINDOWS32
+FILETYPE       verFileType
+FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      BLOCK "040904B0" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=Unicode
+    #else
+      BLOCK "040904E4" // LANG_ENGLISH/SUBLANG_ENGLISH_US, CharSet=MultiLang
+    #endif
+    BEGIN
+      VALUE "CompanyName",      verCompName
+      VALUE "FileDescription",  verFileDesc
+      VALUE "FileVersion",      verFileVer1
+      VALUE "InternalName",     verIntName
+      VALUE "LegalCopyright",   verCopyright
+      VALUE "OriginalFilename", verOrigName
+      VALUE "ProductName",      verProdName
+      VALUE "ProductVersion",   verProdVer1
+      VALUE "BuildDate",        verMakeDate
+      VALUE "SVNRevision",      verSvnRevision
+      VALUE verOleSelfReg,  "\0"
+      VALUE "ProductPrefix",    verProdPrefix
+      VALUE "ComponentPrefix",  verCompPrefix
+      VALUE "DebugVersion",     verDebugVersion
+      VALUE "MSIProductVersion",verMSIProdVersion
+      VALUE "MSIProductCode",   verMSIProdCode
+      VALUE "MSIPackageCode",   verMSIPackCode
+      VALUE "MSIUpgradeVersion",verMSIUpdCode
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    #ifdef UNICODE
+      VALUE "Translation", 0x409, 1200  //English (0x409), Unicode (1200)
+    #else
+      VALUE "Translation", 0x409, 1252  //English (0x409), ANSI (1252)
+    #endif
+  END
+END
+
+#endif

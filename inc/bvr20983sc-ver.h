@@ -29,13 +29,16 @@
 #define verFileDesc       "Smartcard Library"
 #define verIntName        "sc"
 #define verOrigName       "bvr20983.1.sc.1.dll"
-#define verMakeDate       "3/19/2009 16:16"
-#define verSvnRevision    "173"
+#define verMakeDate       "3/20/2009 18:52"
+#define verSvnRevision    "174"
 #define verCompPrefix     "sc.1"
 #define verDebugVersion   "1"
 #define verMSIProdVersion "1.0.0"
 #define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
 #define verMSIPackCode    "BFE20983-0001-0101-0000-0001FFFFFFFF"
 #define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
+
+#define verFileType       VFT_DLL
+#define verOleSelfReg     "OLESelfRegister"
 
 #endif // BVR20983SCVER_H

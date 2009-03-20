@@ -28,8 +28,8 @@
 #define verFileDesc       "Custom Control Library"
 #define verIntName        "cc"
 #define verOrigName       "bvr20983.1.cc.1.dll"
-#define verMakeDate       "3/19/2009 16:16"
-#define verSvnRevision    "173"
+#define verMakeDate       "3/20/2009 18:52"
+#define verSvnRevision    "174"
 #define verCompPrefix     "cc.1"
 #define verDebugVersion   "1"
 #define verMSIProdVersion "1.0.0"
@@ -37,7 +37,10 @@
 #define verMSIPackCode    "BFE20983-0001-0101-0000-0001FFFFFFFF"
 #define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
-#define verAboutTitle   "Custom Control Library"
-#define verAboutText    "Custom Control Library 1.0.0.0"
+#define verAboutTitle     "Custom Control Library"
+#define verAboutText      "Custom Control Library 1.0.0.0"
+
+#define verFileType       VFT_DLL
+#define verOleSelfReg     "OLESelfRegister"
 
 #endif // BVR20983CCVER_H

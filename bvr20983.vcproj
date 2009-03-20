@@ -455,6 +455,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\bvr20983update-res.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\com\ocx\coled.h"
 						>
 					</File>
@@ -511,6 +515,10 @@
 				</File>
 				<File
 					RelativePath=".\res\bvr20983sc.rc"
+					>
+				</File>
+				<File
+					RelativePath=".\res\bvr20983update.rc"
 					>
 				</File>
 				<File
@@ -777,6 +785,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\src\win\bitsprogressdlg.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\src\win\clipboard.cpp"
 						>
 					</File>
@@ -830,6 +842,10 @@
 					</File>
 					<File
 						RelativePath=".\src\bvr20983msgs.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\bvr20983update.cpp"
 						>
 					</File>
 					<File

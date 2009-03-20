@@ -24,14 +24,18 @@
 #include "util/comptr.h"
 #include "util/versioninfo.h"
 #include "util/apputil.h"
-#include "util/backgroundtransfer.h"
-#include "util/md5sum.h"
+#include "win/bitsprogressdlg.h"
+#include <commctrl.h>
 #include <sstream>
 #include "exception/lasterrorexception.h"
 #include "exception/comexception.h"
 
 using namespace bvr20983;
 using namespace bvr20983::util;
+using namespace bvr20983::win;
+
+static HINSTANCE g_hDllInst = NULL;
+
 
 /**
  *
@@ -45,6 +49,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
 
         LPVOID prodPrefix = verInfo.GetStringInfo(_T("ProductPrefix"));
 
+        g_hDllInst = hDllInst;
       }
       break;
     case DLL_PROCESS_DETACH:
@@ -91,26 +96,19 @@ void ParseCommandLine(LPWSTR lpszCmdLine,VTString& args)
     args.push_back(tok);
 } // of ParseCommandline()
 
-/**
- *
- */
-static LPTSTR bgStates[] =
-{ _T("QUEUED"),
-	_T("CONNECTING"),
-	_T("TRANSFERRING"),
-	_T("SUSPENDED"),
-	_T("ERROR"),
-	_T("TRANSIENT_ERROR"),
-	_T("TRANSFERRED"),
-	_T("ACKNOWLEDGED"),
-	_T("CANCELLED")
-};
 
 /**
  *
  */
 STDAPI_(void) _BitsAdmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
 { ::CoInitialize(NULL);
+
+  INITCOMMONCONTROLSEX icc;
+
+  icc.dwSize = sizeof(INITCOMMONCONTROLSEX);
+  icc.dwICC = ICC_PROGRESS_CLASS;
+
+  ::InitCommonControlsEx(&icc);
 
   try
   { auto_ptr<BackgroundTransfer> btx(new BackgroundTransfer());
@@ -124,7 +122,7 @@ STDAPI_(void) _BitsAdmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCm
     {
       TString command = args[0];
 
-      args.erase( args.begin( ) );
+      args.erase( args.begin() );
 
       if( _tcscmp(command.c_str(),_T("create"))==0 )
       { CGUID jobId;
@@ -134,89 +132,11 @@ STDAPI_(void) _BitsAdmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCm
       else if( _tcscmp(command.c_str(),_T("list"))==0 )
         btx->List();
       else if( _tcscmp(command.c_str(),_T("update"))==0 && args.size()>=3 )
-      { CGUID                      jobId;
-        COMPtr<IBackgroundCopyJob> job;
+      { BITSProgressDlg dlg(btx)  ;
 
-        if( !btx->GetJob(args[0].c_str(),jobId) )
-        { btx->CreateJob(args[0].c_str(),jobId);
+        dlg.Init(args[0].c_str(),args[1].c_str(),args[2].c_str());
 
-          COMPtr<IBackgroundCopyJob> newJob;
-
-          if( btx->GetJob(jobId,newJob) )
-            THROW_COMEXCEPTION( newJob->AddFile(args[1].c_str(),args[2].c_str()) );
-        } // of if
-
-        if( btx->GetJob(jobId,job) )
-        { BG_JOB_STATE    jobState;
-          BG_JOB_PROGRESS jobProgress;
-
-          THROW_COMEXCEPTION( job->GetState(&jobState) ); 
-
-          THROW_COMEXCEPTION( job->GetProgress(&jobProgress) ); 
-
-          OutputDebugFmt(_T("BitsAdmin(): jobstate=%s %I64u / %I64u "),
-                         bgStates[jobState],
-                         jobProgress.BytesTransferred,jobProgress.BytesTotal
-                        );
-
-          switch( jobState )
-          {
-          case BG_JOB_STATE_SUSPENDED:
-            THROW_COMEXCEPTION( job->Resume() ); 
-            break;
-          case BG_JOB_STATE_TRANSFERRED:
-            { THROW_COMEXCEPTION( job->Complete() );
-              
-              COMPtr<IEnumBackgroundCopyFiles> files;
-
-              THROW_COMEXCEPTION( job->EnumFiles(&files) );
-
-              for( ;; )
-              { COMPtr<IBackgroundCopyFile> aFile;
-
-                if( S_OK==files->Next(1,&aFile,NULL) )
-                { LPTSTR localFileName = NULL;
-
-                  if( SUCCEEDED(aFile->GetLocalName(&localFileName)) )
-                  { MD5Sum               md5sum;
-                    auto_ptr<CryptoHash> hash;
-                    auto_ptr<BYTE>       hashValue;
-                    DWORD                hashValueLen;
-
-                    md5sum.CalcFileHash(localFileName,hash);
-
-                    CryptoHash* pHash = hash.get();
-
-                    hashValueLen = pHash->Get(hashValue);
-
-                    if( hashValueLen>0 )
-                    { basic_ostringstream<TCHAR> hashValueStr;
-
-                      hashValueStr<<setfill(_T('0'))<<setw(2)<<hex;
-
-                      BYTE* pBuffer = hashValue.get();
-
-                      for( DWORD i=0;i<hashValueLen;i++ )
-                        hashValueStr<<pBuffer[i];
-
-                      OutputDebugFmt(_T("%s: md5{%ld}[%s]\n"),localFileName,hashValueLen,hashValueStr.str());
-                    } // of if
-
-                    ::CoTaskMemFree(localFileName);
-                  } // of if
-                } // of if
-                else
-                  break;
-              } // of for
-            }
-            break;
-          case BG_JOB_STATE_ERROR:
-            THROW_COMEXCEPTION( job->Cancel() ); 
-            break;
-          default:
-            break;
-          } // of switch()
-        } // of if
+        int result = dlg.Show(hwnd,g_hDllInst);
       } // of else if
       else
         PrintBtxCreateJob(hwnd);

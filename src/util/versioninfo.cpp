@@ -246,7 +246,9 @@ namespace bvr20983
                       valName
                      );
 
-          ::VerQueryValue(m_lpBuffer,blockName,&varValue, &varValueLen); 
+          ::VerQueryValue(m_lpBuffer,blockName,&varValue, &varValueLen);
+
+          break;
         } // of for
       } // of if
 
