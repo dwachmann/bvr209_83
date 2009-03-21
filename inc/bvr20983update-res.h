@@ -22,5 +22,11 @@
 #define IDD_PROGRESS                            101
 #define IDC_PROGRESS1                           1000
 #define IDC_FILENAME                            1001
+#define IDC_URL                                 1002
+#define IDC_MD5                                 1003
+#define IDC_STOP                                1004
+#define IDC_START                               1005
+#define IDC_CANCEL                              1008
+#define IDG_GROUP0                              1007
 
 #endif // BVR20983UPDATERES_H

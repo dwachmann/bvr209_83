@@ -40,11 +40,12 @@ namespace bvr20983
 
         void Init(LPCTSTR jobName,LPCTSTR remoteName,LPCTSTR localName);
 
-        void TriggerState();
+        
 
       protected:
         virtual BOOL InitDialog();
         virtual void OnTimer();
+        virtual bool OnCommand(WPARAM command);
 
       private:
         auto_ptr<util::BackgroundTransfer>& m_btx;
@@ -53,8 +54,11 @@ namespace bvr20983
 
         TString                             m_removeName;
         TString                             m_localName;
+        bool                                m_finished;
 
-        void CalcChecksum();
+        void CalcChecksum(TString& fileHash);
+        void SetProgress(WPARAM percent);
+        void TriggerState(bool isInitial);
     }; // of class Dialog
   } // of namespace win
 } // of namespace bvr20983

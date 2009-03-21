@@ -67,9 +67,9 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
 
 
 #ifdef _UNICODE
-#define _BitsAdmin_ BitsAdminW
+#define _bitsadmin_ bitsadminW
 #else
-#define _BitsAdmin_ BitsAdminA
+#define _bitsadmin_ bitsadminA
 #endif
 
 /**
@@ -77,12 +77,13 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
  */
 void PrintBtxCreateJob(HWND hwnd)
 { basic_ostringstream<TCHAR> msgStream;
-  msgStream<<_T("Usage: rundll32 <dllname>,BitsAdmin <command> args")<<endl;
+  msgStream<<_T("Usage: rundll32 <dllname>,bitsadmin <command> args")<<endl;
   msgStream<<_T("       create <jobname>: create a bits job")<<endl;
+  msgStream<<_T("       update <jobname> <url> <localname>: download a file")<<endl;
 
   TString msg = msgStream.str();
 
-  ::MessageBox(hwnd,msg.c_str(),_T("BitsAdmin"),MB_OK | MB_ICONINFORMATION);
+  ::MessageBox(hwnd,msg.c_str(),_T("bitsadmin"),MB_OK | MB_ICONINFORMATION);
 } // of PrintBtxCreateJob()
 
 /**
@@ -100,7 +101,7 @@ void ParseCommandLine(LPWSTR lpszCmdLine,VTString& args)
 /**
  *
  */
-STDAPI_(void) _BitsAdmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+STDAPI_(void) _bitsadmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
 { ::CoInitialize(NULL);
 
   INITCOMMONCONTROLSEX icc;

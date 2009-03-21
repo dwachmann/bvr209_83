@@ -58,7 +58,7 @@ namespace bvr20983
      */
     BITSProgressDlg::BITSProgressDlg(auto_ptr<BackgroundTransfer>& btx) :
       m_btx(btx)
-    { 
+    { m_finished = false;
     } // of BITSProgressDlg::BITSProgressDlg()
     
     /*
@@ -95,43 +95,98 @@ namespace bvr20983
         m_btx->GetJob(m_jobId,m_job);
     } // of BITSProgressDlg::Init()
 
+    /**
+     *
+     */
+    void BITSProgressDlg::SetProgress(WPARAM percent)
+    { TCHAR msg[1024];
+
+      ::_stprintf_s(msg,1023,_T("%s [%d %%]"),m_removeName.c_str(),percent/10);
+    
+      ::SendDlgItemMessage(m_hWnd,IDC_URL,WM_SETTEXT,0,(LPARAM)msg);
+      ::SendDlgItemMessage(m_hWnd,IDC_PROGRESS1,PBM_SETPOS,percent,0);
+    } // of BITSProgressDlg::SetProgress()
+
 
     /**
      *
      */
-    void BITSProgressDlg::TriggerState()
+    void BITSProgressDlg::TriggerState(bool isInitial)
     { BG_JOB_STATE    jobState;
       BG_JOB_PROGRESS jobProgress;
 
       THROW_COMEXCEPTION( m_job->GetState(&jobState) ); 
       THROW_COMEXCEPTION( m_job->GetProgress(&jobProgress) ); 
 
+      ::SendDlgItemMessage(m_hWnd,IDG_GROUP0,WM_SETTEXT,0,(LPARAM)gBgStates[jobState]);
+
       switch( jobState )
       {
       case BG_JOB_STATE_SUSPENDED:
-        THROW_COMEXCEPTION( m_job->Resume() ); 
-        break;
-      case BG_JOB_STATE_TRANSFERRING:
-        { TCHAR msg[1024];
-          WPARAM percent = (WPARAM) (jobProgress.BytesTransferred * 1000 / jobProgress.BytesTotal);
+        if( isInitial )
+        { THROW_COMEXCEPTION( m_job->Resume() ); 
 
-          ::_stprintf_s(msg,1023,_T("%s [%d %%]"),m_removeName.c_str(),percent/10);
-        
-          ::SendDlgItemMessage(m_hWnd,IDC_FILENAME,WM_SETTEXT,0,(LPARAM)msg);
-          ::SendDlgItemMessage(m_hWnd,IDC_PROGRESS1,PBM_SETPOS,percent,0);
+          ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),TRUE);
+          ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),FALSE);
+          ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),TRUE);
         }
         break;
-      case BG_JOB_STATE_TRANSFERRED:
-        THROW_COMEXCEPTION( m_job->Complete() );
-         
-        CalcChecksum();
-
-        EndDialog(0);
+      case BG_JOB_STATE_CONNECTING:
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),TRUE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),TRUE);
         break;
+      case BG_JOB_STATE_TRANSFERRING:
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),TRUE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),TRUE);
+        SetProgress( (WPARAM) (jobProgress.BytesTransferred * 1000 / jobProgress.BytesTotal) );
+        break;
+      case BG_JOB_STATE_TRANSFERRED:
+        { TCHAR   msg[1024];
+          TString fileHash;
+
+          THROW_COMEXCEPTION( m_job->Complete() );
+
+          ::SendDlgItemMessage(m_hWnd,IDC_PROGRESS1,PBM_SETBARCOLOR,0,RGB(255,255,0));
+          SetProgress( 1000 );
+         
+          CalcChecksum(fileHash);
+
+          ::_stprintf_s(msg,1023,_T("md5: %s"),fileHash.c_str());
+          ::SendDlgItemMessage(m_hWnd,IDC_MD5,WM_SETTEXT,0,(LPARAM)msg);
+
+          ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+          ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),FALSE);
+          ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),FALSE);
+
+          //EndDialog(0);
+        }
+        break;
+      case BG_JOB_STATE_ACKNOWLEDGED:
+      case BG_JOB_STATE_CANCELLED:
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),FALSE);
+        StopTimer();
+
+        StartTimer(15000);
+
+        m_finished = true;
+        break;
+      // fall through
+      case BG_JOB_STATE_TRANSIENT_ERROR:
       case BG_JOB_STATE_ERROR:
         THROW_COMEXCEPTION( m_job->Cancel() ); 
 
-        EndDialog(-1);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),FALSE);
+        StopTimer();
+
+        StartTimer(15000);
+
+        m_finished = true;
         break;
       default:
         break;
@@ -142,7 +197,7 @@ namespace bvr20983
     /**
      *
      */
-    void BITSProgressDlg::CalcChecksum()
+    void BITSProgressDlg::CalcChecksum(TString& fileHash)
     { COMPtr<IEnumBackgroundCopyFiles> files;
 
       THROW_COMEXCEPTION( m_job->EnumFiles(&files) );
@@ -175,7 +230,7 @@ namespace bvr20983
               for( DWORD i=0;i<hashValueLen;i++ )
                 hashValueStr<<pBuffer[i];
 
-              OutputDebugFmt(_T("%s: md5{%ld}[%s]\n"),localFileName,hashValueLen,hashValueStr.str());
+              fileHash = hashValueStr.str();
             } // of if
 
             ::CoTaskMemFree(localFileName);
@@ -190,8 +245,46 @@ namespace bvr20983
      *
      */
     void BITSProgressDlg::OnTimer()
-    { TriggerState();
+    { if( !m_finished )
+        TriggerState(false);
+      else
+      { StopTimer();
+        EndDialog(0);
+      } // of else
     } // of BITSProgressDlg::OnTimer()
+
+    /**
+     *
+     */
+    bool BITSProgressDlg::OnCommand(WPARAM command)
+    { bool result  = false;
+
+      switch( command )
+      { 
+      case IDC_STOP:
+        THROW_COMEXCEPTION( m_job->Suspend() );
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),TRUE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),TRUE);
+        break;
+      case IDC_START:
+        THROW_COMEXCEPTION( m_job->Resume() );
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),TRUE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),TRUE);
+        break;
+      case IDC_CANCEL:
+        THROW_COMEXCEPTION( m_job->Cancel() );
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),FALSE);
+        ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),FALSE);
+        break;
+        break;
+      } // of switch
+
+      return result;
+    } // of BITSProgressDlg::OnCommand()
+
 
     /**
      *
@@ -199,9 +292,15 @@ namespace bvr20983
     BOOL BITSProgressDlg::InitDialog()
     { ::SendDlgItemMessage(m_hWnd,IDC_PROGRESS1,PBM_SETRANGE,0,MAKELPARAM (0,1000));
       ::SendDlgItemMessage(m_hWnd,IDC_PROGRESS1,PBM_SETPOS,0,0);
-      ::SendDlgItemMessage(m_hWnd,IDC_FILENAME,WM_SETTEXT,0,(LPARAM) m_removeName.c_str());
+      ::SendDlgItemMessage(m_hWnd,IDC_FILENAME,WM_SETTEXT,0,(LPARAM) _T(""));
+      ::SendDlgItemMessage(m_hWnd,IDC_MD5,WM_SETTEXT,0,(LPARAM) _T(""));
+      ::SendDlgItemMessage(m_hWnd,IDC_URL,WM_SETTEXT,0,(LPARAM) m_removeName.c_str());
+      ::SendDlgItemMessage(m_hWnd,IDC_FILENAME,WM_SETTEXT,0,(LPARAM) m_localName.c_str());
+      ::EnableWindow(GetDlgItem(m_hWnd,IDC_START),FALSE);
+      ::EnableWindow(GetDlgItem(m_hWnd,IDC_STOP),FALSE);
+      ::EnableWindow(GetDlgItem(m_hWnd,IDC_CANCEL),FALSE);
 
-      TriggerState();
+      TriggerState(true);
 
       StartTimer(1000);
       
