@@ -32,6 +32,7 @@
 #include "util/dirinfo.h"
 #include "util/comstring.h"
 #include "util/md5sum.h"
+#include "util/verifyfile.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -47,6 +48,16 @@ using namespace std;
 /**
  *
  */
+void verifyfile(LPTSTR fName,LPTSTR argv[],int argc)
+{ if( VerifyFile::Verify(fName) )
+  { LOGGER_INFO<<_T("File \"")<<fName<<_T("\" is verified.")<<endl; }
+  else
+  { LOGGER_INFO<<_T("File \"")<<fName<<_T("\" is NOT verified.")<<endl; }
+} // of md5sum()
+
+/**
+ *
+ */
 void md5sum(LPTSTR fName,LPTSTR argv[],int argc)
 { MD5Sum               md5sum;
   auto_ptr<CryptoHash> hash;
@@ -56,7 +67,7 @@ void md5sum(LPTSTR fName,LPTSTR argv[],int argc)
   CryptoHash* pHash = hash.get();
 
   if( NULL!=pHash )
-  { LOGGER_INFO<<_T("md5sum:")<<*pHash<<endl; }
+  { LOGGER_INFO<<*pHash<<endl; }
 } // of md5sum()
 
 /**
@@ -662,6 +673,8 @@ void printUsage(LPCTSTR progName)
 { LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab  <versions file> <component dir> <cabname> <templatedir>")<<endl;
   LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab1 <versions file> <component dir> <cabname>")<<endl;
   LOGGER_INFO<<_T("Usage: "<<progName<<" -dir     <dirname> [filemask] [maxdepth]")<<endl;
+  LOGGER_INFO<<_T("Usage: "<<progName<<" -md5     <filename>")<<endl;
+  LOGGER_INFO<<_T("Usage: "<<progName<<" -verify  <filename>")<<endl;
   LOGGER_INFO<<endl;
   
   LOGGER_INFO<<_T("Usage: "<<progName<<" [options] command cabfile [files] [dest_dir]")<<endl;
@@ -697,13 +710,12 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
   try
   { _set_se_translator( SEException::throwException );
   
+    if( argc<2 )
     { VersionInfo verInfo;
     
       verInfo.LogCopyright();
-    }
-    
-    if( argc<2 )
       printUsage(argv[0]);
+    }
       
     if( _tcscmp(argv[1],_T("-xml"))==0 && argc>=4 )
       xmltest(argv[2],argv[3],argc>=5 ? &argv[4] : NULL,argc-4);
@@ -723,6 +735,8 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
       dirtest(argv[2],argc>3 ? argv[3] : NULL,argc>4 ? _tstoi(argv[4]) : 0);
     else if( _tcscmp(argv[1],_T("-md5"))==0 && argc>=3 )
       md5sum(argv[2],argc>3 ? &argv[3] : NULL,argc-3);
+    else if( _tcscmp(argv[1],_T("-verify"))==0 && argc>=3 )
+      verifyfile(argv[2],argc>3 ? &argv[3] : NULL,argc-3);
     else
     { TCHAR command = _T('\0');
       int   i       = 1;

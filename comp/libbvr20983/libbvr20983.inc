@@ -75,7 +75,8 @@ $(OUTDIR)\dllgetclass.obj \
 $(OUTDIR)\coclassfactory.obj \
 $(OUTDIR)\versioninfo.obj \
 $(OUTDIR)\handle.obj \
-$(OUTDIR)\md5sum.obj
+$(OUTDIR)\md5sum.obj \
+$(OUTDIR)\verifyfile.obj 
 
 !ifdef clean
 all: clean

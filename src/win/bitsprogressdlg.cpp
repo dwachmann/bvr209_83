@@ -223,12 +223,12 @@ namespace bvr20983
             if( hashValueLen>0 )
             { basic_ostringstream<TCHAR> hashValueStr;
 
-              hashValueStr<<setfill(_T('0'))<<setw(2)<<hex;
+              hashValueStr<<setfill(_T('0'))<<hex;
 
               BYTE* pBuffer = hashValue.get();
 
               for( DWORD i=0;i<hashValueLen;i++ )
-                hashValueStr<<pBuffer[i];
+                hashValueStr<<setw(2)<<pBuffer[i];
 
               fileHash = hashValueStr.str();
             } // of if

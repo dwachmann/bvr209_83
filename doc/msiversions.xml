@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<msiversions xmlns="http://bvr20983.berlios.de/">
+  <description>MSI Versions</description>
+  
+  <package id="bvr20983.1.msi">
+    <name>bvr20983.1.msi</name>
+    <version major="1" minor="0"/>
+    <packagecode>${msipackpattern}</packagecode>
+    <productcode>${msiprodpattern}</productcode>
+    <size>11442</size>
+    <lastmodified>2008-08-13T01:03:53.000Z</lastmodified>
+    <hash type="md5">d4a06dd002a6edd9da12101f21ae6aab</hash>
+  </package>
+  
+</msiversions>

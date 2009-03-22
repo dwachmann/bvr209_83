@@ -112,17 +112,18 @@ namespace bvr20983
       try
       {
         if( opfx && NULL!=m_hHash )
-        { os<<setfill(_T('0'))<<setw(2)<<hex;
-        
-          auto_ptr<BYTE> hashValue;
+        { auto_ptr<BYTE> hashValue;
 
           DWORD hashLen = this->Get(hashValue);
 
           BYTE* pBuffer = hashValue.get();
 
           if( NULL!=pBuffer )
+          { os<<setfill(_T('0'))<<setw(2)<<hex;
+
             for( DWORD i=0;i<hashLen;i++ )
-              os<<pBuffer[i];
+              os<<setw(2)<<pBuffer[i];
+          } // of if
           
           os.width(0);
           os.fill(_T(' '));

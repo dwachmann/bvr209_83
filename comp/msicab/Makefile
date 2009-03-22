@@ -37,7 +37,7 @@ all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB_RESULT).exe
 !endif
 
 $(OUTDIR)\$(MSICAB_RESULT).exe: $(OBJS)
-  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) FCI.LIB FDI.LIB MSI.LIB $(OBJS)
+  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) wintrust.lib FCI.LIB FDI.LIB MSI.LIB $(OBJS)
 
 $(SLNDIR)\$(MSICAB_RESULT).exe: $(OUTDIR)\$(MSICAB_RESULT).exe
   @copy $(OUTDIR)\$(MSICAB_RESULT).exe $(SLNDIR)
