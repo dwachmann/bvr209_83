@@ -6,11 +6,11 @@
   <package id="bvr20983.1.msi">
     <name>bvr20983.1.msi</name>
     <version major="1" minor="0"/>
-    <packagecode>${msipackpattern}</packagecode>
-    <productcode>${msiprodpattern}</productcode>
+    <packagecode>BFE20983-0001-0101-0000-0001FFFFFFFF</packagecode>
+    <productcode>BFE20983-0001-0100-0001-FFFFFFFFFFFF</productcode>
     <size>11442</size>
     <lastmodified>2008-08-13T01:03:53.000Z</lastmodified>
-    <hash type="md5">d4a06dd002a6edd9da12101f21ae6aab</hash>
+    <hash type="md5">91268a673469b60f72f37cbec1ad4ccf</hash>
   </package>
   
 </msiversions>
