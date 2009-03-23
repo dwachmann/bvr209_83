@@ -23,6 +23,11 @@ $(OUTDIR)\bvr20983update.obj \
 $(OUTDIR)\bvr20983update.res \
 $(OUTDIR)\backgroundtransfer.obj \
 $(OUTDIR)\bitsprogressdlg.obj \
+$(OUTDIR)\autoupdate.obj \
+$(OUTDIR)\cabinetexception.obj \
+$(OUTDIR)\cabinetfci.obj \
+$(OUTDIR)\cabinetfdi.obj \
+$(OUTDIR)\dirinfo.obj \
 $(SLNDIR)\libbvr20983.lib
 
 !ifdef clean
@@ -35,7 +40,7 @@ $(OUTDIR)\bvr20983update.res: $(RESDIR)\bvr20983update.rc
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983update.rc
 
 $(OUTDIR)\$(BVR20983UPDATE_RESULT).dll: $(OBJS)
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983update.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) bits.lib comctl32.lib $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983update.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) bits.lib comctl32.lib wintrust.lib FCI.LIB FDI.LIB MSI.LIB $(OBJS)
 
 $(SLNDIR)\$(BVR20983UPDATE_RESULT).dll: $(OUTDIR)\$(BVR20983UPDATE_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983UPDATE_RESULT).dll $(SLNDIR)

@@ -46,6 +46,7 @@ namespace bvr20983
 
         void  Put(BYTE* pBuffer,DWORD bufferLen);
         DWORD Get(auto_ptr<BYTE>& pBuffer) const;
+        void  Get(TString& h) const;
 
         HCRYPTHASH operator*()  const
         { return m_hHash; }

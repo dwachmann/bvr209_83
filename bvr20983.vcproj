@@ -271,6 +271,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\win\bitsprogressdlg.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\win\clipboard.h"
 						>
 					</File>

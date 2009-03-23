@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.cpp 52 2008-06-30 22:45:31Z dwachmann $
+ * $Id$
  * 
  * windows dialog class.
  * 
@@ -80,9 +80,7 @@ namespace bvr20983
      *
      */
     void BITSProgressDlg::Init(LPCTSTR jobName,LPCTSTR remoteName,LPCTSTR localName)
-    { COMPtr<IBackgroundCopyJob> job;
-
-      m_removeName = remoteName;
+    { m_removeName = remoteName;
       m_localName  = localName;
 
       if( !m_btx->GetJob(jobName,m_jobId) )
@@ -211,27 +209,11 @@ namespace bvr20983
           if( SUCCEEDED(aFile->GetLocalName(&localFileName)) )
           { MD5Sum               md5sum;
             auto_ptr<CryptoHash> hash;
-            auto_ptr<BYTE>       hashValue;
-            DWORD                hashValueLen;
-
+            
             md5sum.CalcFileHash(localFileName,hash);
 
             CryptoHash* pHash = hash.get();
-
-            hashValueLen = pHash->Get(hashValue);
-
-            if( hashValueLen>0 )
-            { basic_ostringstream<TCHAR> hashValueStr;
-
-              hashValueStr<<setfill(_T('0'))<<hex;
-
-              BYTE* pBuffer = hashValue.get();
-
-              for( DWORD i=0;i<hashValueLen;i++ )
-                hashValueStr<<setw(2)<<pBuffer[i];
-
-              fileHash = hashValueStr.str();
-            } // of if
+            pHash->Get(fileHash);
 
             ::CoTaskMemFree(localFileName);
           } // of if

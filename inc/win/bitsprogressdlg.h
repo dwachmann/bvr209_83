@@ -59,7 +59,7 @@ namespace bvr20983
         void CalcChecksum(TString& fileHash);
         void SetProgress(WPARAM percent);
         void TriggerState(bool isInitial);
-    }; // of class Dialog
+    }; // of class BITSProgressDlg
   } // of namespace win
 } // of namespace bvr20983
 #endif // BITSPROGRESSDLG_H

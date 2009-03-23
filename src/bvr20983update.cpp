@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id$
  * 
  * Copyright (C) 2008-2009 Dorothea Wachmann
  * 
@@ -24,6 +24,7 @@
 #include "util/comptr.h"
 #include "util/versioninfo.h"
 #include "util/apputil.h"
+#include "util/autoupdate.h"
 #include "win/bitsprogressdlg.h"
 #include <commctrl.h>
 #include <sstream>
@@ -133,11 +134,17 @@ STDAPI_(void) _bitsadmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCm
       else if( _tcscmp(command.c_str(),_T("list"))==0 )
         btx->List();
       else if( _tcscmp(command.c_str(),_T("update"))==0 && args.size()>=3 )
-      { BITSProgressDlg dlg(btx)  ;
+      { BITSProgressDlg dlg(btx);
 
         dlg.Init(args[0].c_str(),args[1].c_str(),args[2].c_str());
 
         int result = dlg.Show(hwnd,g_hDllInst);
+      } // of else if
+      else if( _tcscmp(command.c_str(),_T("checkupdate"))==0 && args.size()>=1 )
+      { AutoUpdate autoUpdate(btx);
+
+        if( autoUpdate.Init(g_hDllInst,args[0].c_str()) )
+          autoUpdate.Run();
       } // of else if
       else
         PrintBtxCreateJob(hwnd);

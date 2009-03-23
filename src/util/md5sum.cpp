@@ -19,6 +19,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #include "os.h"
+#include <sstream>
 #include "util/md5sum.h"
 #include "util/logstream.h"
 #include "util/handle.h"
@@ -94,6 +95,29 @@ namespace bvr20983
 
       return dwHashLen;
     } // of CryptoHash::Get()
+
+    /**
+     *
+     */
+    void CryptoHash::Get(TString& h) const
+    { auto_ptr<BYTE>       hashValue;
+      DWORD                hashValueLen;
+      
+      hashValueLen = Get(hashValue);
+
+      if( hashValueLen>0 )
+      { basic_ostringstream<TCHAR> hashValueStr;
+
+        hashValueStr<<setfill(_T('0'))<<hex;
+
+        BYTE* pBuffer = hashValue.get();
+
+        for( DWORD i=0;i<hashValueLen;i++ )
+          hashValueStr<<setw(2)<<pBuffer[i];
+
+        h = hashValueStr.str();
+      } // of if
+    } // of CryptoHash::Get(TString& h)
 
 
   #ifdef _UNICODE
