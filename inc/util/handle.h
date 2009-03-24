@@ -50,6 +50,8 @@ namespace bvr20983
     {
       public:
         FileHandle(LPCTSTR fileName);
+
+        void ReadFile(BString& buffer);
     }; // of class FileHandle
   } // of namespace util
 } // of namespace bvr20983

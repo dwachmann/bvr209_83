@@ -28,6 +28,7 @@ $(OUTDIR)\cabinetexception.obj \
 $(OUTDIR)\cabinetfci.obj \
 $(OUTDIR)\cabinetfdi.obj \
 $(OUTDIR)\dirinfo.obj \
+$(OUTDIR)\msi.obj \
 $(SLNDIR)\libbvr20983.lib
 
 !ifdef clean

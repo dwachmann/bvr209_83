@@ -43,6 +43,32 @@ namespace bvr20983
       if( m_hHandle==INVALID_HANDLE_VALUE )
       { THROW_LASTERROREXCEPTION2; }
     } // of FileHandle::FileHandle()
+
+   /**
+     *
+     */
+    void FileHandle::ReadFile(BString& buffer)
+    { BYTE       pbBuffer[1024];
+      DWORD      dwBytesRead;
+
+      buffer.clear();
+
+      if( m_hHandle!=INVALID_HANDLE_VALUE )
+      { do
+        { dwBytesRead = 0;
+
+          THROW_LASTERROREXCEPTION1( ::ReadFile(m_hHandle, 
+                                                pbBuffer, sizeof(pbBuffer), &dwBytesRead, NULL
+                                               ) 
+                                   );
+
+          if( dwBytesRead==0 ) 
+            break;
+
+          buffer.append(pbBuffer,dwBytesRead);
+        } while( dwBytesRead>=sizeof(pbBuffer) );
+      } // of if
+    } // of AutoUpdate::ReadFile()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

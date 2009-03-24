@@ -73,6 +73,8 @@ namespace bvr20983
 
         void CalcFileHash(LPCTSTR fileName,auto_ptr<CryptoHash>& hash);
 
+        static bool CheckHash(LPCTSTR fileName,LPCTSTR refHash);
+
       private:
         CryptoContext m_cryptoCtx;
     }; // of class MD5Sum

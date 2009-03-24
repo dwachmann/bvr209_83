@@ -27,6 +27,7 @@
 #include "util/autoupdate.h"
 #include "util/verifyfile.h"
 #include "util/md5sum.h"
+#include "util/handle.h"
 #include "exception/lasterrorexception.h"
 
 using namespace bvr20983;
@@ -109,54 +110,7 @@ namespace bvr20983
       case BG_JOB_STATE_TRANSFERRED:
         { THROW_COMEXCEPTION( m_job->Complete() );
 
-          MD5Sum               md5sum;
-          auto_ptr<CryptoHash> hash;
-          TString              fileHash;
-          TCHAR                buffer;
-          
-          md5sum.CalcFileHash(m_localMSIVersionsCAB.c_str(),hash);
-
-          CryptoHash* pHash = hash.get();
-          pHash->Get(fileHash);
-
-          HANDLE hFile; 
-           
-          hFile = CreateFile(m_localMSIVersionsMD5.c_str(),
-                             GENERIC_READ,          // open for reading
-                             FILE_SHARE_READ,       // share for reading
-                             NULL,                  // default security
-                             OPEN_EXISTING,         // existing file only
-                             FILE_ATTRIBUTE_NORMAL, // normal file
-                             NULL);                 // no attr. template
-
-          if( hFile!=INVALID_HANDLE_VALUE ) 
-          { BYTE  md5Buffer[1024];
-            DWORD nBytesRead;
-
-            BOOL readResult = ::ReadFile(hFile,md5Buffer, ARRAYSIZE(md5Buffer), &nBytesRead, NULL);
-
-            if( readResult && 
-                nBytesRead>0 
-                // && _tcsncmp(md5Buffer,fileHash.c_str(),nBytesRead)==0
-               )
-            { 
-              if( VerifyFile::Verify(m_localMSIVersionsCAB.c_str()) )
-              { TString destDir;
-
-                GetFilePath(destDir,NULL);
-
-                CabinetFDI cabinet(m_localMSIVersionsCAB.c_str(),destDir.c_str());
-              
-                cabinet.Extract();
-              } // of if
-              else
-                LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" could not be verified.");
-            } // of if
-            else
-              LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" hash mismatch.");
-          } // of if
-
-          ::CloseHandle(hFile);
+          Install();
         }
         break;
       case BG_JOB_STATE_ACKNOWLEDGED:
@@ -170,7 +124,7 @@ namespace bvr20983
       default:
         break;
       } // of switch()
-    } // of AutoUpdate::TriggerState()
+    } // of AutoUpdate::Run()
 
     /**
      *
@@ -207,6 +161,29 @@ namespace bvr20983
       return result;
     } // of AutoUpdate::GetFilePath()
 
+
+    /**
+     *
+     */
+    void AutoUpdate::Install()
+    { if( !MD5Sum::CheckHash(m_localMSIVersionsCAB.c_str(),m_localMSIVersionsMD5.c_str()) )
+        LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" is corrupted.");
+      else 
+      { if( VerifyFile::Verify(m_localMSIVersionsCAB.c_str()) )
+        { TString destDir;
+
+          GetFilePath(destDir,NULL);
+
+          CabinetFDI cabinet(m_localMSIVersionsCAB.c_str(),destDir.c_str());
+        
+          cabinet.Extract();
+        } // of if
+        else
+          LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" could not be verified.");
+      } // of else
+    } // of AutoUpdate::Install()
+
+
     /**
      *
      */
@@ -222,6 +199,6 @@ namespace bvr20983
       if( NULL!=compPrefix )
         m_componentPrefix = (LPCTSTR)compPrefix;
     } // of AutoUpdate::ReadVersionInfo()
-  } // of namespace util
+   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

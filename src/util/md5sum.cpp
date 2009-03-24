@@ -217,6 +217,29 @@ namespace bvr20983
         hash->Put(pbBuffer, dwBytesRead);
       } while( dwBytesRead>=sizeof(pbBuffer) );
     } // of MD5Sum::CalcFileHash()
+
+    /**
+     *
+     */
+    bool MD5Sum::CheckHash(LPCTSTR fileName,LPCTSTR refHash)
+    { bool                 result = false;
+      MD5Sum               md5sum;
+      auto_ptr<CryptoHash> hash;
+      TString              fileHash;
+      TCHAR                buffer;
+      
+      md5sum.CalcFileHash(fileName,hash);
+
+      CryptoHash* pHash = hash.get();
+      pHash->Get(fileHash);
+
+      FileHandle md5File(refHash);
+      BString    md5FileHash;
+
+      md5File.ReadFile(md5FileHash);
+
+      return result;
+    } // of MD5Sum::CheckHash()
   } // of namespace util
 } // of namespace bvr20983
 

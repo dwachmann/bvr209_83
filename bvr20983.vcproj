@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="bvr20983"
 	ProjectGUID="{8A9E94BB-E725-4398-A461-22B85FAD305A}"
 	RootNamespace="bvr20983"
@@ -339,6 +339,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\autoupdate.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\util\backgroundtransfer.h"
 						>
 					</File>
@@ -388,6 +392,10 @@
 					</File>
 					<File
 						RelativePath=".\inc\util\md5sum.h"
+						>
+					</File>
+					<File
+						RelativePath=".\inc\util\msi.h"
 						>
 					</File>
 					<File
@@ -637,6 +645,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\src\util\autoupdate.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\src\util\backgroundtransfer.cpp"
 						>
 					</File>
@@ -686,6 +698,10 @@
 					</File>
 					<File
 						RelativePath=".\src\util\md5sum.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\msi.cpp"
 						>
 					</File>
 					<File
