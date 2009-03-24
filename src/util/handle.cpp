@@ -44,11 +44,11 @@ namespace bvr20983
       { THROW_LASTERROREXCEPTION2; }
     } // of FileHandle::FileHandle()
 
-   /**
+    /**
      *
      */
-    void FileHandle::ReadFile(BString& buffer)
-    { BYTE       pbBuffer[1024];
+    void FileHandle::ReadFile(std::basic_string<CHAR>& buffer)
+    { CHAR       pbBuffer[1024];
       DWORD      dwBytesRead;
 
       buffer.clear();
@@ -58,7 +58,7 @@ namespace bvr20983
         { dwBytesRead = 0;
 
           THROW_LASTERROREXCEPTION1( ::ReadFile(m_hHandle, 
-                                                pbBuffer, sizeof(pbBuffer), &dwBytesRead, NULL
+                                                pbBuffer, ARRAYSIZE(pbBuffer), &dwBytesRead, NULL
                                                ) 
                                    );
 
@@ -68,6 +68,24 @@ namespace bvr20983
           buffer.append(pbBuffer,dwBytesRead);
         } while( dwBytesRead>=sizeof(pbBuffer) );
       } // of if
+    } // of AutoUpdate::ReadFile()
+
+    /**
+     *
+     */
+    void FileHandle::ReadFile(std::basic_string<WCHAR>& buffer)
+    { std::basic_string<CHAR> value;
+
+      buffer.clear();
+
+      ReadFile(value);
+
+      DWORD           valueSize = value.size()+1;
+      auto_ptr<WCHAR> wBuffer(new WCHAR[valueSize]);
+
+      THROW_LASTERROREXCEPTION1( ::MultiByteToWideChar( CP_ACP, 0, value.c_str(), -1,wBuffer.get(), valueSize) );
+
+      buffer = wBuffer.get();
     } // of AutoUpdate::ReadFile()
   } // of namespace util
 } // of namespace bvr20983

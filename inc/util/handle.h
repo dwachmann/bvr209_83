@@ -51,7 +51,8 @@ namespace bvr20983
       public:
         FileHandle(LPCTSTR fileName);
 
-        void ReadFile(BString& buffer);
+        void ReadFile(std::basic_string<WCHAR>& buffer);
+        void ReadFile(std::basic_string<CHAR>& buffer);
     }; // of class FileHandle
   } // of namespace util
 } // of namespace bvr20983

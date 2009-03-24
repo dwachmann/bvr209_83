@@ -226,7 +226,6 @@ namespace bvr20983
       MD5Sum               md5sum;
       auto_ptr<CryptoHash> hash;
       TString              fileHash;
-      TCHAR                buffer;
       
       md5sum.CalcFileHash(fileName,hash);
 
@@ -234,9 +233,17 @@ namespace bvr20983
       pHash->Get(fileHash);
 
       FileHandle md5File(refHash);
-      BString    md5FileHash;
+
+#ifdef _UNICODE
+      std::basic_string<WCHAR>  md5FileHash;
+#else
+      std::basic_string<CHAR>   md5FileHash;
+#endif
 
       md5File.ReadFile(md5FileHash);
+
+      if( _tcscmp(fileHash.c_str(),md5FileHash.c_str())==0 )
+        result = true;
 
       return result;
     } // of MD5Sum::CheckHash()
