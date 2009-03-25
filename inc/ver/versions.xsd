@@ -18,14 +18,14 @@
      along with this program.  If not, see http://www.gnu.org/licenses/.
   -->
 
-<xs:schema xmlns="http://bvr20983.berlios.de" 
+<xs:schema xmlns="urn:bvr20983" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           targetNamespace="http://bvr20983.berlios.de" 
+           targetNamespace="urn:bvr20983" 
            elementFormDefault="qualified"
 >
   <xs:annotation>
     <xs:documentation xml:lang="en">
-      documents the the relations between product, component and type
+      documents the relations between product, component and type
       and the relation of the different versions.
     </xs:documentation>
   </xs:annotation>

@@ -21,14 +21,11 @@ OBJS= \
 $(OUTDIR)\os.obj \
 $(OUTDIR)\bvr20983update.obj \
 $(OUTDIR)\bvr20983update.res \
-$(OUTDIR)\backgroundtransfer.obj \
 $(OUTDIR)\bitsprogressdlg.obj \
 $(OUTDIR)\autoupdate.obj \
 $(OUTDIR)\cabinetexception.obj \
 $(OUTDIR)\cabinetfci.obj \
 $(OUTDIR)\cabinetfdi.obj \
-$(OUTDIR)\dirinfo.obj \
-$(OUTDIR)\msi.obj \
 $(SLNDIR)\libbvr20983.lib
 
 !ifdef clean

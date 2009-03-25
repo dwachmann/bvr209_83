@@ -48,10 +48,11 @@ namespace bvr20983
     { 
       THROW_COMEXCEPTION( m_pXmlDoc->put_async(VARIANT_FALSE) );
       THROW_COMEXCEPTION( m_pXmlDoc->put_validateOnParse(VARIANT_TRUE) );
-      THROW_COMEXCEPTION( m_pXmlDoc->put_resolveExternals(VARIANT_TRUE) );
+      //THROW_COMEXCEPTION( m_pXmlDoc->put_resolveExternals(VARIANT_TRUE) );
+      THROW_COMEXCEPTION( m_pXmlDoc->put_resolveExternals(VARIANT_FALSE) );
       
       THROW_COMEXCEPTION( m_pXmlDoc->setProperty(_T("SelectionLanguage"),COVariant(_T("XPath"))) );
-      THROW_COMEXCEPTION( m_pXmlDoc->setProperty(_T("SelectionNamespaces"),COVariant( _T("xmlns:v='http://bvr20983.berlios.de'"))) );
+      THROW_COMEXCEPTION( m_pXmlDoc->setProperty(_T("SelectionNamespaces"),COVariant( _T("xmlns:v='urn:bvr20983'"))) );
     }
     
     /**

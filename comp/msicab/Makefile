@@ -24,8 +24,6 @@ $(OUTDIR)\os.obj \
 $(OUTDIR)\cabinetexception.obj \
 $(OUTDIR)\cabinetfci.obj \
 $(OUTDIR)\cabinetfdi.obj \
-$(OUTDIR)\xmldocument.obj \
-$(OUTDIR)\dirinfo.obj \
 $(OUTDIR)\msicab.obj \
 $(OUTDIR)\msicab.res \
 $(SLNDIR)\libbvr20983.lib

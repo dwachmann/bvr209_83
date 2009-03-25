@@ -28,10 +28,15 @@
 #include "util/verifyfile.h"
 #include "util/md5sum.h"
 #include "util/handle.h"
+#include "util/xmldocument.h"
+#include "util/msi.h"
+#include "com/covariant.h"
 #include "exception/lasterrorexception.h"
 
 using namespace bvr20983;
 using namespace bvr20983::cab;
+using namespace bvr20983::util;
+using namespace bvr20983::COM;
 
 namespace bvr20983
 {
@@ -170,13 +175,28 @@ namespace bvr20983
         LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" is corrupted.");
       else 
       { if( VerifyFile::Verify(m_localMSIVersionsCAB.c_str()) )
-        { TString destDir;
+        { TString                 destDir;
+          XMLDocument             xmlDoc;
+          COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+          COMPtr<IXMLDOMNode>     pNode;
+          COVariant               msiProductCode;
 
           GetFilePath(destDir,NULL);
 
           CabinetFDI cabinet(m_localMSIVersionsCAB.c_str(),destDir.c_str());
-        
           cabinet.Extract();
+
+          destDir.append(_T("\\msiversions.xml"));
+
+          if( xmlDoc.Load(destDir.c_str()) && 
+            xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:productcode//text()"),msiProductCode,true) 
+            )
+          { LPCTSTR productCode = V_BSTR(msiProductCode);
+
+            bool isInstalled = MSI::IsProductInstalled(productCode);
+
+            LOGGER_INFO<<_T("productcode={")<<productCode<<_T("}: ")<<isInstalled<<endl;
+          } // of if
         } // of if
         else
           LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" could not be verified.");

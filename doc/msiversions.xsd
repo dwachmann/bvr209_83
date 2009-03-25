@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!-- 
+     $Id$
+     
+     Copyright (C) 2008-2009 Dorothea Wachmann
+     
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     
+     You should have received a copy of the GNU General Public License
+     along with this program.  If not, see http://www.gnu.org/licenses/.
+  -->
+
+<xs:schema xmlns="urn:bvr20983" 
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           targetNamespace="urn:bvr20983" 
+           elementFormDefault="qualified"
+>
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      the available msi packages
+    </xs:documentation>
+  </xs:annotation>
+  
+  <xs:element name="msiversions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="description" type="xs:string"   minOccurs="1"/>
+        <xs:element name="package"     type="packageType" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="packageType">
+    <xs:sequence>
+      <xs:element name="name"           type="xs:string"/>
+      <xs:element name="version"        type="versionType"/>
+      <xs:element name="packagecode"    type="guidTYPE"/>
+      <xs:element name="productcode"    type="guidTYPE"/>
+      <xs:element name="size"           type="xs:nonNegativeInteger"/>
+      <xs:element name="lastmodified"   type="xs:string"/>
+      <xs:element name="hash"           type="hashType"/>
+    </xs:sequence>
+    
+    <xs:attribute name="id" type="xs:ID"      use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="versionType">
+    <xs:attribute name="major" type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="minor" type="xs:nonNegativeInteger" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="hashtypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="md5"/>
+      <xs:enumeration value="sha"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="hashstringType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-f]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="hashType">
+    <xs:simpleContent>
+      <xs:extension base="hashstringType">
+        <xs:attribute name="type" type="hashtypeType" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:simpleType name="guidTYPE">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

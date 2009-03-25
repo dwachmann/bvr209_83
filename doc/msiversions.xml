@@ -1,8 +1,28 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!-- 
+     $Id$
+     
+     Copyright (C) 2008-2009 Dorothea Wachmann
+     
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     
+     You should have received a copy of the GNU General Public License
+     along with this program.  If not, see http://www.gnu.org/licenses/.
+  -->
+<msiversions xmlns="urn:bvr20983"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="urn:bvr20983 msiversions.xsd">
 
-<msiversions xmlns="http://bvr20983.berlios.de/">
   <description>MSI Versions</description>
-  
+
   <package id="bvr20983.1.msi">
     <name>bvr20983.1.msi</name>
     <version major="1" minor="0"/>
@@ -12,5 +32,5 @@
     <lastmodified>2008-08-13T01:03:53.000Z</lastmodified>
     <hash type="md5">91268a673469b60f72f37cbec1ad4ccf</hash>
   </package>
-  
+
 </msiversions>

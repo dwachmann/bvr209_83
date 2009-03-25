@@ -29,6 +29,19 @@ namespace bvr20983
     /**
      *
      */
+    class MSI
+    { 
+      public:
+        MSI();
+        ~MSI();
+
+        static bool IsProductInstalled(LPCTSTR productCode);
+
+    }; // of MSI
+
+    /**
+     *
+     */
     class MSIDB
     { 
       public:

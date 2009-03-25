@@ -17,9 +17,9 @@
      You should have received a copy of the GNU General Public License
      along with this program.  If not, see http://www.gnu.org/licenses/.
   -->
-<versions xmlns="http://bvr20983.berlios.de"
+<versions xmlns="urn:bvr20983"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://bvr20983.berlios.de versions.xsd"
+          xsi:schemaLocation="urn:bvr20983 versions.xsd"
 >
   <parameter name="filenamepattern">#{LCase("${../../../@id}")}.${../../../v:versionhistory/v:version[1]/@major}.${../../@id}.${../../v:version/@major}</parameter>
   <parameter name="filenamepattern1">#{LCase("${../../@id}")}.${../../v:versionhistory/v:version[1]/@major}.${../../v:versionhistory/v:version[1]/@minor}.${../../v:versionhistory/v:version[1]/@fix}</parameter>

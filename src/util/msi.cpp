@@ -35,6 +35,27 @@ namespace bvr20983
     /**
      *
      */
+    MSI::MSI()
+    { }
+
+    /**
+     *
+     */
+    MSI::~MSI()
+    { }
+
+    /**
+     *
+     */
+    bool MSI::IsProductInstalled(LPCTSTR productCode)
+    { INSTALLSTATE installState = ::MsiQueryProductState(productCode);
+
+      return installState==INSTALLSTATE_DEFAULT;
+    } // of MSI::IsProductInstalled()
+
+    /**
+     *
+     */
     MSIDB::MSIDB(LPCTSTR szDatabasePath,LPCTSTR szPersist) :
       m_hDatabase(NULL)
     { THROW_LASTERROREXCEPTION( ::MsiOpenDatabase(szDatabasePath,szPersist, &m_hDatabase) );

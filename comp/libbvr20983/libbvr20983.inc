@@ -76,7 +76,11 @@ $(OUTDIR)\coclassfactory.obj \
 $(OUTDIR)\versioninfo.obj \
 $(OUTDIR)\handle.obj \
 $(OUTDIR)\md5sum.obj \
-$(OUTDIR)\verifyfile.obj 
+$(OUTDIR)\verifyfile.obj \
+$(OUTDIR)\xmldocument.obj \
+$(OUTDIR)\dirinfo.obj \
+$(OUTDIR)\backgroundtransfer.obj \
+$(OUTDIR)\msi.obj
 
 !ifdef clean
 all: clean

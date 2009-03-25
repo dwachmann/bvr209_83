@@ -323,9 +323,10 @@ Sub Init
   Dim f
   Set xmlDoc = CreateObject("Msxml2.DOMDocument.6.0")
   
+  xmlDoc.resolveExternals = True
   xmlDoc.validateOnParse = True
   xmlDoc.async = False
-  xmlDoc.setProperty "SelectionNamespaces", "xmlns:v='http://bvr20983.berlios.de'"
+  xmlDoc.setProperty "SelectionNamespaces", "xmlns:v='urn:bvr20983'"
   xmlDoc.setProperty "SelectionLanguage", "XPath"
 
   Set fso = CreateObject("Scripting.FileSystemObject")
