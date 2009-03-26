@@ -33,6 +33,12 @@ namespace bvr20983
     class AutoUpdate
     {
       public:
+        enum StateType
+        { IDLE,
+          VERSIONS,
+          MSI
+        };
+
         AutoUpdate(auto_ptr<util::BackgroundTransfer>& btx);
         virtual ~AutoUpdate();
 
@@ -44,7 +50,12 @@ namespace bvr20983
         CGUID                               m_jobId;
         COMPtr<IBackgroundCopyJob>          m_job;
 
-        TString                             m_jobName;
+        TString                             m_baseURL;
+
+        TString                             m_jobNameVersions;
+        TString                             m_jobNameMSI;
+
+        TString                             m_destinationDir;
 
         TString                             m_remoteMSIVersionsMD5;
         TString                             m_localMSIVersionsMD5;
@@ -52,12 +63,21 @@ namespace bvr20983
         TString                             m_remoteMSIVersionsCAB;
         TString                             m_localMSIVersionsCAB;
 
+        TString                             m_localMSIVersionsXML;
+
+        TString                             m_remoteMSIPackage;
+        TString                             m_localMSIPackage;
+
         TString                             m_productPrefix;
         TString                             m_componentPrefix;
+        StateType                           m_state;
+
+        TString                             m_transferedLocalFile;
 
         void ReadVersionInfo(HINSTANCE hModule);
         bool GetFilePath(TString& filePath,LPCTSTR srcFileName);
-        void Install();
+        void CheckVersions();
+        void InstallPackage();
     }; // of class AutoUpdate
   } // of namespace util
 } // of namespace bvr20983

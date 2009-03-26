@@ -47,7 +47,7 @@ namespace bvr20983
      */
     AutoUpdate::AutoUpdate(auto_ptr<BackgroundTransfer>& btx) :
       m_btx(btx)
-    { 
+    { m_state = IDLE;
     } // of AutoUpdate::AutoUpdate()
     
     /*
@@ -62,31 +62,47 @@ namespace bvr20983
     bool AutoUpdate::Init(HINSTANCE hModule,LPCTSTR baseURL)
     { ReadVersionInfo(hModule);
 
-      m_jobName = m_productPrefix;
-
-      if( !GetFilePath(m_localMSIVersionsMD5,_T("msiversions.md5")) )
+      if( !GetFilePath(m_destinationDir,NULL) )
         return false;
 
-      m_remoteMSIVersionsMD5  = baseURL;
-      m_remoteMSIVersionsMD5 += _T("/");
-      m_remoteMSIVersionsMD5 += _T("msiversions.md5");
+      m_baseURL               = baseURL;
 
-      if( !GetFilePath(m_localMSIVersionsCAB,_T("msiversions.cab")) )
-        return false;
+      m_localMSIVersionsMD5   = m_destinationDir;
+      m_localMSIVersionsMD5  += _T("\\msiversions.md5");
 
-      m_remoteMSIVersionsCAB  = baseURL;
-      m_remoteMSIVersionsCAB += _T("/");
-      m_remoteMSIVersionsCAB += _T("msiversions.cab");
+      m_localMSIVersionsCAB   = m_destinationDir;
+      m_localMSIVersionsCAB  += _T("\\msiversions.cab");
 
-      if( !m_btx->GetJob(m_jobName.c_str(),m_jobId) )
-      { m_btx->CreateJob(m_jobName.c_str(),m_jobId);
+      m_localMSIVersionsXML   = m_destinationDir;
+      m_localMSIVersionsXML  += _T("\\msiversions.xml");
+
+      m_jobNameVersions       = m_productPrefix;
+      m_jobNameVersions      += _T(".versions");
+
+      m_jobNameMSI            = m_productPrefix;
+      m_jobNameMSI           += _T(".msi");
+
+      m_remoteMSIVersionsMD5  = m_baseURL;
+      m_remoteMSIVersionsMD5 += _T("/msiversions.md5");
+
+      m_remoteMSIVersionsCAB  = m_baseURL;
+      m_remoteMSIVersionsCAB += _T("/msiversions.cab");
+
+
+      if( m_btx->GetJob(m_jobNameMSI.c_str(),m_jobId) )
+        m_state = MSI;
+      else if( m_btx->GetJob(m_jobNameVersions.c_str(),m_jobId) )
+        m_state = VERSIONS;
+
+      if( m_state==IDLE )
+      { m_btx->CreateJob(m_jobNameVersions.c_str(),m_jobId);
 
         if( m_btx->GetJob(m_jobId,m_job) )
         { THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIVersionsMD5.c_str(),m_localMSIVersionsMD5.c_str()) );
           THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIVersionsCAB.c_str(),m_localMSIVersionsCAB.c_str()) );
         } // of if
       } // of if
-      else 
+      else
         m_btx->GetJob(m_jobId,m_job);
 
       return true;
@@ -113,9 +129,29 @@ namespace bvr20983
       case BG_JOB_STATE_TRANSFERRING:
         break;
       case BG_JOB_STATE_TRANSFERRED:
-        { THROW_COMEXCEPTION( m_job->Complete() );
+        { COMPtr<IEnumBackgroundCopyFiles> pFiles;
+          COMPtr<IBackgroundCopyFile>      pFile;
+          LPTSTR                           pLocalFileName = NULL;
 
-          Install();
+          THROW_COMEXCEPTION( m_job->EnumFiles(&pFiles) );
+
+          if( S_OK==pFiles->Next(1,&pFile,NULL) )
+          { if( SUCCEEDED(pFile->GetLocalName(&pLocalFileName)) )
+            {
+              LOGGER_INFO<<_T("pLocalFileName=")<<pLocalFileName<<endl;
+
+              m_transferedLocalFile = pLocalFileName;
+
+              ::CoTaskMemFree(pLocalFileName); 
+            } // of if
+          } // of if
+
+          THROW_COMEXCEPTION( m_job->Complete() );
+        }
+        { if( m_state==VERSIONS )
+            CheckVersions();
+          else
+            InstallPackage();
         }
         break;
       case BG_JOB_STATE_ACKNOWLEDGED:
@@ -130,6 +166,68 @@ namespace bvr20983
         break;
       } // of switch()
     } // of AutoUpdate::Run()
+
+    /**
+     *
+     */
+    void AutoUpdate::CheckVersions()
+    { if( !MD5Sum::CheckHash(m_localMSIVersionsCAB.c_str(),m_localMSIVersionsMD5.c_str()) )
+        LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" is corrupted.");
+      else 
+      { if( VerifyFile::Verify(m_localMSIVersionsCAB.c_str()) )
+        { XMLDocument             xmlDoc;
+          COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+          COMPtr<IXMLDOMNode>     pNode;
+          COVariant               msiProductCode;
+          COVariant               msiPackageName;
+
+          CabinetFDI cabinet(m_localMSIVersionsCAB.c_str(),m_destinationDir.c_str());
+          cabinet.Extract();
+
+          if( xmlDoc.Load(m_localMSIVersionsXML.c_str()) && 
+            xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:productcode//text()"),msiProductCode,true) &&
+            xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:name//text()"),msiPackageName,true)
+            )
+          { LPCTSTR productCode = V_BSTR(msiProductCode);
+            LPCTSTR packageName = V_BSTR(msiPackageName);
+
+            bool isInstalled = MSI::IsProductInstalled(productCode);
+
+            LOGGER_INFO<<packageName<<_T(": productcode={")<<productCode<<_T("}: ")<<isInstalled<<endl;
+
+            m_remoteMSIPackage  = m_baseURL;
+            m_remoteMSIPackage += _T("/");
+            m_remoteMSIPackage += packageName;
+
+            m_localMSIPackage   = m_destinationDir;
+            m_localMSIPackage  += _T("\\");
+            m_localMSIPackage  += packageName;
+
+            m_btx->CreateJob(m_jobNameMSI.c_str(),m_jobId);
+
+            m_job.Release();
+
+            if( m_btx->GetJob(m_jobId,m_job) )
+            { THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIPackage.c_str(),m_localMSIPackage.c_str()) );
+              
+            } // of if
+          } // of if
+        } // of if
+        else
+          LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" could not be verified.");
+      } // of else
+    } // of AutoUpdate::CheckVersions()
+
+    /**
+     *
+     */
+    void AutoUpdate::InstallPackage()
+    { if( !m_transferedLocalFile.empty() )
+      { UINT result = ::MsiInstallProduct(m_transferedLocalFile.c_str(),NULL);
+
+        LOGGER_INFO<<_T("MsiInstallProduct(")<<m_transferedLocalFile.c_str()<<_T("):")<<result<<endl;
+      } // of if
+    } // of AutoUpdate::InstallPackage()
 
     /**
      *
@@ -165,44 +263,6 @@ namespace bvr20983
 
       return result;
     } // of AutoUpdate::GetFilePath()
-
-
-    /**
-     *
-     */
-    void AutoUpdate::Install()
-    { if( !MD5Sum::CheckHash(m_localMSIVersionsCAB.c_str(),m_localMSIVersionsMD5.c_str()) )
-        LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" is corrupted.");
-      else 
-      { if( VerifyFile::Verify(m_localMSIVersionsCAB.c_str()) )
-        { TString                 destDir;
-          XMLDocument             xmlDoc;
-          COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
-          COMPtr<IXMLDOMNode>     pNode;
-          COVariant               msiProductCode;
-
-          GetFilePath(destDir,NULL);
-
-          CabinetFDI cabinet(m_localMSIVersionsCAB.c_str(),destDir.c_str());
-          cabinet.Extract();
-
-          destDir.append(_T("\\msiversions.xml"));
-
-          if( xmlDoc.Load(destDir.c_str()) && 
-            xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:productcode//text()"),msiProductCode,true) 
-            )
-          { LPCTSTR productCode = V_BSTR(msiProductCode);
-
-            bool isInstalled = MSI::IsProductInstalled(productCode);
-
-            LOGGER_INFO<<_T("productcode={")<<productCode<<_T("}: ")<<isInstalled<<endl;
-          } // of if
-        } // of if
-        else
-          LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" could not be verified.");
-      } // of else
-    } // of AutoUpdate::Install()
-
 
     /**
      *
