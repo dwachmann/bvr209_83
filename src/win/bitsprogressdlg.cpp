@@ -27,6 +27,7 @@
 #include "util/logstream.h"
 #include "util/comlogstream.h"
 #include "util/comptr.h"
+#include "util/combuffer.h"
 #include "win/bitsprogressdlg.h"
 #include "exception/windowsexception.h"
 #include "exception/lasterrorexception.h"
@@ -204,7 +205,7 @@ namespace bvr20983
       { COMPtr<IBackgroundCopyFile> aFile;
 
         if( S_OK==files->Next(1,&aFile,NULL) )
-        { LPTSTR localFileName = NULL;
+        { COMBuffer<TCHAR> localFileName;
 
           if( SUCCEEDED(aFile->GetLocalName(&localFileName)) )
           { MD5Sum               md5sum;
@@ -214,8 +215,6 @@ namespace bvr20983
 
             CryptoHash* pHash = hash.get();
             pHash->Get(fileHash);
-
-            ::CoTaskMemFree(localFileName);
           } // of if
         } // of if
         else

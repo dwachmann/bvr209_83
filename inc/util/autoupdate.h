@@ -72,7 +72,7 @@ namespace bvr20983
         TString                             m_componentPrefix;
         StateType                           m_state;
 
-        TString                             m_transferedLocalFile;
+        VTString                            m_transferedFiles;
 
         void ReadVersionInfo(HINSTANCE hModule);
         bool GetFilePath(TString& filePath,LPCTSTR srcFileName);

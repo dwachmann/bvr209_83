@@ -30,6 +30,7 @@
 #include "util/handle.h"
 #include "util/xmldocument.h"
 #include "util/msi.h"
+#include "util/combuffer.h"
 #include "com/covariant.h"
 #include "exception/lasterrorexception.h"
 
@@ -129,26 +130,11 @@ namespace bvr20983
       case BG_JOB_STATE_TRANSFERRING:
         break;
       case BG_JOB_STATE_TRANSFERRED:
-        { COMPtr<IEnumBackgroundCopyFiles> pFiles;
-          COMPtr<IBackgroundCopyFile>      pFile;
-          LPTSTR                           pLocalFileName = NULL;
-
-          THROW_COMEXCEPTION( m_job->EnumFiles(&pFiles) );
-
-          if( S_OK==pFiles->Next(1,&pFile,NULL) )
-          { if( SUCCEEDED(pFile->GetLocalName(&pLocalFileName)) )
-            {
-              LOGGER_INFO<<_T("pLocalFileName=")<<pLocalFileName<<endl;
-
-              m_transferedLocalFile = pLocalFileName;
-
-              ::CoTaskMemFree(pLocalFileName); 
-            } // of if
-          } // of if
+        { BackgroundTransfer::EnumFiles(m_job,m_transferedFiles);
 
           THROW_COMEXCEPTION( m_job->Complete() );
-        }
-        { if( m_state==VERSIONS )
+
+          if( m_state==VERSIONS )
             CheckVersions();
           else
             InstallPackage();
@@ -191,25 +177,34 @@ namespace bvr20983
           { LPCTSTR productCode = V_BSTR(msiProductCode);
             LPCTSTR packageName = V_BSTR(msiPackageName);
 
-            bool isInstalled = MSI::IsProductInstalled(productCode);
+            TString prodCode(_T("{"));
+            prodCode+=V_BSTR(msiProductCode);
+            prodCode+=_T("}");
 
-            LOGGER_INFO<<packageName<<_T(": productcode={")<<productCode<<_T("}: ")<<isInstalled<<endl;
+            bool isInstalled = MSI::IsProductInstalled(prodCode.c_str());
 
-            m_remoteMSIPackage  = m_baseURL;
-            m_remoteMSIPackage += _T("/");
-            m_remoteMSIPackage += packageName;
+            if( isInstalled )
+              LOGGER_INFO<<_T("Product ")<<prodCode.c_str()<<_T(" is installed.");
+            else
+            { LOGGER_INFO<<packageName<<_T(": downloading and installing productcode=")<<prodCode.c_str()<<endl;
 
-            m_localMSIPackage   = m_destinationDir;
-            m_localMSIPackage  += _T("\\");
-            m_localMSIPackage  += packageName;
+              m_remoteMSIPackage  = m_baseURL;
+              m_remoteMSIPackage += _T("/");
+              m_remoteMSIPackage += packageName;
 
-            m_btx->CreateJob(m_jobNameMSI.c_str(),m_jobId);
+              m_localMSIPackage   = m_destinationDir;
+              m_localMSIPackage  += _T("\\");
+              m_localMSIPackage  += packageName;
 
-            m_job.Release();
+              m_btx->CreateJob(m_jobNameMSI.c_str(),m_jobId);
 
-            if( m_btx->GetJob(m_jobId,m_job) )
-            { THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIPackage.c_str(),m_localMSIPackage.c_str()) );
-              
+              m_job.Release();
+
+              if( m_btx->GetJob(m_jobId,m_job) )
+              { THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIPackage.c_str(),m_localMSIPackage.c_str()) );
+                
+                THROW_COMEXCEPTION( m_job->Resume() );
+              } // of if
             } // of if
           } // of if
         } // of if
@@ -222,10 +217,10 @@ namespace bvr20983
      *
      */
     void AutoUpdate::InstallPackage()
-    { if( !m_transferedLocalFile.empty() )
-      { UINT result = ::MsiInstallProduct(m_transferedLocalFile.c_str(),NULL);
+    { if( m_transferedFiles.size()>0 )
+      { UINT result = ::MsiInstallProduct(m_transferedFiles[0].c_str(),NULL);
 
-        LOGGER_INFO<<_T("MsiInstallProduct(")<<m_transferedLocalFile.c_str()<<_T("):")<<result<<endl;
+        LOGGER_INFO<<_T("MsiInstallProduct(")<<m_transferedFiles[0].c_str()<<_T("):")<<result<<endl;
       } // of if
     } // of AutoUpdate::InstallPackage()
 
@@ -279,6 +274,6 @@ namespace bvr20983
       if( NULL!=compPrefix )
         m_componentPrefix = (LPCTSTR)compPrefix;
     } // of AutoUpdate::ReadVersionInfo()
-   } // of namespace util
+  } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

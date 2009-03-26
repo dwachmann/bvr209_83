@@ -1,5 +1,5 @@
 /*
- * $Id:$
+ * $Id$
  * 
  * Copyright (C) 2008-2009 Dorothea Wachmann
  * 

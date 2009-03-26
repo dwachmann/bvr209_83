@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id$
  * 
  * A class for download files using the windows BITS service.
  * 
@@ -22,6 +22,7 @@
 #include "util/backgroundtransfer.h"
 #include "util/logstream.h"
 #include "util/guid.h"
+#include "util/combuffer.h"
 #include "exception/lasterrorexception.h"
 #include "exception/comexception.h"
 #include <sstream>
@@ -69,7 +70,7 @@ namespace bvr20983
      */
     bool BackgroundTransfer::GetJob(LPCTSTR displayName,CGUID& foundJobId)
     { bool                            found        = false;
-      LPTSTR                          pDisplayName = NULL;
+      COMBuffer<TCHAR>                pDisplayName;
       COMPtr<IEnumBackgroundCopyJobs> pJobs;
 
       THROW_COMEXCEPTION( m_BITSManager->EnumJobs(0, &pJobs) );
@@ -85,7 +86,6 @@ namespace bvr20983
 
         THROW_COMEXCEPTION(hr);
 
-        pDisplayName = NULL;
         pJob->GetDisplayName(&pDisplayName);
 
         if( _tcscmp(displayName,pDisplayName)==0 )
@@ -98,11 +98,7 @@ namespace bvr20983
 
           break;
         } // of if
-
-        ::CoTaskMemFree(pDisplayName);
       } // of for
-
-      ::CoTaskMemFree(pDisplayName);
 
       return found;
     } // of BackgroundTransfer::GetJob()
@@ -114,42 +110,7 @@ namespace bvr20983
     { return m_BITSManager->GetJob(jobId,&job)==S_OK;
     } // of BackgroundTransfer::GetJob()
     
-    /**
-     *
-     */
-    void BackgroundTransfer::AddFile(LPCTSTR jobName,LPCTSTR url,LPCTSTR fileName)
-    {
-    }
-
-    /**
-     *
-     */
-    void BackgroundTransfer::Resume(LPCTSTR jobName)
-    {
-    }
-
-    /**
-     *
-     */
-    void BackgroundTransfer::Suspend(LPCTSTR jobName)
-    {
-    }
-
-    /**
-     *
-     */
-    void BackgroundTransfer::Cancel(LPCTSTR jobName)
-    {
-    }
-
-    /**
-     *
-     */
-    void BackgroundTransfer::Complete(LPCTSTR jobName)
-    {
-    }
-
-    /**
+     /**
      *
      */
     void BackgroundTransfer::List()
@@ -169,10 +130,10 @@ namespace bvr20983
 
         THROW_COMEXCEPTION(hr);
 
-        LPTSTR  pDescription = NULL;
-        LPTSTR  pDisplayName = NULL;
-        GUID    jobId;
-        TString sJobId;
+        COMBuffer<TCHAR> pDescription;
+        COMBuffer<TCHAR> pDisplayName; 
+        GUID             jobId;
+        TString          sJobId;
 
         pJob->GetDescription(&pDescription);
         pJob->GetDisplayName(&pDisplayName);
@@ -181,25 +142,32 @@ namespace bvr20983
           sJobId = CGUID(jobId);
 
         OutputDebugFmt(_T("%s %s [%s]\n"),sJobId.c_str(),pDisplayName,pDescription);
-
-        ::CoTaskMemFree(pDescription);
-        ::CoTaskMemFree(pDisplayName);
       } // of for
 
       OutputDebugFmt(_T("Listed %ld job(s).\n"),cJobCount);
     } // of BackgroundTransfer::List()
 
+    /**
+     *
+     */
+    void BackgroundTransfer::EnumFiles(COMPtr<IBackgroundCopyJob>& job,VTString& files)
+    { COMPtr<IEnumBackgroundCopyFiles> pFiles;
+      COMPtr<IBackgroundCopyFile>      pFile;
+      COMBuffer<TCHAR>                 pLocalFileName;
+
+      THROW_COMEXCEPTION( job->EnumFiles(&pFiles) );
+
+      files.clear();
+
+      while( S_OK==pFiles->Next(1,&pFile,NULL) )
+      { if( SUCCEEDED(pFile->GetLocalName(&pLocalFileName)) )
+        {
+          LOGGER_INFO<<_T("pLocalFileName=")<<pLocalFileName.GetBuffer()<<endl;
+
+          files.push_back(pLocalFileName.GetBuffer());
+        } // of if
+      } // of while
+    } // of BackgroundTransfer::EnumFiles()
    } // of namespace util
 } // of namespace bvr20983
-
-
-/**
- * exportwrapper
- */
-STDAPI_(void) BtxCreateJob(LPCTSTR jobName)
-{ CGUID                              jobId;
-  auto_ptr<util::BackgroundTransfer> btx(new util::BackgroundTransfer());
-  
-  btx->CreateJob(jobName,jobId); 
-}
 /*==========================END-OF-FILE===================================*/

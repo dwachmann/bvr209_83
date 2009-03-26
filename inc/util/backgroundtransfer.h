@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id$
  * 
  * Copyright (C) 2008-2009 Dorothea Wachmann
  * 
@@ -37,13 +37,9 @@ namespace bvr20983
         bool GetJob(LPCTSTR displayName,CGUID& jobId);
         bool GetJob(const CGUID& jobId,COMPtr<IBackgroundCopyJob>& job);
 
-        void AddFile(LPCTSTR jobName,LPCTSTR url,LPCTSTR fileName);
-        void Resume(LPCTSTR jobName);
-        void Suspend(LPCTSTR jobName);
-        void Cancel(LPCTSTR jobName);
-        void Complete(LPCTSTR jobName);
-
         void List();
+        
+        static void EnumFiles(COMPtr<IBackgroundCopyJob>& job,VTString& files);
 
       private:
 
@@ -52,8 +48,5 @@ namespace bvr20983
     }; // of class BackgroundTransfer
   } // of namespace util
 } // of namespace bvr20983
-
-STDAPI_(void) BtxCreateJob(LPCTSTR jobName);
-
 #endif // BACKGROUNDTRANSFER_H
 /*==========================END-OF-FILE===================================*/

@@ -1,5 +1,5 @@
 /*
- * $Id: bvr20983msgs-ver.h 165 2009-03-01 22:59:47Z dwachmann $
+ * $Id$
  * 
  * Copyright (C) 2008 Dorothea Wachmann
  * 

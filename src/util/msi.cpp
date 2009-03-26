@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id$
  * 
  * A class for download files using the windows BITS service.
  * 
