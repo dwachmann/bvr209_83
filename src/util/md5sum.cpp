@@ -245,6 +245,9 @@ namespace bvr20983
       if( _tcscmp(fileHash.c_str(),md5FileHash.c_str())==0 )
         result = true;
 
+      LOGGER_INFO<<_T("MD5Sum::CheckHash(")<<fileName<<_T(")")<<endl;
+      LOGGER_INFO<<_T("  ")<<fileHash.c_str()<<_T("<-->")<<md5FileHash.c_str()<<_T(" ==>")<<result<<endl;
+
       return result;
     } // of MD5Sum::CheckHash()
   } // of namespace util

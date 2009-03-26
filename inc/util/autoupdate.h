@@ -50,28 +50,13 @@ namespace bvr20983
         CGUID                               m_jobId;
         COMPtr<IBackgroundCopyJob>          m_job;
 
+        StateType                           m_state;
         TString                             m_baseURL;
-
         TString                             m_jobNameVersions;
         TString                             m_jobNameMSI;
-
         TString                             m_destinationDir;
-
-        TString                             m_remoteMSIVersionsMD5;
-        TString                             m_localMSIVersionsMD5;
-
-        TString                             m_remoteMSIVersionsCAB;
-        TString                             m_localMSIVersionsCAB;
-
-        TString                             m_localMSIVersionsXML;
-
-        TString                             m_remoteMSIPackage;
-        TString                             m_localMSIPackage;
-
         TString                             m_productPrefix;
         TString                             m_componentPrefix;
-        StateType                           m_state;
-
         VTString                            m_transferedFiles;
 
         void ReadVersionInfo(HINSTANCE hModule);

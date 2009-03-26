@@ -30,6 +30,7 @@
 #include "util/handle.h"
 #include "util/xmldocument.h"
 #include "util/msi.h"
+#include "util/dirinfo.h"
 #include "util/combuffer.h"
 #include "com/covariant.h"
 #include "exception/lasterrorexception.h"
@@ -39,6 +40,26 @@ using namespace bvr20983::cab;
 using namespace bvr20983::util;
 using namespace bvr20983::COM;
 
+/**
+ * Files:
+ * MD5: the file that contains the md5 checksum of cabinet file
+ * CAB: the signed cabinet file that contains the msiversions.xml file
+ * XML: the msiversions.xml file that contains the version info
+ * MSI: the MSI package
+ *
+ * (1) check if CAB exists
+ *   yes: download MD5
+ *        check, if MD5 checksum is equal to md5 checksum of CAB
+ *        yes: EXIT, product is uptodate
+ *    no: download MD5 and CAB
+ * (2) check if MD5 checksum is equal to md5 checksum of CAB and if CAB signature is valid
+ *    no: CAB corrupted: EXIT
+ *   yes: extract CAB
+ *        use msiversions.xml to get information about actual versions
+ * (3) check if actual version is installed
+ *   yes: EXIT
+ *    no: download actual MSI and install it
+ */
 namespace bvr20983
 {
   namespace util
@@ -68,27 +89,11 @@ namespace bvr20983
 
       m_baseURL               = baseURL;
 
-      m_localMSIVersionsMD5   = m_destinationDir;
-      m_localMSIVersionsMD5  += _T("\\msiversions.md5");
-
-      m_localMSIVersionsCAB   = m_destinationDir;
-      m_localMSIVersionsCAB  += _T("\\msiversions.cab");
-
-      m_localMSIVersionsXML   = m_destinationDir;
-      m_localMSIVersionsXML  += _T("\\msiversions.xml");
-
       m_jobNameVersions       = m_productPrefix;
       m_jobNameVersions      += _T(".versions");
 
       m_jobNameMSI            = m_productPrefix;
       m_jobNameMSI           += _T(".msi");
-
-      m_remoteMSIVersionsMD5  = m_baseURL;
-      m_remoteMSIVersionsMD5 += _T("/msiversions.md5");
-
-      m_remoteMSIVersionsCAB  = m_baseURL;
-      m_remoteMSIVersionsCAB += _T("/msiversions.cab");
-
 
       if( m_btx->GetJob(m_jobNameMSI.c_str(),m_jobId) )
         m_state = MSI;
@@ -96,11 +101,31 @@ namespace bvr20983
         m_state = VERSIONS;
 
       if( m_state==IDLE )
-      { m_btx->CreateJob(m_jobNameVersions.c_str(),m_jobId);
+      { TString localMSIVersionsMD5(m_destinationDir);
+        TString localMSIVersionsCAB(m_destinationDir);
+        TString remoteMSIVersionsMD5(baseURL);
+        TString remoteMSIVersionsCAB(baseURL);
+
+        localMSIVersionsMD5 += _T("\\msiversions.md5");
+        localMSIVersionsCAB += _T("\\msiversions.cab");
+
+        remoteMSIVersionsMD5 += _T("/msiversions.md5");
+        remoteMSIVersionsCAB += _T("/msiversions.cab");
+        
+        m_btx->CreateJob(m_jobNameVersions.c_str(),m_jobId);
 
         if( m_btx->GetJob(m_jobId,m_job) )
-        { THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIVersionsMD5.c_str(),m_localMSIVersionsMD5.c_str()) );
-          THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIVersionsCAB.c_str(),m_localMSIVersionsCAB.c_str()) );
+        { bool md5Exists = DirectoryInfo::_IsFile(localMSIVersionsMD5.c_str());
+          bool cabExists = DirectoryInfo::_IsFile(localMSIVersionsCAB.c_str());
+
+          if( !cabExists )
+          { THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsMD5.c_str(),localMSIVersionsMD5.c_str()) );
+            THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsCAB.c_str(),localMSIVersionsCAB.c_str()) );
+          } // of if
+          else
+          { 
+            THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsMD5.c_str(),localMSIVersionsMD5.c_str()) );
+          }
         } // of if
       } // of if
       else
@@ -157,22 +182,52 @@ namespace bvr20983
      *
      */
     void AutoUpdate::CheckVersions()
-    { if( !MD5Sum::CheckHash(m_localMSIVersionsCAB.c_str(),m_localMSIVersionsMD5.c_str()) )
-        LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" is corrupted.");
-      else 
-      { if( VerifyFile::Verify(m_localMSIVersionsCAB.c_str()) )
+    { TString localMSIVersionsCAB(m_destinationDir);
+      localMSIVersionsCAB += _T("\\msiversions.cab");
+
+      if( m_transferedFiles.size()==1 && !MD5Sum::CheckHash(localMSIVersionsCAB.c_str(),m_transferedFiles[0].c_str()) )
+      { TString localMSIVersionsMD5(m_destinationDir);
+        TString localMSIVersionsCAB(m_destinationDir);
+        TString remoteMSIVersionsMD5(m_baseURL);
+        TString remoteMSIVersionsCAB(m_baseURL);
+
+        localMSIVersionsMD5 += _T("\\msiversions.md5");
+        localMSIVersionsCAB += _T("\\msiversions.cab");
+
+        remoteMSIVersionsMD5 += _T("/msiversions.md5");
+        remoteMSIVersionsCAB += _T("/msiversions.cab");
+        
+        m_btx->CreateJob(m_jobNameVersions.c_str(),m_jobId);
+
+        m_job.Release();
+
+        if( m_btx->GetJob(m_jobId,m_job) )
+        { THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsMD5.c_str(),localMSIVersionsMD5.c_str()) );
+          THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsCAB.c_str(),localMSIVersionsCAB.c_str()) );
+
+          THROW_COMEXCEPTION( m_job->Resume() );
+        } // of if
+      } // of if
+      else
+      { if( m_transferedFiles.size()==2 &&
+            MD5Sum::CheckHash(m_transferedFiles[1].c_str(),m_transferedFiles[0].c_str()) &&
+            VerifyFile::Verify(m_transferedFiles[1].c_str()) 
+          )
         { XMLDocument             xmlDoc;
           COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
           COMPtr<IXMLDOMNode>     pNode;
           COVariant               msiProductCode;
           COVariant               msiPackageName;
+          TString                 localMSIVersionsXML(m_destinationDir);
 
-          CabinetFDI cabinet(m_localMSIVersionsCAB.c_str(),m_destinationDir.c_str());
+          localMSIVersionsXML += _T("\\msiversions.xml");
+
+          CabinetFDI cabinet(m_transferedFiles[1].c_str(),m_destinationDir.c_str());
           cabinet.Extract();
 
-          if( xmlDoc.Load(m_localMSIVersionsXML.c_str()) && 
-            xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:productcode//text()"),msiProductCode,true) &&
-            xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:name//text()"),msiPackageName,true)
+          if( xmlDoc.Load(localMSIVersionsXML.c_str()) && 
+              xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:productcode//text()"),msiProductCode,true) &&
+              xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:name//text()"),msiPackageName,true)
             )
           { LPCTSTR productCode = V_BSTR(msiProductCode);
             LPCTSTR packageName = V_BSTR(msiPackageName);
@@ -184,32 +239,31 @@ namespace bvr20983
             bool isInstalled = MSI::IsProductInstalled(prodCode.c_str());
 
             if( isInstalled )
-              LOGGER_INFO<<_T("Product ")<<prodCode.c_str()<<_T(" is installed.");
+              LOGGER_INFO<<_T("Product ")<<prodCode.c_str()<<_T(" is installed.")<<endl;
             else
             { LOGGER_INFO<<packageName<<_T(": downloading and installing productcode=")<<prodCode.c_str()<<endl;
 
-              m_remoteMSIPackage  = m_baseURL;
-              m_remoteMSIPackage += _T("/");
-              m_remoteMSIPackage += packageName;
+              TString remoteMSIPackage(m_baseURL);
+              TString localMSIPackage(m_destinationDir);
 
-              m_localMSIPackage   = m_destinationDir;
-              m_localMSIPackage  += _T("\\");
-              m_localMSIPackage  += packageName;
+              remoteMSIPackage += _T("/");
+              remoteMSIPackage += packageName;
+
+              localMSIPackage  += _T("\\");
+              localMSIPackage  += packageName;
 
               m_btx->CreateJob(m_jobNameMSI.c_str(),m_jobId);
 
               m_job.Release();
 
               if( m_btx->GetJob(m_jobId,m_job) )
-              { THROW_COMEXCEPTION( m_job->AddFile(m_remoteMSIPackage.c_str(),m_localMSIPackage.c_str()) );
+              { THROW_COMEXCEPTION( m_job->AddFile(remoteMSIPackage.c_str(),localMSIPackage.c_str()) );
                 
                 THROW_COMEXCEPTION( m_job->Resume() );
               } // of if
             } // of if
           } // of if
         } // of if
-        else
-          LOGGER_WARN<<_T("File ")<<m_localMSIVersionsCAB<<_T(" could not be verified.");
       } // of else
     } // of AutoUpdate::CheckVersions()
 
@@ -217,7 +271,7 @@ namespace bvr20983
      *
      */
     void AutoUpdate::InstallPackage()
-    { if( m_transferedFiles.size()>0 )
+    { if( m_transferedFiles.size()==1 )
       { UINT result = ::MsiInstallProduct(m_transferedFiles[0].c_str(),NULL);
 
         LOGGER_INFO<<_T("MsiInstallProduct(")<<m_transferedFiles[0].c_str()<<_T("):")<<result<<endl;

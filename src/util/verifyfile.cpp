@@ -62,6 +62,9 @@ namespace bvr20983
 
       lStatus = WinVerifyTrust(NULL,&WVTPolicyGUID,&WinTrustData);
 
+      LOGGER_INFO<<_T("VerifyFile::Verify(")<<fileName<<_T(")")<<endl;
+      LOGGER_INFO<<_T("  WinVerifyTrust()")<<lStatus<<endl;
+
       switch( lStatus ) 
       {
       case ERROR_SUCCESS:
