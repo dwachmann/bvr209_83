@@ -35,37 +35,95 @@ namespace bvr20983
     /**
      *
      */
-    MSI::MSI()
-    { }
+    MSIProduct::MSIProduct(LPCTSTR productCode) :
+      m_hProduct(NULL)
+    { if( NULL!=productCode )
+      { m_productCode = productCode;
+
+        THROW_LASTERROREXCEPTION( ::MsiOpenProduct(productCode, &m_hProduct) );
+      }
+    } // of MSIProduct::MSIProduct()
+
 
     /**
      *
      */
-    MSI::~MSI()
-    { }
+    MSIProduct::~MSIProduct()
+    { if( NULL!=m_hProduct ) 
+        ::MsiCloseHandle(m_hProduct);
+
+      m_hProduct = NULL;
+    }
 
     /**
      *
      */
-    bool MSI::IsProductInstalled(LPCTSTR productCode)
+    bool MSIProduct::IsInstalled(LPCTSTR productCode)
     { INSTALLSTATE installState = ::MsiQueryProductState(productCode);
 
       return installState==INSTALLSTATE_DEFAULT;
-    } // of MSI::IsProductInstalled()
+    } // of MSIProduct::IsInstalled()
+
+    /**
+     *
+     */
+    void MSIProduct::GetProperty(LPCTSTR name,TString& value) const
+    { TCHAR buffer[1024];
+      DWORD bufferSize = ARRAYSIZE(buffer);
+
+      value.clear();
+
+      if( NULL!=m_hProduct && ERROR_SUCCESS==::MsiGetProductProperty(m_hProduct,name,buffer,&bufferSize) )
+        value = buffer;
+    } // of MSIProduct::GetProperty()
+
+    /**
+     *
+     */
+    void MSIProduct::GetInfo(LPCTSTR name,TString& value) const
+    { TCHAR buffer[1024];
+      DWORD bufferSize = ARRAYSIZE(buffer);
+
+      value.clear();
+
+      if( NULL!=m_hProduct && ERROR_SUCCESS==::MsiGetProductInfo(m_productCode.c_str(),name,buffer,&bufferSize) )
+        value = buffer;
+    } // of MSIProduct::GetInfo()
+
+    /**
+     *
+     */ 
+    MSIDB::MSIDB(MSIProduct& msiProduct,LPCTSTR szPersist) :
+      m_hDatabase(NULL)
+    { TString localPackage;
+
+      msiProduct.GetInfo(INSTALLPROPERTY_LOCALPACKAGE,localPackage);
+
+      if( !localPackage.empty() )
+      { m_dbPath = localPackage;
+
+         THROW_LASTERROREXCEPTION( ::MsiOpenDatabase(localPackage.c_str(),szPersist, &m_hDatabase) );
+      } // of if
+    }
 
     /**
      *
      */
     MSIDB::MSIDB(LPCTSTR szDatabasePath,LPCTSTR szPersist) :
       m_hDatabase(NULL)
-    { THROW_LASTERROREXCEPTION( ::MsiOpenDatabase(szDatabasePath,szPersist, &m_hDatabase) );
-    }
+    { if( NULL!=szDatabasePath )
+      { m_dbPath = szDatabasePath;
+
+         THROW_LASTERROREXCEPTION( ::MsiOpenDatabase(szDatabasePath,szPersist, &m_hDatabase) );
+      } // of if
+    } // of MSIDB::MSIDB()
+
 
     /**
      *
      */
     MSIDB::~MSIDB()
-    { if( NULL!=m_hDatabase) 
+    { if( NULL!=m_hDatabase ) 
         ::MsiCloseHandle(m_hDatabase);
 
       m_hDatabase = NULL;
@@ -76,14 +134,15 @@ namespace bvr20983
      */
     MSIQuery::MSIQuery(MSIDB& msidb,LPCTSTR szQuery) :
       m_hView(NULL)
-    { THROW_LASTERROREXCEPTION( ::MsiDatabaseOpenView(*msidb,szQuery, &m_hView) );
+    { 
+      THROW_LASTERROREXCEPTION( ::MsiDatabaseOpenView(msidb.GetDatabaseHandle(),szQuery, &m_hView) );
     }
 
     /**
      *
      */
     MSIQuery::~MSIQuery()
-    { if( NULL!=m_hView) 
+    { if( NULL!=m_hView ) 
         ::MsiCloseHandle(m_hView);
 
       m_hView = NULL;
@@ -100,14 +159,25 @@ namespace bvr20983
     /**
      *
      */
-    void MSIQuery::Fetch(MSIRecord& record)
-    { if( NULL!=m_hView )
+    bool MSIQuery::Fetch(MSIRecord& record)
+    { bool moreData = false;
+
+      if( NULL!=m_hView )
       { MSIHANDLE hRec=NULL;
 
-        ::MsiViewFetch(m_hView,&hRec);
+        UINT result = ::MsiViewFetch(m_hView,&hRec);
+
+        if( result==ERROR_SUCCESS )
+          moreData = true;
+        else if( result==ERROR_NO_MORE_ITEMS )
+          moreData = false;
+        else
+        { THROW_LASTERROREXCEPTION3(result); }
 
         record = hRec;
       } // of if
+
+      return moreData;
     } // of MSIQuery::Execute()
 
 
@@ -182,6 +252,19 @@ namespace bvr20983
       { value = ::MsiRecordGetInteger(m_hRecord,iField);
       } // of if
     } // of MSIRecord::GetInteger()
+
+    /**
+     *
+     */
+    UINT MSIRecord::GetFieldCount() const
+    { UINT result = 0;
+
+      if(  NULL!=m_hRecord ) 
+      { result = ::MsiRecordGetFieldCount(m_hRecord);
+      } // of if
+
+      return result;
+    } // of MSIRecord::GetFieldCount()
 
   } // of namespace util
 } // of namespace bvr20983

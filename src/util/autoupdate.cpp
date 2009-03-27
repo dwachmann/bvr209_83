@@ -236,10 +236,36 @@ namespace bvr20983
             prodCode+=V_BSTR(msiProductCode);
             prodCode+=_T("}");
 
-            bool isInstalled = MSI::IsProductInstalled(prodCode.c_str());
+            if( MSIProduct::IsInstalled(prodCode.c_str()) )
+            { LOGGER_INFO<<_T("Product ")<<prodCode.c_str()<<_T(" is installed.")<<endl;
 
-            if( isInstalled )
-              LOGGER_INFO<<_T("Product ")<<prodCode.c_str()<<_T(" is installed.")<<endl;
+              MSIProduct msiProduct(prodCode.c_str());
+              TString productVersion;
+
+              msiProduct.GetProperty(_T("ProductVersion"),productVersion);
+
+              LOGGER_INFO<<_T("  ProductVersion:")<<productVersion.c_str()<<endl;
+
+              MSIDB     msiDB(msiProduct);
+              MSIQuery  msiQuery(msiDB,_T("SELECT `Property`,`Value` FROM `Property`"));
+              MSIRecord msiRecord;
+
+              msiQuery.Execute();
+
+              while( msiQuery.Fetch(msiRecord) )
+              { UINT fieldCount = msiRecord.GetFieldCount();
+
+                for( UINT i=1;i<=fieldCount;i++ )
+                { TString value;
+
+                  msiRecord.GetString(i,value);
+
+                  LOGGER_INFO<<value.c_str()<<_T(' ');
+                } // of for
+
+                LOGGER_INFO<<endl;
+              } // of while
+            } // of if
             else
             { LOGGER_INFO<<packageName<<_T(": downloading and installing productcode=")<<prodCode.c_str()<<endl;
 
@@ -272,7 +298,9 @@ namespace bvr20983
      */
     void AutoUpdate::InstallPackage()
     { if( m_transferedFiles.size()==1 )
-      { UINT result = ::MsiInstallProduct(m_transferedFiles[0].c_str(),NULL);
+      { ::MsiSetInternalUI(INSTALLUILEVEL_FULL,NULL);
+
+        UINT result = ::MsiInstallProduct(m_transferedFiles[0].c_str(),NULL);
 
         LOGGER_INFO<<_T("MsiInstallProduct(")<<m_transferedFiles[0].c_str()<<_T("):")<<result<<endl;
       } // of if
