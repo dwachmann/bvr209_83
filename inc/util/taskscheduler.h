@@ -61,6 +61,9 @@ namespace bvr20983
         COMPtr<ITaskScheduler>& GetTaskScheduler()
         { return m_taskScheduler; }
 
+        void CreateTask(Task& task,LPCTSTR taskName,LPCTSTR parameters,HINSTANCE hDll,LPCTSTR comment);
+        void RemoveTask(LPCTSTR taskName);
+
       private:
         COMPtr<ITaskScheduler> m_taskScheduler;
 

@@ -150,49 +150,25 @@ STDAPI_(void) _admin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdSho
           autoUpdate.Run();
       } // of else if
       else if( _tcscmp(command.c_str(),_T("createtask"))==0 && args.size()>=2 )
-      { TCHAR       path[MAX_PATH];
-        TaskScheduler taskScheduler;
+      { TaskScheduler taskScheduler;
         Task          task(taskScheduler);
 
-        task.NewTask(args[0].c_str());
-
-        THROW_COMEXCEPTION( task.GetTask()->SetApplicationName(_T("c:\\windows\\system32\\rundll32.exe")) );
-
-        ::GetModuleFileName(g_hDllInst,path,MAX_PATH);
-
-        TString parameters(path);
-
-        parameters += _T(",admin checkupdate ");
+        TString parameters(_T(",admin checkupdate "));
         parameters += args[1].c_str();
 
-        THROW_COMEXCEPTION( task.GetTask()->SetParameters(parameters.c_str()) );
-        THROW_COMEXCEPTION( task.GetTask()->SetFlags(TASK_FLAG_RUN_ONLY_IF_LOGGED_ON) );
-        //THROW_COMEXCEPTION( task.GetTask()->SetFlags(TASK_FLAG_DISABLED | TASK_FLAG_RUN_ONLY_IF_LOGGED_ON) );
-
-        ::SHGetFolderPath(NULL,CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL,SHGFP_TYPE_CURRENT,path);
-
-        THROW_COMEXCEPTION( task.GetTask()->SetWorkingDirectory(path) );
-        THROW_COMEXCEPTION( task.GetTask()->SetComment(_T("Checks for updated MSI packages for bvr20983")) );
-
-        TASK_TRIGGER pTrigger;
-        ::ZeroMemory(&pTrigger, sizeof (TASK_TRIGGER));
-        
-        // Add code to set trigger structure?
-        pTrigger.wBeginDay =1;                  // Required
-        pTrigger.wBeginMonth =1;                // Required
-        pTrigger.wBeginYear =1999;              // Required
-        pTrigger.cbTriggerSize = sizeof (TASK_TRIGGER); 
-        pTrigger.wStartHour = 13;
-        pTrigger.TriggerType = TASK_TIME_TRIGGER_DAILY;
-        pTrigger.Type.Daily.DaysInterval = 1;
-
-        COMPtr<ITaskTrigger> taskTrigger;
-        WORD piNewTrigger=0;
-
-        THROW_COMEXCEPTION( task.GetTask()->CreateTrigger(&piNewTrigger,&taskTrigger) );
-        THROW_COMEXCEPTION( taskTrigger->SetTrigger(&pTrigger) );
+        taskScheduler.CreateTask(task,args[0].c_str(),
+                                 parameters.c_str(),
+                                 g_hDllInst,
+                                 _T("Checks for updated MSI packages for bvr20983")
+                                );
 
         task.Commit();
+      } // of else if
+      else if( _tcscmp(command.c_str(),_T("removetask"))==0 && args.size()>=1 )
+      { TaskScheduler taskScheduler;
+        Task          task(taskScheduler);
+
+        taskScheduler.RemoveTask(args[0].c_str());
       } // of else if
       else
         PrintBtxCreateJob(hwnd);
