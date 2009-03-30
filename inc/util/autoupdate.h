@@ -62,7 +62,10 @@ namespace bvr20983
         void ReadVersionInfo(HINSTANCE hModule);
         bool GetFilePath(TString& filePath,LPCTSTR srcFileName);
         void CheckVersions();
+        void CheckInstalledPackage();
         void InstallPackage();
+        bool GetActualPackageInfo(TString& productCode,TString& packageCode,TString& packageName);
+        void DumpPackageInfo(const TString& productCode);
     }; // of class AutoUpdate
   } // of namespace util
 } // of namespace bvr20983

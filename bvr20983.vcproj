@@ -415,6 +415,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\taskscheduler.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\util\thread.h"
 						>
 					</File>
@@ -605,7 +609,15 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\bvr20983res.def"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\bvr20983sc.def"
+						>
+					</File>
+					<File
+						RelativePath=".\inc\bvr20983update.def"
 						>
 					</File>
 				</Filter>
@@ -718,6 +730,10 @@
 					</File>
 					<File
 						RelativePath=".\src\util\registryutil.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\taskscheduler.cpp"
 						>
 					</File>
 					<File

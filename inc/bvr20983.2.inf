@@ -58,14 +58,14 @@ Cleanup=1
 EndPrompt=EndPromptDeinstallSection
 
 [DeleteSWDirs]
-RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16422%\bvr20983.1.0.1"
-RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16412%\bvr20983.1.0.1"
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16422%\bvr20983.1.0.2"
+RunDll32.exe %11%\ADVPACK.DLL,DelNodeRunDLL32 "%16412%\bvr20983.1.0.2"
 
 [SourceDisksNames]
-1=%DiskDescription%,"bvr20983.1.0.1.cab",0
+1=%DiskDescription%,"bvr20983.1.0.2.cab",0
 
 [SourceDisksFiles]
-bvr20983.1.0.1.inf=1
+bvr20983.1.0.2.inf=1
 bvr20983.1.msgs.1.dll=1
 bvr20983.1.cc.1.dll=1
 bvr20983.1.sc.1.dll=1
@@ -74,7 +74,7 @@ bvr20983.1.lsstg.1.exe=1
 bvr20983.1.lstypeinfo.1.exe=1
 
 [SWFiles.add]
-bvr20983.1.0.1.inf,,,33
+bvr20983.1.0.2.inf,,,33
 bvr20983.1.msgs.1.dll,,,33
 bvr20983.1.cc.1.dll,,,33
 bvr20983.1.sc.1.dll,,,33
@@ -91,33 +91,33 @@ bvr20983.1.lsstg.1.exe,,,1
 bvr20983.1.lstypeinfo.1.exe,,,1
 
 [SWFiles.ocx]
-bvr20983.1.0.1.inf,,,1
+bvr20983.1.0.2.inf,,,1
 
 [DestinationDirs]
-SWFiles.add=16422,bvr20983.1.0.1
-SWFiles.del=16422,bvr20983.1.0.1
+SWFiles.add=16422,bvr20983.1.0.2
+SWFiles.del=16422,bvr20983.1.0.2
 SWFiles.ocx=11,DOWNLO~1
 
 [SW.AddReg]
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"DisplayName",,"%ProductName%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"UninstallString",,"RunDll32.exe advpack.dll,LaunchINFSection %16422%\bvr20983.1.0.1\bvr20983.1.0.1.inf,DefaultUninstall"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"Publisher",,"%Publisher%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"DisplayVersion",,"%DisplayVersion%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"VersionMajor",,"%VersionMajor%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"VersionMinor",,"%VersionMinor%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"HelpLink",,"%HelpLink%"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"URLUpdateInfo",,"%URLUpdateInfo%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"DisplayName",,"%ProductName%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"UninstallString",,"RunDll32.exe advpack.dll,LaunchINFSection %16422%\bvr20983.1.0.2\bvr20983.1.0.2.inf,DefaultUninstall"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"Publisher",,"%Publisher%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"DisplayVersion",,"%DisplayVersion%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"VersionMajor",,"%VersionMajor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"VersionMinor",,"%VersionMinor%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"HelpLink",,"%HelpLink%"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"URLUpdateInfo",,"%URLUpdateInfo%"
 
 [SW.DelReg]
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"DisplayName"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"UninstallString"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"Publisher"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"DisplayVersion"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"VersionMajor"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"VersionMinor"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"HelpLink"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1,"URLUpdateInfo"
-HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.1
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"DisplayName"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"UninstallString"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"Publisher"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"DisplayVersion"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"VersionMajor"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"VersionMinor"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"HelpLink"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2,"URLUpdateInfo"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\bvr20983.1.0.2
 
 [SW.DelRegOCX]
 HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0001-0001-0011-0001FFFFFFFF},"Installer"
@@ -130,14 +130,14 @@ HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0001-00
 HKLM,SOFTWARE\Microsoft\Code Store Database\Distribution Units\{BFE20983-0001-0001-0011-0001FFFFFFFF}
 
 [RegisterOCXSection]
-%16422%\bvr20983.1.0.1\bvr20983.1.msgs.1.dll
-%16422%\bvr20983.1.0.1\bvr20983.1.sc.1.dll
-%16422%\bvr20983.1.0.1\bvr20983.1.cc.1.dll
+%16422%\bvr20983.1.0.2\bvr20983.1.msgs.1.dll
+%16422%\bvr20983.1.0.2\bvr20983.1.sc.1.dll
+%16422%\bvr20983.1.0.2\bvr20983.1.cc.1.dll
 
 [UnRegisterOCXSection]
-%16422%\bvr20983.1.0.1\bvr20983.1.cc.1.dll
-%16422%\bvr20983.1.0.1\bvr20983.1.sc.1.dll
-%16422%\bvr20983.1.0.1\bvr20983.1.msgs.1.dll
+%16422%\bvr20983.1.0.2\bvr20983.1.cc.1.dll
+%16422%\bvr20983.1.0.2\bvr20983.1.sc.1.dll
+%16422%\bvr20983.1.0.2\bvr20983.1.msgs.1.dll
 
 [BeginPromptInstallSection]
 Prompt     = "%InstPrompt%"

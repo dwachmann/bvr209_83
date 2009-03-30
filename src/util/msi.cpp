@@ -38,9 +38,15 @@ namespace bvr20983
     MSIProduct::MSIProduct(LPCTSTR productCode) :
       m_hProduct(NULL)
     { if( NULL!=productCode )
-      { m_productCode = productCode;
+      { if( productCode[0]!=_T('{') )
+        { m_productCode  = _T("{");
+          m_productCode += productCode;
+          m_productCode += _T("}");
+        } // of if
+        else
+          m_productCode = productCode;
 
-        THROW_LASTERROREXCEPTION( ::MsiOpenProduct(productCode, &m_hProduct) );
+        THROW_LASTERROREXCEPTION( ::MsiOpenProduct(m_productCode.c_str(), &m_hProduct) );
       }
     } // of MSIProduct::MSIProduct()
 
@@ -59,10 +65,66 @@ namespace bvr20983
      *
      */
     bool MSIProduct::IsInstalled(LPCTSTR productCode)
-    { INSTALLSTATE installState = ::MsiQueryProductState(productCode);
+    { bool result = false;
 
-      return installState==INSTALLSTATE_DEFAULT;
+      if( NULL!=productCode )
+      { TString intProductCode;
+
+        if( productCode[0]!=_T('{') )
+        { intProductCode  = _T("{");
+          intProductCode += productCode;
+          intProductCode += _T("}");
+        } // of if
+        else
+          intProductCode = productCode;
+        
+        INSTALLSTATE installState = ::MsiQueryProductState(intProductCode.c_str());
+
+        result = installState==INSTALLSTATE_DEFAULT;
+      } // of if
+
+      return result;
     } // of MSIProduct::IsInstalled()
+
+    /**
+     *
+     */
+    bool MSIProduct::IsPackageInstalled(LPCTSTR productCode,LPCTSTR packageCode)
+    { bool result = false;
+
+      if( NULL!=productCode && NULL!=packageCode )
+      { TString intProductCode;
+        TString intPackageCode;
+
+        if( productCode[0]!=_T('{') )
+        { intProductCode  = _T("{");
+          intProductCode += productCode;
+          intProductCode += _T("}");
+        } // of if
+        else
+          intProductCode = productCode;
+
+        if( packageCode[0]!=_T('{') )
+        { intPackageCode  = _T("{");
+          intPackageCode += packageCode;
+          intPackageCode += _T("}");
+        } // of if
+        else
+          intPackageCode = packageCode;
+
+        if( INSTALLSTATE_DEFAULT==::MsiQueryProductState(intProductCode.c_str()) )
+        { MSIProduct msiProduct(intProductCode.c_str());
+
+          TString installedPackageCode;
+          msiProduct.GetInfo(INSTALLPROPERTY_PACKAGECODE,installedPackageCode);
+          
+          result = _tcscmp(installedPackageCode.c_str(),intPackageCode.c_str())==0;
+        } // of if
+      } // of if
+
+      return result;
+    } // of MSIProduct::IsPackageInstalled()
+
 
     /**
      *
@@ -132,7 +194,117 @@ namespace bvr20983
     /**
      *
      */
-    MSIQuery::MSIQuery(MSIDB& msidb,LPCTSTR szQuery) :
+    bool MSIDB::GetProductCode(TString& productCode) const
+    { return GetProperty(_T("ProductCode"),productCode);
+    } // of MSIDB::GetProductCode()
+
+    /**
+     *
+     */
+    bool MSIDB::GetProperty(LPCTSTR propertyName,TString& propertyValue) const
+    { bool result = false;
+    
+      propertyValue.clear();
+
+      if( NULL!=m_hDatabase ) 
+      { TString query(_T("SELECT `Value` FROM `Property` WHERE `Property`='"));
+      
+        query += propertyName;
+        query += _T("'");
+
+        MSIQuery  msiQuery(*this,query.c_str());
+        MSIRecord msiRecord;
+
+        msiQuery.Execute();
+
+        if( msiQuery.Fetch(msiRecord) )
+        { msiRecord.GetString(1,propertyValue);
+
+          result = true;
+        } // of if
+      } // of if
+
+      return result;
+    } // of MSIDB::GetProperty()
+
+
+    /**
+     *
+     */
+    bool MSIDB::GetPackageCode(TString& packageCode) const
+    { bool result = false;
+      
+      packageCode.clear();
+
+      if( NULL!=m_hDatabase ) 
+      { MSIDBSummaryInfo msiDBSummaryInfo(*this);
+
+        result = msiDBSummaryInfo.GetPackageCode(packageCode);
+      } // of if
+
+      return result;
+    } // of MSIDB::GetPackageCode()
+
+
+    /**
+     *
+     */ 
+    MSIDBSummaryInfo::MSIDBSummaryInfo(const MSIDB& msiDB) :
+      m_hSummaryInfo(NULL)
+    { 
+      THROW_LASTERROREXCEPTION( ::MsiGetSummaryInformation(msiDB.GetDatabaseHandle(),NULL,0, &m_hSummaryInfo) );
+    }
+
+    /**
+     *
+     */
+    MSIDBSummaryInfo::~MSIDBSummaryInfo()
+    { if( NULL!=m_hSummaryInfo ) 
+        ::MsiCloseHandle(m_hSummaryInfo);
+
+      m_hSummaryInfo = NULL;
+    }
+
+    /**
+     *
+     */
+    bool MSIDBSummaryInfo::GetProperty(PROPID propID,TString& propertyValue) const
+    { bool result = false;
+    
+      propertyValue.clear();
+
+      if( NULL!=m_hSummaryInfo ) 
+      { TCHAR buffer[1024];
+        DWORD bufferSize = ARRAYSIZE(buffer);
+        UINT  dataType = NULL;
+
+        //propID = PID_REVNUMBER;
+
+        UINT  msiResult = ::MsiSummaryInfoGetProperty(m_hSummaryInfo,propID,&dataType,NULL,NULL,buffer,&bufferSize);
+
+        if( ERROR_UNKNOWN_PROPERTY==msiResult )
+          result = false;
+        else if( ERROR_SUCCESS==msiResult )
+        { propertyValue = buffer;
+          result        = true;
+        } // of else if
+        else
+          THROW_LASTERROREXCEPTION3( msiResult );
+      } // of if
+
+      return result;
+    } // of MSIDBSummaryInfo::GetProperty()
+
+    /**
+     *
+     */
+    bool MSIDBSummaryInfo::GetPackageCode(TString& packageCode) const
+    { return GetProperty(PID_REVNUMBER,packageCode); }
+
+    /**
+     *
+     */
+    MSIQuery::MSIQuery(const MSIDB& msidb,LPCTSTR szQuery) :
       m_hView(NULL)
     { 
       THROW_LASTERROREXCEPTION( ::MsiDatabaseOpenView(msidb.GetDatabaseHandle(),szQuery, &m_hView) );

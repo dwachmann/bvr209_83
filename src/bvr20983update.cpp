@@ -18,6 +18,7 @@
  */
 
 #include "os.h"
+#include <shlobj.h>
 #include "util/registry.h"
 #include "util/logstream.h"
 #include "util/comlogstream.h"
@@ -25,6 +26,7 @@
 #include "util/versioninfo.h"
 #include "util/apputil.h"
 #include "util/autoupdate.h"
+#include "util/taskscheduler.h"
 #include "win/bitsprogressdlg.h"
 #include <commctrl.h>
 #include <sstream>
@@ -68,9 +70,9 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
 
 
 #ifdef _UNICODE
-#define _bitsadmin_ bitsadminW
+#define _admin_ adminW
 #else
-#define _bitsadmin_ bitsadminA
+#define _admin_ adminA
 #endif
 
 /**
@@ -78,13 +80,14 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
  */
 void PrintBtxCreateJob(HWND hwnd)
 { basic_ostringstream<TCHAR> msgStream;
-  msgStream<<_T("Usage: rundll32 <dllname>,bitsadmin <command> args")<<endl;
-  msgStream<<_T("       create <jobname>: create a bits job")<<endl;
-  msgStream<<_T("       update <jobname> <url> <localname>: download a file")<<endl;
+  msgStream<<_T("Usage: rundll32 <dllname>,admin <command> args")<<endl;
+  msgStream<<_T("       create      <jobname>: create a bits job")<<endl;
+  msgStream<<_T("       update      <jobname> <url> <localname>: download a file")<<endl;
+  msgStream<<_T("       checkupdate <updateurl>: check for new msi package")<<endl;
 
   TString msg = msgStream.str();
 
-  ::MessageBox(hwnd,msg.c_str(),_T("bitsadmin"),MB_OK | MB_ICONINFORMATION);
+  ::MessageBox(hwnd,msg.c_str(),_T("Admin"),MB_OK | MB_ICONINFORMATION);
 } // of PrintBtxCreateJob()
 
 /**
@@ -102,7 +105,7 @@ void ParseCommandLine(LPWSTR lpszCmdLine,VTString& args)
 /**
  *
  */
-STDAPI_(void) _bitsadmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
+STDAPI_(void) _admin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCmdShow)
 { ::CoInitialize(NULL);
 
   INITCOMMONCONTROLSEX icc;
@@ -146,18 +149,63 @@ STDAPI_(void) _bitsadmin_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLine,int nCm
         if( autoUpdate.Init(g_hDllInst,args[0].c_str()) )
           autoUpdate.Run();
       } // of else if
+      else if( _tcscmp(command.c_str(),_T("createtask"))==0 && args.size()>=2 )
+      { TCHAR       path[MAX_PATH];
+        TaskScheduler taskScheduler;
+        Task          task(taskScheduler);
+
+        task.NewTask(args[0].c_str());
+
+        THROW_COMEXCEPTION( task.GetTask()->SetApplicationName(_T("c:\\windows\\system32\\rundll32.exe")) );
+
+        ::GetModuleFileName(g_hDllInst,path,MAX_PATH);
+
+        TString parameters(path);
+
+        parameters += _T(",admin checkupdate ");
+        parameters += args[1].c_str();
+
+        THROW_COMEXCEPTION( task.GetTask()->SetParameters(parameters.c_str()) );
+        THROW_COMEXCEPTION( task.GetTask()->SetFlags(TASK_FLAG_RUN_ONLY_IF_LOGGED_ON) );
+        //THROW_COMEXCEPTION( task.GetTask()->SetFlags(TASK_FLAG_DISABLED | TASK_FLAG_RUN_ONLY_IF_LOGGED_ON) );
+
+        ::SHGetFolderPath(NULL,CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL,SHGFP_TYPE_CURRENT,path);
+
+        THROW_COMEXCEPTION( task.GetTask()->SetWorkingDirectory(path) );
+        THROW_COMEXCEPTION( task.GetTask()->SetComment(_T("Checks for updated MSI packages for bvr20983")) );
+
+        TASK_TRIGGER pTrigger;
+        ::ZeroMemory(&pTrigger, sizeof (TASK_TRIGGER));
+        
+        // Add code to set trigger structure?
+        pTrigger.wBeginDay =1;                  // Required
+        pTrigger.wBeginMonth =1;                // Required
+        pTrigger.wBeginYear =1999;              // Required
+        pTrigger.cbTriggerSize = sizeof (TASK_TRIGGER); 
+        pTrigger.wStartHour = 13;
+        pTrigger.TriggerType = TASK_TIME_TRIGGER_DAILY;
+        pTrigger.Type.Daily.DaysInterval = 1;
+
+        COMPtr<ITaskTrigger> taskTrigger;
+        WORD piNewTrigger=0;
+
+        THROW_COMEXCEPTION( task.GetTask()->CreateTrigger(&piNewTrigger,&taskTrigger) );
+        THROW_COMEXCEPTION( taskTrigger->SetTrigger(&pTrigger) );
+
+        task.Commit();
+      } // of else if
       else
         PrintBtxCreateJob(hwnd);
     } // of if
   }
   catch(BVR20983Exception e)
-  { OutputDebugFmt(_T("BitsAdmin(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
+  { OutputDebugFmt(_T("Admin(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
   }
   catch(exception& e) 
-  { OutputDebugFmt(_T("BitsAdmin(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
+  { OutputDebugFmt(_T("Admin(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
   catch(...)
-  { OutputDebugFmt(_T("BitsAdmin(): Exception\n")); }
+  { OutputDebugFmt(_T("Admin(): Exception\n")); }
 
   ::CoUninitialize();
-} // of _BitsCreateJob_()
+} // of _admin_()
 /*==========================END-OF-FILE===================================*/

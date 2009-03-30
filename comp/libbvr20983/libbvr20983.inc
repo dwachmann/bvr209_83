@@ -80,6 +80,7 @@ $(OUTDIR)\verifyfile.obj \
 $(OUTDIR)\xmldocument.obj \
 $(OUTDIR)\dirinfo.obj \
 $(OUTDIR)\backgroundtransfer.obj \
+$(OUTDIR)\taskscheduler.obj \
 $(OUTDIR)\msi.obj
 
 !ifdef clean

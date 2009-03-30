@@ -28,13 +28,13 @@
 #define verFileDesc       "A digital clock"
 #define verIntName        "digiclock"
 #define verOrigName       "bvr20983.1.digiclock.1.exe"
-#define verMakeDate       "26.03.2009 23:47"
-#define verSvnRevision    "186"
+#define verMakeDate       "28.03.2009 19:38"
+#define verSvnRevision    "187"
 #define verCompPrefix     "digiclock.1"
 #define verDebugVersion   "1"
 #define verMSIProdVersion "1.0.0"
 #define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
-#define verMSIPackCode    "BFE20983-0001-0101-0000-0001FFFFFFFF"
+#define verMSIPackCode    "BFE20983-0001-0101-0000-0002FFFFFFFF"
 #define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
 #define verFileType       VFT_APP

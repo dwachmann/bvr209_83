@@ -37,7 +37,16 @@
 
   <product id="BVR20983">
     <versionhistory>
-	    <version major="1" minor="0" fix="1" build="0" revision="${svnrevision}">
+      <version major="1" minor="0" fix="2" build="0" revision="${svnrevision}">
+        <msipackagecode>${msipackpattern}</msipackagecode>
+        <msiproductcode>${msiprodpattern}</msiproductcode>
+        <msicomponent>${msicomppattern1}</msicomponent>
+        <msiupgradecode>${msiupdpattern}</msiupgradecode>
+        <msipatchcode>${msipatchpattern}</msipatchcode>
+        <msino>0001</msino>
+      </version>
+
+      <version major="1" minor="0" fix="1" build="0" revision="${svnrevision}">
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
         <msicomponent>${msicomppattern1}</msicomponent>
@@ -70,7 +79,8 @@
       <pattern><key>@ProductId@</key><value>#{UCase("${../../../../@id}")}</value></pattern>
       <pattern><key>@URL@</key><value>http://#{LCase("${../../../../@id}")}.berlios.de/</value></pattern>
       <pattern><key>@URL1@</key><value>http://developer.berlios.de/projects/#{LCase("${../../../../@id}")}</value></pattern>
-      <pattern><key>@URL2@</key><value>http://svn.berlios.de/wsvn/#{LCase("${../../../../@id}")}</value></pattern>
+      <pattern><key>@URL2@</key><value>http://bvr20983.berlios.de/msi/</value></pattern>
+      <pattern><key>@SVNURL@</key><value>http://svn.berlios.de/wsvn/#{LCase("${../../../../@id}")}</value></pattern>
       <pattern><key>@UpgradeCode@</key><value>#{UCase("${../../../../v:versionhistory/v:version[1]/v:msiupgradecode/text()}")}</value></pattern>
     </patch>
 

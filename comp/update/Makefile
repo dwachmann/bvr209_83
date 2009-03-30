@@ -38,7 +38,7 @@ $(OUTDIR)\bvr20983update.res: $(RESDIR)\bvr20983update.rc
   $(rc) $(rcflags) $(rcvars) /fo $@ $(RESDIR)\bvr20983update.rc
 
 $(OUTDIR)\$(BVR20983UPDATE_RESULT).dll: $(OBJS)
-  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983update.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) bits.lib comctl32.lib wintrust.lib FCI.LIB FDI.LIB MSI.LIB $(OBJS)
+  $(link) $(ldebug) $(dlllflags) $(lvars) -def:$(INCDIR)\bvr20983update.def -out:$@ -pdb:$(@R).pdb $(olelibsmt) bits.lib comctl32.lib wintrust.lib FCI.LIB FDI.LIB MSI.LIB MSTASK.LIB $(OBJS)
 
 $(SLNDIR)\$(BVR20983UPDATE_RESULT).dll: $(OUTDIR)\$(BVR20983UPDATE_RESULT).dll
   @copy $(OUTDIR)\$(BVR20983UPDATE_RESULT).dll $(SLNDIR)

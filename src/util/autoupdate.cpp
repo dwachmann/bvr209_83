@@ -183,29 +183,32 @@ namespace bvr20983
      */
     void AutoUpdate::CheckVersions()
     { TString localMSIVersionsCAB(m_destinationDir);
+
       localMSIVersionsCAB += _T("\\msiversions.cab");
+          
+      if( m_transferedFiles.size()==1 )
+      { if( MD5Sum::CheckHash(localMSIVersionsCAB.c_str(),m_transferedFiles[0].c_str()) )
+        { CheckInstalledPackage();
+        } // of if
+        else
+        { TString localMSIVersionsMD5(m_destinationDir);
+          TString remoteMSIVersionsMD5(m_baseURL);
+          TString remoteMSIVersionsCAB(m_baseURL);
 
-      if( m_transferedFiles.size()==1 && !MD5Sum::CheckHash(localMSIVersionsCAB.c_str(),m_transferedFiles[0].c_str()) )
-      { TString localMSIVersionsMD5(m_destinationDir);
-        TString localMSIVersionsCAB(m_destinationDir);
-        TString remoteMSIVersionsMD5(m_baseURL);
-        TString remoteMSIVersionsCAB(m_baseURL);
+          localMSIVersionsMD5  += _T("\\msiversions.md5");
+          remoteMSIVersionsMD5 += _T("/msiversions.md5");
+          remoteMSIVersionsCAB += _T("/msiversions.cab");
+          
+          m_btx->CreateJob(m_jobNameVersions.c_str(),m_jobId);
 
-        localMSIVersionsMD5 += _T("\\msiversions.md5");
-        localMSIVersionsCAB += _T("\\msiversions.cab");
+          m_job.Release();
 
-        remoteMSIVersionsMD5 += _T("/msiversions.md5");
-        remoteMSIVersionsCAB += _T("/msiversions.cab");
-        
-        m_btx->CreateJob(m_jobNameVersions.c_str(),m_jobId);
+          if( m_btx->GetJob(m_jobId,m_job) )
+          { THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsMD5.c_str(),localMSIVersionsMD5.c_str()) );
+            THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsCAB.c_str(),localMSIVersionsCAB.c_str()) );
 
-        m_job.Release();
-
-        if( m_btx->GetJob(m_jobId,m_job) )
-        { THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsMD5.c_str(),localMSIVersionsMD5.c_str()) );
-          THROW_COMEXCEPTION( m_job->AddFile(remoteMSIVersionsCAB.c_str(),localMSIVersionsCAB.c_str()) );
-
-          THROW_COMEXCEPTION( m_job->Resume() );
+            THROW_COMEXCEPTION( m_job->Resume() );
+          } // of if
         } // of if
       } // of if
       else
@@ -213,82 +216,10 @@ namespace bvr20983
             MD5Sum::CheckHash(m_transferedFiles[1].c_str(),m_transferedFiles[0].c_str()) &&
             VerifyFile::Verify(m_transferedFiles[1].c_str()) 
           )
-        { XMLDocument             xmlDoc;
-          COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
-          COMPtr<IXMLDOMNode>     pNode;
-          COVariant               msiProductCode;
-          COVariant               msiPackageName;
-          TString                 localMSIVersionsXML(m_destinationDir);
-
-          localMSIVersionsXML += _T("\\msiversions.xml");
-
-          CabinetFDI cabinet(m_transferedFiles[1].c_str(),m_destinationDir.c_str());
+        { CabinetFDI cabinet(m_transferedFiles[1].c_str(),m_destinationDir.c_str());
           cabinet.Extract();
 
-          if( xmlDoc.Load(localMSIVersionsXML.c_str()) && 
-              xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:productcode//text()"),msiProductCode,true) &&
-              xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:name//text()"),msiPackageName,true)
-            )
-          { LPCTSTR productCode = V_BSTR(msiProductCode);
-            LPCTSTR packageName = V_BSTR(msiPackageName);
-
-            TString prodCode(_T("{"));
-            prodCode+=V_BSTR(msiProductCode);
-            prodCode+=_T("}");
-
-            if( MSIProduct::IsInstalled(prodCode.c_str()) )
-            { LOGGER_INFO<<_T("Product ")<<prodCode.c_str()<<_T(" is installed.")<<endl;
-
-              MSIProduct msiProduct(prodCode.c_str());
-              TString productVersion;
-
-              msiProduct.GetProperty(_T("ProductVersion"),productVersion);
-
-              LOGGER_INFO<<_T("  ProductVersion:")<<productVersion.c_str()<<endl;
-
-              MSIDB     msiDB(msiProduct);
-              MSIQuery  msiQuery(msiDB,_T("SELECT `Property`,`Value` FROM `Property`"));
-              MSIRecord msiRecord;
-
-              msiQuery.Execute();
-
-              while( msiQuery.Fetch(msiRecord) )
-              { UINT fieldCount = msiRecord.GetFieldCount();
-
-                for( UINT i=1;i<=fieldCount;i++ )
-                { TString value;
-
-                  msiRecord.GetString(i,value);
-
-                  LOGGER_INFO<<value.c_str()<<_T(' ');
-                } // of for
-
-                LOGGER_INFO<<endl;
-              } // of while
-            } // of if
-            else
-            { LOGGER_INFO<<packageName<<_T(": downloading and installing productcode=")<<prodCode.c_str()<<endl;
-
-              TString remoteMSIPackage(m_baseURL);
-              TString localMSIPackage(m_destinationDir);
-
-              remoteMSIPackage += _T("/");
-              remoteMSIPackage += packageName;
-
-              localMSIPackage  += _T("\\");
-              localMSIPackage  += packageName;
-
-              m_btx->CreateJob(m_jobNameMSI.c_str(),m_jobId);
-
-              m_job.Release();
-
-              if( m_btx->GetJob(m_jobId,m_job) )
-              { THROW_COMEXCEPTION( m_job->AddFile(remoteMSIPackage.c_str(),localMSIPackage.c_str()) );
-                
-                THROW_COMEXCEPTION( m_job->Resume() );
-              } // of if
-            } // of if
-          } // of if
+          CheckInstalledPackage();
         } // of if
       } // of else
     } // of AutoUpdate::CheckVersions()
@@ -296,13 +227,105 @@ namespace bvr20983
     /**
      *
      */
+    bool AutoUpdate::GetActualPackageInfo(TString& productCode,TString& packageCode,TString& packageName)
+    { bool                    result = false;
+      XMLDocument             xmlDoc;
+      COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+      COVariant               msiProductCode;
+      COVariant               msiPackageCode;
+      COVariant               msiPackageName;
+      TString                 msiversions(m_destinationDir);
+      
+      msiversions += _T("\\msiversions.xml");
+
+      productCode.clear();
+      packageCode.clear();
+      packageName.clear();
+          
+      if( DirectoryInfo::_IsFile(msiversions.c_str()) &&
+          xmlDoc.Load(msiversions.c_str()) && 
+          xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:productcode//text()"),msiProductCode,true) &&
+          xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:packagecode//text()"),msiPackageCode,true) &&
+          xmlDoc.GetNodeValue(_T("//v:msiversions//v:package[1]//v:name//text()"),msiPackageName,true)
+        )
+      { productCode = V_BSTR(msiProductCode);
+        packageCode = V_BSTR(msiPackageCode);
+        packageName = V_BSTR(msiPackageName);
+
+        result = true;
+      } // of if
+
+      return result;
+    } // of AutoUpdate::GetActualPackageInfo()
+
+    /**
+     *
+     */
+    void AutoUpdate::CheckInstalledPackage()
+    { TString productCode;
+      TString packageCode;
+      TString packageName;
+          
+      if( GetActualPackageInfo(productCode,packageCode,packageName) &&
+          ( !MSIProduct::IsInstalled(productCode.c_str()) ||
+            !MSIProduct::IsPackageInstalled(productCode.c_str(),packageCode.c_str())
+          )
+        )
+      { LOGGER_INFO<<packageName.c_str()<<_T(": download and install ")<<productCode.c_str()
+                                        <<_T(" packagecode:")<<packageCode.c_str()<<endl;
+
+        TString remoteMSIPackage(m_baseURL);
+        TString localMSIPackage(m_destinationDir);
+
+        remoteMSIPackage += _T("/");
+        remoteMSIPackage += packageName;
+        localMSIPackage  += _T("\\");
+        localMSIPackage  += packageName;
+
+        m_btx->CreateJob(m_jobNameMSI.c_str(),m_jobId);
+
+        m_job.Release();
+
+        if( m_btx->GetJob(m_jobId,m_job) )
+        { THROW_COMEXCEPTION( m_job->AddFile(remoteMSIPackage.c_str(),localMSIPackage.c_str()) );
+          THROW_COMEXCEPTION( m_job->Resume() );
+        } // of if
+      } // of else
+    } // of AutoUpdate::CheckInstalledPackage()
+
+    /**
+     *
+     */
     void AutoUpdate::InstallPackage()
     { if( m_transferedFiles.size()==1 )
-      { ::MsiSetInternalUI(INSTALLUILEVEL_FULL,NULL);
+      { MSIDB msiDB(m_transferedFiles[0].c_str());
 
-        UINT result = ::MsiInstallProduct(m_transferedFiles[0].c_str(),NULL);
+        TString productCode;
+        TString packageCode;
 
-        LOGGER_INFO<<_T("MsiInstallProduct(")<<m_transferedFiles[0].c_str()<<_T("):")<<result<<endl;
+        if( msiDB.GetProductCode(productCode) && msiDB.GetPackageCode(packageCode) )
+        { if( !MSIProduct::IsInstalled(productCode.c_str()) )
+          { INSTALLUILEVEL dwUILevel = INSTALLUILEVEL_DEFAULT; //INSTALLUILEVEL_FULL
+            
+            ::MsiSetInternalUI(dwUILevel,NULL);
+
+            UINT result = ::MsiInstallProduct(m_transferedFiles[0].c_str(),_T("BVRDIR=c:\\temp\\bvr"));
+
+            LOGGER_INFO<<_T("MsiInstallProduct(")<<m_transferedFiles[0].c_str()<<_T("):")<<result<<endl;
+          } // of if
+          else if( !MSIProduct::IsPackageInstalled(productCode.c_str(),packageCode.c_str()) )
+          { DumpPackageInfo(productCode);
+            
+            DWORD reinstallMode = REINSTALLMODE_PACKAGE     | REINSTALLMODE_FILEOLDERVERSION | 
+                                  REINSTALLMODE_MACHINEDATA | REINSTALLMODE_USERDATA         |
+                                  REINSTALLMODE_SHORTCUT;
+
+            UINT result = ::MsiReinstallProduct(m_transferedFiles[0].c_str(),reinstallMode);
+
+            LOGGER_INFO<<_T("MsiReinstallProduct(")<<m_transferedFiles[0].c_str()<<_T("):")<<result<<endl;
+          } // of else if
+        } // of if
       } // of if
     } // of AutoUpdate::InstallPackage()
 
@@ -356,6 +379,49 @@ namespace bvr20983
       if( NULL!=compPrefix )
         m_componentPrefix = (LPCTSTR)compPrefix;
     } // of AutoUpdate::ReadVersionInfo()
+
+    /**
+     *
+     */
+    void AutoUpdate::DumpPackageInfo(const TString& productCode)
+    { MSIProduct msiProduct(productCode.c_str());
+      TString productVersion;
+
+      msiProduct.GetProperty(_T("ProductVersion"),productVersion);
+      LOGGER_INFO<<_T("  ProductVersion:")<<productVersion.c_str()<<endl;
+
+      TString prodInfo;
+
+      msiProduct.GetInfo(INSTALLPROPERTY_URLUPDATEINFO,prodInfo);
+      LOGGER_INFO<<_T("  URLUPDATEINFO:")<<prodInfo.c_str()<<endl;
+
+      msiProduct.GetInfo(INSTALLPROPERTY_VERSIONSTRING,prodInfo);
+      LOGGER_INFO<<_T("  VERSIONSTRING:")<<prodInfo.c_str()<<endl;
+
+      TString installedPackageCode;
+      msiProduct.GetInfo(INSTALLPROPERTY_PACKAGECODE,installedPackageCode);
+      LOGGER_INFO<<_T("  PACKAGECODE:")<<installedPackageCode.c_str()<<endl;
+
+      MSIDB     msiDB(msiProduct);
+      MSIQuery  msiQuery(msiDB,_T("SELECT `Property`,`Value` FROM `Property`"));
+      MSIRecord msiRecord;
+
+      msiQuery.Execute();
+
+      while( msiQuery.Fetch(msiRecord) )
+      { UINT fieldCount = msiRecord.GetFieldCount();
+
+        for( UINT i=1;i<=fieldCount;i++ )
+        { TString value;
+
+          msiRecord.GetString(i,value);
+
+          LOGGER_INFO<<value.c_str()<<_T(' ');
+        } // of for
+
+        LOGGER_INFO<<endl;
+      } // of while
+    } // of DumpPackageInfo()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/
