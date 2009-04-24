@@ -302,7 +302,7 @@ namespace bvr20983
     msiInprocServerName += registry.GetComponentId();
     msiInprocServerName += _T("]");
 
-    if( registry.GetDumpType()==Registry::MSI )
+    if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
       registry.SetValue(_T("InprocServer32"),NULL,msiInprocServerName);
     else
       registry.SetValue(_T("InprocServer32"),NULL,modulePath);
@@ -311,7 +311,7 @@ namespace bvr20983
 
     TString defaultIcon;
 
-    if( registry.GetDumpType()==Registry::MSI )
+    if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
       defaultIcon += msiInprocServerName;
     else
       defaultIcon += modulePath;
@@ -328,7 +328,7 @@ namespace bvr20983
 
         if( toolboxBitmap[0]==_T('#') )
         { 
-          if( registry.GetDumpType()==Registry::MSI )
+          if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
             tBitmap += msiInprocServerName;
           else
             tBitmap += modulePath;
@@ -466,7 +466,7 @@ namespace bvr20983
     msiInprocServerName += registry.GetComponentId();
     msiInprocServerName += _T("]");
 
-    if( registry.GetDumpType()==Registry::MSI )
+    if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
       registry.SetValue(TString(os1.str()).c_str(),NULL,msiInprocServerName);
     else
       registry.SetValue(TString(os1.str()).c_str(),NULL,modulePath);

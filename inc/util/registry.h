@@ -172,7 +172,8 @@ namespace bvr20983
     public:
       enum DumpT
       { REGEDIT,
-        MSI
+        MSI,
+        XML
       };
 
       typedef std::pair<TString,RegistryKey>           RegistryKeyP;

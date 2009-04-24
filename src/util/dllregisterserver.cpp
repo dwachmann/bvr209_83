@@ -195,19 +195,17 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 
     int     i         = 0;
     boolean stop      = false;
+    boolean newFormat = false;
     LPTSTR  nextToken = NULL;
     for( LPTSTR tok=_tcstok_s(lpszCmdLine,_T(" "),&nextToken);NULL!=tok && !stop;tok=_tcstok_s(NULL,_T(" "),&nextToken),i++ )
     {
-      switch( i )
-      { 
-      case 0:
-        _tcscpy_s(filename,MAX_PATH,tok);
+      if( _tcscmp(tok,_T("-new"))==0 )
+        newFormat = true;
+      else
+      { _tcscpy_s(filename,MAX_PATH,tok);
+
         stop = true;
-        break;
-      default:
-        stop = true;
-        break;
-      } // of switch
+      } // of else
     } // of for
 
     if( filename[0]!=_T('\0') )
@@ -219,7 +217,11 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
       { Registry registry;
         TCHAR    szModulePath[MAX_PATH];
 
-        registry.SetDumpType(Registry::MSI);
+        if( newFormat )
+          registry.SetDumpType(Registry::XML);
+        else
+          registry.SetDumpType(Registry::MSI);
+
         registry.SetComponentId(compPrefix);
 
         COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));

@@ -931,6 +931,80 @@ namespace bvr20983
         } // of else
       } // of for
     } // of else
+    else if( dumpType==Registry::XML )
+    { 
+      os<<_T("<?xml version='1.0' encoding='UTF-8' ?>")<<endl<<endl;
+
+      os<<_T("<registry>")<<endl;
+      
+      DWORD i               = 0;
+      const TString& compId = reg.GetComponentId();
+
+      for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
+      { 
+        RegKey                            regKey(it->second.GetKey());
+        const HKEY                        mainKey = regKey.GetMainKey();
+        const TString&                    subKey  = regKey.GetSubKey();
+        const RegistryKey::RegistryValueM values  = it->second.GetValues();
+
+        os<<_T("  <reg id='")<<compId<<_T('.')<<(i++)<<_T("' ");
+
+        if( mainKey==HKEY_CLASSES_ROOT )
+          os<<_T(" root='0' ");
+        else if( mainKey==HKEY_CURRENT_USER )
+          os<<_T(" root='1' ");
+        else if( mainKey==HKEY_LOCAL_MACHINE )
+          os<<_T(" root='2' ");
+        else if( mainKey==HKEY_USERS )
+          os<<_T(" root='3' ");
+
+        os<<_T(" compid='")<<compId<<_T("'>")<<endl;
+
+        os<<_T("    <key>")<<subKey<<_T("</key>")<<endl;
+
+        if( !values.empty() )
+        { 
+          os<<_T("    <values>")<<endl;
+
+          for( RegistryKey::RegistryValueM::const_iterator it1=values.begin();it1!=values.end();it1++ )
+          { const RegistryValue& rVal = it1->second;
+
+            if( rVal.IsDefaultValue() )
+              os<<_T("      <default>");
+            else
+              os<<_T("      <value id='")<<rVal.GetName()<<_T("'>");
+
+            DWORD type=rVal.GetType();
+
+            if( REG_SZ==type )
+            { TString value;
+
+              rVal.GetValue(value);
+
+              os<<value;
+            } // of if
+            else if( REG_DWORD==type )
+            { DWORD value;
+
+              rVal.GetValue(value);
+
+              os<<_T('#')<<value;
+            } // of else if
+
+            if( rVal.IsDefaultValue() )
+              os<<_T("</default>")<<endl;
+            else
+              os<<_T("</value>")<<endl;
+          } // of for
+
+          os<<_T("    </values>")<<endl;
+        } // of if
+
+        os<<_T("  </reg>")<<endl;
+      } // of for
+
+      os<<_T("</registry>")<<endl;
+    } // of else
 
     return os;
   }

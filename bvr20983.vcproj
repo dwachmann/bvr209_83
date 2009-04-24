@@ -1125,6 +1125,14 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="msi"
+					>
+					<File
+						RelativePath=".\comp\msi\Makefile"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<File

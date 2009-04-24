@@ -92,7 +92,7 @@ namespace bvr20983
         msiInprocServerName += evtSrcRegKey.GetComponentId();
         msiInprocServerName += _T("]");
     
-        if( evtSrcRegKey.GetDumpType()==Registry::MSI )
+        if( evtSrcRegKey.GetDumpType()==Registry::MSI || evtSrcRegKey.GetDumpType()==Registry::XML )
         { evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),msiInprocServerName);
           evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),msiInprocServerName);
         } // of if
