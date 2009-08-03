@@ -451,7 +451,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 #endif
     m_msicab(msicab),
     m_msiCompIdPattern(msiCompIdPattern)
-  { m_msicab<<_T("<?xml version='1.0' encoding='UTF-8' ?>")<<endl<<endl; 
+  { m_msicab<<_T("<?xml version='1.0' encoding='UTF-8'?>")<<endl<<endl; 
     
     m_msicab<<_T("<cabinet>")<<endl;
     m_msicab<<_T("<files>")<<endl;
@@ -461,6 +461,13 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   ~MSICABAddFile1CB()
+  { 
+  }
+
+  /**
+   *
+   */
+  void close()
   { m_msicab<<_T("</cabinet>")<<endl;
   }
 
@@ -499,7 +506,9 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     { m_msicab<<_T("    <directory id='")<<iter->m_dirId<<_T("'");
 
       if( _tcslen(iter->m_parentId)>0 )
-        m_msicab<<_T(" parentid='")<<iter->m_parentId<<_T("'>")<<endl;
+        m_msicab<<_T(" parentid='")<<iter->m_parentId<<_T("'");
+        
+      m_msicab<<_T(">")<<endl;
 
       m_msicab<<_T("      <name>")<<iter->m_dirName<<_T("</name>")<<endl;
       m_msicab<<_T("      <shortname>")<<iter->m_dirShortName<<_T("</shortname>")<<endl;
@@ -654,11 +663,13 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
         cabinet.SetAddFileCallback(&addFileCB);
         cabinet.AddFile(fullCompDir,fullCompDir);
         addFileCB.DumpDirectoryInfo();
+        addFileCB.close();
 
         msicab.close();
 
         cabinet.SetAddFileCallback(NULL);
-        cabinet.AddFile(strippedCabName,NULL,_T("_FFFFFFFF"));
+        
+        cabinet.AddFile(strippedCabName,NULL,_T("fileinfo.xml"));
 
         cabinet.Flush();
       } // of if
