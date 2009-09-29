@@ -42,6 +42,7 @@ namespace bvr20983
         XMLDocument(LPCOLESTR domDocProgId=_T("Msxml2.DOMDocument.6.0"));
         
         boolean Load(LPCTSTR fileName);
+        void    Save(LPCTSTR fileName);
         void    DumpSelection(LPCTSTR xpathExpression);
         void    GetSelection(LPCTSTR xpathExpression,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList);
         void    SetProperties(const PropertyM& prop)
@@ -51,6 +52,10 @@ namespace bvr20983
         boolean GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
 
         boolean GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value);
+        
+        void    CreateElement(LPCTSTR elementName,COMPtr<IXMLDOMElement> &ppElement);
+        void    AppendChild(IXMLDOMNode* pChild);
+        void    AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot);
         
       private:
         COMPtr<MSXML2::IXMLDOMDocument2> m_pXmlDoc;

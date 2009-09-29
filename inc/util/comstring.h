@@ -32,6 +32,9 @@ namespace bvr20983
       COMString(BSTR str)
       { m_str = str; }
 
+      COMString(LPCTSTR str)
+      { m_str = ::SysAllocString(str); }
+
       ~COMString()
       { ::SysFreeString(m_str); }
       
@@ -40,6 +43,9 @@ namespace bvr20983
 
       BSTR* operator&()
       { return &m_str; }
+      
+      BSTR getString()
+      { return m_str; }
 
     private:
       BSTR m_str;

@@ -71,6 +71,9 @@ $(MSIDIR)\$(BVR20983_CABMSI): $(INCDIR)\ver\versions.xml
    rundll32.exe $(BVR20983CC_RESULT).dll,DllRegistrationInfo $(MSITEMPLATEDIR)\Registry1.tmpl
    $(msicab) -msicab $(INCDIR)\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI) $(MSITEMPLATEDIR)
 
+msicab1:
+   $(msicab) -msicab1 $(INCDIR)\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+
 validate: 
    $(msival) $(MSIDIR)\$(BVR20983_MSI) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f
 

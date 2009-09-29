@@ -672,6 +672,25 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
         cabinet.AddFile(strippedCabName,NULL,_T("fileinfo.xml"));
 
         cabinet.Flush();
+        
+        { util::XMLDocument msiDB;
+        
+          msiDB.Load(strippedCabName);
+          
+          ::_tcscat_s(strippedCabName,MAX_PATH,_T(".bla"));
+          
+          { COMPtr<IXMLDOMElement> newElement;
+            COMPtr<IXMLDOMElement> newElement1; 
+          
+            msiDB.CreateElement(_T("blafaseltest"),newElement);
+            msiDB.CreateElement(_T("xxyyzz"),newElement1);
+
+            msiDB.AppendChildToParent(newElement,newElement1);
+            msiDB.AppendChild(newElement1);
+          }
+
+          msiDB.Save(strippedCabName);
+        }
       } // of if
     } // of if
   } // of if

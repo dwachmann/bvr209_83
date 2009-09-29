@@ -88,6 +88,47 @@ namespace bvr20983
 */
       return result;
     } // of XMLDocument::Load()
+
+    /**
+     *
+     */
+    void XMLDocument::Save(LPCTSTR fileName)
+    { COVariant var(fileName);
+      
+      THROW_COMEXCEPTION( m_pXmlDoc->save(var) );
+    } // of XMLDocument::Save()
+
+    /**
+     *
+     */
+    void XMLDocument::CreateElement(LPCTSTR elementName,COMPtr<IXMLDOMElement> &ppElement)
+    { COMString bElementName(elementName);
+  
+      THROW_COMEXCEPTION( m_pXmlDoc->createElement(bElementName.getString(),&ppElement) );
+    } // of XMLDocument::CreateElement()
+    
+
+    /**
+     *
+     */
+    void XMLDocument::AppendChild(IXMLDOMNode* pChild)
+    { COMPtr<IXMLDOMNode>    pChildOut;
+      COMPtr<IXMLDOMElement> pRoot;
+    
+      THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pRoot) );
+      THROW_COMEXCEPTION( pRoot->appendChild(pChild,&pChildOut) );
+    } // of XMLDocument::AppendChild()
+
+    /**
+     *
+     */
+    void XMLDocument::AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot)
+    { COMPtr<IXMLDOMNode>    pChildOut;
+      
+      if( NULL!=pRoot )
+      { THROW_COMEXCEPTION( pRoot->appendChild(pChild,&pChildOut) );
+      } // of if
+    } // of XMLDocument::AppendChildToParent()
     
     /**
      *

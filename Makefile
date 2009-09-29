@@ -66,6 +66,8 @@ patch:
   
 msi: comp\msi\~createmsi
 
+msicab1: comp\msi\~msicab1
+
 msipatch: comp\msi\~createpatch
 
 comp\msi\~createmsi:
@@ -78,6 +80,12 @@ comp\msi\~createpatch:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
   @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) createpatch
+<<
+
+comp\msi\~msicab1:
+  @IF EXIST $(@D)\makefile <<nmaketmp.bat
+  @cd $(@D)
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msicab1
 <<
 
 $(CABRESULT): $(CABCONTENT)
