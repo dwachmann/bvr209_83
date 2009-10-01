@@ -765,6 +765,79 @@ namespace bvr20983
     m_keys.clear();
   } // of Registry::DeleteKeys()
 
+  /**
+   *
+   */
+  void Registry::EnumRegistry(REGISTRYINFOPROC pEnumProc, LPARAM lParam)
+  { if( NULL!=pEnumProc )
+    { DWORD                          i           = 0;
+      const TString&                 compId      = GetComponentId();
+      const Registry::RegistryKeyM&  keys        = GetKeys();
+      const Registry::RegistryKeyM1& deletedKeys = GetDeletedKeys();
+
+      for( Registry::RegistryKeyM::const_iterator it=keys.begin();it!=keys.end();it++ )
+      { RegKey                            regKey(it->second.GetKey());
+        const HKEY                        mainKey = regKey.GetMainKey();
+        const TString&                    subKey  = regKey.GetSubKey();
+        const RegistryKey::RegistryValueM values  = it->second.GetValues();
+
+        TString key;
+
+        if( mainKey==HKEY_CLASSES_ROOT )
+          key.append(_T("HKEY_CLASSES_ROOT"));
+        else if( mainKey==HKEY_CURRENT_USER )
+          key.append(_T("HKEY_CURRENT_USER"));
+        else if( mainKey==HKEY_LOCAL_MACHINE )
+          key.append(_T("HKEY_LOCAL_MACHINE"));
+        else if( mainKey==HKEY_USERS )
+          key.append(_T("HKEY_USERS"));
+
+        key.append(_T("\\"));
+        key.append(subKey);
+
+        if( !values.empty() )
+        { 
+          for( RegistryKey::RegistryValueM::const_iterator it1=values.begin();it1!=values.end();it1++ )
+          { const RegistryValue& rVal = it1->second;
+
+            TString valueName;
+            TString value;
+
+            if( rVal.IsDefaultValue() )
+              valueName.append(_T("@"));
+            else
+              valueName.append(rVal.GetName());
+
+            DWORD type=rVal.GetType();
+
+            if( REG_SZ==type )
+            { TString val;
+
+              rVal.GetValue(val);
+
+              value.append(_T("\""));
+              value.append(val);
+              value.append(_T("\""));
+            } // of if
+            else if( REG_DWORD==type )
+            { DWORD val;
+              TCHAR val1[20];
+
+              rVal.GetValue(val);
+
+              value.append(_T("dword:"));
+
+              _itot_s(val,val1,20,10);
+              value.append(val1);
+            } // of else if
+
+            if( !(*pEnumProc)(lParam,false,key.c_str(),valueName.c_str(),value.c_str()) )
+              return;
+          } // of for
+        } // of if
+      } // of if
+    } // of if
+  } // of Registry::EnumRegistry()
 
   /**
    *

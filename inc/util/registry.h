@@ -21,6 +21,7 @@
 
 #include "os.h"
 #include "util/logstream.h"
+#include "util/registrycb.h"
 #include <iostream>
 #include <fstream>
 #include <stack>
@@ -228,6 +229,8 @@ namespace bvr20983
 
       const TString& GetComponentId() const
       { return m_componentId; }
+      
+      void EnumRegistry(REGISTRYINFOPROC pEnumProc, LPARAM lParam);
 
     private:
       void GetKeyPath(LPCTSTR subkey,TString& keyPath) const;

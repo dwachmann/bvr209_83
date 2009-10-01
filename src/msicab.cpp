@@ -34,6 +34,7 @@
 #include "util/md5sum.h"
 #include "util/verifyfile.h"
 #include "util/sharedlibrary.h"
+#include "util/registrycb.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -442,6 +443,11 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
 /**
  *
  */
+bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value);
+
+/**
+ *
+ */
 struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 {
 
@@ -463,6 +469,26 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    */
   ~MSICABAddFile1CB()
   { }
+
+  /**
+   *
+   */
+  bool RegistryInfo(bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
+  { //OutputDebugFmt(_T("RegistryInfoCB(%d,%s,%s,%s)\n"),startSection,key,name,value);
+
+    m_msicab<<_T("<registry>")<<endl;
+    m_msicab<<_T("  <key>")<<key<<_T("</key>")<<endl;
+
+    if( NULL!=name )
+    { m_msicab<<_T("  <name>")<<name<<_T("</name>")<<endl;
+
+      if( NULL!=value )
+        m_msicab<<_T("  <value>")<<value<<_T("</value>")<<endl;
+    } // of if
+    m_msicab<<_T("</registry>")<<endl;
+
+    return true;
+  } // of registryInfo()
 
   /**
    *
@@ -518,6 +544,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     m_msicab<<_T("  </directories>")<<endl;
   } // of DumpDirectoryInfo()
 
+
   /**
    *
    */
@@ -529,6 +556,23 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
     DirectoryInfo::_StripFilename(strippedFilePath,MAX_PATH,filePath,prefix);
     DirectoryInfo::_StripFilename(fileName,MAX_PATH,filePath);
+
+    LPCTSTR p = ::_tcsrchr(filePath, _T('.'));
+    TCHAR   suffix[MAX_PATH];
+    
+    ::memset(suffix,'\0',MAX_PATH);
+    
+    if( NULL!=p )
+      ::_tcscpy_s(suffix,MAX_PATH,p);
+
+    if( _tcscmp(suffix,_T(".dll"))==0 )
+    { SharedLibrary shLib(filePath);
+    
+      ENUMREGISTRATIONPROC enumProc = (ENUMREGISTRATIONPROC)shLib.GetProcAddress(_T("DllEnumRegistrationInfo"),false);
+
+      if( enumProc )
+        enumProc(RegistryInfoCB,(LPARAM)this);
+    } // of if
 
     m_msicab<<_T("  <file ");
 
@@ -547,22 +591,8 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
     DWORD fileSize=0;
     DirectoryInfo::_GetFileSize(filePath,&fileSize);
-    
-    LPCTSTR p = ::_tcsrchr(filePath, _T('.'));
-    TCHAR   suffix[MAX_PATH];
-    
-    ::memset(suffix,'\0',MAX_PATH);
-    
-    if( NULL!=p )
-      ::_tcscpy_s(suffix,MAX_PATH,p);
       
     LOGGER_DEBUG<<_T("::AddFile() suffix=<")<<suffix<<_T(">")<<endl;
-       
-    if( _tcscmp(suffix,_T(".dll"))==0 )
-    { SharedLibrary shLib(filePath);
-    
-      shLib.GetProcAddress(_T("DllInstall"));
-    } // of if
 
     m_msicab<<_T(" size='")<<fileSize<<_T("' ");
 
@@ -621,6 +651,17 @@ private:
     LPCTSTR      m_msiCompIdPattern;
 }; // of class MSICABAddFile1CB
 
+/**
+ *
+ */
+bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
+{ bool result = false;
+
+  if( NULL!=lParam )
+    result = ((MSICABAddFile1CB*)lParam)->RegistryInfo(startSection,key,name,value);
+
+  return result;
+} // of RegistryInfoCB()
 
 /**
  *

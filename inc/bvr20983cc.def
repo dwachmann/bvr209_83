@@ -15,10 +15,11 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see http://www.gnu.org/licenses/.
 EXPORTS
-  DllGetClassObject      PRIVATE
-  DllCanUnloadNow        PRIVATE
-  DllRegisterServer      PRIVATE
-  DllUnregisterServer    PRIVATE
-  DllInstall             PRIVATE
-  DllRegistrationInfoW   PRIVATE
+  DllGetClassObject       PRIVATE
+  DllCanUnloadNow         PRIVATE
+  DllRegisterServer       PRIVATE
+  DllUnregisterServer     PRIVATE
+  DllInstall              PRIVATE
+  DllRegistrationInfoW    PRIVATE
+  DllEnumRegistrationInfo PRIVATE
   InitBVRCustomControls

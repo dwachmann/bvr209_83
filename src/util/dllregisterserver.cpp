@@ -182,7 +182,7 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
     LPCTSTR compPrefix = NULL;
     TCHAR   szModulePath[MAX_PATH];
 
-    COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
+    COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
 
     VersionInfo verInfo(szModulePath);
 
@@ -251,6 +251,45 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
   catch(...)
   { OutputDebugFmt(_T("DllRegistrationInfo(): Exception\n")); }
 } // of _DllRegistrationInfo_()
+
+/**
+ *
+ */
+STDAPI_(void) DllEnumRegistrationInfo(REGISTRYINFOPROC pEnumProc, LPARAM lParam)
+{ try
+  { OutputDebugFmt(_T("DllEnumRegistrationInfo()\n"));
+
+    LPCTSTR prodPrefix = NULL;
+    LPCTSTR compPrefix = NULL;
+    TCHAR   szModulePath[MAX_PATH];
+
+    COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
+
+    VersionInfo verInfo(szModulePath);
+
+    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
+    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+
+    Registry registry;
+
+    registry.SetComponentId(compPrefix);
+
+    COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
+
+    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath);
+
+    registry.EnumRegistry(pEnumProc,lParam);
+  }
+  catch(BVR20983Exception e)
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
+    OutputDebugFmt(_T("  Filename \"%s\" Line %d\n"),e.GetFileName(),e.GetLineNo());
+  }
+  catch(exception& e) 
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
+  catch(...)
+  { OutputDebugFmt(_T("DllRegistrationInfo(): Exception\n")); }
+} // of DllEnumRegistrationInfo()
+
 
 #ifdef _UNICODE
 #define _DllRegEdit_ DllRegEditW

@@ -38,8 +38,7 @@ namespace bvr20983
      *
      */
     void SharedLibrary::Init(LPCTSTR fName)
-    { 
-      LOGGER_DEBUG<<_T("SharedLibrary::Init(")<<fName<<_T(")")<<endl;
+    { LOGGER_DEBUG<<_T("SharedLibrary::Init(")<<fName<<_T(")")<<endl;
       
       m_hModule = ::LoadLibraryEx(fName,NULL,0);
 
@@ -63,8 +62,7 @@ namespace bvr20983
     { FARPROC result = NULL;
 
       if( NULL!=m_hModule )
-      { 
-        LOGGER_DEBUG<<_T("SharedLibrary::GetProcAddress(")<<procName<<_T(")")<<endl;
+      { LOGGER_DEBUG<<_T("SharedLibrary::GetProcAddress(")<<procName<<_T(")")<<endl;
 
 #ifdef _UNICODE
         char procNameA[MAX_PATH];
@@ -76,8 +74,12 @@ namespace bvr20983
         result = ::GetProcAddress(m_hModule,procName);
 #endif
 
-        if( mandatory )
-          THROW_LASTERROREXCEPTION1( result );
+        if( NULL==result )
+        { DWORD err = ::GetLastError();
+
+          if( err!=ERROR_PROC_NOT_FOUND || mandatory )
+            THROW_LASTERROREXCEPTION3(err);
+        } // of if
       } // of if
 
       return result;

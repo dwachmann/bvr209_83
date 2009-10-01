@@ -411,6 +411,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\registrycb.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\util\registryutil.h"
 						>
 					</File>
