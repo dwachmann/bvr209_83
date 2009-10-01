@@ -33,6 +33,7 @@
 #include "util/comstring.h"
 #include "util/md5sum.h"
 #include "util/verifyfile.h"
+#include "util/sharedlibrary.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -461,15 +462,13 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   ~MSICABAddFile1CB()
-  { 
-  }
+  { }
 
   /**
    *
    */
   void close()
-  { m_msicab<<_T("</cabinet>")<<endl;
-  }
+  { m_msicab<<_T("</cabinet>")<<endl; }
 
   /**
    *
@@ -548,6 +547,22 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
     DWORD fileSize=0;
     DirectoryInfo::_GetFileSize(filePath,&fileSize);
+    
+    LPCTSTR p = ::_tcsrchr(filePath, _T('.'));
+    TCHAR   suffix[MAX_PATH];
+    
+    ::memset(suffix,'\0',MAX_PATH);
+    
+    if( NULL!=p )
+      ::_tcscpy_s(suffix,MAX_PATH,p);
+      
+    LOGGER_DEBUG<<_T("::AddFile() suffix=<")<<suffix<<_T(">")<<endl;
+       
+    if( _tcscmp(suffix,_T(".dll"))==0 )
+    { SharedLibrary shLib(filePath);
+    
+      shLib.GetProcAddress(_T("DllInstall"));
+    } // of if
 
     m_msicab<<_T(" size='")<<fileSize<<_T("' ");
 

@@ -415,6 +415,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\sharedlibrary.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\util\taskscheduler.h"
 						>
 					</File>
@@ -730,6 +734,10 @@
 					</File>
 					<File
 						RelativePath=".\src\util\registryutil.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\sharedlibrary.cpp"
 						>
 					</File>
 					<File

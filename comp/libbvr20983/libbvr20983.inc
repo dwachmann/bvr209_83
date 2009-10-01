@@ -81,6 +81,7 @@ $(OUTDIR)\xmldocument.obj \
 $(OUTDIR)\dirinfo.obj \
 $(OUTDIR)\backgroundtransfer.obj \
 $(OUTDIR)\taskscheduler.obj \
+$(OUTDIR)\sharedlibrary.obj \
 $(OUTDIR)\msi.obj
 
 !ifdef clean
