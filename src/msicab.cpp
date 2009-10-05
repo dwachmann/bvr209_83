@@ -35,6 +35,7 @@
 #include "util/verifyfile.h"
 #include "util/sharedlibrary.h"
 #include "util/registrycb.h"
+#include "util/yastring.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -677,6 +678,20 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   xmlDoc.SetProperties(props);
 
+  YAString hugo(_T("hugo"));
+
+  YAString* bla = new YAString(_T("test"));
+
+  delete bla;
+
+  void* bla1 = calloc(1,sizeof(YAString));
+
+  YAString* bla2 = ::new(bla1) YAString(_T("hugo1"));
+
+  bla2->~YAString();
+
+  LOGGER_INFO<<_T("typeid: ")<<typeid(hugo).name()<<_T(":")<<typeid(hugo).raw_name()<<endl;
+
   if( xmlDoc.Load(fName) )
   { 
     COVariant productidValue;
@@ -700,7 +715,6 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
         ::_tcscpy_s(strippedCabName,MAX_PATH,fullCabName);
         
       ::_tcscat_s(strippedCabName,MAX_PATH,_T(".xml"));
-
 
       COVariant msiComponentID;
 

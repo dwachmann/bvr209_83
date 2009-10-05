@@ -442,6 +442,10 @@
 						RelativePath=".\inc\util\xmldocument.h"
 						>
 					</File>
+					<File
+						RelativePath=".\inc\util\yastring.h"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="APP"
@@ -762,6 +766,10 @@
 					</File>
 					<File
 						RelativePath=".\src\util\xmldocument.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\yastring.cpp"
 						>
 					</File>
 				</Filter>
