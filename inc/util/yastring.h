@@ -48,8 +48,10 @@ namespace bvr20983
         YAString& operator=(LPCTSTR);
         YAString& operator=(const YAString&);
 
+/*
         void*     operator new(size_t);
         void      operator delete(void*);
+*/
 
       private: 
         std::basic_string<TCHAR> m_str;

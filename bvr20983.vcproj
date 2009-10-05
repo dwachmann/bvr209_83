@@ -443,6 +443,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\yanew.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\util\yastring.h"
 						>
 					</File>
@@ -766,6 +770,10 @@
 					</File>
 					<File
 						RelativePath=".\src\util\xmldocument.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\yanew.cpp"
 						>
 					</File>
 					<File

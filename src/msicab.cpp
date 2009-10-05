@@ -36,6 +36,7 @@
 #include "util/sharedlibrary.h"
 #include "util/registrycb.h"
 #include "util/yastring.h"
+#include "util/yanew.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -691,6 +692,12 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
   bla2->~YAString();
 
   LOGGER_INFO<<_T("typeid: ")<<typeid(hugo).name()<<_T(":")<<typeid(hugo).raw_name()<<endl;
+
+  YAString* hugo1 = YA_NEW YAString(_T("hugo1"));
+
+  hugo1->Append(_T("abc"));
+
+  YA_DEL hugo1;
 
   if( xmlDoc.Load(fName) )
   { 

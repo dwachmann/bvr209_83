@@ -76,9 +76,7 @@ namespace bvr20983
 #endif
     } // of YAString::YAString()
 
-    /**
-     *
-     */
+/**
     void* YAString::operator new(size_t s)
     { void* result = ::calloc(s,1);
 
@@ -87,12 +85,10 @@ namespace bvr20983
       return result;
     }
 
-    /**
-     *
-     */
     void YAString::operator delete(void* p)
     { OutputDebugFmt(_T("YAString::delete(p=0x%lx)"),p);
     }
+*/
 
     /**
      *
