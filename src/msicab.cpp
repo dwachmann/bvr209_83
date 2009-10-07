@@ -693,11 +693,10 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   LOGGER_INFO<<_T("typeid: ")<<typeid(hugo).name()<<_T(":")<<typeid(hugo).raw_name()<<endl;
 
-  YAString* hugo1 = YA_NEW YAString(_T("hugo1"));
+  { YAPtr<YAString> hugo1( new(YAAllocator<YAString>(),_T(__FILE__),__LINE__)YAString(_T("hugo1")) );
 
-  hugo1->Append(_T("abc"));
-
-  YA_DEL hugo1;
+    hugo1->Append(_T("abc"));
+  }
 
   if( xmlDoc.Load(fName) )
   { 

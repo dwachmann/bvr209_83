@@ -83,7 +83,6 @@ $(OUTDIR)\backgroundtransfer.obj \
 $(OUTDIR)\taskscheduler.obj \
 $(OUTDIR)\sharedlibrary.obj \
 $(OUTDIR)\yastring.obj \
-$(OUTDIR)\yanew.obj \
 $(OUTDIR)\msi.obj
 
 !ifdef clean

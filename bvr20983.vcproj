@@ -773,10 +773,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\src\util\yanew.cpp"
-						>
-					</File>
-					<File
 						RelativePath=".\src\util\yastring.cpp"
 						>
 					</File>
@@ -1158,6 +1154,14 @@
 					>
 					<File
 						RelativePath=".\comp\msi\Makefile"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="msicab"
+					>
+					<File
+						RelativePath=".\comp\msicab\Makefile"
 						>
 					</File>
 				</Filter>

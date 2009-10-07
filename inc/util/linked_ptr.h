@@ -95,5 +95,4 @@ namespace bvr20983
       }
   };
 } // of namespace bvr20983
-
 #endif // LINKED_PTR_H
