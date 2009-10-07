@@ -63,7 +63,7 @@ namespace bvr20983
 #ifdef _UNICODE
       m_str = str;
 
-      OutputDebugFmt(_T("YAString::YAString(%s)"),m_str.c_str());
+      //OutputDebugFmt(_T("YAString::YAString(%s)"),m_str.c_str());
 #else
       m_buffersize = wcslen(str)+1;
       m_buffer     = ::calloc(m_buffersize,sizeof(char));
@@ -252,6 +252,17 @@ namespace bvr20983
     YAString::operator LPCSTR() const
     { return a_str(); }
 
+    /**
+     *
+     */
+    template<class charT, class Traits>
+    basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const YAString& str)
+    { os<<_T("\"")<<str.c_str()<<_T("\""); 
+
+      return os;
+    }
+
+    template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const YAString&);
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

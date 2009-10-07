@@ -62,6 +62,9 @@ namespace bvr20983
         void Wide2Ansi();
         void Ansi2Wide();
     }; // of class YAString
+
+    template<class charT, class Traits>
+    std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const YAString& str);
   } // of namespace util
 } // of namespace bvr20983
 #endif // YASTRING_H

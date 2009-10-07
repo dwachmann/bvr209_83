@@ -689,13 +689,35 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   YAString* bla2 = ::new(bla1) YAString(_T("hugo1"));
 
-  bla2->~YAString();
+  bla2->~YAString(); 
 
   LOGGER_INFO<<_T("typeid: ")<<typeid(hugo).name()<<_T(":")<<typeid(hugo).raw_name()<<endl;
 
-  { YAPtr<YAString> hugo1( new(YAAllocator<YAString>(),_T(__FILE__),__LINE__)YAString(_T("hugo1")) );
+  YAAllocator<YAString> allocator;
 
-    hugo1->Append(_T("abc"));
+  { YAPTR(YAString) hugo1( YANEW(allocator)YAString(_T("hugo1")) );
+
+    LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
+
+    hugo1->Append(_T(" abc"));
+
+    LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
+
+    YAPTR(YAString) hugo2 = hugo1;
+
+    hugo1->Append(_T(" abc"));
+
+    LOGGER_INFO<<_T("hugo2: ")<<hugo2<<endl;
+
+    YAPTR(YAString) hugo3(hugo2);
+
+    LOGGER_INFO<<_T("hugo3: ")<<hugo3<<endl;
+
+    YAPTR(YAString) hugo4 = hugo3.Clone(_T(__FILE__),__LINE__);
+
+    hugo4->Append(_T(" clone"));
+
+    LOGGER_INFO<<_T("hugo3: ")<<hugo3<<_T(":")<<hugo4<<endl;
   }
 
   if( xmlDoc.Load(fName) )
