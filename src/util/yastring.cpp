@@ -36,24 +36,8 @@ namespace bvr20983
     /**
      *
      */
-    YAString::YAString(unsigned long dword) : m_buffer(NULL),m_buffersize(0)
-    { TCHAR dwordStr[64];
-
-      _ultot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
-
-      m_str = dwordStr;
-    }
-
-    /**
-     *
-     */
-    YAString::YAString(long dword) : m_buffer(NULL),m_buffersize(0)
-    { TCHAR dwordStr[64];
-
-      _ltot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
-
-      m_str = dwordStr;
-    }
+    YAString::YAString(const YAString& str) : m_buffer(NULL),m_buffersize(0)
+    { *this = str; }
 
     /**
      *
@@ -76,20 +60,6 @@ namespace bvr20983
 #endif
     } // of YAString::YAString()
 
-/**
-    void* YAString::operator new(size_t s)
-    { void* result = ::calloc(s,1);
-
-      OutputDebugFmt(_T("YAString::new(s=%d): 0x%lx"),s,result);
-
-      return result;
-    }
-
-    void YAString::operator delete(void* p)
-    { OutputDebugFmt(_T("YAString::delete(p=0x%lx)"),p);
-    }
-*/
-
     /**
      *
      */
@@ -108,6 +78,29 @@ namespace bvr20983
       m_str = str;
 #endif
     } // of YAString::YAString()
+
+    /**
+     *
+     */
+    YAString::YAString(unsigned long dword) : m_buffer(NULL),m_buffersize(0)
+    { TCHAR dwordStr[64];
+
+      _ultot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
+
+      m_str = dwordStr;
+    }
+
+    /**
+     *
+     */
+    YAString::YAString(long dword) : m_buffer(NULL),m_buffersize(0)
+    { TCHAR dwordStr[64];
+
+      _ltot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
+
+      m_str = dwordStr;
+    }
+
 
     /**
      *

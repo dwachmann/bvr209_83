@@ -30,28 +30,24 @@ namespace bvr20983
         YAString();
         YAString(LPCWSTR str);
         YAString(LPCSTR  str);
+        YAString(const YAString& str);
         YAString(unsigned long);
         YAString(long);
         ~YAString();
 
-        LPCTSTR c_str() const;
-        LPCWSTR w_str() const;
-        LPCSTR  a_str() const;
-        operator LPCWSTR() const;
-        operator LPCSTR() const;
+        LPCTSTR c_str()     const throw();
+        LPCWSTR w_str()     const throw();
+        LPCSTR  a_str()     const throw();
+        operator LPCWSTR()  const throw();
+        operator LPCSTR()   const throw();
 
-        unsigned int Size() const;
+        unsigned int Size() const throw();
         void         Append(LPCTSTR);
 
         YAString& operator+=(LPCTSTR);
         YAString& operator+=(const YAString&);
         YAString& operator=(LPCTSTR);
         YAString& operator=(const YAString&);
-
-/*
-        void*     operator new(size_t);
-        void      operator delete(void*);
-*/
 
       private: 
         std::basic_string<TCHAR> m_str;

@@ -19,15 +19,21 @@
 #if !defined(YANEW_H)
 #define YANEW_H
 
-#define YAPTR(X) YAPtr<YAAllocator<X>,X>
-#define YANEW(A) &A,new(A,_T(__FILE__),__LINE__)
+#define YAPTR1(X)  YAPtr<X,YAAllocator<X>>
+#define YACLONE(x) x.Clone(_T(__FILE__),__LINE__)
+#define YANEW(A)   &A,new(A,_T(__FILE__),__LINE__)
 
 namespace bvr20983
 {
   namespace util
   {
+    struct YAAllocatorBase
+    { virtual void* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)=0;
+      virtual void  Free(void* p) throw()=0;
+    }; // of struct YAAllocatorBase
+
     template <class X>
-    class YAAllocator 
+    class YAAllocator : public YAAllocatorBase
     {
       public:
         YAAllocator() throw() : m_classSize(sizeof(X))
@@ -59,20 +65,20 @@ namespace bvr20983
         unsigned int m_classSize;
     }; // of class YAAllocator
 
-    template <class Allocator,class X>
+    template <class X,class Allocator=YAAllocator<X>>
     class YAPtr
     {
       public:
         explicit YAPtr(Allocator* pAlloc=NULL,X* p=NULL) throw() : m_pAllocator(pAlloc),m_ptr(p) 
         { m_prev = m_next = this; }
 
-        YAPtr(const YAPtr<Allocator,X>& r) throw() : m_pAllocator(NULL),m_ptr(NULL) 
+        YAPtr(const YAPtr<X,Allocator>& r) throw() : m_pAllocator(NULL),m_ptr(NULL) 
         { AddRef(r); }
 
         ~YAPtr() throw() 
         { Release(); }
         
-        YAPtr<Allocator,X>& operator=(const YAPtr<Allocator,X>& r) throw() 
+        YAPtr<X,Allocator>& operator=(const YAPtr<X,Allocator>& r) throw() 
         { if( this!=&r ) 
           { Release();
             AddRef(r);
@@ -93,11 +99,11 @@ namespace bvr20983
         bool      IsUnique()   const throw()  
         { return m_prev!=NULL ? m_prev==this : true; }
 
-        YAPtr<Allocator,X>     Clone(LPCTSTR filename, int lineno) const
-        { YAPtr<Allocator,X> result;
+        YAPtr<X,Allocator>     Clone(LPCTSTR filename, int lineno) const
+        { YAPtr<X,Allocator> result;
 
           if( NULL!=m_pAllocator && NULL!=m_ptr )
-            result = YAPtr<Allocator,X>(m_pAllocator,new(*m_pAllocator,filename,lineno)X(*m_ptr));
+            result = YAPtr<X,Allocator>(m_pAllocator,new(*m_pAllocator,filename,lineno)X(*m_ptr));
 
           return result;
         } // of Clone()
@@ -105,10 +111,10 @@ namespace bvr20983
       private:
         Allocator*                        m_pAllocator;
         X*                                m_ptr;
-        mutable const YAPtr<Allocator,X>* m_prev;
-        mutable const YAPtr<Allocator,X>* m_next;
+        mutable const YAPtr<X,Allocator>* m_prev;
+        mutable const YAPtr<X,Allocator>* m_next;
     
-        void AddRef(const YAPtr<Allocator,X>& r) throw() 
+        void AddRef(const YAPtr<X,Allocator>& r) throw() 
         { m_ptr          = r.m_ptr;
           m_next         = r.m_next;
           m_next->m_prev = this;
@@ -134,7 +140,7 @@ namespace bvr20983
     }; // of class YAPtr
 
     template<class charT, class Traits,class Allocator,class X>
-    std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const YAPtr<Allocator,X>& ptr)
+    std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const YAPtr<X,Allocator>& ptr)
     { os<< *ptr; 
 
       return os;

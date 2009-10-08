@@ -37,6 +37,8 @@
 #include "util/registrycb.h"
 #include "util/yastring.h"
 #include "util/yanew.h"
+#include "util/yaallocatorpool.h"
+#include "util/fileinfo.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -679,23 +681,12 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   xmlDoc.SetProperties(props);
 
-  YAString hugo(_T("hugo"));
+  YAAllocatorPool::AddAllocator(new YAAllocator<YAString>,_T("YAString"));
+  YAAllocatorPool::AddAllocator(new YAAllocator<FileInfo>,_T("FileInfo"));
 
-  YAString* bla = new YAString(_T("test"));
+  YAAllocator<YAString>* ypStringAlloc = static_cast<YAAllocator<YAString>*>(YAAllocatorPool::GetAllocator(_T("YAString")));
 
-  delete bla;
-
-  void* bla1 = calloc(1,sizeof(YAString));
-
-  YAString* bla2 = ::new(bla1) YAString(_T("hugo1"));
-
-  bla2->~YAString(); 
-
-  LOGGER_INFO<<_T("typeid: ")<<typeid(hugo).name()<<_T(":")<<typeid(hugo).raw_name()<<endl;
-
-  YAAllocator<YAString> allocator;
-
-  { YAPTR(YAString) hugo1( YANEW(allocator)YAString(_T("hugo1")) );
+  { YAPtr<YAString> hugo1( YANEW(*ypStringAlloc)YAString(_T("hugo1")) );
 
     LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
 
@@ -703,17 +694,17 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
     LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
 
-    YAPTR(YAString) hugo2 = hugo1;
+    YAPtr<YAString> hugo2 = hugo1;
 
     hugo1->Append(_T(" abc"));
 
     LOGGER_INFO<<_T("hugo2: ")<<hugo2<<endl;
 
-    YAPTR(YAString) hugo3(hugo2);
+    YAPtr<YAString> hugo3(hugo2);
 
     LOGGER_INFO<<_T("hugo3: ")<<hugo3<<endl;
 
-    YAPTR(YAString) hugo4 = hugo3.Clone(_T(__FILE__),__LINE__);
+    YAPtr<YAString> hugo4 = YACLONE(hugo3);
 
     hugo4->Append(_T(" clone"));
 
