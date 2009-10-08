@@ -32,7 +32,7 @@ namespace bvr20983
     class YAAllocatorPool
     {
       public:
-        static void             AddAllocator(YAAllocatorBase* allocator,LPCTSTR allocatorName=NULL);
+        static void             AddAllocator(LPCTSTR allocatorName,YAAllocatorBase* allocator);
         static YAAllocatorBase* GetAllocator(LPCTSTR allocatorName);
 
       private: 

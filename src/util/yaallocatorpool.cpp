@@ -56,15 +56,10 @@ namespace bvr20983
     /**
      *
      */
-    void YAAllocatorPool::AddAllocator(YAAllocatorBase* allocator,LPCTSTR allocatorName)
-    { if( NULL!=allocator )
+    void YAAllocatorPool::AddAllocator(LPCTSTR allocatorName,YAAllocatorBase* allocator)
+    { if( NULL!=allocator && NULL!=allocatorName )
       { YAString         rawName;
         YAAllocatorPool* pool = GetInstance();
-
-        if( NULL==allocatorName )
-        { rawName       = typeid( *allocator ).raw_name();
-          allocatorName = rawName.w_str();
-        } // of if
 
         pool->m_allocators.erase( allocatorName );
         pool->m_allocators.insert( AllocatorPair(allocatorName,linked_ptr<YAAllocatorBase>(allocator)) );

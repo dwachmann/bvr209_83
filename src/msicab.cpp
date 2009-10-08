@@ -681,12 +681,12 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   xmlDoc.SetProperties(props);
 
-  YAAllocatorPool::AddAllocator(new YAAllocator<YAString>,_T("YAString"));
-  YAAllocatorPool::AddAllocator(new YAAllocator<FileInfo>,_T("FileInfo"));
+  YAAllocatorPool::AddAllocator(_T("YAString"),new YAAllocator<YAString>);
+  YAAllocatorPool::AddAllocator(_T("FileInfo"),new YAAllocator<FileInfo>);
 
-  YAAllocator<YAString>* ypStringAlloc = static_cast<YAAllocator<YAString>*>(YAAllocatorPool::GetAllocator(_T("YAString")));
+  YAAllocator<YAString>* alloc = static_cast<YAAllocator<YAString>*>(YAAllocatorPool::GetAllocator(_T("YAString")));
 
-  { YAPtr<YAString> hugo1( YANEW(*ypStringAlloc)YAString(_T("hugo1")) );
+  { YAPtr<YAString> hugo1( alloc,new(*alloc,_T(__FILE__),__LINE__)YAString(_T("hugo1")) );
 
     LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
 

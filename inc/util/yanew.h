@@ -19,9 +19,9 @@
 #if !defined(YANEW_H)
 #define YANEW_H
 
-#define YAPTR1(X)  YAPtr<X,YAAllocator<X>>
 #define YACLONE(x) x.Clone(_T(__FILE__),__LINE__)
-#define YANEW(A)   &A,new(A,_T(__FILE__),__LINE__)
+#define YANEW1(A)  &A,new(A,_T(__FILE__),__LINE__)
+#define YANEW(A)   &A,new(_T(#A),_T(__FILE__),__LINE__)A
 
 namespace bvr20983
 {
@@ -36,16 +36,14 @@ namespace bvr20983
     class YAAllocator : public YAAllocatorBase
     {
       public:
-        YAAllocator() throw() : m_classSize(sizeof(X))
+        YAAllocator() throw()
         { }
 
         ~YAAllocator() throw() 
         { }
 
         void* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)
-        { assert( m_classSize==sizeInBytes );
-          
-          void* result = ::calloc(m_classSize,1);
+        { void* result = ::calloc(sizeInBytes,1);
 
           if( NULL==result )
             throw std::bad_alloc();
@@ -60,9 +58,6 @@ namespace bvr20983
           
           ::free(p);  
         }
-
-      private:
-        unsigned int m_classSize;
     }; // of class YAAllocator
 
     template <class X,class Allocator=YAAllocator<X>>
@@ -158,7 +153,7 @@ void* operator new(size_t bytes,X& a,LPCTSTR filename, int lineno)
   //OutputDebugFmt(_T("%s[%d] new(%d): 0x%lx\n"),filename,lineno,bytes,result);
 
   return result;
-}
+} // of operator new()
 
 /**
  * is only called, if exception is thrown in constructor
