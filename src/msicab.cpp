@@ -701,7 +701,7 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
     YAPtr<YAString> hugo3(hugo2);
 
-    LOGGER_INFO<<_T("hugo3: ")<<hugo3<<endl;
+    LOGGER_INFO<<_T("hugo3: ")<<hugo3<<endl; 
 
     YAPtr<YAString> hugo4 = YACLONE(hugo3);
 
