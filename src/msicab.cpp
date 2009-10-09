@@ -686,7 +686,7 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   YAAllocator<YAString>* alloc = static_cast<YAAllocator<YAString>*>(YAAllocatorPool::GetAllocator(_T("YAString")));
 
-  { YAPtr<YAString> hugo1( alloc,new(*alloc,_T(__FILE__),__LINE__)YAString(_T("hugo1")) );
+  { YAPtr<YAString> hugo1( new(alloc,_T(__FILE__),__LINE__)YAString(_T("hugo1")) );
 
     LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
 

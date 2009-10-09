@@ -27,10 +27,20 @@ namespace bvr20983
 {
   namespace util
   {
+    struct YAAllocatorResult;
+
     struct YAAllocatorBase
-    { virtual void* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)=0;
-      virtual void  Free(void* p) throw()=0;
+    { virtual YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)=0;
+      virtual void               Free(void* p) throw()=0;
     }; // of struct YAAllocatorBase
+
+    struct YAAllocatorResult
+    { YAAllocatorBase* m_pAllocator;
+      void*            m_data;
+
+      YAAllocatorResult() : m_pAllocator(NULL),m_data(NULL)
+      { }
+    }; // of struct YAAllocatorResult
 
     template <class X>
     class YAAllocator : public YAAllocatorBase
@@ -42,11 +52,16 @@ namespace bvr20983
         ~YAAllocator() throw() 
         { }
 
-        void* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)
-        { void* result = ::calloc(sizeInBytes,1);
+        YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)
+        { assert( sizeInBytes==sizeof(X) );
+
+          YAAllocatorResult* result = (YAAllocatorResult*)::calloc(sizeof(YAAllocatorResult) + sizeInBytes,1);
 
           if( NULL==result )
             throw std::bad_alloc();
+
+          result->m_pAllocator = this;
+          result->m_data       = result + 1;
 
           OutputDebugFmt(_T("%s[%d] YAAllocator::Allocate(size=%d):0x%lx\n"),filename,lineno,sizeInBytes,result);
 
@@ -56,24 +71,27 @@ namespace bvr20983
         void Free(void* p) throw() 
         { OutputDebugFmt(_T("YAAllocator.Free(p=0x%lx)\n"),p);
           
-          ::free(p);  
-        }
+          if( NULL!=p )
+          { YAAllocatorResult* result = (YAAllocatorResult*)p - 1;
+            ::free(p);  
+          } // of if
+        } // of YAAllocator::Free()
     }; // of class YAAllocator
 
-    template <class X,class Allocator=YAAllocator<X>>
+    template <class X>
     class YAPtr
     {
       public:
-        explicit YAPtr(Allocator* pAlloc=NULL,X* p=NULL) throw() : m_pAllocator(pAlloc),m_ptr(p) 
+        explicit YAPtr(void* p=NULL) throw() : m_ptr( (YAAllocatorResult*)p - 1) 
         { m_prev = m_next = this; }
 
-        YAPtr(const YAPtr<X,Allocator>& r) throw() : m_pAllocator(NULL),m_ptr(NULL) 
+        YAPtr(const YAPtr<X>& r) throw() : m_ptr(NULL) 
         { AddRef(r); }
 
         ~YAPtr() throw() 
         { Release(); }
         
-        YAPtr<X,Allocator>& operator=(const YAPtr<X,Allocator>& r) throw() 
+        YAPtr<X>& operator=(const YAPtr<X>& r) throw() 
         { if( this!=&r ) 
           { Release();
             AddRef(r);
@@ -83,45 +101,43 @@ namespace bvr20983
         }
 
         X&        operator*()  const throw()  
-        { return *m_ptr; }
+        { return *Get(); }
 
         X*        operator->() const throw()  
-        { return m_ptr; }
+        { return Get(); }
         
         X*        Get()        const throw()  
-        { return m_ptr; }
+        { return static_cast<X*>(m_ptr->m_data); }
         
         bool      IsUnique()   const throw()  
         { return m_prev!=NULL ? m_prev==this : true; }
 
-        YAPtr<X,Allocator>     Clone(LPCTSTR filename, int lineno) const
-        { YAPtr<X,Allocator> result;
+        YAPtr<X>     Clone(LPCTSTR filename, int lineno) const
+        { YAPtr<X> result;
 
-          if( NULL!=m_pAllocator && NULL!=m_ptr )
-            result = YAPtr<X,Allocator>(m_pAllocator,new(*m_pAllocator,filename,lineno)X(*m_ptr));
+          if( NULL!=m_ptr )
+            result = YAPtr<X>(new(m_ptr->m_pAllocator,filename,lineno)X(*Get()));
 
           return result;
         } // of Clone()
 
       private:
-        Allocator*                        m_pAllocator;
-        X*                                m_ptr;
-        mutable const YAPtr<X,Allocator>* m_prev;
-        mutable const YAPtr<X,Allocator>* m_next;
+        YAAllocatorResult*      m_ptr;
+        mutable const YAPtr<X>* m_prev;
+        mutable const YAPtr<X>* m_next;
     
-        void AddRef(const YAPtr<X,Allocator>& r) throw() 
+        void AddRef(const YAPtr<X>& r) throw() 
         { m_ptr          = r.m_ptr;
           m_next         = r.m_next;
           m_next->m_prev = this;
           m_prev         = &r;
           r.m_next       = this;
-          m_pAllocator   = r.m_pAllocator;
         } // of AddRef()
 
         void Release() throw() 
         { if( IsUnique() ) 
-          { if( NULL!=m_pAllocator )
-              m_pAllocator->Free(m_ptr);
+          { if( NULL!=m_ptr && NULL!=m_ptr->m_pAllocator )
+              m_ptr->m_pAllocator->Free(m_ptr);
           } // of if
           else 
           { m_prev->m_next = m_next;
@@ -129,13 +145,12 @@ namespace bvr20983
             m_prev         = m_next = NULL;
           } // of else
           
-          m_ptr        = NULL;
-          m_pAllocator = NULL;
+          m_ptr = NULL;
         } // of Release()
     }; // of class YAPtr
 
-    template<class charT, class Traits,class Allocator,class X>
-    std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const YAPtr<X,Allocator>& ptr)
+    template<class charT, class Traits,class X>
+    std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const YAPtr<X>& ptr)
     { os<< *ptr; 
 
       return os;
@@ -146,23 +161,25 @@ namespace bvr20983
 /**
  *
  */
-template <class X>
-void* operator new(size_t bytes,X& a,LPCTSTR filename, int lineno)
-{ void* result = a.Allocate(bytes,filename,lineno); 
+void* operator new(size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno)
+{ bvr20983::util::YAAllocatorResult* result;
+
+  if( NULL!=a )
+    result = a->Allocate(bytes,filename,lineno); 
 
   //OutputDebugFmt(_T("%s[%d] new(%d): 0x%lx\n"),filename,lineno,bytes,result);
 
-  return result;
+  return result->m_data;
 } // of operator new()
 
 /**
  * is only called, if exception is thrown in constructor
  */
-template <class X>
-void operator delete(void* p,X& a,LPCTSTR filename, int lineno)
+void operator delete(void* p,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno)
 { OutputDebugFmt(_T("%s[%d] delete(0x%lx)\n"),filename,lineno,p);
 
-  a.Free(p);
+  if( NULL!=a )
+    a->Free(p);
 } // of operator delete()
 #endif // YANEW_H
 /*==========================END-OF-FILE===================================*/
