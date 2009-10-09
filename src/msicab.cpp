@@ -684,9 +684,8 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
   YAAllocatorPool::AddAllocator(_T("YAString"),new YAAllocator<YAString>);
   YAAllocatorPool::AddAllocator(_T("FileInfo"),new YAAllocator<FileInfo>);
 
-  YAAllocator<YAString>* alloc = static_cast<YAAllocator<YAString>*>(YAAllocatorPool::GetAllocator(_T("YAString")));
-
-  { YAPtr<YAString> hugo1( new(alloc,_T(__FILE__),__LINE__)YAString(_T("hugo1")) );
+  { YAVPTR1(YAString,hugo1,_T("hugo1"));
+    YAVPTR1(FileInfo,fInfo,_T("hugo.xml"));
 
     LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
 
@@ -709,6 +708,7 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
     hugo4->Append(_T(" clone"));
 
     LOGGER_INFO<<_T("hugo3: ")<<hugo3<<_T(":")<<hugo4<<endl;
+    LOGGER_INFO<<_T("fInfo: ")<<fInfo<<_T(":")<<fInfo->GetFullPathName()<<endl;
   }
 
   if( xmlDoc.Load(fName) )

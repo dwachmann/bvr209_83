@@ -21,38 +21,60 @@
 #include "os.h"
 #include "util/fileinfo.h"
 #include "util/logstream.h"
+#include "util/yanew.h"
+#include "util/yaallocatorpool.h"
 #include "exception/lasterrorexception.h"
 
 namespace bvr20983 
 {
   namespace util
   {
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     FileInfo::FileInfo(LPCTSTR fileName) :
       m_fileName(fileName)
     { }
 
- 	/**
-	 *
-	 */
+    /**
+     *
+     */
     FileInfo::~FileInfo()
     { 
     } // of FileInfo::~FileInfo()
 
-	/**
-	 *
-	 */
-	YAPtr<YAString> FileInfo::GetFullPathName() const
-	{ YAPtr<YAString> result;
+    /**
+     *
+     */
+    YAPtr<YAString> FileInfo::GetFullPathName() const
+    { YAPtr<YAString> result;
 
-	  if( NULL!=m_fileName )
-	  {
-	  } // of if
+      if( NULL!=m_fileName )
+      { result = YAPTR(YAString);
 
-	  return result;
-	} // of FileInfo::GetFullPathName() 
+        DWORD pathLen = ::GetFullPathName(m_fileName,0,NULL,NULL);
+
+        THROW_LASTERROREXCEPTION1( pathLen );
+
+        result->Resize(pathLen);
+          
+        THROW_LASTERROREXCEPTION1( ::GetFullPathName(m_fileName,pathLen,const_cast<LPTSTR>(result->c_str()),NULL) );
+      } // of if
+
+      return result;
+    } // of FileInfo::GetFullPathName() 
+
+    /**
+     *
+     */
+    template<class charT, class Traits>
+    basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const FileInfo& fInfo)
+    { os<<_T("FileInfo[")<<fInfo.GetName()<<_T("]"); 
+
+      return os;
+    }
+
+    template basic_ostream<TCHAR,char_traits<TCHAR>>& bvr20983::operator << <TCHAR,char_traits<TCHAR>>( basic_ostream<TCHAR,char_traits<TCHAR>>&,const FileInfo&);
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

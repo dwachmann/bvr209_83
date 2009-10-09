@@ -209,7 +209,14 @@ namespace bvr20983
      */
     unsigned int YAString::Size() const
     { return m_str.size();
-    } // of YAString::Append()
+    } // of YAString::Size()
+
+    /**
+     *
+     */
+    void YAString::Resize(unsigned int s)
+    { m_str.resize(s);
+    } // of YAString::Resize()
 
     /**
      *

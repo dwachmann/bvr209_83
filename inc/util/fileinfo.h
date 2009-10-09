@@ -37,12 +37,18 @@ namespace bvr20983
         FileInfo(LPCTSTR fileName);
         ~FileInfo();
 
-		YAPtr<YAString> GetFullPathName() const;
+		    YAPtr<YAString> GetFullPathName() const;
+
+        LPCTSTR GetName() const
+        { return m_fileName; }
 
       private:
         LPCTSTR m_fileName;
 
-	}; // of class FileInfo
+	  }; // of class FileInfo
+
+    template<class charT, class Traits>
+    std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const FileInfo& str);
   } // of namespace util
 } // of namespace bvr20983
 #endif // FILEINFO_H

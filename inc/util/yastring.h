@@ -42,6 +42,7 @@ namespace bvr20983
         operator LPCSTR()   const throw();
 
         unsigned int Size() const throw();
+        void         Resize(unsigned int s);
         void         Append(LPCTSTR);
 
         YAString& operator+=(LPCTSTR);

@@ -19,9 +19,19 @@
 #if !defined(YANEW_H)
 #define YANEW_H
 
-#define YACLONE(x) x.Clone(_T(__FILE__),__LINE__)
-#define YANEW1(A)  &A,new(A,_T(__FILE__),__LINE__)
-#define YANEW(A)   &A,new(_T(#A),_T(__FILE__),__LINE__)A
+#define YACLONE(x)        x.Clone(_T(__FILE__),__LINE__)
+#define YANEW1(A)         &A,new(A,_T(__FILE__),__LINE__)
+#define YANEW(A)          new(YAAllocatorPool::GetAllocator(_T(#A)),_T(__FILE__),__LINE__)A
+
+#define YAVPTR(Ty,x)      YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
+#define YAVPTR1(Ty,x,p1)  YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
+#define YAVPTR2(Ty,x,p1)  YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
+#define YAVPTR3(Ty,x,p1)  YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
+
+#define YAPTR(Ty)         YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
+#define YAPTR1(Ty,p1)     YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
+#define YAPTR2(Ty,p1)     YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
+#define YAPTR3(Ty,p1)     YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
 
 namespace bvr20983
 {
@@ -36,6 +46,8 @@ namespace bvr20983
 
     struct YAAllocatorResult
     { YAAllocatorBase* m_pAllocator;
+      LPCTSTR          m_filename;
+      int              m_lineno;
       void*            m_data;
 
       YAAllocatorResult() : m_pAllocator(NULL),m_data(NULL)
@@ -61,6 +73,8 @@ namespace bvr20983
             throw std::bad_alloc();
 
           result->m_pAllocator = this;
+          result->m_filename   = filename;
+          result->m_lineno     = lineno;
           result->m_data       = result + 1;
 
           OutputDebugFmt(_T("%s[%d] YAAllocator::Allocate(size=%d):0x%lx\n"),filename,lineno,sizeInBytes,result);
@@ -69,10 +83,11 @@ namespace bvr20983
         } // of YAAllocator::Allocate()
 
         void Free(YAAllocatorResult* p) throw() 
-        { OutputDebugFmt(_T("YAAllocator.Free(p=0x%lx)\n"),p);
-          
-          if( NULL!=p )
+        { if( NULL!=p )
+          { OutputDebugFmt(_T("%s[%d] YAAllocator.Free(p=0x%lx)\n"),p->m_filename,p->m_lineno,p);
+
             ::free(p);  
+          } // of if
         } // of YAAllocator::Free()
     }; // of class YAAllocator
 
@@ -110,7 +125,7 @@ namespace bvr20983
         { return Get(); }
         
         X*        Get()        const throw()  
-        { return static_cast<X*>(m_ptr->m_data); }
+        { return m_ptr!=NULL ? static_cast<X*>(m_ptr->m_data) : NULL; }
         
         bool      IsUnique()   const throw()  
         { return m_prev!=NULL ? m_prev==this : true; }
@@ -154,7 +169,10 @@ namespace bvr20983
 
     template<class charT, class Traits,class X>
     std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const YAPtr<X>& ptr)
-    { os<< *ptr; 
+    { if( ptr.Get()==NULL )
+        os<<_T("NULL");
+      else
+        os<< *ptr; 
 
       return os;
     }
