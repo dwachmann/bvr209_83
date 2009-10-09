@@ -85,6 +85,7 @@ $(OUTDIR)\sharedlibrary.obj \
 $(OUTDIR)\yastring.obj \
 $(OUTDIR)\yaallocatorpool.obj \
 $(OUTDIR)\fileinfo.obj \
+$(OUTDIR)\yanew.obj \
 $(OUTDIR)\msi.obj
 
 !ifdef clean

@@ -31,7 +31,7 @@ namespace bvr20983
 
     struct YAAllocatorBase
     { virtual YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)=0;
-      virtual void               Free(void* p) throw()=0;
+      virtual void               Free(YAAllocatorResult* p) throw()=0;
     }; // of struct YAAllocatorBase
 
     struct YAAllocatorResult
@@ -68,13 +68,11 @@ namespace bvr20983
           return result;
         } // of YAAllocator::Allocate()
 
-        void Free(void* p) throw() 
+        void Free(YAAllocatorResult* p) throw() 
         { OutputDebugFmt(_T("YAAllocator.Free(p=0x%lx)\n"),p);
           
           if( NULL!=p )
-          { YAAllocatorResult* result = (YAAllocatorResult*)p - 1;
             ::free(p);  
-          } // of if
         } // of YAAllocator::Free()
     }; // of class YAAllocator
 
@@ -82,11 +80,16 @@ namespace bvr20983
     class YAPtr
     {
       public:
-        explicit YAPtr(void* p=NULL) throw() : m_ptr( (YAAllocatorResult*)p - 1) 
+        YAPtr() throw() : m_ptr(NULL),m_prev(NULL),m_next(NULL)
         { m_prev = m_next = this; }
 
-        YAPtr(const YAPtr<X>& r) throw() : m_ptr(NULL) 
-        { AddRef(r); }
+        explicit YAPtr(X* r) throw() : m_ptr( reinterpret_cast<YAAllocatorResult*>(r) - 1),m_prev(NULL),m_next(NULL)
+        { m_prev = m_next = this; }
+
+        YAPtr(const YAPtr<X>& r) throw() : m_ptr(NULL),m_prev(NULL),m_next(NULL)
+        { m_prev = m_next = this; 
+          AddRef(r);
+        }
 
         ~YAPtr() throw() 
         { Release(); }
@@ -158,28 +161,7 @@ namespace bvr20983
   } // of namespace util
 } // of namespace bvr20983
 
-/**
- *
- */
-void* operator new(size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno)
-{ bvr20983::util::YAAllocatorResult* result;
-
-  if( NULL!=a )
-    result = a->Allocate(bytes,filename,lineno); 
-
-  //OutputDebugFmt(_T("%s[%d] new(%d): 0x%lx\n"),filename,lineno,bytes,result);
-
-  return result->m_data;
-} // of operator new()
-
-/**
- * is only called, if exception is thrown in constructor
- */
-void operator delete(void* p,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno)
-{ OutputDebugFmt(_T("%s[%d] delete(0x%lx)\n"),filename,lineno,p);
-
-  if( NULL!=a )
-    a->Free(p);
-} // of operator delete()
+void* operator new   (size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno);
+void  operator delete(void*  p    ,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno);
 #endif // YANEW_H
 /*==========================END-OF-FILE===================================*/
