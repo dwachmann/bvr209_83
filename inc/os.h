@@ -31,6 +31,7 @@
 #ifndef RC_INVOKED
 #include <tchar.h>
 #include <process.h>
+#include <limits.h>
 #include <ole2.h>
 #include <olectl.h>
 #include <DispEx.h>

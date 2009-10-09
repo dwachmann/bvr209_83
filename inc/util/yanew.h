@@ -40,17 +40,21 @@ namespace bvr20983
     struct YAAllocatorResult;
 
     struct YAAllocatorBase
-    { virtual YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)=0;
-      virtual void               Free(YAAllocatorResult* p) throw()=0;
+    { virtual YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, unsigned short lineno)=0;
+      virtual void               Free(YAAllocatorResult* p   ) =0;
+      virtual void               Free(unsigned int slot      ) =0;
+      virtual unsigned int       GetSlot(YAAllocatorResult* p) =0;
+      virtual YAAllocatorResult* GetPtr(unsigned int slot    ) =0;
     }; // of struct YAAllocatorBase
 
     struct YAAllocatorResult
     { YAAllocatorBase* m_pAllocator;
+      unsigned short   m_allocated : 1;
       LPCTSTR          m_filename;
-      int              m_lineno;
+      unsigned short   m_lineno;
       void*            m_data;
 
-      YAAllocatorResult() : m_pAllocator(NULL),m_data(NULL)
+      YAAllocatorResult() : m_pAllocator(NULL),m_data(NULL),m_allocated(0),m_filename(NULL),m_lineno(0)
       { }
     }; // of struct YAAllocatorResult
 
@@ -58,21 +62,74 @@ namespace bvr20983
     class YAAllocator : public YAAllocatorBase
     {
       public:
-        YAAllocator() throw()
-        { }
+        YAAllocator(unsigned int startSize=0,unsigned int grow=10) throw() : m_pool(NULL),m_size(startSize),m_grow(grow)
+        { if( m_size>0 )
+          { m_pool = (YAAllocatorResult*)::calloc(m_size,sizeof(YAAllocatorResult));
+
+            for( unsigned int i=0;i<m_size;i++ )
+              new(m_pool+i)YAAllocatorResult();
+          } // of if
+        } // of YAAllocator()
 
         ~YAAllocator() throw() 
-        { }
+        { if( m_size>0 )
+          { for( unsigned int i=0;i<m_size;i++ )
+            { if( m_pool[i].m_allocated==0 )
+              { X* p = reinterpret_cast<X*>(m_pool[i].m_data);
+         
+                p->~X();
+              } // of if
+            } // of if
 
-        YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, int lineno)
+            ::free(m_pool);
+          } // of if
+
+          m_pool = NULL;
+          m_size = 0;
+        } // of ~YAAllocator()
+
+        YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, unsigned short lineno)
         { assert( sizeInBytes==sizeof(X) );
 
-          YAAllocatorResult* result = (YAAllocatorResult*)::calloc(sizeof(YAAllocatorResult) + sizeInBytes,1);
+          bool         slotFound = false;
+          unsigned int slotIndex = 0;
 
-          if( NULL==result )
+          for( ;slotIndex<m_size;slotIndex++ )
+          { if( m_pool[slotIndex].m_allocated==0 )
+            { slotFound = true;
+
+              break;
+            } // of if
+          } // of if
+
+          if( !slotFound )
+          { unsigned int newSize = m_size+m_grow;
+            
+            if( m_pool==NULL )
+              m_pool = (YAAllocatorResult*)::calloc(newSize,sizeof(YAAllocatorResult));
+            else
+            { m_pool = (YAAllocatorResult*)::realloc(m_pool,newSize*sizeof(YAAllocatorResult));
+
+              ::memset(m_pool+m_size,'\0',m_grow*sizeof(YAAllocatorResult));
+            } // of else
+
+            for( unsigned int i=0;i<m_grow;i++ )
+              new(m_pool+m_size+i)YAAllocatorResult();
+
+            slotFound  = true;
+            slotIndex  = m_size;
+            m_size    += m_grow;
+          } // of if
+
+          if( !slotFound )
             throw std::bad_alloc();
 
+          YAAllocatorResult* result = m_pool+slotIndex;
+
+          assert( result->m_allocated==0 );
+
           result->m_pAllocator = this;
+          result->m_allocated  = 1;
           result->m_filename   = filename;
           result->m_lineno     = lineno;
           result->m_data       = result + 1;
@@ -82,26 +139,74 @@ namespace bvr20983
           return result;
         } // of YAAllocator::Allocate()
 
-        void Free(YAAllocatorResult* p) throw() 
+        void Free(YAAllocatorResult* p)
         { if( NULL!=p )
           { OutputDebugFmt(_T("%s[%d] YAAllocator.Free(p=0x%lx)\n"),p->m_filename,p->m_lineno,p);
 
-            ::free(p);  
+            Free(GetSlot(p));
           } // of if
         } // of YAAllocator::Free()
+
+        void Free(unsigned int slot)
+        { if( slot>m_size || m_pool[slot].m_allocated==0 )
+            throw "unknown slot";
+          
+          OutputDebugFmt(_T("%s[%d] YAAllocator.Free(slot=%d)\n"),m_pool[slot].m_filename,m_pool[slot].m_lineno,slot);
+
+          m_pool[slot].m_allocated = 0;
+        } // of YAAllocator::Free()
+
+        unsigned int GetSlot(YAAllocatorResult* p)
+        { bool         found  = false;
+          unsigned int result = 0;
+
+          for( ;result<m_size;result++ )
+            if( p==m_pool+result )
+            { found = true;
+              break;
+            } // of if
+
+          if( !found )
+            throw "unknown pointer";
+
+          return result;
+        } // of GetSlot()
+
+        YAAllocatorResult* GetPtr(unsigned int slot)
+        { if( slot>m_size || m_pool[slot].m_allocated==0 )
+            throw "unknown slot";
+
+          return m_pool+slot;
+        } // of GetPtr()
+
+      private:
+        YAAllocatorResult* m_pool;
+        unsigned int       m_size;
+        unsigned int       m_grow;
     }; // of class YAAllocator
 
     template <class X>
     class YAPtr
     {
       public:
-        YAPtr() throw() : m_ptr(NULL),m_prev(NULL),m_next(NULL)
+        YAPtr() throw() : m_pAllocator(NULL),m_slot(UINT_MAX),m_prev(NULL),m_next(NULL)
         { m_prev = m_next = this; }
 
-        explicit YAPtr(X* r) throw() : m_ptr( reinterpret_cast<YAAllocatorResult*>(r) - 1),m_prev(NULL),m_next(NULL)
-        { m_prev = m_next = this; }
+        explicit YAPtr(X* r) throw() : m_pAllocator(NULL),m_slot(UINT_MAX),m_prev(NULL),m_next(NULL)
+        { assert( NULL!=r );
 
-        YAPtr(const YAPtr<X>& r) throw() : m_ptr(NULL),m_prev(NULL),m_next(NULL)
+          YAAllocatorResult* p = reinterpret_cast<YAAllocatorResult*>(r) - 1;
+          
+          m_pAllocator = p->m_pAllocator;
+          
+          assert( NULL!=m_pAllocator );
+
+          m_slot = m_pAllocator->GetSlot(p);
+          
+          m_prev = m_next = this; 
+        }
+
+        YAPtr(const YAPtr<X>& r) throw(): m_pAllocator(NULL),m_slot(0),m_prev(NULL),m_next(NULL)
         { m_prev = m_next = this; 
           AddRef(r);
         }
@@ -109,7 +214,7 @@ namespace bvr20983
         ~YAPtr() throw() 
         { Release(); }
         
-        YAPtr<X>& operator=(const YAPtr<X>& r) throw() 
+        YAPtr<X>& operator=(const YAPtr<X>& r)
         { if( this!=&r ) 
           { Release();
             AddRef(r);
@@ -118,14 +223,14 @@ namespace bvr20983
           return *this;
         }
 
-        X&        operator*()  const throw()  
+        X&        operator*()  const
         { return *Get(); }
 
-        X*        operator->() const throw()  
+        X*        operator->() const
         { return Get(); }
         
-        X*        Get()        const throw()  
-        { return m_ptr!=NULL ? static_cast<X*>(m_ptr->m_data) : NULL; }
+        X*        Get()        const
+        { return m_pAllocator!=NULL ? static_cast<X*>(m_pAllocator->GetPtr(m_slot)->m_data) : NULL; }
         
         bool      IsUnique()   const throw()  
         { return m_prev!=NULL ? m_prev==this : true; }
@@ -133,19 +238,21 @@ namespace bvr20983
         YAPtr<X>     Clone(LPCTSTR filename, int lineno) const
         { YAPtr<X> result;
 
-          if( NULL!=m_ptr )
-            result = YAPtr<X>(new(m_ptr->m_pAllocator,filename,lineno)X(*Get()));
+          if( NULL!=m_pAllocator )
+            result = YAPtr<X>(new(m_pAllocator,filename,lineno)X(*Get()));
 
           return result;
         } // of Clone()
 
       private:
-        YAAllocatorResult*      m_ptr;
+        YAAllocatorBase*        m_pAllocator;
+        unsigned int            m_slot;
         mutable const YAPtr<X>* m_prev;
         mutable const YAPtr<X>* m_next;
     
         void AddRef(const YAPtr<X>& r) throw() 
-        { m_ptr          = r.m_ptr;
+        { m_pAllocator   = r.m_pAllocator;
+          m_slot         = r.m_slot;
           m_next         = r.m_next;
           m_next->m_prev = this;
           m_prev         = &r;
@@ -154,8 +261,8 @@ namespace bvr20983
 
         void Release() throw() 
         { if( IsUnique() ) 
-          { if( NULL!=m_ptr && NULL!=m_ptr->m_pAllocator )
-              m_ptr->m_pAllocator->Free(m_ptr);
+          { if( NULL!=m_pAllocator )
+              m_pAllocator->Free(m_slot);
           } // of if
           else 
           { m_prev->m_next = m_next;
@@ -163,7 +270,8 @@ namespace bvr20983
             m_prev         = m_next = NULL;
           } // of else
           
-          m_ptr = NULL;
+          m_pAllocator = NULL;
+          m_slot       = UINT_MAX;
         } // of Release()
     }; // of class YAPtr
 
@@ -179,7 +287,7 @@ namespace bvr20983
   } // of namespace util
 } // of namespace bvr20983
 
-void* operator new   (size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno);
-void  operator delete(void*  p    ,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno);
+void* operator new   (size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename,unsigned short lineno);
+void  operator delete(void*  p    ,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename,unsigned short lineno);
 #endif // YANEW_H
 /*==========================END-OF-FILE===================================*/

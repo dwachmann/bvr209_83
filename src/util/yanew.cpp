@@ -25,7 +25,7 @@
 /**
  *
  */
-void* operator new(size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno)
+void* operator new(size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename,unsigned short lineno)
 { bvr20983::util::YAAllocatorResult* result;
 
   if( NULL!=a )
@@ -39,7 +39,7 @@ void* operator new(size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filen
 /**
  * is only called, if exception is thrown in constructor
  */
-void operator delete(void* p,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename, int lineno)
+void operator delete(void* p,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename,unsigned short lineno)
 { //OutputDebugFmt(_T("%s[%d] delete(0x%lx)\n"),filename,lineno,p);
 
   if( NULL!=a )
