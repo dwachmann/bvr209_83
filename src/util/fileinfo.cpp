@@ -57,7 +57,7 @@ namespace bvr20983
     /**
      *
      */
-    YAPtr<YAString> FileInfo::GetFullPathName() const
+    YAPtr<YAString> FileInfo::GetFullPath() const
     { YAPtr<YAString> result;
 
       if( NULL!=m_fileName )
@@ -73,7 +73,7 @@ namespace bvr20983
       } // of if
 
       return result;
-    } // of FileInfo::GetFullPathName() 
+    } // of FileInfo::GetFullPath() 
 
     /**
      *

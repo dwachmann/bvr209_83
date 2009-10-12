@@ -37,7 +37,7 @@ namespace bvr20983
         FileInfo(LPCTSTR fileName);
         ~FileInfo();
 
-		    YAPtr<YAString> GetFullPathName() const;
+		    YAPtr<YAString> GetFullPath() const;
 
         LPCTSTR GetName() const
         { return m_fileName; }

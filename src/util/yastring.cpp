@@ -268,6 +268,88 @@ namespace bvr20983
     /**
      *
      */
+    int YAString::IndexOf(LPCTSTR str) const
+    { int result = -1;
+
+      if( m_str.length()>0 && NULL!=str && _tcslen(str)>0 )
+      { LPCTSTR foundStr = _tcsstr(m_str.c_str(),str);
+
+        if( foundStr!=NULL )
+          result = foundStr - m_str.c_str();
+      } // of if
+
+      return result;
+    } // of YAString::IndexOf()
+
+    /**
+     *
+     */
+    int YAString::IndexOf(TCHAR c) const
+    { int result = -1;
+
+      if( m_str.length()>0 && c!=_T('\0') )
+      { LPCTSTR foundChr = _tcschr(m_str.c_str(),c);
+
+        if( foundChr!=NULL )
+          result = foundChr - m_str.c_str();
+      } // of if
+
+      return result;
+    } // of YAString::IndexOf()
+
+    /**
+     *
+     */
+    int YAString::LastIndexOf(LPCTSTR str) const
+    { int result = -1;
+
+      if( m_str.length()>0 && NULL!=str && _tcslen(str)>0 )
+      { LPCTSTR foundStr = NULL;
+        LPCTSTR actStr   = m_str.c_str();
+
+        while( (foundStr=_tcsstr(actStr,str))!=NULL && *actStr!=_T('\0') )
+          actStr = foundStr + 1;
+
+        if( NULL!=foundStr )
+          result = foundStr - m_str.c_str();
+      } // of if
+
+      return result;
+    } // of YAString::LastIndexOf()
+
+    /**
+     *
+     */
+    int YAString::LastIndexOf(TCHAR c) const
+    { int result = -1;
+
+      if( m_str.length()>0 && c!=_T('\0') )
+      { LPCTSTR foundChr = _tcsrchr(m_str.c_str(),c);
+
+        if( foundChr!=NULL )
+          result = foundChr - m_str.c_str();
+      } // of if
+
+      return result;
+    } // of YAString::LastIndexOf()
+
+    /**
+     *
+     */
+    YAString YAString::Substring(int beginIndex,int endIndex) const
+    { YAString result;
+
+      if( endIndex!=-1 )
+        result = m_str.substr(beginIndex,endIndex-beginIndex).c_str();
+      else
+        result = m_str.substr(beginIndex).c_str();
+
+      return result;
+    } // of YAString::Substring()
+
+    /**
+     *
+     */
     template<class charT, class Traits>
     basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const YAString& str)
     { os<<_T("\"")<<str.c_str()<<_T("\""); 

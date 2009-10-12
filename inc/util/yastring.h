@@ -42,14 +42,21 @@ namespace bvr20983
         operator LPCWSTR()  const throw();
         operator LPCSTR()   const throw();
 
-        unsigned int Size() const throw();
-        void         Resize(unsigned int s);
-        void         Append(LPCTSTR);
+        unsigned int    Size() const throw();
+        void            Resize(unsigned int s);
+        void            Append(LPCTSTR);
 
-        YAString& operator+=(LPCTSTR);
-        YAString& operator+=(const YAString&);
-        YAString& operator=(LPCTSTR);
-        YAString& operator=(const YAString&);
+        int             IndexOf(LPCTSTR str) const throw();
+        int             IndexOf(TCHAR   c) const throw();
+        int             LastIndexOf(LPCTSTR str) const throw();
+        int             LastIndexOf(TCHAR   c) const throw();
+
+        YAString        Substring(int beginIndex,int endIndex=-1) const;
+
+        YAString&       operator+=(LPCTSTR);
+        YAString&       operator+=(const YAString&);
+        YAString&       operator=(LPCTSTR);
+        YAString&       operator=(const YAString&);
 
       private: 
         std::basic_string<TCHAR> m_str;

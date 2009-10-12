@@ -705,7 +705,7 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
     hugo4->Append(_T(" clone"));
 
     LOGGER_INFO<<_T("hugo3: ")<<hugo3<<_T(":")<<hugo4<<endl;
-    LOGGER_INFO<<_T("fInfo: ")<<fInfo<<_T(":")<<fInfo->GetFullPathName()<<endl;
+    LOGGER_INFO<<_T("fInfo: ")<<fInfo<<_T(":")<<fInfo->GetFullPath()<<endl;
   }
 
   if( xmlDoc.Load(fName) )
@@ -716,38 +716,33 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
     { CabFCIParameter cabParameter(cabName,CabFCIParameter::CDROM_SIZE);
       CabinetFCI      cabinet(cabParameter);
       
-      TCHAR fullCompDir[MAX_PATH];
-      TCHAR fullCabName[MAX_PATH];
-      TCHAR strippedCabName[MAX_PATH];
-      
-      ::GetFullPathName(cabName,MAX_PATH,fullCabName,NULL);
-      ::GetFullPathName(compDir,MAX_PATH,fullCompDir,NULL);
-      
-      LPCTSTR p = ::_tcsrchr(fullCabName, _T('.'));
-      
-      if( NULL!=p )
-        ::_tcsncpy_s(strippedCabName,MAX_PATH,fullCabName,p-fullCabName);
-      else
-        ::_tcscpy_s(strippedCabName,MAX_PATH,fullCabName);
-        
-      ::_tcscat_s(strippedCabName,MAX_PATH,_T(".xml"));
+      YAPtr<YAString> fullCabName = FileInfo(cabName).GetFullPath();
+      YAPtr<YAString> fullCompDir = FileInfo(compDir).GetFullPath();
+      YAPtr<YAString> strippedCabName;
 
+      if( fullCabName->LastIndexOf(_T('.'))>=0 )
+        strippedCabName = YAPTR1(YAString,fullCabName->Substring(0,fullCabName->LastIndexOf(_T('.'))));
+      else
+        strippedCabName = YACLONE(fullCabName);
+
+      strippedCabName->Append(_T(".xml"));
+      
       COVariant msiComponentID;
 
       if( xmlDoc.GetNodeValue(_T("//v:versions//v:product//v:versionhistory/v:version[1]//v:msicomponent//text()"),msiComponentID,true) &&
-          DirectoryInfo::_IsDirectory(fullCompDir)
+          DirectoryInfo::_IsDirectory(fullCompDir->c_str())
         )
       {
 #ifdef _UNICODE
-        wofstream msicab(strippedCabName);
+        wofstream msicab(strippedCabName->c_str());
 #else
-        ofstream msicab(strippedCabName);
+        ofstream msicab(strippedCabName->c_str());
 #endif
 
         MSICABAddFile1CB addFileCB(msicab,V_BSTR(msiComponentID));
 
         cabinet.SetAddFileCallback(&addFileCB);
-        cabinet.AddFile(fullCompDir,fullCompDir);
+        cabinet.AddFile(fullCompDir->c_str(),fullCompDir->c_str());
         addFileCB.DumpDirectoryInfo();
         addFileCB.close();
 
@@ -755,15 +750,17 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
         cabinet.SetAddFileCallback(NULL);
         
-        cabinet.AddFile(strippedCabName,NULL,_T("fileinfo.xml"));
+        cabinet.AddFile(strippedCabName->c_str(),NULL,_T("fileinfo.xml"));
 
         cabinet.Flush();
         
         { util::XMLDocument msiDB;
         
-          msiDB.Load(strippedCabName);
-          
-          ::_tcscat_s(strippedCabName,MAX_PATH,_T(".bla"));
+          msiDB.Load(strippedCabName->c_str());
+
+          YAPtr<YAString> blaFileName = YACLONE(strippedCabName);
+
+          blaFileName->Append(_T(".bla"));
           
           { COMPtr<IXMLDOMElement> newElement;
             COMPtr<IXMLDOMElement> newElement1; 
@@ -775,7 +772,7 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
             msiDB.AppendChild(newElement1);
           }
 
-          msiDB.Save(strippedCabName);
+          msiDB.Save(blaFileName->c_str());
         }
       } // of if
     } // of if
