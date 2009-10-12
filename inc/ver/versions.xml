@@ -229,7 +229,9 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>            <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
     </component>
 
@@ -310,10 +312,9 @@
           <key>@ASSEMBLY_PUBKEYTOKEN</key>
           <value>${signpubkeytok}</value>
         </pattern>
-        <pattern>
-          <key>@CRT</key>
-          <value>${crtlib}</value>
-        </pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>            <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
     </component>
 
@@ -345,7 +346,9 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>            <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
 
       <type id="IAPDU" typeid="0002">
@@ -499,7 +502,9 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>            <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
 
       <patch filename="led.html">
@@ -580,7 +585,9 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>            <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
     </component>
 
@@ -613,7 +620,9 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>            <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
     </component>
 
@@ -646,7 +655,9 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>       <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
     </component>
 
@@ -678,7 +689,9 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@CRT</key>                  <value>${crtlib}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>       <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
+        <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
     </component>
 

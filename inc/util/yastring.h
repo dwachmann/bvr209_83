@@ -51,7 +51,7 @@ namespace bvr20983
         int             LastIndexOf(LPCTSTR str) const throw();
         int             LastIndexOf(TCHAR   c) const throw();
 
-        YAString        Substring(int beginIndex,int endIndex=-1) const;
+        YAPtr<YAString> Substring(int beginIndex,int endIndex=-1) const;
 
         YAString&       operator+=(LPCTSTR);
         YAString&       operator+=(const YAString&);

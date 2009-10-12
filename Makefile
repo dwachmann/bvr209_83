@@ -62,7 +62,7 @@ distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
 
 
 patch:
-  @$(patch) signpubkeytok $(SIGNPUBKEYTOK) crtlib $(MSVCRTLIB) debugver $(DEBUGVER)
+  @$(patch) signpubkeytok $(SIGNPUBKEYTOK) msvcrtlib_name $(MSVCRTLIB_NAME) msvcrtlib_ver $(MSVCRTLIB_VER) msvcrtlib_pubtok $(MSVCRTLIB_PUBTOK) debugver $(DEBUGVER)
   
 msi: comp\msi\~createmsi
 

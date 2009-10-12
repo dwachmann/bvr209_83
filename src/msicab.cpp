@@ -721,7 +721,7 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
       YAPtr<YAString> strippedCabName;
 
       if( fullCabName->LastIndexOf(_T('.'))>=0 )
-        strippedCabName = YAPTR1(YAString,fullCabName->Substring(0,fullCabName->LastIndexOf(_T('.'))));
+        strippedCabName =fullCabName->Substring(0,fullCabName->LastIndexOf(_T('.')));
       else
         strippedCabName = YACLONE(fullCabName);
 

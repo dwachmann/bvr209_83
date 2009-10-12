@@ -336,13 +336,13 @@ namespace bvr20983
     /**
      *
      */
-    YAString YAString::Substring(int beginIndex,int endIndex) const
-    { YAString result;
+    YAPtr<YAString> YAString::Substring(int beginIndex,int endIndex) const
+    { YAPtr<YAString> result;
 
       if( endIndex!=-1 )
-        result = m_str.substr(beginIndex,endIndex-beginIndex).c_str();
+        result = YAPTR1(YAString,m_str.substr(beginIndex,endIndex-beginIndex).c_str());
       else
-        result = m_str.substr(beginIndex).c_str();
+        result = YAPTR1(YAString,m_str.substr(beginIndex).c_str());
 
       return result;
     } // of YAString::Substring()
