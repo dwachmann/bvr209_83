@@ -22,27 +22,20 @@
 #include "util/logstream.h"
 #include "util/yanew.h"
 
-/**
- *
- */
 void* operator new(size_t bytes,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename,unsigned short lineno)
-{ bvr20983::util::YAAllocatorResult* result;
+{ void* result = NULL;
 
   if( NULL!=a )
-    result = a->Allocate(bytes,filename,lineno); 
+  { void* alloc = a->Allocate(bytes,filename,lineno); 
 
-  //OutputDebugFmt(_T("%s[%d] new(%d): 0x%lx\n"),filename,lineno,bytes,result);
+    result = a->GetData(a->GetSlot(alloc));
+  } // of if
 
-  return result->m_data;
+  return result;
 } // of operator new()
 
-/**
- * is only called, if exception is thrown in constructor
- */
-void operator delete(void* p,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename,unsigned short lineno)
-{ //OutputDebugFmt(_T("%s[%d] delete(0x%lx)\n"),filename,lineno,p);
-
-  if( NULL!=a )
-    a->Free(reinterpret_cast<bvr20983::util::YAAllocatorResult*>(p)-1);
+void  operator delete(void* p,bvr20983::util::YAAllocatorBase* a,LPCTSTR filename,unsigned short lineno)
+{ if( NULL!=a )
+    a->Free(a->GetDataSlot(p));
 } // of operator delete()
 /*==========================END-OF-FILE===================================*/

@@ -29,6 +29,17 @@ namespace bvr20983
 {
   namespace util
   {
+    YAAllocatorBase* FileInfo::m_pClassAllocator = FileInfo::RegisterAllocator();
+
+    /**
+     *
+     */
+    YAAllocatorBase* FileInfo::RegisterAllocator()
+    { YAAllocatorPool::AddAllocator(_T("FileInfo"),new YAAllocator<FileInfo>);
+    
+      return YAAllocatorPool::GetAllocator(_T("FileInfo"));
+    }
+
     /**
      *
      */

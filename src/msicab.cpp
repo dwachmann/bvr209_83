@@ -681,9 +681,6 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   xmlDoc.SetProperties(props);
 
-  YAAllocatorPool::AddAllocator(_T("YAString"),new YAAllocator<YAString>);
-  YAAllocatorPool::AddAllocator(_T("FileInfo"),new YAAllocator<FileInfo>);
-
   { YAVPTR1(YAString,hugo1,_T("hugo1"));
     YAVPTR1(FileInfo,fInfo,_T("hugo.xml"));
 

@@ -20,6 +20,8 @@
  */
 #include "os.h"
 #include "util/yastring.h"
+#include "util/yanew.h"
+#include "util/yaallocatorpool.h"
 #include "util/logstream.h"
 #include "exception/lasterrorexception.h"
 
@@ -27,6 +29,17 @@ namespace bvr20983
 {
   namespace util
   {
+    YAAllocatorBase* YAString::m_pClassAllocator = YAString::RegisterAllocator();
+
+    /**
+     *
+     */
+    YAAllocatorBase* YAString::RegisterAllocator()
+    { YAAllocatorPool::AddAllocator(_T("YAString"),new YAAllocator<YAString>);
+    
+      return YAAllocatorPool::GetAllocator(_T("YAString"));
+    }
+
     /**
      *
      */

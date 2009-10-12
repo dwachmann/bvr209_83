@@ -19,6 +19,7 @@
 #if !defined(YASTRING_H)
 #define YASTRING_H
 
+#include "util/yanew.h"
 
 namespace bvr20983
 {
@@ -54,6 +55,9 @@ namespace bvr20983
         std::basic_string<TCHAR> m_str;
         void*                    m_buffer;
         unsigned int             m_buffersize;
+
+        static YAAllocatorBase*  m_pClassAllocator;
+        static YAAllocatorBase*  RegisterAllocator();
 
         void FreeBuffer();
         void Wide2Ansi();

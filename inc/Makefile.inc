@@ -517,14 +517,14 @@ SCRIPTSDIR     = $(PROJECTDIR)\scripts
 DOCDIR         = $(PROJECTDIR)\doc
 MSITEMPLATEDIR = $(PROJECTDIR)\comp\msi\template
 MSIPATCHTMPLDIR= $(PROJECTDIR)\comp\msi\patch
-
+MSSDK          = C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2
 
 cinclude=-I$(INCDIR) -I$(OUTDIR)
 cuseprecompheader=-Yu"os.h" -Fp"$(OUTDIR)\precomp.pch"
 ccrtprecompheader=-Yc"os.h" -Fp"$(OUTDIR)\precomp.pch"
 cvars= $(cvars) -EHa $(cinclude)
 
-lvars=-MANIFEST:NO -LIBPATH:$(SLNDIR) -LIBPATH:$(PROJECTDIR)\lib\cab
+lvars=-MANIFEST:NO -LIBPATH:"$(MSSDK)\lib" -LIBPATH:$(SLNDIR) -LIBPATH:$(PROJECTDIR)\lib\cab
 
 !ifdef clean
 makeopts = clean=1

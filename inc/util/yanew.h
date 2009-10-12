@@ -20,41 +20,39 @@
 #define YANEW_H
 
 #define YACLONE(x)        x.Clone(_T(__FILE__),__LINE__)
-#define YANEW1(A)         &A,new(A,_T(__FILE__),__LINE__)
 #define YANEW(A)          new(YAAllocatorPool::GetAllocator(_T(#A)),_T(__FILE__),__LINE__)A
 
-#define YAVPTR(Ty,x)      YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
-#define YAVPTR1(Ty,x,p1)  YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
-#define YAVPTR2(Ty,x,p1)  YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
-#define YAVPTR3(Ty,x,p1)  YAPtr<Ty> x(new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
+#define YAVPTR(Ty,x)      YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
+#define YAVPTR1(Ty,x,p1)  YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
+#define YAVPTR2(Ty,x,p1)  YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
+#define YAVPTR3(Ty,x,p1)  YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
 
-#define YAPTR(Ty)         YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
-#define YAPTR1(Ty,p1)     YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
-#define YAPTR2(Ty,p1)     YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
-#define YAPTR3(Ty,p1)     YAPtr<Ty>  (new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
+#define YAPTR(Ty)         YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
+#define YAPTR1(Ty,p1)     YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
+#define YAPTR2(Ty,p1)     YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
+#define YAPTR3(Ty,p1)     YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
 
 namespace bvr20983
 {
   namespace util
   {
-    struct YAAllocatorResult;
-
     struct YAAllocatorBase
-    { virtual YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, unsigned short lineno)=0;
-      virtual void               Free(YAAllocatorResult* p   ) =0;
-      virtual void               Free(unsigned int slot      ) =0;
-      virtual unsigned int       GetSlot(YAAllocatorResult* p) =0;
-      virtual YAAllocatorResult* GetPtr(unsigned int slot    ) =0;
+    { virtual void*                 Allocate(size_t sizeInBytes,LPCTSTR filename, unsigned short lineno)=0;
+      virtual void                  Free(void* p                   ) =0;
+      virtual void                  Free(unsigned int slot         ) =0;
+      virtual unsigned int          GetSlot(void* p                ) =0;
+      virtual void*                 GetPtr(unsigned int slot       ) =0;
+      virtual void*                 GetData(unsigned int slot      ) =0;
+      virtual unsigned int          GetDataSlot(void* p            ) =0;
     }; // of struct YAAllocatorBase
 
     struct YAAllocatorResult
-    { YAAllocatorBase* m_pAllocator;
-      unsigned short   m_allocated : 1;
-      LPCTSTR          m_filename;
-      unsigned short   m_lineno;
-      void*            m_data;
+    { YAAllocatorBase*    m_pAllocator;
+      LPCTSTR             m_filename;
+      unsigned short      m_lineno;
+      unsigned short      m_allocated : 1;
 
-      YAAllocatorResult() : m_pAllocator(NULL),m_data(NULL),m_allocated(0),m_filename(NULL),m_lineno(0)
+      YAAllocatorResult() : m_pAllocator(NULL),m_allocated(0),m_filename(NULL),m_lineno(0)
       { }
     }; // of struct YAAllocatorResult
 
@@ -62,70 +60,40 @@ namespace bvr20983
     class YAAllocator : public YAAllocatorBase
     {
       public:
-        YAAllocator(unsigned int startSize=0,unsigned int grow=10) throw() : m_pool(NULL),m_size(startSize),m_grow(grow)
-        { if( m_size>0 )
-          { m_pool = (YAAllocatorResult*)::calloc(m_size,sizeof(YAAllocatorResult)+sizeof(X));
-
-            for( unsigned int i=0;i<m_size;i++ )
-              new(Ptr(i))YAAllocatorResult();
-          } // of if
+        YAAllocator(unsigned int startSize=0,unsigned int grow=10) throw() : m_poolAdmin(NULL),m_poolData(NULL),m_size(0),m_grow(grow)
+        { ReallocatePool(m_size,startSize);
         } // of YAAllocator()
 
         ~YAAllocator() throw() 
-        { if( m_size>0 )
+        { if( m_size>0 && NULL!=m_poolAdmin && NULL!=m_poolData )
           { for( unsigned int i=0;i<m_size;i++ )
-            { if( Ptr(i)->m_allocated==0 )
-              { X* p = reinterpret_cast<X*>(Ptr(i)->m_data);
-         
-                p->~X();
-              } // of if
-            } // of if
+              if( m_poolAdmin[i].m_allocated==0 )
+                (m_poolData+i)->~X();
 
-            ::free(m_pool);
+            ::free(m_poolAdmin);
+            ::free(m_poolData);
           } // of if
 
-          m_pool = NULL;
-          m_size = 0;
+          m_poolAdmin = NULL;
+          m_poolData  = NULL;
+          m_size      = 0;
         } // of ~YAAllocator()
 
-        YAAllocatorResult* Allocate(size_t sizeInBytes,LPCTSTR filename, unsigned short lineno)
+        void* Allocate(size_t sizeInBytes,LPCTSTR filename, unsigned short lineno)
         { assert( sizeInBytes==sizeof(X) );
 
-          bool         slotFound = false;
-          unsigned int slotIndex = 0;
+          unsigned int slotIndex = FindFreeSlot();
 
-          for( ;slotIndex<m_size;slotIndex++ )
-            if( Ptr(slotIndex)->m_allocated==0 )
-            { slotFound = true;
+          if( slotIndex==UINT_MAX )
+          { slotIndex  = m_size;
 
-              break;
-            } // of if
-
-          if( !slotFound )
-          { unsigned int newSize = m_size+m_grow;
-            
-            if( m_pool==NULL )
-              m_pool = (YAAllocatorResult*)::calloc(newSize,sizeof(YAAllocatorResult)+sizeof(X));
-            else
-            { m_pool = (YAAllocatorResult*)::realloc(m_pool,newSize*(sizeof(YAAllocatorResult)+sizeof(X)));
-
-              YAAllocatorResult* p = Ptr(m_size);
-              
-              ::memset(Ptr(m_size),'\0',m_grow*(sizeof(YAAllocatorResult)+sizeof(X)));
-            } // of else
-
-            for( unsigned int i=0;i<m_grow;i++ )
-              new(Ptr(i)+1)YAAllocatorResult();
-
-            slotFound  = true;
-            slotIndex  = m_size;
-            m_size    += m_grow;
+            ReallocatePool(m_size,m_grow);
           } // of if
 
-          if( !slotFound )
+          if( slotIndex>=m_size )
             throw std::bad_alloc();
 
-          YAAllocatorResult* result = Ptr(slotIndex);
+          YAAllocatorResult* result = m_poolAdmin+slotIndex;
 
           assert( result->m_allocated==0 );
 
@@ -133,66 +101,141 @@ namespace bvr20983
           result->m_allocated  = 1;
           result->m_filename   = filename;
           result->m_lineno     = lineno;
-          result->m_data       = result + 1;
 
-          OutputDebugFmt(_T("%s[%d] YAAllocator::Allocate(size=%d):0x%lx\n"),filename,lineno,sizeInBytes,result);
+          OutputDebugFmt(_T("%s[%d] YAAllocator::Allocate(size=%d): 0x%lx slot=%d\n"),filename,lineno,sizeInBytes,result,slotIndex);
 
           return result;
         } // of YAAllocator::Allocate()
 
-        void Free(YAAllocatorResult* p)
+        void Free(void* p)
         { if( NULL!=p )
-          { OutputDebugFmt(_T("%s[%d] YAAllocator.Free(p=0x%lx)\n"),p->m_filename,p->m_lineno,p);
+          { YAAllocatorResult* r = reinterpret_cast<YAAllocatorResult*>(p);
 
-            Free(GetSlot(p));
+            unsigned int slot = GetSlot(p);
+            
+            OutputDebugFmt(_T("%s[%d] YAAllocator.Free(p=0x%lx): slot=%d\n"),r->m_filename,r->m_lineno,p,slot);
+
+            Free(slot);
           } // of if
         } // of YAAllocator::Free()
 
         void Free(unsigned int slot)
-        { YAAllocatorResult* p0 = Ptr(slot);
+        { if( NULL!=m_poolAdmin )
+          { YAAllocatorResult* p0 = m_poolAdmin+slot;
 
-          if( slot>m_size || p0->m_allocated==0 )
-            throw "unknown slot";
-          
-          OutputDebugFmt(_T("%s[%d] YAAllocator.Free(slot=%d)\n"),p0->m_filename,p0->m_lineno,slot);
+            if( slot>=m_size || p0->m_allocated==0 )
+              throw "unknown slot";
+            
+            OutputDebugFmt(_T("%s[%d] YAAllocator.Free(slot=%d): 0x%lx\n"),p0->m_filename,p0->m_lineno,slot,p0);
 
-          GetPtr(slot)->m_allocated = 0;
+            p0->m_allocated = 0;
+          } // of if
         } // of YAAllocator::Free()
 
-        unsigned int GetSlot(YAAllocatorResult* p)
-        { bool         found  = false;
-          unsigned int result = 0;
+        unsigned int GetSlot(void* p)
+        { unsigned int result = UINT_MAX;
 
-          for( ;result<m_size;result++ )
-          { if( p==Ptr(result) )
-            { found = true;
-              break;
+          if( NULL!=m_poolAdmin )
+          { for( unsigned i=0;i<m_size;i++ )
+            { if( p==m_poolAdmin+i )
+              { result = i;
+                break;
+              } // of if
             } // of if
-          } // of if
 
-          if( !found )
-            throw "unknown pointer";
+            if( result==UINT_MAX )
+              throw "unknown pointer";
+          } // of if
 
           return result;
         } // of GetSlot()
 
-        YAAllocatorResult* GetPtr(unsigned int slot)
-        { YAAllocatorResult* p0 = Ptr(slot);
+        void* GetPtr(unsigned int slot)
+        { YAAllocatorResult* p0 = NULL;
+        
+          if( NULL!=m_poolAdmin )
+          { p0 = m_poolAdmin+slot;
 
-          if( slot>m_size || p0->m_allocated==0 )
-            throw "unknown slot";
+            if( slot>=m_size || p0->m_allocated==0 )
+              throw "unknown slot";
+          } // of if
 
           return p0;
         } // of GetPtr()
 
+        void* GetData(unsigned int slot)
+        { X* p0 = NULL;
+        
+          if( NULL!=m_poolData && NULL!=m_poolAdmin )
+          { p0 = m_poolData+slot;
+
+            if( slot>=m_size || m_poolAdmin[slot].m_allocated==0 )
+              throw "unknown slot";
+          } // of if
+
+          return p0;
+        } // of GetData()
+
+        unsigned int GetDataSlot(void* p)
+        { unsigned int result = UINT_MAX;
+
+          if( NULL!=m_poolData && NULL!=m_poolAdmin )
+          { for( unsigned i=0;i<m_size;i++ )
+            { if( p==m_poolData+i )
+              { result = i;
+                break;
+              } // of if
+            } // of if
+
+            if( result==UINT_MAX || m_poolAdmin[result].m_allocated==0 || result>=m_size )
+              throw "unknown pointer";
+          } // of if
+
+          return result;
+        } // of GetDataSlot()
+
       private:
-        YAAllocatorResult* m_pool;
-        unsigned int       m_size;
-        unsigned int       m_grow;
+        YAAllocatorResult*    m_poolAdmin;
+        X*                    m_poolData;
+        unsigned int          m_size;
+        unsigned int          m_grow;
 
+        void ReallocatePool(unsigned int oldSize,unsigned int grow)
+        { unsigned int newSize = oldSize + grow;
 
-        YAAllocatorResult* Ptr(unsigned int slot)
-        { return reinterpret_cast<YAAllocatorResult*>(reinterpret_cast<char*>(m_pool) + (slot*(sizeof(YAAllocatorResult)+sizeof(X)))); }
+          if( newSize>0 )
+          { if( m_poolAdmin==NULL )
+            { m_poolAdmin = (YAAllocatorResult*)::calloc(newSize,sizeof(YAAllocatorResult));
+              m_poolData  = (X*)                ::calloc(newSize,sizeof(X));
+            }
+            else
+            { m_poolAdmin = (YAAllocatorResult*)::realloc(m_poolAdmin,newSize*sizeof(YAAllocatorResult));
+              m_poolData  = (X*)                ::realloc(m_poolData ,newSize*sizeof(X));
+
+              ::memset(m_poolAdmin + oldSize,'\0',grow*sizeof(YAAllocatorResult));
+              ::memset(m_poolData  + oldSize,'\0',grow*sizeof(X));
+            } // of else
+
+            for( unsigned int i=0;i<grow;i++ )
+              new(m_poolAdmin + oldSize + i)YAAllocatorResult();
+          } // of if
+
+          m_size = newSize;
+        } // of AllocatePool()
+
+        unsigned int FindFreeSlot()
+        { unsigned int result = UINT_MAX;
+          
+          if( NULL!=m_poolAdmin )
+            for( unsigned int i=0;i<m_size;i++ )
+              if( m_poolAdmin[i].m_allocated==0 )
+              { result = i;
+
+                break;
+              } // of if
+
+          return result;
+        } // of FindFreeSlot()
     }; // of class YAAllocator
 
     template <class X>
@@ -202,17 +245,11 @@ namespace bvr20983
         YAPtr() throw() : m_pAllocator(NULL),m_slot(UINT_MAX),m_prev(NULL),m_next(NULL)
         { m_prev = m_next = this; }
 
-        explicit YAPtr(X* r) throw() : m_pAllocator(NULL),m_slot(UINT_MAX),m_prev(NULL),m_next(NULL)
+        explicit YAPtr(YAAllocatorBase* pAllocator,X* r) throw() : m_pAllocator(pAllocator),m_slot(UINT_MAX),m_prev(NULL),m_next(NULL)
         { assert( NULL!=r );
-
-          YAAllocatorResult* p = reinterpret_cast<YAAllocatorResult*>(r) - 1;
-          
-          m_pAllocator = p->m_pAllocator;
-          
           assert( NULL!=m_pAllocator );
 
-          m_slot = m_pAllocator->GetSlot(p);
-          
+          m_slot = m_pAllocator->GetDataSlot(r);
           m_prev = m_next = this; 
         }
 
@@ -240,7 +277,7 @@ namespace bvr20983
         { return Get(); }
         
         X*        Get()        const
-        { return m_pAllocator!=NULL ? static_cast<X*>(m_pAllocator->GetPtr(m_slot)->m_data) : NULL; }
+        { return m_pAllocator!=NULL ? reinterpret_cast<X*>(m_pAllocator->GetData(m_slot)) : NULL; }
         
         bool      IsUnique()   const throw()  
         { return m_prev!=NULL ? m_prev==this : true; }
@@ -251,7 +288,7 @@ namespace bvr20983
           if( NULL!=m_pAllocator )
           { X* pData = Get();
 
-            result = YAPtr<X>(new(m_pAllocator,filename,lineno)X(*pData));
+            result = YAPtr<X>(m_pAllocator,new(m_pAllocator,filename,lineno)X(*pData));
           } // of if
 
           return result;

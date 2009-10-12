@@ -45,6 +45,8 @@ namespace bvr20983
       private:
         LPCTSTR m_fileName;
 
+        static YAAllocatorBase*  m_pClassAllocator;
+        static YAAllocatorBase*  RegisterAllocator();
 	  }; // of class FileInfo
 
     template<class charT, class Traits>
