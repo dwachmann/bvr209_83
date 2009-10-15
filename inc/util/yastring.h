@@ -50,6 +50,8 @@ namespace bvr20983
         int             IndexOf(TCHAR   c) const throw();
         int             LastIndexOf(LPCTSTR str) const throw();
         int             LastIndexOf(TCHAR   c) const throw();
+        void            ToLowerCase();
+        void            ToUpperCase();
 
         YAPtr<YAString> Substring(int beginIndex,int endIndex=-1) const;
 

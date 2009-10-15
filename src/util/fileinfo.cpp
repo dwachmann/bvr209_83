@@ -43,9 +43,23 @@ namespace bvr20983
     /**
      *
      */
-    FileInfo::FileInfo(LPCTSTR fileName) :
-      m_fileName(fileName)
-    { }
+    FileInfo::FileInfo(const YAPtr<YAString>& fileName)
+    { m_fileName = YAPTR1(YAString,fileName->c_str());
+    }
+
+    /**
+     *
+     */
+    FileInfo::FileInfo(const YAString& fileName)
+    { m_fileName = YAPTR1(YAString,fileName);
+    }
+
+    /**
+     *
+     */
+    FileInfo::FileInfo(LPCTSTR fileName)
+    { m_fileName = YAPTR1(YAString,fileName);
+    }
 
     /**
      *
@@ -60,27 +74,72 @@ namespace bvr20983
     YAPtr<YAString> FileInfo::GetFullPath() const
     { YAPtr<YAString> result;
 
-      if( NULL!=m_fileName )
+      if( !m_fileName.IsNull() )
       { result = YAPTR(YAString);
 
-        DWORD pathLen = ::GetFullPathName(m_fileName,0,NULL,NULL);
+        DWORD pathLen = ::GetFullPathName(m_fileName->c_str(),0,NULL,NULL);
 
         THROW_LASTERROREXCEPTION1( pathLen );
 
         result->Resize(pathLen);
           
-        THROW_LASTERROREXCEPTION1( ::GetFullPathName(m_fileName,pathLen,const_cast<LPTSTR>(result->c_str()),NULL) );
+        THROW_LASTERROREXCEPTION1( ::GetFullPathName(m_fileName->c_str(),pathLen,const_cast<LPTSTR>(result->c_str()),NULL) );
       } // of if
 
       return result;
-    } // of FileInfo::GetFullPath() 
+    } // of FileInfo::GetFullPath()
+
+    /**
+     *
+     */
+    YAPtr<YAString> FileInfo::GetShortName() const
+    { YAPtr<YAString> result;
+
+      if( !m_fileName.IsNull() )
+      { result = YAPTR(YAString);
+
+        DWORD pathLen = ::GetShortPathName(m_fileName->c_str(),NULL,0);
+
+        THROW_LASTERROREXCEPTION1( pathLen );
+
+        result->Resize(pathLen);
+          
+        THROW_LASTERROREXCEPTION1( ::GetShortPathName(m_fileName->c_str(),const_cast<LPTSTR>(result->c_str()),pathLen) );
+      } // of if
+
+      return result;
+    } // of FileInfo::GetShortName()
+
+    /**
+     *
+     */
+    YAPtr<YAString> FileInfo::GetName() const
+    { YAPtr<YAString> result;
+
+      LPCTSTR p = _tcsrchr(m_fileName->c_str(), _T('\\'));
+      
+      if( !m_fileName.IsNull() )
+      { if( p==NULL )
+          result = YAPTR1(YAString,m_fileName->c_str());
+        else
+          result = YAPTR1(YAString,p+1);
+      } // of if
+
+      return result;
+    } // of FileInfo::GetName()
+
+    /**
+     *
+     */
+    YAPtr<YAString> FileInfo::GetFileName() const
+    { return m_fileName; }
 
     /**
      *
      */
     template<class charT, class Traits>
     basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const FileInfo& fInfo)
-    { os<<_T("FileInfo[")<<fInfo.GetName()<<_T("]"); 
+    { os<<_T("FileInfo[")<<fInfo.GetFileName()<<_T("]"); 
 
       return os;
     }

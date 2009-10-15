@@ -277,8 +277,11 @@ namespace bvr20983
         { return Get(); }
         
         X*        Get()        const
-        { return m_pAllocator!=NULL ? reinterpret_cast<X*>(m_pAllocator->GetData(m_slot)) : NULL; }
-        
+        { return IsNull() ? NULL : reinterpret_cast<X*>(m_pAllocator->GetData(m_slot)); }
+
+        bool      IsNull()   const throw()  
+        { return m_pAllocator==NULL; }
+
         bool      IsUnique()   const throw()  
         { return m_prev!=NULL ? m_prev==this : true; }
 
@@ -327,7 +330,7 @@ namespace bvr20983
 
     template<class charT, class Traits,class X>
     std::basic_ostream<charT, Traits>& operator <<(std::basic_ostream<charT, Traits >& os,const YAPtr<X>& ptr)
-    { if( ptr.Get()==NULL )
+    { if( ptr.IsNull() )
         os<<_T("NULL");
       else
         os<< *ptr; 

@@ -350,6 +350,23 @@ namespace bvr20983
     /**
      *
      */
+    void YAString::ToLowerCase()
+    { unsigned int len = m_str.length();
+
+      for( unsigned int i=0;i<len;i++ )
+        m_str[i] = tolower(m_str[i]);
+    } // of YAString::ToLower()
+
+    void YAString::ToUpperCase()
+    { unsigned int len = m_str.length();
+
+      for( unsigned int i=0;i<len;i++ )
+        m_str[i] = toupper(m_str[i]);
+    } // of YAString::ToUpper()
+
+    /**
+     *
+     */
     template<class charT, class Traits>
     basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const YAString& str)
     { os<<_T("\"")<<str.c_str()<<_T("\""); 

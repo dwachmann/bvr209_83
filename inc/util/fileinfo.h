@@ -34,16 +34,18 @@ namespace bvr20983
     class FileInfo
     {
       public:
-        FileInfo(LPCTSTR fileName);
+        FileInfo(const YAPtr<YAString>& fileName);
+        FileInfo(const YAString&        fileName);
+        FileInfo(LPCTSTR                fileName);
         ~FileInfo();
 
-		    YAPtr<YAString> GetFullPath() const;
-
-        LPCTSTR GetName() const
-        { return m_fileName; }
+		    YAPtr<YAString> GetFullPath()  const;
+        YAPtr<YAString> GetShortName() const;
+        YAPtr<YAString> GetFileName()  const;
+        YAPtr<YAString> GetName()      const;
 
       private:
-        LPCTSTR m_fileName;
+        YAPtr<YAString> m_fileName;
 
         static YAAllocatorBase*  m_pClassAllocator;
         static YAAllocatorBase*  RegisterAllocator();

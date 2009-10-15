@@ -173,18 +173,13 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   bool AddFile(LPCTSTR prefix,LPCTSTR fileName,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)
-  { TCHAR strippedCompFileName[MAX_PATH];
-    DirectoryInfo::_StripFilename(strippedCompFileName,MAX_PATH,fileName);
+  { FileInfo        fInfo(fileName);
+    YAPtr<YAString> strippedCompFileName      = fInfo.GetName();
+    YAPtr<YAString> shortCompFileName         = fInfo.GetShortName();
+    YAPtr<YAString> shortStrippedCompFileName = FileInfo(strippedCompFileName).GetName();
 
-    LPTSTR s = strippedCompFileName;
-    for( ;*s!=_T('\0');s++ )
-      *s = tolower(*s);
-
-    TCHAR shortCompFileName[MAX_PATH];
-    TCHAR shortStrippedCompFileName[MAX_PATH];
-
-    ::GetShortPathName(fileName,shortCompFileName,MAX_PATH);
-    DirectoryInfo::_StripFilename(shortStrippedCompFileName,MAX_PATH,shortCompFileName);
+    strippedCompFileName->ToLowerCase();
+    shortStrippedCompFileName->ToLowerCase();
 
     VersionInfo verInfo(fileName);
     LPCTSTR fileVersion    = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
@@ -209,14 +204,14 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
     if( _tcscmp(m_compType,_T("dll"))==0 || _tcscmp(m_compType,_T("exe"))==0 )
     { _tcscpy_s(addedFileName,addedFileNameMaxLen,m_compId);
 
-      m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+    m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName->c_str()<<_T("|")<<strippedCompFileName->c_str()<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
     } // of if
     else
     { 
       ConvertFilename(prefix,fileName,addedFileName,addedFileNameMaxLen);
       //_stprintf_s(addedFileName,addedFileNameMaxLen,_T("file%d"),seqNo);
       
-      m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName<<_T("|")<<strippedCompFileName<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+      m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName->c_str()<<_T("|")<<strippedCompFileName->c_str()<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
     } // of else
 
     if( !hasFileVersion )
@@ -681,36 +676,8 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 
   xmlDoc.SetProperties(props);
 
-  { YAVPTR1(YAString,hugo1,_T("hugo1"));
-    YAVPTR1(FileInfo,fInfo,_T("hugo.xml"));
-
-    LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
-
-    hugo1->Append(_T(" abc"));
-
-    LOGGER_INFO<<_T("hugo1: ")<<hugo1<<endl;
-
-    YAPtr<YAString> hugo2 = hugo1;
-
-    hugo1->Append(_T(" abc"));
-
-    LOGGER_INFO<<_T("hugo2: ")<<hugo2<<endl;
-
-    YAPtr<YAString> hugo3(hugo2);
-
-    LOGGER_INFO<<_T("hugo3: ")<<hugo3<<endl; 
-
-    YAPtr<YAString> hugo4 = YACLONE(hugo3);
-
-    hugo4->Append(_T(" clone"));
-
-    LOGGER_INFO<<_T("hugo3: ")<<hugo3<<_T(":")<<hugo4<<endl;
-    LOGGER_INFO<<_T("fInfo: ")<<fInfo<<_T(":")<<fInfo->GetFullPath()<<endl;
-  }
-
   if( xmlDoc.Load(fName) )
-  { 
-    COVariant productidValue;
+  { COVariant productidValue;
 
     if( xmlDoc.GetNodeValue(_T("//v:product/@id"),productidValue,true) )
     { CabFCIParameter cabParameter(cabName,CabFCIParameter::CDROM_SIZE);
@@ -721,7 +688,7 @@ void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
       YAPtr<YAString> strippedCabName;
 
       if( fullCabName->LastIndexOf(_T('.'))>=0 )
-        strippedCabName =fullCabName->Substring(0,fullCabName->LastIndexOf(_T('.')));
+        strippedCabName = fullCabName->Substring(0,fullCabName->LastIndexOf(_T('.')));
       else
         strippedCabName = YACLONE(fullCabName);
 
