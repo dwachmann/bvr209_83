@@ -153,109 +153,108 @@ Sub ListProduct(productName)
   Dim productCode, property, value, message
   Dim feature, features, parent, state, featureInfo
 
-  If IsEmpty(productName) or productName="*" Then
-    Set products = installer.Products : CheckError
+  Set products = installer.Products : CheckError
 
-    For Each product In products
-      version = DecodeVersion(installer.ProductInfo(product, "Version")) : CheckError
+  For Each product In products
+    version = DecodeVersion(installer.ProductInfo(product, "Version")) : CheckError
 
+    If productName="*" or InStr(UCase(installer.ProductInfo(product, "ProductName")),UCase(productName))>0 Then
       Wscript.Echo product & " = " & installer.ProductInfo(product, "ProductName") & "[" & version & "]" : CheckError
+    End If
+  Next
+
+  ' If Product name supplied, need to search for product code
+  If Left(productName, 1) = "{" And Right(productName, 1) = "}" Then
+    If installer.ProductState(productName) <> msiInstallStateUnknown Then 
+      productCode = UCase(productName)
+    End If
+  Else
+    For Each productCode In installer.Products : CheckError
+      If LCase(installer.ProductInfo(productCode, "ProductName")) = LCase(productName) Then Exit For
+    Next
+  End If
+
+  If IsEmpty(productCode) Then 
+    Wscript.Echo "Product is not registered: " & productName
+  Else
+
+    Wscript.Echo "  " & "ProductCode = " & productCode
+
+    For Each property In Array(_
+                              "Language",_
+                              "ProductName",_
+                              "PackageCode",_
+                              "Transforms",_
+                              "AssignmentType",_
+                              "PackageName",_
+                              "InstalledProductName",_
+                              "VersionString",_
+                              "RegCompany",_
+                              "RegOwner",_
+                              "ProductID",_
+                              "ProductIcon",_
+                              "InstallLocation",_
+                              "InstallSource",_
+                              "InstallDate",_
+                              "Publisher",_
+                              "LocalPackage",_
+                              "HelpLink",_
+                              "HelpTelephone",_
+                              "URLInfoAbout",_
+                              "URLUpdateInfo") : CheckError
+
+      value = installer.ProductInfo(productCode, property) : CheckError
+      If Err <> 0 Then Err.Clear : value = Empty
+
+      If (property = "Version") Then value = DecodeVersion(value)
+
+      If value <> Empty Then Wscript.Echo "  " & property & " = " & value
     Next
 
-  Else
-    ' If Product name supplied, need to search for product code
-    If Left(productName, 1) = "{" And Right(productName, 1) = "}" Then
-      If installer.ProductState(productName) <> msiInstallStateUnknown Then 
-        productCode = UCase(productName)
-      End If
-    Else
-      For Each productCode In installer.Products : CheckError
-        If LCase(installer.ProductInfo(productCode, "ProductName")) = LCase(productName) Then Exit For
+    Set features = installer.Features(productCode)
+    
+    Wscript.Echo 
+    Wscript.Echo "---Features in product " & productCode & "---"
+
+    For Each feature In features
+      parent = installer.FeatureParent(productCode, feature) : CheckError
+
+      If Len(parent) Then parent = " {" & parent & "}"
+
+      state = installer.FeatureState(productCode, feature)
+
+      Select Case(state)
+        Case msiInstallStateBadConfig:    state = "Corrupt"
+        Case msiInstallStateIncomplete:   state = "InProgress"
+        Case msiInstallStateSourceAbsent: state = "SourceAbsent"
+        Case msiInstallStateBroken:       state = "Broken"
+        Case msiInstallStateAdvertised:   state = "Advertised"
+        Case msiInstallStateAbsent:       state = "Uninstalled"
+        Case msiInstallStateLocal:        state = "Local"
+        Case msiInstallStateSource:       state = "Source"
+        Case msiInstallStateDefault:      state = "Default"
+        Case Else:                        state = "Unknown"
+      End Select
+      Wscript.Echo "  " & feature & parent & " = " & state
+    Next
+
+    Dim component, components, client, clients, path
+    Set components = installer.Components : CheckError
+
+    Wscript.Echo 
+    Wscript.Echo "---Components in product " & productCode & "---"
+
+    For Each component In components
+      Set clients = installer.ComponentClients(component) : CheckError
+      For Each client In Clients
+        If client = productCode Then
+          path = installer.ComponentPath(productCode, component) : CheckError
+          Wscript.Echo "  " & component & " = " & path
+          Exit For
+        End If
       Next
-    End If
+    Next
 
-    If IsEmpty(productCode) Then 
-      Wscript.Echo "Product is not registered: " & productName
-    Else
-
-      Wscript.Echo "  " & "ProductCode = " & productCode
-
-      For Each property In Array(_
-                                "Language",_
-                                "ProductName",_
-                                "PackageCode",_
-                                "Transforms",_
-                                "AssignmentType",_
-                                "PackageName",_
-                                "InstalledProductName",_
-                                "VersionString",_
-                                "RegCompany",_
-                                "RegOwner",_
-                                "ProductID",_
-                                "ProductIcon",_
-                                "InstallLocation",_
-                                "InstallSource",_
-                                "InstallDate",_
-                                "Publisher",_
-                                "LocalPackage",_
-                                "HelpLink",_
-                                "HelpTelephone",_
-                                "URLInfoAbout",_
-                                "URLUpdateInfo") : CheckError
-
-        value = installer.ProductInfo(productCode, property) : CheckError
-        If Err <> 0 Then Err.Clear : value = Empty
-
-        If (property = "Version") Then value = DecodeVersion(value)
-
-        If value <> Empty Then Wscript.Echo "  " & property & " = " & value
-      Next
-
-      Set features = installer.Features(productCode)
-      
-      Wscript.Echo 
-      Wscript.Echo "---Features in product " & productCode & "---"
-
-      For Each feature In features
-        parent = installer.FeatureParent(productCode, feature) : CheckError
-
-        If Len(parent) Then parent = " {" & parent & "}"
-
-        state = installer.FeatureState(productCode, feature)
-
-        Select Case(state)
-          Case msiInstallStateBadConfig:    state = "Corrupt"
-          Case msiInstallStateIncomplete:   state = "InProgress"
-          Case msiInstallStateSourceAbsent: state = "SourceAbsent"
-          Case msiInstallStateBroken:       state = "Broken"
-          Case msiInstallStateAdvertised:   state = "Advertised"
-          Case msiInstallStateAbsent:       state = "Uninstalled"
-          Case msiInstallStateLocal:        state = "Local"
-          Case msiInstallStateSource:       state = "Source"
-          Case msiInstallStateDefault:      state = "Default"
-          Case Else:                        state = "Unknown"
-        End Select
-        Wscript.Echo "  " & feature & parent & " = " & state
-      Next
-
-      Dim component, components, client, clients, path
-      Set components = installer.Components : CheckError
-
-      Wscript.Echo 
-      Wscript.Echo "---Components in product " & productCode & "---"
-
-      For Each component In components
-        Set clients = installer.ComponentClients(component) : CheckError
-        For Each client In Clients
-          If client = productCode Then
-            path = installer.ComponentPath(productCode, component) : CheckError
-            Wscript.Echo "  " & component & " = " & path
-            Exit For
-          End If
-        Next
-      Next
-
-    End If
   End If
 End Sub
 
