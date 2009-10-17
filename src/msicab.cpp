@@ -114,12 +114,18 @@ void dirtest(LPTSTR dirName,LPTSTR filemask,UINT maxDepth)
 struct MSIDirectoryInfo
 {
   MSIDirectoryInfo()
-  { m_dirId[0] = m_parentId[0] = m_dirName[0] = _T('\0'); }
+  { }
 
-  TCHAR m_dirId[72];
-  TCHAR m_parentId[72];
-  TCHAR m_dirName[MAX_PATH];
-  TCHAR m_dirShortName[MAX_PATH];
+  MSIDirectoryInfo(LPCTSTR dirName) : m_dirName(dirName)
+  { }
+
+  MSIDirectoryInfo(LPCTSTR dirName,LPCTSTR dirShortName) : m_dirName(dirName),m_dirShortName(dirShortName)
+  { }
+
+  YAString m_dirId;
+  YAString m_parentId;
+  YAString m_dirName;
+  YAString m_dirShortName;
 }; // of struct MSICABAddFileCB
 
 typedef std::vector<MSIDirectoryInfo> VMSIDirInfoT;
@@ -156,13 +162,12 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
   bool DirectoryStarted(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth)
   { bool result = true;
 
-    MSIDirectoryInfo d;
+    MSIDirectoryInfo d(dirInfo.GetName());
 
-    ::_tcscpy_s(d.m_dirName,MAX_PATH,dirInfo.GetName());
-    ::_stprintf_s(d.m_dirId,72,_T("DIR_%d"),dirInfo.GetId());
+    (d.m_dirId = _T("DIR_")) += (unsigned long)dirInfo.GetId();
 
     if( NULL!=dirInfo.GetParentDirInfo() )
-      ::_stprintf_s(d.m_parentId,72,_T("DIR_%d"),dirInfo.GetParentDirInfo()->GetId());
+      (d.m_parentId = _T("DIR_")) += (unsigned long)dirInfo.GetParentDirInfo()->GetId();
 
     m_dirInfo.push_back(d);
 
@@ -204,7 +209,7 @@ struct MSICABAddFileCB : bvr20983::cab::CabinetFCIAddFileCB
     if( _tcscmp(m_compType,_T("dll"))==0 || _tcscmp(m_compType,_T("exe"))==0 )
     { _tcscpy_s(addedFileName,addedFileNameMaxLen,m_compId);
 
-    m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName->c_str()<<_T("|")<<strippedCompFileName->c_str()<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
+      m_fileIDT<<addedFileName<<_T('\t')<<m_compId<<_T('\t')<<shortStrippedCompFileName->c_str()<<_T("|")<<strippedCompFileName->c_str()<<_T('\t')<<fileSize<<_T('\t')<<fileVersion<<_T('\t')<<1033<<_T('\t')<<0<<_T('\t')<<seqNo<<endl;
     } // of if
     else
     { 
@@ -438,320 +443,11 @@ void msicab(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR templateDir,LPTSTR
   } // of if
 } // of msicab()
 
-
-/**
- *
- */
-bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value);
-
-/**
- *
- */
-struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
-{
-
-#ifdef _UNICODE
-  MSICABAddFile1CB(wofstream& msicab,LPCTSTR msiCompIdPattern) :
-#else
-  MSICABAddFile1CB(ofstream& msicab,LPCTSTR msiCompIdPattern) :
-#endif
-    m_msicab(msicab),
-    m_msiCompIdPattern(msiCompIdPattern)
-  { m_msicab<<_T("<?xml version='1.0' encoding='UTF-8'?>")<<endl<<endl; 
-    
-    m_msicab<<_T("<cabinet>")<<endl;
-    m_msicab<<_T("<files>")<<endl;
-  }
-
-  /**
-   *
-   */
-  ~MSICABAddFile1CB()
-  { }
-
-  /**
-   *
-   */
-  bool RegistryInfo(bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
-  { //OutputDebugFmt(_T("RegistryInfoCB(%d,%s,%s,%s)\n"),startSection,key,name,value);
-
-    m_msicab<<_T("<registry>")<<endl;
-    m_msicab<<_T("  <key>")<<key<<_T("</key>")<<endl;
-
-    if( NULL!=name )
-    { m_msicab<<_T("  <name>")<<name<<_T("</name>")<<endl;
-
-      if( NULL!=value )
-        m_msicab<<_T("  <value>")<<value<<_T("</value>")<<endl;
-    } // of if
-    m_msicab<<_T("</registry>")<<endl;
-
-    return true;
-  } // of registryInfo()
-
-  /**
-   *
-   */
-  void close()
-  { m_msicab<<_T("</cabinet>")<<endl; }
-
-  /**
-   *
-   */
-  bool DirectoryStarted(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth)
-  { bool result = true;
-
-    MSIDirectoryInfo d;
-
-    ::_tcscpy_s(d.m_dirName,MAX_PATH,dirInfo.GetName());
-    ::_tcscpy_s(d.m_dirShortName,MAX_PATH,dirInfo.GetShortName());
-
-    ::_stprintf_s(d.m_dirId,72,_T("DIR_%d"),dirInfo.GetId());
-
-    if( NULL!=dirInfo.GetParentDirInfo() )
-      ::_stprintf_s(d.m_parentId,72,_T("DIR_%d"),dirInfo.GetParentDirInfo()->GetId());
-
-    m_dirInfo.push_back(d);
-
-    return result;
-  } // of DirectoryStarted()
-
-  /**
-   *
-   */
-  void DumpDirectoryInfo()
-  { VMSIDirInfoT::const_iterator iter;
-
-    m_msicab<<_T("  </files>")<<endl<<endl;
-
-    m_msicab<<_T("  <directories>")<<endl;
-
-    for( iter=m_dirInfo.begin();iter!=m_dirInfo.end();iter++ )
-    { m_msicab<<_T("    <directory id='")<<iter->m_dirId<<_T("'");
-
-      if( _tcslen(iter->m_parentId)>0 )
-        m_msicab<<_T(" parentid='")<<iter->m_parentId<<_T("'");
-        
-      m_msicab<<_T(">")<<endl;
-
-      m_msicab<<_T("      <name>")<<iter->m_dirName<<_T("</name>")<<endl;
-      m_msicab<<_T("      <shortname>")<<iter->m_dirShortName<<_T("</shortname>")<<endl;
-
-      m_msicab<<_T("    </directory>")<<endl;
-    } // of for
-
-    m_msicab<<_T("  </directories>")<<endl;
-  } // of DumpDirectoryInfo()
-
-
-  /**
-   *
-   */
-  bool AddFile(LPCTSTR prefix,LPCTSTR filePath,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)
-  { TCHAR fileName[MAX_PATH];
-    TCHAR strippedFilePath[MAX_PATH];
-    TCHAR strippedCompFileName[MAX_PATH];
-    TCHAR guid[MAX_PATH];
-
-    DirectoryInfo::_StripFilename(strippedFilePath,MAX_PATH,filePath,prefix);
-    DirectoryInfo::_StripFilename(fileName,MAX_PATH,filePath);
-
-    LPCTSTR p = ::_tcsrchr(filePath, _T('.'));
-    TCHAR   suffix[MAX_PATH];
-    
-    ::memset(suffix,'\0',MAX_PATH);
-    
-    if( NULL!=p )
-      ::_tcscpy_s(suffix,MAX_PATH,p);
-
-    if( _tcscmp(suffix,_T(".dll"))==0 )
-    { SharedLibrary shLib(filePath);
-    
-      ENUMREGISTRATIONPROC enumProc = (ENUMREGISTRATIONPROC)shLib.GetProcAddress(_T("DllEnumRegistrationInfo"),false);
-
-      if( enumProc )
-        enumProc(RegistryInfoCB,(LPARAM)this);
-    } // of if
-
-    m_msicab<<_T("  <file ");
-
-    _stprintf_s(addedFileName,addedFileNameMaxLen,_T("_%08X"),seqNo);
-
-    _stprintf_s(guid,MAX_PATH,_T("%08X"),seqNo);
-
-    m_msicab<<_T(" id='")<<addedFileName<<_T("' ");
-
-    m_msicab<<_T(" guid='")<<m_msiCompIdPattern<<guid<<_T("' ");
-
-    m_msicab<<_T(" no='")<<seqNo<<_T("' ");
-
-    if( NULL!=pDirInfo )
-      m_msicab<<_T(" directoryid='DIR_")<<pDirInfo->GetId()<<_T("' ");
-
-    DWORD fileSize=0;
-    DirectoryInfo::_GetFileSize(filePath,&fileSize);
-      
-    LOGGER_DEBUG<<_T("::AddFile() suffix=<")<<suffix<<_T(">")<<endl;
-
-    m_msicab<<_T(" size='")<<fileSize<<_T("' ");
-
-    m_msicab<<_T(">")<<endl;
-    m_msicab<<_T("    <path>")<<strippedFilePath<<_T("</path>")<<endl;
-    m_msicab<<_T("    <name>")<<fileName<<_T("</name>")<<endl;
-
-    LPTSTR s = strippedCompFileName;
-    for( ;*s!=_T('\0');s++ )
-      *s = tolower(*s);
-
-    TCHAR shortFilePath[MAX_PATH];
-    TCHAR shortStrippedFileName[MAX_PATH];
-
-    ::GetShortPathName(filePath,shortFilePath,MAX_PATH);
-    DirectoryInfo::_StripFilename(shortStrippedFileName,MAX_PATH,shortFilePath);
-
-    m_msicab<<_T("    <shortname>")<<shortStrippedFileName<<_T("</shortname>")<<endl;
-
-    VersionInfo verInfo(filePath);
-    LPCTSTR fileVersion  = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
-    
-    if( NULL!=fileVersion )
-      m_msicab<<_T("    <version>")<<fileVersion<<_T("</version>")<<endl;
-    else
-    { MSIFILEHASHINFO msiHash;
-
-      ::memset(&msiHash,0,sizeof(msiHash));
-      msiHash.dwFileHashInfoSize = sizeof(msiHash);
-
-      THROW_LASTERROREXCEPTION( ::MsiGetFileHash(filePath,0,&msiHash) );
-
-      m_msicab<<_T("    <msihash");
-
-      m_msicab<<_T(" id0='")<<(long)msiHash.dwData[0]<<_T("' ");
-      m_msicab<<_T(" id1='")<<(long)msiHash.dwData[1]<<_T("' ");
-      m_msicab<<_T(" id2='")<<(long)msiHash.dwData[2]<<_T("' ");
-      m_msicab<<_T(" id3='")<<(long)msiHash.dwData[3]<<_T("'/>")<<endl;
-    } // of if
-
-    m_msicab<<_T("  </file>")<<endl;
-
-    LOGGER_INFO<<_T(" File ")<<filePath<<_T(" as ")<<addedFileName<<endl;
-    
-    return true;
-  } // of AddFile()
-
-private:
-#ifdef _UNICODE
-    wofstream& m_msicab;
-#else
-    ofstream&  m_msicab;
-#endif
-
-    VMSIDirInfoT m_dirInfo;
-    LPCTSTR      m_msiCompIdPattern;
-}; // of class MSICABAddFile1CB
-
-/**
- *
- */
-bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
-{ bool result = false;
-
-  if( NULL!=lParam )
-    result = ((MSICABAddFile1CB*)lParam)->RegistryInfo(startSection,key,name,value);
-
-  return result;
-} // of RegistryInfoCB()
-
-/**
- *
- */
-void msicab1(LPTSTR fName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
-{ util::XMLDocument            xmlDoc;
-  COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
-  COMPtr<IXMLDOMNode>          pNode;
-  util::XMLDocument::PropertyM props;
-
-  for( int i=0;i<argc && i+1<argc;i+=2 )
-    props.insert( util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
-
-  xmlDoc.SetProperties(props);
-
-  if( xmlDoc.Load(fName) )
-  { COVariant productidValue;
-
-    if( xmlDoc.GetNodeValue(_T("//v:product/@id"),productidValue,true) )
-    { CabFCIParameter cabParameter(cabName,CabFCIParameter::CDROM_SIZE);
-      CabinetFCI      cabinet(cabParameter);
-      
-      YAPtr<YAString> fullCabName = FileInfo(cabName).GetFullPath();
-      YAPtr<YAString> fullCompDir = FileInfo(compDir).GetFullPath();
-      YAPtr<YAString> strippedCabName;
-
-      if( fullCabName->LastIndexOf(_T('.'))>=0 )
-        strippedCabName = fullCabName->Substring(0,fullCabName->LastIndexOf(_T('.')));
-      else
-        strippedCabName = YACLONE(fullCabName);
-
-      strippedCabName->Append(_T(".xml"));
-      
-      COVariant msiComponentID;
-
-      if( xmlDoc.GetNodeValue(_T("//v:versions//v:product//v:versionhistory/v:version[1]//v:msicomponent//text()"),msiComponentID,true) &&
-          DirectoryInfo::_IsDirectory(fullCompDir->c_str())
-        )
-      {
-#ifdef _UNICODE
-        wofstream msicab(strippedCabName->c_str());
-#else
-        ofstream msicab(strippedCabName->c_str());
-#endif
-
-        MSICABAddFile1CB addFileCB(msicab,V_BSTR(msiComponentID));
-
-        cabinet.SetAddFileCallback(&addFileCB);
-        cabinet.AddFile(fullCompDir->c_str(),fullCompDir->c_str());
-        addFileCB.DumpDirectoryInfo();
-        addFileCB.close();
-
-        msicab.close();
-
-        cabinet.SetAddFileCallback(NULL);
-        
-        cabinet.AddFile(strippedCabName->c_str(),NULL,_T("fileinfo.xml"));
-
-        cabinet.Flush();
-        
-        { util::XMLDocument msiDB;
-        
-          msiDB.Load(strippedCabName->c_str());
-
-          YAPtr<YAString> blaFileName = YACLONE(strippedCabName);
-
-          blaFileName->Append(_T(".bla"));
-          
-          { COMPtr<IXMLDOMElement> newElement;
-            COMPtr<IXMLDOMElement> newElement1; 
-          
-            msiDB.CreateElement(_T("blafaseltest"),newElement);
-            msiDB.CreateElement(_T("xxyyzz"),newElement1);
-
-            msiDB.AppendChildToParent(newElement,newElement1);
-            msiDB.AppendChild(newElement1);
-          }
-
-          msiDB.Save(blaFileName->c_str());
-        }
-      } // of if
-    } // of if
-  } // of if
-} // of msicab1()
-
 /**
  *
  */
 void printUsage(LPCTSTR progName)
 { LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab  <versions file> <component dir> <cabname> <templatedir>")<<endl;
-  LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab1 <versions file> <component dir> <cabname>")<<endl;
   LOGGER_INFO<<_T("Usage: "<<progName<<" -dir     <dirname> [filemask] [maxdepth]")<<endl;
   LOGGER_INFO<<_T("Usage: "<<progName<<" -md5     <filename>")<<endl;
   LOGGER_INFO<<_T("Usage: "<<progName<<" -verify  <filename>")<<endl;
@@ -802,12 +498,6 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
     else if( _tcscmp(argv[1],_T("-msicab"))==0 )
     { if( argc>=6 )
         msicab(argv[2],argv[3],argv[4],argv[5],argc>6 ? &argv[6] : NULL,argc-6);
-      else
-        printUsage(argv[0]);
-    } // of else if
-    else if( _tcscmp(argv[1],_T("-msicab1"))==0 )
-    { if( argc>=5 )
-        msicab1(argv[2],argv[3],argv[4],argc>6 ? &argv[6] : NULL,argc-6);
       else
         printUsage(argv[0]);
     } // of else if

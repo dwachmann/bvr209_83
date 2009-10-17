@@ -39,10 +39,12 @@ namespace bvr20983
         FileInfo(LPCTSTR                fileName);
         ~FileInfo();
 
-		    YAPtr<YAString> GetFullPath()  const;
-        YAPtr<YAString> GetShortName() const;
-        YAPtr<YAString> GetFileName()  const;
-        YAPtr<YAString> GetName()      const;
+		    YAPtr<YAString> GetFullPath()                  const;
+		    YAPtr<YAString> GetPartialPath(LPCTSTR prefix) const;
+        YAPtr<YAString> GetShortName()                 const;
+        YAPtr<YAString> GetFileName()                  const;
+        YAPtr<YAString> GetName()                      const;
+        YAPtr<YAString> GetSuffix()                    const;
 
       private:
         YAPtr<YAString> m_fileName;

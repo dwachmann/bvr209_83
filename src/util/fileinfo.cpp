@@ -92,6 +92,22 @@ namespace bvr20983
     /**
      *
      */
+    YAPtr<YAString> FileInfo::GetPartialPath(LPCTSTR prefix) const
+    { YAPtr<YAString> result;
+
+      if( !m_fileName.IsNull() )
+      { result = GetFullPath();
+
+        if( NULL!=prefix && m_fileName->IndexOf(prefix)==0 )
+          result = result->Substring(_tcslen(prefix)+1);
+      } // of if
+
+      return result;
+    } // of FileInfo::GetPartialPath()
+
+    /**
+     *
+     */
     YAPtr<YAString> FileInfo::GetShortName() const
     { YAPtr<YAString> result;
 
@@ -116,10 +132,10 @@ namespace bvr20983
     YAPtr<YAString> FileInfo::GetName() const
     { YAPtr<YAString> result;
 
-      LPCTSTR p = _tcsrchr(m_fileName->c_str(), _T('\\'));
-      
       if( !m_fileName.IsNull() )
-      { if( p==NULL )
+      { LPCTSTR p = _tcsrchr(m_fileName->c_str(), _T('\\'));
+
+        if( p==NULL )
           result = YAPTR1(YAString,m_fileName->c_str());
         else
           result = YAPTR1(YAString,p+1);
@@ -127,6 +143,22 @@ namespace bvr20983
 
       return result;
     } // of FileInfo::GetName()
+
+    /**
+     *
+     */
+    YAPtr<YAString> FileInfo::GetSuffix() const
+    { YAPtr<YAString> result;
+
+      if( !m_fileName.IsNull() )
+      { LPCTSTR p = _tcsrchr(m_fileName->c_str(), _T('.'));
+      
+        if( NULL!=p )
+          result = YAPTR1(YAString,p);
+      } // of if
+
+      return result;
+    } // of FileInfo::GetSuffix()
 
     /**
      *

@@ -45,6 +45,8 @@ namespace bvr20983
         unsigned int    Size() const throw();
         void            Resize(unsigned int s);
         void            Append(LPCTSTR);
+        void            Append(unsigned long);
+        void            Append(long);
 
         int             IndexOf(LPCTSTR str) const throw();
         int             IndexOf(TCHAR   c) const throw();
@@ -57,8 +59,15 @@ namespace bvr20983
 
         YAString&       operator+=(LPCTSTR);
         YAString&       operator+=(const YAString&);
+        YAString&       operator+=(unsigned long);
+        YAString&       operator+=(long);
         YAString&       operator=(LPCTSTR);
         YAString&       operator=(const YAString&);
+
+        bool            operator==(const YAString&);
+        bool            operator==(LPCTSTR);
+        bool            operator!=(const YAString&);
+        bool            operator!=(LPCTSTR);
 
       private: 
         std::basic_string<TCHAR> m_str;

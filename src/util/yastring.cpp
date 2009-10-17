@@ -208,6 +208,28 @@ namespace bvr20983
     /**
      *
      */
+    void YAString::Append(unsigned long dword)
+    { TCHAR dwordStr[64];
+
+      _ultot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
+
+      m_str.append(dwordStr);
+    } // of YAString::Append()
+
+    /**
+     *
+     */
+    void YAString::Append(long dword)
+    { TCHAR dwordStr[64];
+
+      _ltot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
+
+      m_str.append(dwordStr);
+    } // of YAString::Append()
+
+    /**
+     *
+     */
     YAString& YAString::operator+=(LPCTSTR s)
     { Append(s); return *this; }
 
@@ -216,6 +238,18 @@ namespace bvr20983
      */
     YAString& YAString::operator+=(const YAString& s)
     { Append(s.c_str()); return *this; }
+
+    /**
+     *
+     */
+    YAString& YAString::operator+=(unsigned long d)
+    { Append(d); return *this; }
+
+    /**
+     *
+     */
+    YAString& YAString::operator+=(long d)
+    { Append(d); return *this; }
 
     /**
      *
@@ -264,6 +298,48 @@ namespace bvr20983
      */
     YAString::operator LPCSTR() const
     { return a_str(); }
+
+    /**
+     *
+     */
+    bool YAString::operator==(const YAString& s)
+    { bool result = _tcscmp(c_str(),s.c_str())==0;
+
+      return result;
+    } // of YAString::operator==()
+
+    /**
+     *
+     */
+    bool YAString::operator==(LPCTSTR s)
+    { bool result = false;
+    
+      if( NULL!=s )
+        result = _tcscmp(c_str(),s)==0;
+
+      return result;
+    } // of YAString::operator==()
+
+    /**
+     *
+     */
+    bool YAString::operator!=(const YAString& s)
+    { bool result = _tcscmp(c_str(),s.c_str())!=0;
+
+      return result;
+    } // of YAString::operator!=()
+
+    /**
+     *
+     */
+    bool YAString::operator!=(LPCTSTR s)
+    { bool result = false;
+    
+      if( NULL!=s )
+        result = _tcscmp(c_str(),s)!=0;
+
+      return result;
+    } // of YAString::operator!=()
 
     /**
      *
@@ -357,6 +433,9 @@ namespace bvr20983
         m_str[i] = tolower(m_str[i]);
     } // of YAString::ToLower()
 
+    /**
+     *
+     */
     void YAString::ToUpperCase()
     { unsigned int len = m_str.length();
 
@@ -369,7 +448,7 @@ namespace bvr20983
      */
     template<class charT, class Traits>
     basic_ostream<charT, Traits>& operator <<(basic_ostream<charT, Traits >& os,const YAString& str)
-    { os<<_T("\"")<<str.c_str()<<_T("\""); 
+    { os<<str.c_str(); 
 
       return os;
     }

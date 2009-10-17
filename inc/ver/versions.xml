@@ -137,6 +137,7 @@
       <pattern><key>@lsstgresult</key><value>${../../../../v:component[@id='lsstg']/v:filename/text()}</value></pattern>
       <pattern><key>@lstypeinforesult</key><value>${../../../../v:component[@id='lstypeinfo']/v:filename/text()}</value></pattern>
       <pattern><key>@msicabresult</key><value>${../../../../v:component[@id='msicab']/v:filename/text()}</value></pattern>
+      <pattern><key>@msicab1result</key><value>${../../../../v:component[@id='msicab']/v:filename/text()}_1</value></pattern>
       <pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
       <pattern><key>@bvr20983desc</key><value>${../../../../v:name/text()}</value></pattern>
