@@ -201,55 +201,61 @@ namespace bvr20983
     /**
      *
      */
-    void YAString::Append(LPCTSTR s)
+    YAString& YAString::Append(LPCTSTR s)
     { m_str.append(s);
+
+      return *this;
     } // of YAString::Append()
 
     /**
      *
      */
-    void YAString::Append(unsigned long dword)
+    YAString& YAString::Append(unsigned long dword)
     { TCHAR dwordStr[64];
 
       _ultot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
 
       m_str.append(dwordStr);
+
+      return *this;
     } // of YAString::Append()
 
     /**
      *
      */
-    void YAString::Append(long dword)
+    YAString& YAString::Append(long dword)
     { TCHAR dwordStr[64];
 
       _ltot_s(dword,dwordStr,ARRAYSIZE(dwordStr),10);
 
       m_str.append(dwordStr);
+
+      return *this;
     } // of YAString::Append()
 
     /**
      *
      */
     YAString& YAString::operator+=(LPCTSTR s)
-    { Append(s); return *this; }
+    { return Append(s); }
 
     /**
      *
      */
     YAString& YAString::operator+=(const YAString& s)
-    { Append(s.c_str()); return *this; }
+    { return Append(s.c_str()); }
 
     /**
      *
      */
     YAString& YAString::operator+=(unsigned long d)
-    { Append(d); return *this; }
+    { return Append(d); }
 
     /**
      *
      */
     YAString& YAString::operator+=(long d)
-    { Append(d); return *this; }
+    { return Append(d); }
 
     /**
      *

@@ -101,33 +101,117 @@ namespace bvr20983
     /**
      *
      */
+    void XMLDocument::CreateXmlSkeleton(LPCTSTR rootElementName,COMPtr<IXMLDOMElement> &ppRoot)
+    { if( !m_pXmlDoc.IsNULL() )
+      { COMPtr<IXMLDOMProcessingInstruction> PI;
+        COMPtr<IXMLDOMNode>                  pChildOut;
+
+        CreateProcessingInstruction(_T("xml"),_T("version='1.0'"),PI);
+
+        THROW_COMEXCEPTION( m_pXmlDoc->appendChild(PI,&pChildOut) );
+      
+        CreateElement(rootElementName,ppRoot);
+        THROW_COMEXCEPTION( m_pXmlDoc->appendChild(ppRoot,&pChildOut) );
+      } // of if
+    } // of XMLDocument::CreateXmlSkeleton()
+
+    /**
+     *
+     */
+    void XMLDocument::CreateProcessingInstruction(LPCTSTR target,LPCTSTR data,COMPtr<IXMLDOMProcessingInstruction>& ppPI)
+    { COMString bTarget(target);
+      COMString bData(data);
+  
+      THROW_COMEXCEPTION( m_pXmlDoc->createProcessingInstruction(bTarget.getString(),bData.getString(),&ppPI) );
+    } // of XMLDocument::CreateProcessingInstruction()
+
+    /**
+     *
+     */
+    void XMLDocument::CreateTextNode(LPCTSTR text,COMPtr<IXMLDOMText>& ppText)
+    { COMString bText(text);
+  
+      THROW_COMEXCEPTION( m_pXmlDoc->createTextNode(bText.getString(),&ppText) );
+    } // of XMLDocument::CreateTextNode()
+
+
+    /**
+     *
+     */
     void XMLDocument::CreateElement(LPCTSTR elementName,COMPtr<IXMLDOMElement> &ppElement)
     { COMString bElementName(elementName);
   
       THROW_COMEXCEPTION( m_pXmlDoc->createElement(bElementName.getString(),&ppElement) );
     } // of XMLDocument::CreateElement()
-    
 
     /**
      *
      */
-    void XMLDocument::AppendChild(IXMLDOMNode* pChild)
+    void XMLDocument::AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue)
+    { COMPtr<IXMLDOMElement> e;
+      COMPtr<IXMLDOMText>    eText;
+      COMPtr<IXMLDOMText>    newlineText;
+
+      CreateElement(elementName,e);
+      CreateTextNode(textValue,eText);
+      AppendChildToParent(eText,e);
+      AppendChildToParent(e,pParent);
+
+      CreateTextNode(_T("\n"),newlineText);
+      AppendChildToParent(newlineText,pParent);
+    } // of XMLDocument::AppendElement()
+
+    /**
+     *
+     */
+    void XMLDocument::AddAttribute(IXMLDOMElement* pElement,LPCTSTR attribName,LPCTSTR attribValue)
+    { if( !m_pXmlDoc.IsNULL() )
+      { COMPtr<IXMLDOMAttribute> ppAttrib;
+        COMPtr<IXMLDOMAttribute> ppAttribOut;
+        COMString                bAttribName(attribName);
+        COVariant                bAttribValue(attribValue);
+
+        THROW_COMEXCEPTION( m_pXmlDoc->createAttribute(bAttribName.getString(),&ppAttrib) );
+        THROW_COMEXCEPTION( ppAttrib->put_value(bAttribValue) );
+        THROW_COMEXCEPTION( pElement->setAttributeNode(ppAttrib,&ppAttribOut) );
+      } // of if
+    } // of XMLDocument::AddAttribute()
+
+    /**
+     *
+     */
+    void XMLDocument::AppendChild(IXMLDOMNode* pChild,int appendNewline)
     { COMPtr<IXMLDOMNode>    pChildOut;
-      COMPtr<IXMLDOMElement> pRoot;
-    
-      THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pRoot) );
-      THROW_COMEXCEPTION( pRoot->appendChild(pChild,&pChildOut) );
+      
+      if( !m_pXmlDoc.IsNULL() )
+      { COMPtr<IXMLDOMElement> pXMLDocElement;
+        
+        THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pXMLDocElement) );
+        THROW_COMEXCEPTION( pXMLDocElement->appendChild(pChild,&pChildOut) );
+
+        if( appendNewline>=0 )
+        { COMPtr<IXMLDOMText> pText;
+
+          TString indent(_T("\n"));
+
+          if( appendNewline>0 )
+            indent.append(appendNewline*2,_T(' '));
+
+          CreateTextNode(indent.c_str(),pText);
+
+          THROW_COMEXCEPTION( pXMLDocElement->appendChild(pText,&pChildOut) );
+        } // of if
+      } // of if
     } // of XMLDocument::AppendChild()
 
     /**
      *
      */
     void XMLDocument::AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot)
-    { COMPtr<IXMLDOMNode>    pChildOut;
+    { COMPtr<IXMLDOMNode> pChildOut;
       
       if( NULL!=pRoot )
-      { THROW_COMEXCEPTION( pRoot->appendChild(pChild,&pChildOut) );
-      } // of if
+        THROW_COMEXCEPTION( pRoot->appendChild(pChild,&pChildOut) );
     } // of XMLDocument::AppendChildToParent()
     
     /**
@@ -167,6 +251,45 @@ namespace bvr20983
         THROW_COMEXCEPTION( pXMLDocElement->selectNodes(const_cast<LPTSTR>(xpathExpression),&pXMLDomNodeList) );
       } // of if
     } // of XMLDocument::GetSelection()
+
+    /**
+     *
+     */
+    void XMLDocument::GetElements(LPCTSTR tagName,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList)
+    { COMString bTagName(tagName);
+
+      if( !m_pXmlDoc.IsNULL() )
+        THROW_COMEXCEPTION( m_pXmlDoc->getElementsByTagName(bTagName.getString(),&pXMLDomNodeList) );
+    } // of XMLDocument::GetElements()
+
+
+    /**
+     *
+     */
+    void XMLDocument::GetFirstElement(LPCTSTR tagName,COMPtr<IXMLDOMElement> &ppElement)
+    { if( !m_pXmlDoc.IsNULL() )
+      { COMPtr<IXMLDOMNodeList> xmlDomNodeList;
+        COMPtr<IXMLDOMElement>  pElement;
+
+        GetElements(tagName,xmlDomNodeList);
+
+        if( !xmlDomNodeList.IsNULL() && xmlDomNodeList->nextNode(reinterpret_cast<IXMLDOMNode **>(&pElement))==S_OK )
+          ppElement = pElement;
+      } // of if
+    } // of XMLDocument::GetFirstElement()
+
+    /**
+     *
+     */
+    boolean XMLDocument::IsEmpty() const
+    { boolean      result = false;
+      VARIANT_BOOL hasChild;
+
+      if( !m_pXmlDoc.IsNULL() )
+        result = m_pXmlDoc->hasChildNodes(&hasChild)==S_FALSE;
+
+      return result;
+    } // of XMLDocument::IsEmpty()
 
     /**
      *

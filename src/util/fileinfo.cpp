@@ -166,6 +166,46 @@ namespace bvr20983
     YAPtr<YAString> FileInfo::GetFileName() const
     { return m_fileName; }
 
+    /*
+     *
+     */
+    bool FileInfo::IsFile() const
+    { bool result = false;
+    
+      if( !m_fileName.IsNull() )
+      { HANDLE           hFind  = INVALID_HANDLE_VALUE;
+        WIN32_FIND_DATAW findData;
+  
+        hFind  = FindFirstFile(m_fileName->c_str(), &findData);
+        result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0;
+  
+        if( INVALID_HANDLE_VALUE!=hFind ) 
+          ::FindClose(hFind);
+      } // of if
+      
+      return result;
+    } // of FileInfo::IsFile()
+
+    /*
+     *
+     */
+    bool FileInfo::IsDirectory() const
+    { bool result = false;
+
+      if( !m_fileName.IsNull() )
+      { HANDLE           hFind  = INVALID_HANDLE_VALUE;
+        WIN32_FIND_DATAW findData;
+
+        hFind  = FindFirstFile(m_fileName->c_str(), &findData);
+        result = INVALID_HANDLE_VALUE!=hFind && (findData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
+
+        if( INVALID_HANDLE_VALUE!=hFind ) 
+          ::FindClose(hFind);
+      } // of if
+
+      return result;
+    } // of FileInfo::IsDirectory()
+
     /**
      *
      */

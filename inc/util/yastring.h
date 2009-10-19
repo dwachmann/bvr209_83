@@ -44,9 +44,9 @@ namespace bvr20983
 
         unsigned int    Size() const throw();
         void            Resize(unsigned int s);
-        void            Append(LPCTSTR);
-        void            Append(unsigned long);
-        void            Append(long);
+        YAString&       Append(LPCTSTR);
+        YAString&       Append(unsigned long);
+        YAString&       Append(long);
 
         int             IndexOf(LPCTSTR str) const throw();
         int             IndexOf(TCHAR   c) const throw();

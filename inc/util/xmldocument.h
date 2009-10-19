@@ -45,6 +45,8 @@ namespace bvr20983
         void    Save(LPCTSTR fileName);
         void    DumpSelection(LPCTSTR xpathExpression);
         void    GetSelection(LPCTSTR xpathExpression,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList);
+        void    GetElements(LPCTSTR tagName,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList);
+        void    GetFirstElement(LPCTSTR tagName,COMPtr<IXMLDOMElement> &ppElement);
         void    SetProperties(const PropertyM& prop)
         { m_properties = prop; }
         
@@ -53,9 +55,18 @@ namespace bvr20983
 
         boolean GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value);
         
+        void    CreateXmlSkeleton(LPCTSTR rootElementName,COMPtr<IXMLDOMElement> &ppRoot);
         void    CreateElement(LPCTSTR elementName,COMPtr<IXMLDOMElement> &ppElement);
-        void    AppendChild(IXMLDOMNode* pChild);
+        void    CreateProcessingInstruction(LPCTSTR target,LPCTSTR data,COMPtr<IXMLDOMProcessingInstruction>& ppPI);
+        void    CreateTextNode(LPCTSTR text,COMPtr<IXMLDOMText>& ppText);
+        void    AppendChild(IXMLDOMNode* pChild,int appendNewline=-1);
         void    AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot);
+
+        void    AddAttribute(IXMLDOMElement* pElement,LPCTSTR attribName,LPCTSTR attribValue);
+
+        void    AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue);
+
+        boolean IsEmpty() const;
         
       private:
         COMPtr<MSXML2::IXMLDOMDocument2> m_pXmlDoc;

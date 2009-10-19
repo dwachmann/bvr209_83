@@ -46,6 +46,9 @@ namespace bvr20983
         YAPtr<YAString> GetName()                      const;
         YAPtr<YAString> GetSuffix()                    const;
 
+        bool            IsFile()                       const;
+        bool            IsDirectory()                  const;
+
       private:
         YAPtr<YAString> m_fileName;
 
