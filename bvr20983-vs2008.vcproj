@@ -27,7 +27,7 @@
 				BuildCommandLine="nmake"
 				ReBuildCommandLine="nmake"
 				CleanCommandLine="nmake clean=1"
-				Output="$(OutDir)\bvr20983.1.msicab.1.exe"
+				Output="$(OutDir)\bvr20983.1.msicab.1_1.exe"
 				PreprocessorDefinitions="_UNICODE UNICODE WIN32 _WIN32"
 				IncludeSearchPath="&quot;$(SolutionDir)inc&quot;"
 				ForcedIncludes=""
@@ -947,6 +947,10 @@
 					</File>
 					<File
 						RelativePath=".\src\msicab.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\msicab1.cpp"
 						>
 					</File>
 					<File

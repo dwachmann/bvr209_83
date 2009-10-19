@@ -147,7 +147,7 @@ namespace bvr20983
     /**
      *
      */
-    void XMLDocument::AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue)
+    void XMLDocument::AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline)
     { COMPtr<IXMLDOMElement> e;
       COMPtr<IXMLDOMText>    eText;
       COMPtr<IXMLDOMText>    newlineText;
@@ -155,10 +155,7 @@ namespace bvr20983
       CreateElement(elementName,e);
       CreateTextNode(textValue,eText);
       AppendChildToParent(eText,e);
-      AppendChildToParent(e,pParent);
-
-      CreateTextNode(_T("\n"),newlineText);
-      AppendChildToParent(newlineText,pParent);
+      AppendChildToParent(e,pParent,appendNewline);
     } // of XMLDocument::AppendElement()
 
     /**
@@ -185,11 +182,37 @@ namespace bvr20983
       
       if( !m_pXmlDoc.IsNULL() )
       { COMPtr<IXMLDOMElement> pXMLDocElement;
-        
-        THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pXMLDocElement) );
-        THROW_COMEXCEPTION( pXMLDocElement->appendChild(pChild,&pChildOut) );
 
-        if( appendNewline>=0 )
+        THROW_COMEXCEPTION( m_pXmlDoc->get_documentElement(&pXMLDocElement) );
+
+        AppendNewline(pXMLDocElement,appendNewline);
+
+        THROW_COMEXCEPTION( pXMLDocElement->appendChild(pChild,&pChildOut) );
+      } // of if
+    } // of XMLDocument::AppendChild()
+
+    /**
+     *
+     */
+    void XMLDocument::AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot,int appendNewline)
+    { COMPtr<IXMLDOMNode> pChildOut;
+      
+      if( NULL!=pRoot )
+      { 
+        AppendNewline(pRoot,appendNewline);
+
+        THROW_COMEXCEPTION( pRoot->appendChild(pChild,&pChildOut) );
+      } // of if
+    } // of XMLDocument::AppendChildToParent()
+
+    /**
+     *
+     */
+    void XMLDocument::AppendNewline(IXMLDOMElement* pRoot,int appendNewline)
+    { COMPtr<IXMLDOMNode> pChildOut;
+      
+      if( NULL!=pRoot )
+      { if( appendNewline>=0 )
         { COMPtr<IXMLDOMText> pText;
 
           TString indent(_T("\n"));
@@ -199,21 +222,11 @@ namespace bvr20983
 
           CreateTextNode(indent.c_str(),pText);
 
-          THROW_COMEXCEPTION( pXMLDocElement->appendChild(pText,&pChildOut) );
+          THROW_COMEXCEPTION( pRoot->appendChild(pText,&pChildOut) );
         } // of if
       } // of if
-    } // of XMLDocument::AppendChild()
+    } // of XMLDocument::AppendNewline()
 
-    /**
-     *
-     */
-    void XMLDocument::AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot)
-    { COMPtr<IXMLDOMNode> pChildOut;
-      
-      if( NULL!=pRoot )
-        THROW_COMEXCEPTION( pRoot->appendChild(pChild,&pChildOut) );
-    } // of XMLDocument::AppendChildToParent()
-    
     /**
      *
      */

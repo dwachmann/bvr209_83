@@ -60,11 +60,12 @@ namespace bvr20983
         void    CreateProcessingInstruction(LPCTSTR target,LPCTSTR data,COMPtr<IXMLDOMProcessingInstruction>& ppPI);
         void    CreateTextNode(LPCTSTR text,COMPtr<IXMLDOMText>& ppText);
         void    AppendChild(IXMLDOMNode* pChild,int appendNewline=-1);
-        void    AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot);
+        void    AppendChildToParent(IXMLDOMNode* pChild,IXMLDOMElement* pRoot,int appendNewline=-1);
+        void    AppendNewline(IXMLDOMElement* pRoot,int appendNewline);
 
         void    AddAttribute(IXMLDOMElement* pElement,LPCTSTR attribName,LPCTSTR attribValue);
 
-        void    AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue);
+        void    AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline=-1);
 
         boolean IsEmpty() const;
         
