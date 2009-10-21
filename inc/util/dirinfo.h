@@ -53,6 +53,9 @@ namespace bvr20983
         LPCWSTR        GetName() const
         { return m_dirName; }
 
+        LPCWSTR        GetBaseDirectory() const
+        { return m_baseDirectory; }
+
         LPCWSTR        GetShortName() const
         { return m_dirShortName; }
 

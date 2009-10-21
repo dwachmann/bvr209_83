@@ -46,6 +46,7 @@ namespace bvr20983
         void    DumpSelection(LPCTSTR xpathExpression);
         void    GetSelection(LPCTSTR xpathExpression,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList);
         void    GetElements(LPCTSTR tagName,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList);
+        void    RemoveElements(LPCTSTR tagName);
         void    GetFirstElement(LPCTSTR tagName,COMPtr<IXMLDOMElement> &ppElement);
         void    SetProperties(const PropertyM& prop)
         { m_properties = prop; }

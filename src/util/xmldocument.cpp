@@ -112,6 +112,7 @@ namespace bvr20983
       
         CreateElement(rootElementName,ppRoot);
         THROW_COMEXCEPTION( m_pXmlDoc->appendChild(ppRoot,&pChildOut) );
+        AppendNewline(ppRoot,1);
       } // of if
     } // of XMLDocument::CreateXmlSkeleton()
 
@@ -275,6 +276,26 @@ namespace bvr20983
         THROW_COMEXCEPTION( m_pXmlDoc->getElementsByTagName(bTagName.getString(),&pXMLDomNodeList) );
     } // of XMLDocument::GetElements()
 
+    /**
+     *
+     */
+    void XMLDocument::RemoveElements(LPCTSTR tagName)
+    { COMString               bTagName(tagName);
+      COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+      COMPtr<IXMLDOMNode>     pChildOut;
+
+      if( !m_pXmlDoc.IsNULL() )
+      { THROW_COMEXCEPTION( m_pXmlDoc->getElementsByTagName(bTagName.getString(),&pXMLDomNodeList) );
+
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr = pXMLDomNodeList->nextNode(&pNode) )
+        { COMPtr<IXMLDOMNode> pParentNode;
+
+          THROW_COMEXCEPTION( pNode->get_parentNode(&pParentNode) );
+          THROW_COMEXCEPTION( pParentNode->removeChild(pNode,&pChildOut) );
+        } // of for
+      } // of if
+    } // of XMLDocument::RemoveElements()
 
     /**
      *

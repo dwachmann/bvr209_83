@@ -70,6 +70,7 @@ struct MSIDirectoryInfo
   YAString m_parentId;
   YAString m_dirName;
   YAString m_dirShortName;
+  YAString m_dirPath;
 }; // of struct MSICABAddFileCB
 
 typedef std::vector<MSIDirectoryInfo> VMSIDirInfoT;
@@ -93,7 +94,15 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
       m_msiPackageDoc.CreateElement(_T("files"),m_filesElement);
       m_msiPackageDoc.AppendChildToParent(m_filesElement,m_rootElement,1);
+      m_msiPackageDoc.AppendNewline(m_filesElement,1);
     } // of if
+    else
+    { m_msiPackageDoc.GetFirstElement(_T("msipackage"),m_rootElement);
+      m_msiPackageDoc.GetFirstElement(_T("files"),m_filesElement);
+
+      m_msiPackageDoc.RemoveElements(_T("media"));
+      m_msiPackageDoc.RemoveElements(_T("directories"));
+    } // of else
   } // of MSICABAddFile1CB()
 
   /**
@@ -145,13 +154,19 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
   bool DirectoryStarted(util::DirectoryInfo& dirInfo,const WIN32_FIND_DATAW& findData,int depth)
   { bool result = true;
 
-    if( _tcsstr(dirInfo.GetName(),_T(".svn"))==NULL )
+    if( _tcsstr(dirInfo.GetBaseDirectory(),_T(".svn"))==NULL )
     { MSIDirectoryInfo d(dirInfo.GetName(),dirInfo.GetShortName());
 
       (d.m_dirId = _T("DIR_")) += (unsigned long)dirInfo.GetId();
 
       if( NULL!=dirInfo.GetParentDirInfo() )
         (d.m_parentId = _T("DIR_")) += (unsigned long)dirInfo.GetParentDirInfo()->GetId();
+
+      TCHAR dirPath[MAX_PATH];
+
+      dirInfo._GetFullName(dirPath,ARRAYSIZE(dirPath));
+
+      d.m_dirPath = dirInfo.GetBaseDirectory();
 
       m_dirInfo.push_back(d);
     } // of if
@@ -182,6 +197,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
         m_msiPackageDoc.AppendChildToParent(directoryElement,directoriesElement,2);
 
+        m_msiPackageDoc.AppendElement(directoryElement,_T("path"),iter->m_dirPath,3);
         m_msiPackageDoc.AppendElement(directoryElement,_T("name"),iter->m_dirName,3);
         m_msiPackageDoc.AppendElement(directoryElement,_T("shortname"),iter->m_dirShortName,3);
       } // of for
@@ -356,9 +372,7 @@ void msicab(LPTSTR versionFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cab
 
         msiPackageDoc.AddAttribute(mediaElement,_T("diskid"),_T("1"));
         msiPackageDoc.AddAttribute(mediaElement,_T("lastSequence"),YAString((long)cabinet.GetSequenceNo()).c_str());
-
         msiPackageDoc.AppendElement(mediaElement,_T("cabname"),cabName,2);
-        msiPackageDoc.AppendNewline(mediaElement,1);
 
         addFileCB.close();
 
