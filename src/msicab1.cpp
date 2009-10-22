@@ -74,6 +74,9 @@ struct MSIDirectoryInfo
 }; // of struct MSICABAddFileCB
 
 typedef std::vector<MSIDirectoryInfo> VMSIDirInfoT;
+typedef std::map<TString,UINT>        STR_UINT_Map;
+typedef std::pair<TString,UINT>       STR_UINT_Pair;
+
 
 /**
  *
@@ -85,9 +88,13 @@ bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCT
  */
 struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 {
+  /**
+   *
+   */
   MSICABAddFile1CB(util::XMLDocument& msiPackageDoc,LPCTSTR msiCompIdPattern) :
     m_msiPackageDoc(msiPackageDoc),
-    m_msiCompIdPattern(msiCompIdPattern)
+    m_msiCompIdPattern(msiCompIdPattern),
+    m_lastUniqueId(0)
   { 
     if( m_msiPackageDoc.IsEmpty() )
     { m_msiPackageDoc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
@@ -100,6 +107,39 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     { m_msiPackageDoc.GetFirstElement(_T("msipackage"),m_rootElement);
       m_msiPackageDoc.GetFirstElement(_T("files"),m_filesElement);
 
+      COMPtr<IXMLDOMNodeList> pFileList;
+      COMPtr<IXMLDOMNode>     pNode;
+
+      m_msiPackageDoc.GetElements(_T("file"),pFileList);
+
+      for( HRESULT hr = pFileList->nextNode(&pNode);hr==S_OK;hr = pFileList->nextNode(&pNode) )
+      { DOMNodeType type;
+
+        THROW_COMEXCEPTION( pNode->get_nodeType(&type) );
+
+        if( type==NODE_ELEMENT )
+        { COMPtr<IXMLDOMElement> e;
+          COVariant              pathValue;
+          COVariant              idValue;
+          const VARIANT*         v = idValue;
+          
+          THROW_COMEXCEPTION( pNode->QueryInterface(IID_IXMLDOMElement,reinterpret_cast<void**>(&e)) );
+          if( SUCCEEDED( e->getAttribute(_T("id"),const_cast<VARIANT*>(v)) ) )
+          { long id = _ttol(V_BSTR(idValue));
+
+            if( m_lastUniqueId<(unsigned int)id )
+              m_lastUniqueId = id;
+
+            if( m_msiPackageDoc.GetNodeValue(pNode,_T("./path/text()"),pathValue) )
+            { BSTR path = V_BSTR(pathValue);
+
+              m_ids.insert( STR_UINT_Pair(TString(path),(UINT)id) );
+            } // of if
+          } // of if
+        } // of if
+      } // of for
+
+      m_msiPackageDoc.RemoveElements(_T("file"));
       m_msiPackageDoc.RemoveElements(_T("media"));
       m_msiPackageDoc.RemoveElements(_T("directories"));
     } // of else
@@ -110,6 +150,25 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    */
   ~MSICABAddFile1CB()
   { }
+
+  /**
+   *
+   */
+  unsigned int GetUniqueId(LPCTSTR category,LPCTSTR path)
+  { unsigned int result = 0;
+
+    STR_UINT_Map::const_iterator i = m_ids.find(path);
+
+    if( i!=m_ids.end() )
+      result = i->second;
+    else
+    { result = ++m_lastUniqueId;
+
+      m_ids.insert( STR_UINT_Pair(TString(path),result) );
+    } // of else
+
+    return result;
+  } // of GetUniqueId()
 
   /**
    *   <registryentries>
@@ -217,22 +276,22 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     if( _tcsstr(filePath,_T(".svn"))!=NULL )
       return false;
 
-    FileInfo        fInfo(filePath);
-    YAPtr<YAString> suffix                = fInfo.GetSuffix();
-    YAPtr<YAString> fileName              = fInfo.GetName();
-    YAPtr<YAString> strippedFilePath      = fInfo.GetPartialPath(prefix);
-    YAPtr<YAString> shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
-
+    FileInfo               fInfo(filePath);
+    YAPtr<YAString>        suffix                = fInfo.GetSuffix();
+    YAPtr<YAString>        fileName              = fInfo.GetName();
+    YAPtr<YAString>        strippedFilePath      = fInfo.GetPartialPath(prefix);
+    YAPtr<YAString>        shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
+    unsigned int           uniqueId              = GetUniqueId(_T("file"),strippedFilePath->c_str());
     COMPtr<IXMLDOMElement> fileElement;
 
     m_msiPackageDoc.CreateElement(_T("file"),fileElement);
     m_msiPackageDoc.AppendChildToParent(fileElement,m_filesElement,1);
 
-    _stprintf_s(addedFileName,addedFileNameMaxLen,_T("_%08X"),seqNo);
-    _stprintf_s(guid,MAX_PATH,_T("%08X"),seqNo);
+    _stprintf_s(guid,MAX_PATH,_T("%s%08X"),m_msiCompIdPattern,uniqueId);
+    _tcscpy_s(addedFileName,addedFileNameMaxLen,guid);
 
-    m_msiPackageDoc.AddAttribute(fileElement,_T("id"),addedFileName);
-    m_msiPackageDoc.AddAttribute(fileElement,_T("guid"),YAString(m_msiCompIdPattern).Append(guid).c_str());
+    m_msiPackageDoc.AddAttribute(fileElement,_T("id"),YAString((long)uniqueId).c_str());
+    m_msiPackageDoc.AddAttribute(fileElement,_T("guid"),guid);
     m_msiPackageDoc.AddAttribute(fileElement,_T("diskid"),_T("1"));
     m_msiPackageDoc.AddAttribute(fileElement,_T("no"),YAString((long)seqNo).c_str());
 
@@ -303,6 +362,8 @@ private:
   COMPtr<IXMLDOMElement> m_rootElement;
   COMPtr<IXMLDOMElement> m_filesElement;
   COMPtr<IXMLDOMElement> m_lastRegistryentriesElement;
+  STR_UINT_Map           m_ids;
+  unsigned int           m_lastUniqueId;
 }; // of class MSICABAddFile1CB
 
 /**
