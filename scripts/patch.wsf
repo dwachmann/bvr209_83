@@ -206,4 +206,36 @@
         ]]>
       </script>
    </job>
+
+
+   <job id="showenv">
+      <runtime>
+          <description>show environment</description>
+          <named name = "Env"
+                 helpstring = "Name of the environment variable"
+                 type = "string"
+                 required = "true"
+          />
+
+          <example>Example: //job:showenv patch.wsf /Env:NODEBUG</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          
+          Dim env
+          
+          If WScript.Arguments.Named.Exists("Env") Then
+            Init
+            
+            WScript.Echo WScript.Arguments.Named.Item("Env") & "=" & GetEnvironment(WScript.Arguments.Named.Item("Env"))
+          Else
+            WScript.Arguments.ShowUsage
+            WScript.Quit(1)
+          End If
+        ]]>
+      </script>
+   </job>
 </package>

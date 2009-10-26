@@ -405,6 +405,22 @@ Function ExecuteProgram(cmd,ByRef cmdOut,printInfo,quitOnError)
   ExecuteProgram = oExec.ExitCode
 End Function
 
+'
+' GetEnvironment
+'
+Function GetEnvironment(name)
+  Dim WshShell, WshSysEnv
+
+  Set WshShell  = CreateObject("WScript.Shell")
+  Set WshSysEnv = WshShell.Environment("USER")
+  
+  If WshSysEnv(name)<>"" Then
+    GetEnvironment = WshSysEnv(name)
+  Else
+    GetEnvironment = null
+  End If
+End Function
+
 
 '
 ' GetSvnInfo
