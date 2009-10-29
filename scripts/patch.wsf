@@ -217,7 +217,7 @@
                  required = "true"
           />
 
-          <example>Example: //job:showenv patch.wsf /Env:NODEBUG</example>
+          <example>Example: //job:showenv patch.wsf /Env:TEMP</example>
       </runtime>
 
       <script language="VBScript" src="libscript.vbs"/>
@@ -231,6 +231,7 @@
             Init
             
             WScript.Echo WScript.Arguments.Named.Item("Env") & "=" & GetEnvironment(WScript.Arguments.Named.Item("Env"))
+            WScript.Echo "actrevision=" & GetActRevision
           Else
             WScript.Arguments.ShowUsage
             WScript.Quit(1)

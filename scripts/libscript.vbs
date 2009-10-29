@@ -412,12 +412,32 @@ Function GetEnvironment(name)
   Dim WshShell, WshSysEnv
 
   Set WshShell  = CreateObject("WScript.Shell")
-  Set WshSysEnv = WshShell.Environment("USER")
+  Set WshSysEnv = WshShell.Environment("PROCESS")
   
   If WshSysEnv(name)<>"" Then
     GetEnvironment = WshSysEnv(name)
   Else
     GetEnvironment = null
+  End If
+End Function
+
+'
+'
+' 
+Function GetActRevision()
+  Dim fullFileName,f0
+  
+  fullFileName   = ".\actrevision"
+  GetActRevision = null
+  
+  If fso.FileExists(fullFileName) Then
+    Set f0 = fso.OpenTextFile(fullFileName, ForReading)
+
+    If Not f0.AtEndOfStream Then
+      GetActRevision = f0.ReadLine
+    End If
+    
+    f0.Close
   End If
 End Function
 
@@ -445,14 +465,18 @@ End Function
 '
 Sub GetRevisionAndDate(f)
   Dim doc,d,rev
-
-  Set doc = GetSvnInfo(WScript.Arguments.Named.Item("File"))
   
-  If not doc is Nothing Then
-    rev = doc.selectSingleNode("/info/entry/@revision").nodeValue
-    'd   = doc.selectSingleNode("/info/entry/wc-info/text-updated/text()").text
+  If GetEnvironment("GIT_SSH")<>"" Then
+    rev = GetActRevision
   Else
-    rev = -1
+    Set doc = GetSvnInfo(WScript.Arguments.Named.Item("File"))
+    
+    If not doc is Nothing Then
+      rev = doc.selectSingleNode("/info/entry/@revision").nodeValue
+      'd   = doc.selectSingleNode("/info/entry/wc-info/text-updated/text()").text
+    Else
+      rev = -1
+    End If
   End If
   
   d = FormatDateTime(Date, 2) & " " & FormatDateTime(Now,4)
