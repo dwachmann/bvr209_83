@@ -59,6 +59,7 @@
       <xs:element name="component"      type="componentType" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="id"        type="xs:ID"      use="required"/>
+    <xs:attribute name="commit"    type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="componentType">

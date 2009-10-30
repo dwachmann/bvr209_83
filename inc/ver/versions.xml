@@ -35,9 +35,9 @@
   <parameter name="msipatchpattern">${../../../../v:no/text()}-#{zerofill("${../../@major}",4)}-0104-#{zerofill("${../../@minor}",4)}-#{zerofill("${../../@fix}",4)}FFFFFFFF</parameter>
   <parameter name="msiupdpattern">${../../../../v:no/text()}-0001-0102-FFFF-FFFFFFFFFFFF</parameter>
 
-  <product id="BVR20983">
+  <product id="BVR20983" commit="${commit}">
     <versionhistory>
-      <version major="1" minor="0" fix="2" build="0" revision="${svnrevision}">
+      <version major="1" minor="0" fix="2" build="0" revision="${revision}">
         <msipackagecode>${msipackpattern}</msipackagecode>
         <msiproductcode>${msiprodpattern}</msiproductcode>
         <msicomponent>${msicomppattern1}</msicomponent>
@@ -46,7 +46,7 @@
         <msino>0001</msino>
       </version>
 
-      <version major="1" minor="0" fix="1" build="0" revision="${svnrevision}">
+      <version major="1" minor="0" fix="1" build="0" revision="${revision}">
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
         <msicomponent>${msicomppattern1}</msicomponent>
@@ -55,7 +55,7 @@
 		    <msino>0001</msino>
 		  </version>
 
-	    <version major="1" minor="0" fix="0" build="0" revision="${svnrevision}">
+	    <version major="1" minor="0" fix="0" build="0" revision="${revision}">
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
         <msicomponent>${msicomppattern1}</msicomponent>
@@ -189,7 +189,8 @@
         <pattern><key>(^#define.+verFileVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key> <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
@@ -214,7 +215,8 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
@@ -262,8 +264,12 @@
           <value>$1${builddate}$3</value>
         </pattern>
         <pattern>
-          <key>(^#define.+verSvnRevision.+")(.+)(")</key>
+          <key>(^#define.+verRevision.+")(.+)(")</key>
           <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value>
+        </pattern>
+        <pattern>
+          <key>(^#define.+verCommit.+")(.+)(")</key>
+          <value>$1${../../../../../@commit}$3</value>
         </pattern>
         <pattern>
           <key>(^#define.+verOrigName.+")(.+)(")</key>
@@ -332,7 +338,8 @@
         <pattern><key>(^#define.+verFileVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key> <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
@@ -485,7 +492,8 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
@@ -570,7 +578,8 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
@@ -605,7 +614,8 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
@@ -640,7 +650,8 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
@@ -674,7 +685,8 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verSvnRevision.+")(.+)(")</key>                                 <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
+        <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
         <pattern><key>(^#define.+verCompPrefix.+")(.+)(")</key>                                  <value>$1${../../../../@id}.${../../../../v:version/@major}$3</value></pattern>
