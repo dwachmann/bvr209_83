@@ -103,6 +103,39 @@
       </script>
    </job>
 
+   <job id="incbuild">
+      <runtime>
+          <description>increment build attribute</description>
+          <named name = "File"
+                 helpstring = "Name of the version file"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //job:incbuild patch.wsf /File:xmlfile</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          
+          If WScript.Arguments.Named.Exists("File") Then
+            Init
+
+            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              
+              IncrementBuildCount WScript.Arguments.Named.Item("File")
+            Else
+              WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            End If
+          Else
+            WScript.Arguments.ShowUsage
+            WScript.Quit(1)
+          End If
+        ]]>
+      </script>
+   </job>
+
    <job id="svninfo">
       <runtime>
           <description>Return subversion file information</description>

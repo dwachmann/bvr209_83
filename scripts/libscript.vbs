@@ -27,6 +27,42 @@ Const tmpFileSuffix = ".tmp"
 vbTab = chr(9)
 
 '
+' increment build attribute
+'
+Sub IncrementBuildCount(f)
+  Dim objNodeList,selectCriteria,buildAttr
+  
+  selectCriteria = "/v:versions/v:product[1]/v:versionhistory/v:version[1]"
+  
+  WScript.Echo "IncrementBuildCount(f=" & f & ",selectCriteria=" & selectCriteria & ")"
+  
+  xmlDoc.load(f)
+  
+  If xmlDoc.parseError.errorCode<>0 Then
+    WScript.Echo xmlDoc.parseError.reason
+  Else
+    'WScript.Echo xmlDoc.xml
+
+    Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria)
+
+    If TypeName(objNodeList(0))="IXMLDOMElement" Then
+      Set buildAttr = objNodeList(0).GetAttributeNode("build")
+      
+      If TypeName(buildAttr)<>"Nothing" Then
+        WScript.Echo "build=" & buildAttr.value
+        
+        buildAttr.value = buildAttr.value + 1
+        
+        WScript.Echo "build=" & buildAttr.value
+        
+        xmlDoc.save(f)
+      End If
+    End If
+  End If
+End Sub
+
+
+'
 ' evaluate the patch element and patch file according to the defined regexp pattern
 '
 Sub PatchIt(f,selectCriteria)
