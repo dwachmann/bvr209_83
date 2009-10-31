@@ -26,16 +26,13 @@ Const tmpFileSuffix = ".tmp"
 
 vbTab = chr(9)
 
-
 '
 ' evaluate the patch element and patch file according to the defined regexp pattern
 '
 Sub PatchIt(f,selectCriteria)
-  Dim attrValue
-  Dim objNodeList,o,objPatternList,o1
-  Dim key,val
-  Dim key1,val1
-  Dim re(),va(),reI,tmpl,filename
+  Dim objNodeList
+  
+  WScript.Echo "PatchIt(f=" & f & ",selectCriteria=" & selectCriteria & ")"
   
   xmlDoc.load(f)
   
@@ -43,9 +40,25 @@ Sub PatchIt(f,selectCriteria)
     WScript.Echo xmlDoc.parseError.reason
   Else
     'WScript.Echo xmlDoc.xml
-  End If
+
+    Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria)
   
-  Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria & ".//v:patch")
+    ExecutePatchPattern objNodeList
+  End If
+End Sub
+
+
+'
+' execute patch pattern on the selected file
+'
+Sub ExecutePatchPattern(objNodeList)
+  Dim attrValue
+  Dim o,objPatternList,o1
+  Dim key,val
+  Dim key1,val1
+  Dim re(),va(),reI,tmpl,filename
+
+  WScript.Echo "ExecutePatchPattern() objNodeList.length=" & objNodeList.length
   
   If objNodeList.length>0 Then
     For Each o in objNodeList
@@ -459,6 +472,20 @@ Function GetSvnInfo(f)
   End If
 End Function
 
+'
+' GetGitLastCommit
+'
+Function GetGitLastCommit()
+  Dim gitOutput
+  
+  GetGitLastCommit = Null
+  
+  WScript.Echo "Retrieving git info..."
+  
+  If ExecuteProgram("git --no-pager log -1 --pretty=format:%H",gitOutput,False,False)=0 Then
+    GetGitLastCommit = gitOutput
+  End If
+End Function
 
 '
 ' Get subversion revision of commit date of file f
@@ -486,6 +513,48 @@ Sub GetRevisionAndDate(f)
   
   argsKey   = Array("revision","builddate","commit")
   argsValue = Array(rev+1,d,"df7cf0120dd2d222aaa157cc5bdef35630ed2a6f")
+End Sub
+
+'
+' set external variables that are used for the patch process
+'
+Sub GetExternalPatchValues()
+  Dim d,commit,signpubkeytok,msvcrtlib_name,msvcrtlib_ver,msvcrtlib_pubtok,debugver
+  
+  signpubkeytok    = "93425facf1ef717a"
+  debugver         = "1"
+  commit           = GetGitLastCommit()
+  d                = FormatDateTime(Date, 2) & " " & FormatDateTime(Now,4)
+  msvcrtlib_name   = "Microsoft.VC80.DebugCRT"
+  msvcrtlib_ver    = "8.0.50727.762"
+  msvcrtlib_pubtok = "1fc8b3b9a1e18e3b"
+
+  If GetEnvironment("NODEBUG")<>"" Then  
+    msvcrtlib_name   = "Microsoft.VC80.CRT"
+    debugver         = "0"
+  End If  
+
+  If GetEnvironment("MSVCRTLIB90")<>"" Then  
+    msvcrtlib_name   = "Microsoft.VC90.DebugCRT"
+    
+    If GetEnvironment("NODEBUG")<>"" Then  
+      msvcrtlib_name   = "Microsoft.VC90.CRT"
+    End If  
+    
+    msvcrtlib_ver    = "9.0.21022.8"
+    msvcrtlib_pubtok = "1fc8b3b9a1e18e3b"
+  End If
+  
+  WScript.Echo "signpubkeytok    = <" & signpubkeytok & ">"
+  WScript.Echo "msvcrtlib_name   = <" & msvcrtlib_name & ">"
+  WScript.Echo "msvcrtlib_ver    = <" & msvcrtlib_ver & ">"
+  WScript.Echo "msvcrtlib_pubtok = <" & msvcrtlib_pubtok & ">"
+  WScript.Echo "debugver         = <" & debugver & ">"
+  WScript.Echo "commit           = <" & commit & ">"
+  WScript.Echo "builddate        = <" & d & ">"
+  
+  argsKey   = Array("signpubkeytok","msvcrtlib_name","msvcrtlib_ver","msvcrtlib_pubtok","debugver","builddate","commit")
+  argsValue = Array(signpubkeytok,msvcrtlib_name,msvcrtlib_ver,msvcrtlib_pubtok,debugver,d,commit)
 End Sub
 
 '

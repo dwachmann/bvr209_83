@@ -89,7 +89,7 @@
             Init
 
             If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
-              GetRevisionAndDate WScript.Arguments.Named.Item("File")
+              GetExternalPatchValues
               
               PatchIt WScript.Arguments.Named.Item("File"),WScript.Arguments.Named.Item("Select")
             Else
@@ -231,7 +231,6 @@
             Init
             
             WScript.Echo WScript.Arguments.Named.Item("Env") & "=" & GetEnvironment(WScript.Arguments.Named.Item("Env"))
-            WScript.Echo "actrevision=" & GetActRevision
           Else
             WScript.Arguments.ShowUsage
             WScript.Quit(1)

@@ -23,19 +23,19 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer        1,0,0,0
-#define verFileVer1       "1.0.0.0"
+#define verFileVer        1,0,0,251
+#define verFileVer1       "1.0.0.251"
 #define verFileDesc       "list COM structure storage"
 #define verIntName        "lsstg"
-#define verOrigName       "bvr20983.1.lsstg.1.exe"
-#define verMakeDate       "30.10.2009 01:24"
+#define verOrigName       "bvr20983.0.lsstg.1.exe"
+#define verMakeDate       "31.10.2009 18:46"
 #define verRevision       "222"
-#define verCommit         "df7cf0120dd2d222aaa157cc5bdef35630ed2a6f"
+#define verCommit         "8229137e87db4ae67b1637d968b6d1af05968f72"
 #define verCompPrefix     "lsstg.1"
 #define verDebugVersion   "1"
-#define verMSIProdVersion "1.0.0"
-#define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
-#define verMSIPackCode    "BFE20983-0001-0101-0000-0002FFFFFFFF"
+#define verMSIProdVersion "0.1.0"
+#define verMSIProdCode    "BFE20983-0000-0100-0001-FFFFFFFFFFFF"
+#define verMSIPackCode    "BFE20983-0000-0101-0001-0000FFFFFFFF"
 #define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
 #define verFileType       VFT_APP

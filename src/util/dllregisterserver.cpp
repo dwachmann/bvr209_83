@@ -64,8 +64,8 @@ STDAPI DllRegisterServer()
 /*
     as marker for registration of multiple typelibs
 
-    RegistryUtil::RegisterTypeLib(LIBID_BVR20983_1_SC,LANG_SYSTEM_DEFAULT,_T("1"),1,0,szModulePath,szWindowsDir);
-    RegistryUtil::RegisterTypeLib(LIBID_BVR20983_1_SC,MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_NEUTRAL), SORT_DEFAULT),_T("2"),1,0,szModulePath,szWindowsDir);
+    RegistryUtil::RegisterTypeLib(LIBID_BVR20983_0_SC,LANG_SYSTEM_DEFAULT,_T("1"),1,0,szModulePath,szWindowsDir);
+    RegistryUtil::RegisterTypeLib(LIBID_BVR20983_0_SC,MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_NEUTRAL), SORT_DEFAULT),_T("2"),1,0,szModulePath,szWindowsDir);
 */
   }
   catch(BVR20983Exception e)

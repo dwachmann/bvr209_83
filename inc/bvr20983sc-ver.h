@@ -21,23 +21,15 @@
 
 #define BVR20983SCVER_H
 
-
 #include "bvr20983-prod.h"
+#include "bvr20983volatile-ver.h"
 
-#define verFileVer        1,0,0,0
-#define verFileVer1       "1.0.0.0"
+#define verFileVer        1,0,0,251
+#define verFileVer1       "1.0.0.251"
 #define verFileDesc       "Smartcard Library"
 #define verIntName        "sc"
-#define verOrigName       "bvr20983.1.sc.1.dll"
-#define verMakeDate       "30.10.2009 01:24"
-#define verRevision       "222"
-#define verCommit         "df7cf0120dd2d222aaa157cc5bdef35630ed2a6f"
+#define verOrigName       "bvr20983.0.sc.1.dll"
 #define verCompPrefix     "sc.1"
-#define verDebugVersion   "1"
-#define verMSIProdVersion "1.0.0"
-#define verMSIProdCode    "BFE20983-0001-0100-0001-FFFFFFFFFFFF"
-#define verMSIPackCode    "BFE20983-0001-0101-0000-0002FFFFFFFF"
-#define verMSIUpdCode     "BFE20983-0001-0102-FFFF-FFFFFFFFFFFF"
 
 #define verFileType       VFT_DLL
 #define verOleSelfReg     "OLESelfRegister"

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
 
-  <assemblyIdentity name="bvr20983.1.msgs.1" version="1.0.0.0" publicKeyToken="93425facf1ef717a"
+  <assemblyIdentity name="bvr20983.0.msgs.1" version="1.0.0.251" publicKeyToken="93425facf1ef717a"
                     type="win32" processorArchitecture="x86" />
 
   <dependency>

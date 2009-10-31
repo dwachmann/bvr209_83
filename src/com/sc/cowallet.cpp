@@ -33,7 +33,7 @@ namespace bvr20983
      */
 #pragma warning(disable:4355)
     COWallet::COWallet(IUnknown* pUnkOuter) 
-      : CODispatch(pUnkOuter,(IWallet*)this,LIBID_BVR20983_1_SC,IID_IWallet,CLSID_Wallet)
+      : CODispatch(pUnkOuter,(IWallet*)this,LIBID_BVR20983_0_SC,IID_IWallet,CLSID_Wallet)
     { }
 #pragma warning(default:4355)
 

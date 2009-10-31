@@ -54,8 +54,7 @@ BEGIN
       VALUE "ProductName",      verProdName
       VALUE "ProductVersion",   verProdVer1
       VALUE "BuildDate",        verMakeDate
-      VALUE "Revision",         verRevision
-      VALUE "Commit",           verCommit
+      VALUE "GITCommit",        verCommit
       VALUE verOleSelfReg,  "\0"
       VALUE "ProductPrefix",    verProdPrefix
       VALUE "ComponentPrefix",  verCompPrefix

@@ -39,11 +39,11 @@ INSTALLLEVEL	1
 InstallMode	Typical
 Manufacturer	Dorothea Wachmann
 PIDTemplate	12345<###-%%%%%%%>@@@@@
-ProductCode	{BFE20983-0001-0100-0001-FFFFFFFFFFFF}
+ProductCode	{BFE20983-0000-0100-0001-FFFFFFFFFFFF}
 ProductID	123-3334567
 ProductLanguage	1033
 ProductName	BVR2098 Suite
-ProductVersion	1.0.0
+ProductVersion	0.1.0
 Progress1	Installing
 Progress2	installs
 PROMPTROLLBACKCOST	P

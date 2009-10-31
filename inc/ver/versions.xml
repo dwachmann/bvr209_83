@@ -37,7 +37,7 @@
 
   <product id="BVR20983" commit="${commit}">
     <versionhistory>
-      <version major="1" minor="0" fix="2" build="0" revision="${revision}">
+      <version major="0" minor="1" fix="0" build="251">
         <msipackagecode>${msipackpattern}</msipackagecode>
         <msiproductcode>${msiprodpattern}</msiproductcode>
         <msicomponent>${msicomppattern1}</msicomponent>
@@ -46,7 +46,7 @@
         <msino>0001</msino>
       </version>
 
-      <version major="1" minor="0" fix="1" build="0" revision="${revision}">
+      <version major="0" minor="0" fix="1" build="0">
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
         <msicomponent>${msicomppattern1}</msicomponent>
@@ -55,7 +55,7 @@
 		    <msino>0001</msino>
 		  </version>
 
-	    <version major="1" minor="0" fix="0" build="0" revision="${revision}">
+	    <version major="0" minor="0" fix="0" build="0">
 		    <msipackagecode>${msipackpattern}</msipackagecode>
 		    <msiproductcode>${msiprodpattern}</msiproductcode>
         <msicomponent>${msicomppattern1}</msicomponent>
@@ -70,6 +70,16 @@
     <company>Dorothea Wachmann</company>
     <copyright>Copyright (c) 2008-2009 ${../../v:company/text()}</copyright>
     <filename>${filenamepattern1}</filename>
+
+    <patch template="bvr20983volatile-ver.tmpl" filename="bvr20983volatile-ver.h">
+      <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
+      <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${commit}$3</value></pattern>
+      <pattern><key>(^#define.+verDebugVersion.+")(.+)(")</key>                                <value>$1${debugver}$3</value></pattern>
+      <pattern><key>(^#define.+verMSIProdVersion.+")(.+)(")</key>                              <value>$1${../../../../v:versionhistory/v:version[1]/@major}.${../../../../v:versionhistory/v:version[1]/@minor}.0$3</value></pattern>
+      <pattern><key>(^#define.+verMSIProdCode.+")(.+)(")</key>                                 <value>$1${../../../../v:versionhistory/v:version[1]/v:msiproductcode/text()}$3</value></pattern>
+      <pattern><key>(^#define.+verMSIPackCode.+")(.+)(")</key>                                 <value>$1${../../../../v:versionhistory/v:version[1]/v:msipackagecode/text()}$3</value></pattern>
+      <pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>                                  <value>$1${../../../../v:versionhistory/v:version[1]/v:msiupgradecode/text()}$3</value></pattern>
+    </patch>
 
     <patch template="Property.tmpl" filename="Property.idt">
       <pattern><key>@ProductCode@</key><value>${../../../../v:versionhistory/v:version[1]/v:msiproductcode/text()}</value></pattern>
@@ -91,7 +101,6 @@
       <pattern><key>(DisplayName[\t])(.+)</key><value>$1${../../../../v:name/text()} Update</value></pattern>
       <pattern><key>(Description[\t])(.+)</key><value>$1#{LCase("${../../../../@id}")} MSI Patch</value></pattern>
     </patch>
-
 
     <patch template="Registry.tmpl" filename="Registry0.tmpl">
       <pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}</value></pattern>
@@ -177,7 +186,7 @@
     </patch>
 
     <component id="res" type="dll">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>Resource Library</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -189,7 +198,6 @@
         <pattern><key>(^#define.+verFileVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key> <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -203,7 +211,7 @@
     </component>
 
     <component id="msgs" type="dll">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>Product installation and message component</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -215,7 +223,6 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -232,14 +239,14 @@
         <pattern><key>@ASSEMBLY_NAME</key>        <value>${../../../../v:filename/text()}</value></pattern>
         <pattern><key>@ASSEMBLY_VERSION</key>     <value>${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}</value>                                   </pattern>
         <pattern><key>@ASSEMBLY_PUBKEYTOKEN</key> <value>${signpubkeytok}</value></pattern>
-        <pattern><key>@MSVCRTLIB_NAME</key>            <value>${msvcrtlib_name}</value></pattern>
+        <pattern><key>@MSVCRTLIB_NAME</key>       <value>${msvcrtlib_name}</value></pattern>
         <pattern><key>@MSVCRTLIB_VER</key>        <value>${msvcrtlib_ver}</value></pattern>
         <pattern><key>@MSVCRTLIB_PUBTOK</key>     <value>${msvcrtlib_pubtok}</value></pattern>
       </patch>
     </component>
 
     <component id="update" type="dll">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>Autoupdate component</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -262,10 +269,6 @@
         <pattern>
           <key>(^#define.+verMakeDate.+")(.+)(")</key>
           <value>$1${builddate}$3</value>
-        </pattern>
-        <pattern>
-          <key>(^#define.+verRevision.+")(.+)(")</key>
-          <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value>
         </pattern>
         <pattern>
           <key>(^#define.+verCommit.+")(.+)(")</key>
@@ -326,7 +329,7 @@
     </component>
 
     <component id="sc" type="dll">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>Smartcard Library</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -338,7 +341,6 @@
         <pattern><key>(^#define.+verFileVer[^0-9]+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key> <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -481,7 +483,7 @@
     </component>
 
     <component id="cc" type="dll">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>Custom Control Library</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -492,7 +494,6 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -567,7 +568,7 @@
     </component>
 
     <component id="digiclock" type="exe">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>A digital clock</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -578,7 +579,6 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -602,7 +602,7 @@
     </component>
 
     <component id="lsstg" type="exe">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>list COM structure storage</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -614,7 +614,6 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -638,7 +637,7 @@
     </component>
 
     <component id="lstypeinfo" type="exe">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>list typeinfo of registered COM objects</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>BINDIR</msidir>
@@ -650,7 +649,6 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -674,7 +672,7 @@
     </component>
 
     <component id="msicab" type="exe">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>create cabinet files and necessary msi information</name>
 <!--      <msiguid>${msicomppattern}</msiguid> -->
       <no>0009</no>
@@ -685,7 +683,6 @@
         <pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>      <value>$1${../../../../v:version/@major},${../../../../v:version/@minor},${../../../../v:version/@fix},${../../../../v:version/@build}$3</value></pattern>
         <pattern><key>(^#define.+verFileDesc.+")(.+)(")</key>                                    <value>$1${../../../../v:name/text()}$3</value></pattern>
         <pattern><key>(^#define.+verMakeDate.+")(.+)(")</key>                                    <value>$1${builddate}$3</value></pattern>
-        <pattern><key>(^#define.+verRevision.+")(.+)(")</key>                                    <value>$1${../../../../../v:versionhistory/v:version[1]/@revision}$3</value></pattern>
         <pattern><key>(^#define.+verCommit.+")(.+)(")</key>                                      <value>$1${../../../../../@commit}$3</value></pattern>
         <pattern><key>(^#define.+verOrigName.+")(.+)(")</key>                                    <value>$1${../../../../v:filename/text()}.${../../../../@type}$3</value></pattern>
         <pattern><key>(^#define.+verIntName.+")(.+)(")</key>                                     <value>$1${../../../../@id}$3</value></pattern>
@@ -709,7 +706,7 @@
     </component>
 
     <component id="doc" type="data">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>documentation files</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>DOCDIR</msidir>
@@ -718,7 +715,7 @@
     </component>
 
     <component id="sample" type="data">
-      <version major="1" minor="0" fix="0" build="0"/>
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>sample files</name>
       <msiguid>${msicomppattern}</msiguid>
       <msidir>SAMPLEDIR</msidir>

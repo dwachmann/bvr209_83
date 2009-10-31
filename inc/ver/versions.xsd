@@ -122,7 +122,7 @@
     <xs:attribute name="major" type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="minor" type="xs:nonNegativeInteger" />
     <xs:attribute name="fix"   type="xs:nonNegativeInteger" />
-    <xs:attribute name="build" type="xs:nonNegativeInteger" />
+    <xs:attribute name="build" type="xs:string" />
   </xs:complexType>
 
   <xs:complexType name="versionHistoryType">
@@ -144,8 +144,6 @@
     <xs:attribute name="minor"    type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="fix"      type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="build"    type="xs:nonNegativeInteger" use="required"/>
-    <xs:attribute name="revision" type="revType"               use="required"/>
-    <xs:attribute name="tag"      type="xs:string"   />
   </xs:complexType>
 
   <xs:simpleType name="comptypeType">

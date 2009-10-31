@@ -4,8 +4,8 @@ Directory	Directory
 TARGETDIR		SourceDir
 ProgramFilesFolder	TARGETDIR	.
 ProgramMenuFolder	TARGETDIR	.
-StartupMenuFolder	ProgramMenuFolder	bvr20983.1
-BVRDIR	ProgramFilesFolder	bvr20983.1
+StartupMenuFolder	ProgramMenuFolder	bvr20983.0
+BVRDIR	ProgramFilesFolder	bvr20983.0
 BINDIR	BVRDIR	bin
 DOCDIR	BVRDIR	doc
 SAMPLEDIR	BVRDIR	samples

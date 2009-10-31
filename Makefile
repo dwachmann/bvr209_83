@@ -21,9 +21,7 @@ PROJECTDIR    = $(MAKEDIR)
 
 !include <./inc/Makefile.inc>
 
-SIGNPUBKEYTOK = 93425facf1ef717a
-signvars      = sign /f $(signkey) /d "$(BVR20983DESC)" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll
-patch         = cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions/" 
+signvars = sign /f $(signkey) /d "$(BVR20983DESC)" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll
 
 PROJECTS =          \
 comp\libbvr20983\~  \
@@ -54,7 +52,7 @@ CABRESULT = $(SIGNDIR)\$(BVR20983_RESULT).cab
 !ifdef clean
 all: $(PROJECTS) fullclean
 !else
-all: $(PROJECTS) 
+all: patch1 $(PROJECTS) 
 !endif
 
 distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
@@ -64,7 +62,10 @@ distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
 
 
 patch:
-  @$(patch) signpubkeytok $(SIGNPUBKEYTOK) msvcrtlib_name $(MSVCRTLIB_NAME) msvcrtlib_ver $(MSVCRTLIB_VER) msvcrtlib_pubtok $(MSVCRTLIB_PUBTOK) debugver $(DEBUGVER)
+  cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions//v:patch" 
+
+patch1:
+  cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions//v:patch[@filename='bvr20983volatile-ver.h']" 
   
 msi: comp\msi\~createmsi
 
