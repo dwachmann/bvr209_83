@@ -61,6 +61,68 @@ Sub IncrementBuildCount(f)
   End If
 End Sub
 
+'
+' create git tag for build no
+'
+Sub TagBuildNo(f)
+  Dim objNodeList,selectCriteria,buildAttr,gitOutput
+  
+  selectCriteria = "/v:versions/v:product[1]/v:versionhistory/v:version[1]"
+  
+  xmlDoc.load(f)
+  
+  If xmlDoc.parseError.errorCode<>0 Then
+    WScript.Echo xmlDoc.parseError.reason
+  Else
+    'WScript.Echo xmlDoc.xml
+
+    Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria)
+
+    If TypeName(objNodeList(0))="IXMLDOMElement" Then
+      Set buildAttr = objNodeList(0).GetAttributeNode("build")
+      
+      If TypeName(buildAttr)<>"Nothing" Then
+        If ExecuteProgram("git tag -afm ""tagging build no " & buildAttr.value & """ build." & buildAttr.value,gitOutput,False,False)=0 Then
+          WScript.Echo "git tag build."&buildAttr.value&" created."
+        End If
+      End If
+    End If
+  End If
+End Sub
+
+'
+' create git tag for msi version
+'
+Sub TagMSIVersion(f)
+  Dim objNodeList,selectCriteria,buildAttr,majorAttr,minorAttr,fixAttr,msiVersion,gitOutput
+  
+  selectCriteria = "/v:versions/v:product[1]/v:versionhistory/v:version[1]"
+  
+  xmlDoc.load(f)
+  
+  If xmlDoc.parseError.errorCode<>0 Then
+    WScript.Echo xmlDoc.parseError.reason
+  Else
+    'WScript.Echo xmlDoc.xml
+
+    Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria)
+
+    If TypeName(objNodeList(0))="IXMLDOMElement" Then
+      Set majorAttr = objNodeList(0).GetAttributeNode("major")
+      Set minorAttr = objNodeList(0).GetAttributeNode("minor")
+      Set fixAttr   = objNodeList(0).GetAttributeNode("fix")
+      Set buildAttr = objNodeList(0).GetAttributeNode("build")
+      
+      If TypeName(majorAttr)<>"Nothing" and TypeName(minorAttr)<>"Nothing" and TypeName(fixAttr)<>"Nothing" and TypeName(buildAttr)<>"Nothing" Then
+        msiVersion = majorAttr.value & "." & minorAttr.value & "." & fixAttr.value & "." & buildAttr.value
+        
+        If ExecuteProgram("git tag -afm ""tagging MSI version " & buildAttr.value & """ msi." & msiVersion,gitOutput,False,False)=0 Then
+          WScript.Echo "git tag msi." & msiVersion & " created."
+        End If
+      End If
+    End If
+  End If
+End Sub
 
 '
 ' evaluate the patch element and patch file according to the defined regexp pattern

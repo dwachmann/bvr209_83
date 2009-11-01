@@ -136,6 +136,72 @@
       </script>
    </job>
 
+   <job id="tagbuild">
+      <runtime>
+          <description>create git tag with build no</description>
+          <named name = "File"
+                 helpstring = "Name of the version file"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //job:tagbuild patch.wsf /File:xmlfile</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          
+          If WScript.Arguments.Named.Exists("File") Then
+            Init
+
+            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              
+              TagBuildNo WScript.Arguments.Named.Item("File")
+            Else
+              WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            End If
+          Else
+            WScript.Arguments.ShowUsage
+            WScript.Quit(1)
+          End If
+        ]]>
+      </script>
+   </job>
+
+   <job id="tagmsiversion">
+      <runtime>
+          <description>create git tag with msi version</description>
+          <named name = "File"
+                 helpstring = "Name of the version file"
+                 type = "string"
+                 required = "true"
+          />
+          <example>Example: //job:tagmsiversion patch.wsf /File:xmlfile</example>
+      </runtime>
+
+      <script language="VBScript" src="libscript.vbs"/>
+      <script language="VBScript">
+        <![CDATA[
+          Option explicit
+          
+          If WScript.Arguments.Named.Exists("File") Then
+            Init
+
+            If fso.FileExists( WScript.Arguments.Named.Item("File") ) Then
+              
+              TagMSIVersion WScript.Arguments.Named.Item("File")
+            Else
+              WScript.Echo "File " & WScript.Arguments.Named.Item("File") & " doesnt exist"
+            End If
+          Else
+            WScript.Arguments.ShowUsage
+            WScript.Quit(1)
+          End If
+        ]]>
+      </script>
+   </job>
+
    <job id="svninfo">
       <runtime>
           <description>Return subversion file information</description>

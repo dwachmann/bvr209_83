@@ -73,6 +73,12 @@ patch1:
 
 incbuild:
   cscript //nologo //job:incbuild $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml
+
+tagbuild:
+  cscript //nologo //job:tagbuild $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml
+
+tagmsi:
+  cscript //nologo //job:tagmsiversion $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml
   
 msi: comp\msi\~createmsi
 
