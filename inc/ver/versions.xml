@@ -30,7 +30,7 @@
 	<parameter name="msiupdpattern">${../../../../v:no/text()}-0001-0102-FFFF-FFFFFFFFFFFF</parameter>
 	<product id="BVR20983" commit="${commit}">
 		<versionhistory>
-			<version major="0" minor="1" fix="0" build="253">
+			<version major="0" minor="1" fix="0" build="258">
 				<msipackagecode>${msipackpattern}</msipackagecode>
 				<msiproductcode>${msiprodpattern}</msiproductcode>
 				<msicomponent>${msicomppattern1}</msicomponent>

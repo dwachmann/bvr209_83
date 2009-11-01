@@ -24,8 +24,8 @@
 #include "bvr20983-prod.h"
 #include "bvr20983volatile-ver.h"
 
-#define verFileVer        1,0,0,251
-#define verFileVer1       "1.0.0.251"
+#define verFileVer        1,0,0,258
+#define verFileVer1       "1.0.0.258"
 #define verFileDesc       "A digital clock"
 #define verIntName        "digiclock"
 #define verOrigName       "bvr20983.0.digiclock.1.exe"

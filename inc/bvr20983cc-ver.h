@@ -24,15 +24,15 @@
 #include "bvr20983-prod.h"
 #include "bvr20983volatile-ver.h"
 
-#define verFileVer        1,0,0,251
-#define verFileVer1       "1.0.0.251"
+#define verFileVer        1,0,0,258
+#define verFileVer1       "1.0.0.258"
 #define verFileDesc       "Custom Control Library"
 #define verIntName        "cc"
 #define verOrigName       "bvr20983.0.cc.1.dll"
 #define verCompPrefix     "cc.1"
 
 #define verAboutTitle     "Custom Control Library"
-#define verAboutText      "Custom Control Library 1.0.0.251"
+#define verAboutText      "Custom Control Library 1.0.0.258"
 
 #define verFileType       VFT_DLL
 #define verOleSelfReg     "OLESelfRegister"

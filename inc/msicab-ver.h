@@ -23,8 +23,8 @@
 #include "bvr20983-prod.h"
 #include "bvr20983volatile-ver.h"
 
-#define verFileVer        1,0,0,251
-#define verFileVer1       "1.0.0.251"
+#define verFileVer        1,0,0,258
+#define verFileVer1       "1.0.0.258"
 #define verFileDesc       "create cabinet files and necessary msi information"
 #define verIntName        "msicab"
 #define verOrigName       "bvr20983.0.msicab.1.exe"

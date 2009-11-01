@@ -18,8 +18,9 @@ SET PATH=%PATH%;%JCOP_HOME%\bin;%JC21_HOME%\bin
 SET LIB=%LIB%;%OCF_INSTALLDIR%\lib
 
 SET MSISCRIPTS="c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Samples\SysMgmt\Msi\Scripts"
-SET NODEBUG=1
+rem SET NODEBUG=1
 SET GIT_SSH=c:\Projects\git\sshproxy.cmd
+SET VISUAL=vim
 
 cls
 title Smartcard Environment

@@ -55,6 +55,10 @@ all: $(PROJECTS) fullclean
 all: patch1 $(PROJECTS) 
 !endif
 
+rebuildall: incbuild patch $(PROJECTS) 
+
+projects: $(PROJECTS) 
+
 distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
   @copy $(HTMLDIR)\led.*                  $(DISTDIR)
   @copy $(HTMLDIR)\*.jpg                  $(DISTDIR)
@@ -66,6 +70,9 @@ patch:
 
 patch1:
   cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions//v:patch[@filename='bvr20983volatile-ver.h']" 
+
+incbuild:
+  cscript //nologo //job:incbuild $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml
   
 msi: comp\msi\~createmsi
 

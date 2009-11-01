@@ -30,7 +30,7 @@ vbTab = chr(9)
 ' increment build attribute
 '
 Sub IncrementBuildCount(f)
-  Dim objNodeList,selectCriteria,buildAttr
+  Dim objNodeList,selectCriteria,buildAttr,oldValue
   
   selectCriteria = "/v:versions/v:product[1]/v:versionhistory/v:version[1]"
   
@@ -49,11 +49,11 @@ Sub IncrementBuildCount(f)
       Set buildAttr = objNodeList(0).GetAttributeNode("build")
       
       If TypeName(buildAttr)<>"Nothing" Then
-        WScript.Echo "build=" & buildAttr.value
+        oldValue = buildAttr.value
         
         buildAttr.value = buildAttr.value + 1
         
-        WScript.Echo "build=" & buildAttr.value
+        WScript.Echo "build: " & oldValue & "-->" & buildAttr.value
         
         xmlDoc.save(f)
       End If
