@@ -21,8 +21,10 @@
 #include "os.h"
 #include "util/msiidregistry.h"
 #include "util/fileinfo.h"
+#include "util/yastring.h"
+#include "com/covariant.h"
 
-using namespace std;
+using namespace bvr20983::COM;
 
 namespace bvr20983 
 {
@@ -36,22 +38,22 @@ namespace bvr20983
         m_doc.Load(m_fileName);
 
       if( m_doc.IsEmpty() )
-      { m_doc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
+      { m_doc.CreateXmlSkeleton(_T("msiguid"),m_rootElement);
 
-        m_doc.CreateElement(_T("files"),m_filesElement);
-        m_doc.AppendChildToParent(m_filesElement,m_rootElement,1);
-        m_doc.AppendNewline(m_filesElement,1);
+        m_doc.CreateElement(_T("guids"),m_guidElement);
+        m_doc.AppendChildToParent(m_guidElement,m_rootElement,1);
+        m_doc.AppendNewline(m_guidElement,1);
       } // of if
       else
-      { m_doc.GetFirstElement(_T("msipackage"),m_rootElement);
-        m_doc.GetFirstElement(_T("files"),m_filesElement);
+      { m_doc.GetFirstElement(_T("msiguid"),m_rootElement);
+        m_doc.GetFirstElement(_T("guid"),m_guidElement);
 
-        COMPtr<IXMLDOMNodeList> pFileList;
+        COMPtr<IXMLDOMNodeList> pGuidList;
         COMPtr<IXMLDOMNode>     pNode;
 
-        m_doc.GetElements(_T("file"),pFileList);
+        m_doc.GetElements(_T("guid"),pGuidList);
 
-        for( HRESULT hr = pFileList->nextNode(&pNode);hr==S_OK;hr = pFileList->nextNode(&pNode) )
+        for( HRESULT hr = pGuidList->nextNode(&pNode);hr==S_OK;hr = pGuidList->nextNode(&pNode) )
         { DOMNodeType type;
 
           THROW_COMEXCEPTION( pNode->get_nodeType(&type) );
@@ -72,15 +74,13 @@ namespace bvr20983
               if( m_doc.GetNodeValue(pNode,_T("./path/text()"),pathValue) )
               { BSTR path = V_BSTR(pathValue);
 
-                m_ids.insert( STR_UINT_Pair(TString(path),(UINT)id) );
+                m_ids.insert( STR_DOMElement_Pair(TString(path),e) );
               } // of if
             } // of if
+
+            e->setAttribute(_T("status"),COVariant(_T("deleted")));
           } // of if
         } // of for
-
-        m_doc.RemoveElements(_T("file"));
-        m_doc.RemoveElements(_T("media"));
-        m_doc.RemoveElements(_T("directories"));
       } // of else
     }
 
@@ -88,25 +88,41 @@ namespace bvr20983
      *
      */
     MSIIdRegistry::~MSIIdRegistry()
-    { }
+    { m_doc.Save(m_fileName);
+    }
 
     /**
      *
      */
     unsigned int MSIIdRegistry::GetUniqueId(LPCTSTR category,LPCTSTR path)
-    { unsigned int result = 0;
+    { COMPtr<IXMLDOMElement> result;
+      COVariant              idValue;
+      const VARIANT*         v = idValue;
+      unsigned int           id = 0;
 
-      STR_UINT_Map::const_iterator i = m_ids.find(path);
+      STR_DOMElement_Map::const_iterator i = m_ids.find(path);
 
       if( i!=m_ids.end() )
-        result = i->second;
+      { result = i->second;
+        result->setAttribute(_T("status"),COVariant(_T("modified")));
+      } // of if
       else
-      { result = ++m_lastUniqueId;
+      { m_doc.CreateElement(_T("guid"),result);
 
-        m_ids.insert( STR_UINT_Pair(TString(path),result) );
+        m_doc.AppendChildToParent(result,m_guidElement,1);
+        m_doc.AppendNewline(result,1);
+
+        result->setAttribute(_T("id"),COVariant(YAString((unsigned long)(++m_lastUniqueId))));
+        result->setAttribute(_T("status"),COVariant(_T("new")));
+
+        m_ids.insert( STR_DOMElement_Pair(TString(path),result) );
       } // of else
 
-      return result;
+      result->getAttribute(_T("id"),const_cast<VARIANT*>(v));
+
+      id = _ttoi(V_BSTR(v));
+
+      return id;
     } // of MSIIdRegistry::GetUniqueId()
   } // of namespace util
 } // of namespace bvr20983

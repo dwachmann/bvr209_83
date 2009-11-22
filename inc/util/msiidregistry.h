@@ -23,8 +23,8 @@
 
 namespace bvr20983
 {
-  typedef std::map<TString,UINT>        STR_UINT_Map;
-  typedef std::pair<TString,UINT>       STR_UINT_Pair;
+  typedef std::map<TString,COMPtr<IXMLDOMElement>>  STR_DOMElement_Map;
+  typedef std::pair<TString,COMPtr<IXMLDOMElement>> STR_DOMElement_Pair;
 
   namespace util
   {
@@ -40,11 +40,14 @@ namespace bvr20983
         unsigned int GetUniqueId(LPCTSTR category,LPCTSTR path);
 
       private:
-        LPCTSTR       m_fileName;
-        XMLDocument   m_doc;
-        STR_UINT_Map  m_ids;
-        unsigned int  m_lastUniqueId;
-	  }; // of class MSIIdRegistry
+        LPCTSTR                m_fileName;
+        STR_DOMElement_Map     m_ids;
+        unsigned int           m_lastUniqueId;
+
+        XMLDocument            m_doc;
+        COMPtr<IXMLDOMElement> m_rootElement;
+        COMPtr<IXMLDOMElement> m_guidElement;
+    }; // of class MSIIdRegistry
 
   } // of namespace util
 } // of namespace bvr20983
