@@ -86,23 +86,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *     </registry>
    */
   bool RegistryInfo(bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
-  { if( !m_lastRegistryentriesElement.IsNULL() )
-    { COMPtr<IXMLDOMElement> registryElement;
-
-      m_msiPackageDoc.CreateElement(_T("registry"),registryElement);
-      m_msiPackageDoc.AppendChildToParent(registryElement,m_lastRegistryentriesElement,3);
-
-      m_msiPackageDoc.AppendElement(registryElement,_T("key"),key,4);
-
-      if( NULL!=name )
-      { m_msiPackageDoc.AppendElement(registryElement,_T("name"),name,4);
-
-        if( NULL!=value )
-          m_msiPackageDoc.AppendElement(registryElement,_T("value"),value,4);
-      } // of if
-
-      m_msiPackageDoc.AppendNewline(registryElement,3);
-    } // of if
+  { m_msiPackageDoc.AddRegistryInfo(startSection,key,name,value);
 
     return true;
   } // of registryInfo()
@@ -111,7 +95,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   void close()
-  { m_msiPackageDoc.AppendNewline(m_rootElement,0); }
+  { m_msiPackageDoc.AppendNewline(); }
 
   /**
    *
@@ -150,10 +134,8 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   bool AddFile(LPCTSTR prefix,LPCTSTR filePath,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)
-  { TCHAR guid[MAX_PATH];
-
-    // ignore subversion or git subdirectories
-    if( _tcsstr(filePath,_T(".svn"))!=NULL _tcsstr(filePath,_T(".git"))!=NULL )
+  { // ignore subversion or git subdirectories
+    if( _tcsstr(filePath,_T(".svn"))!=NULL || _tcsstr(filePath,_T(".git"))!=NULL )
       return false;
 
     FileInfo               fInfo(filePath);
@@ -161,14 +143,15 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     YAPtr<YAString>        fileName              = fInfo.GetName();
     YAPtr<YAString>        strippedFilePath      = fInfo.GetPartialPath(prefix);
     YAPtr<YAString>        shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
-    unsigned int           uniqueId              = m_msiIdRegistry.GetUniqueId(_T("file"),strippedFilePath->c_str());
-    YAPtr<YAString>        directoryId;
+    YAString               directoryId;
+    MSIId                  uniqueId;
 
-    _stprintf_s(guid,MAX_PATH,_T("%s%08X"),m_msiCompIdPattern,uniqueId);
-    _tcscpy_s(addedFileName,addedFileNameMaxLen,guid);
+    m_msiIdRegistry.GetUniqueId(_T("file"),strippedFilePath->c_str(),uniqueId);
+
+    _tcscpy_s(addedFileName,addedFileNameMaxLen,uniqueId.guid);
 
     if( NULL!=pDirInfo )
-      directoryId = YAString(_T("DIR_")).Append((unsigned long)pDirInfo->GetId()).c_str();
+      directoryId.Format(_T("DIR_%l"),pDirInfo->GetId());
 
     DWORD fileSize=0;
     DirectoryInfo::_GetFileSize(filePath,&fileSize);
@@ -178,10 +161,10 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     VersionInfo verInfo(filePath);
     LPCTSTR fileVersion  = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
     
-    m_msiPackageDoc.AddFileInfo(uniqueId,
-                                guid,
+    m_msiPackageDoc.AddFileInfo(uniqueId.id,
+                                uniqueId.guid,
                                 seqNo,
-                                directoryId,
+                                directoryId.c_str(),
                                 fileSize,
                                 strippedFilePath->c_str(),
                                 fileName->c_str(),
@@ -242,7 +225,6 @@ bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCT
  */
 void msicab(LPTSTR versionFName,LPTSTR msiIdRegistryFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 { util::XMLDocument            versionsDoc;
-  util::MSIIdRegistry          msiIdRegistry(msiIdRegistryFName);
   COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
   COMPtr<IXMLDOMNode>          pNode;
   util::XMLDocument::PropertyM props;
@@ -275,7 +257,8 @@ void msicab(LPTSTR versionFName,LPTSTR msiIdRegistryFName,LPTSTR msiPackageFName
       if( versionsDoc.GetNodeValue(_T("//v:versions//v:product//v:versionhistory/v:version[1]//v:msicomponent//text()"),msiComponentID,true) &&
           DirectoryInfo::_IsDirectory(fullCompDir->c_str())
         )
-      { MSIPackage       msiPackageDoc(msiPackageFName,V_BSTR(msiComponentID));
+      { MSIPackage       msiPackageDoc(msiPackageFName);
+        MSIIdRegistry    msiIdRegistry(msiIdRegistryFName,V_BSTR(msiComponentID));
         MSICABAddFile1CB addFileCB(msiPackageDoc,msiIdRegistry);
 
         cabinet.SetAddFileCallback(&addFileCB);

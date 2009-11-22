@@ -236,6 +236,26 @@ namespace bvr20983
     /**
      *
      */
+    YAString& YAString::Format(LPCTSTR fmt,...)
+    { va_list argp;
+
+      va_start(argp, fmt);
+
+      int len = _vsctprintf( fmt, argp ) + 1; 
+
+      FreeBuffer();
+
+      m_buffersize = len;
+      m_buffer     = ::calloc(m_buffersize,sizeof(WCHAR));
+
+     _vstprintf_s(reinterpret_cast<TCHAR*>(m_buffer),m_buffersize,fmt,argp);
+
+     return *this;
+    } // of YAString::Format()
+
+    /**
+     *
+     */
     YAString& YAString::operator+=(LPCTSTR s)
     { return Append(s); }
 

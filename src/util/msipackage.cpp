@@ -29,9 +29,8 @@ namespace bvr20983
     /**
      *
      */
-    MSIPackage::MSIPackage(LPCTSTR fileName,LPCTSTR msiCompIdPattern) : 
-      m_fileName(fileName),
-      m_msiCompIdPattern(msiCompIdPattern)
+    MSIPackage::MSIPackage(LPCTSTR fileName) : 
+      m_fileName(fileName)
     { m_doc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
 
       m_doc.CreateElement(_T("files"),m_filesElement);

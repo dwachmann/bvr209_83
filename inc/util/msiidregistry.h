@@ -20,6 +20,7 @@
 #define MSIIDREGISTRY_H
 
 #include "util/xmldocument.h"
+#include "util/yastring.h"
 
 namespace bvr20983
 {
@@ -31,18 +32,27 @@ namespace bvr20983
     /**
      *
      */
+    struct MSIId
+    { YAString     guid;
+      unsigned int id;
+    }; // of struct MSIId
+
+    /**
+     *
+     */
     class MSIIdRegistry
     {
       public:
-        MSIIdRegistry(LPCTSTR fileName);
+        MSIIdRegistry(LPCTSTR fileName,LPCTSTR msiCompIdPattern);
         ~MSIIdRegistry();
 
-        unsigned int GetUniqueId(LPCTSTR category,LPCTSTR path);
+        void GetUniqueId(LPCTSTR category,LPCTSTR path,MSIId& id);
 
       private:
         LPCTSTR                m_fileName;
         STR_DOMElement_Map     m_ids;
         unsigned int           m_lastUniqueId;
+        LPCTSTR                m_msiCompIdPattern;
 
         XMLDocument            m_doc;
         COMPtr<IXMLDOMElement> m_rootElement;

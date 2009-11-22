@@ -47,6 +47,7 @@ namespace bvr20983
         YAString&       Append(LPCTSTR);
         YAString&       Append(unsigned long);
         YAString&       Append(long);
+        YAString&       Format(LPCTSTR formatStr,...);
 
         int             IndexOf(LPCTSTR str) const throw();
         int             IndexOf(TCHAR   c) const throw();

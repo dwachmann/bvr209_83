@@ -33,7 +33,7 @@ namespace bvr20983
     class MSIPackage
     {
       public:
-        MSIPackage(LPCTSTR fileName,LPCTSTR msiCompIdPattern);
+        MSIPackage(LPCTSTR fileName);
         ~MSIPackage();
 
         void Save();
@@ -47,7 +47,6 @@ namespace bvr20983
 
       private:
         LPCTSTR                m_fileName;
-        LPCTSTR                m_msiCompIdPattern;
         XMLDocument            m_doc;
         COMPtr<IXMLDOMElement> m_rootElement;
         COMPtr<IXMLDOMElement> m_filesElement;

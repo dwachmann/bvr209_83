@@ -21,7 +21,6 @@
 #include "os.h"
 #include "util/msiidregistry.h"
 #include "util/fileinfo.h"
-#include "util/yastring.h"
 #include "com/covariant.h"
 
 using namespace bvr20983::COM;
@@ -33,7 +32,9 @@ namespace bvr20983
     /**
      *
      */
-    MSIIdRegistry::MSIIdRegistry(LPCTSTR fileName) : m_fileName(fileName)
+    MSIIdRegistry::MSIIdRegistry(LPCTSTR fileName,LPCTSTR msiCompIdPattern) : 
+      m_fileName(fileName),
+      m_msiCompIdPattern(msiCompIdPattern)
     { if( FileInfo(m_fileName).IsFile() )
         m_doc.Load(m_fileName);
 
@@ -94,7 +95,7 @@ namespace bvr20983
     /**
      *
      */
-    unsigned int MSIIdRegistry::GetUniqueId(LPCTSTR category,LPCTSTR path)
+    void MSIIdRegistry::GetUniqueId(LPCTSTR category,LPCTSTR path,MSIId& uniqueId)
     { COMPtr<IXMLDOMElement> result;
       COVariant              idValue;
       const VARIANT*         v = idValue;
@@ -120,9 +121,8 @@ namespace bvr20983
 
       result->getAttribute(_T("id"),const_cast<VARIANT*>(v));
 
-      id = _ttoi(V_BSTR(v));
-
-      return id;
+      uniqueId.id   = _ttoi(V_BSTR(v));
+      uniqueId.guid.Format(_T("%s%08X"),m_msiCompIdPattern,uniqueId.id);
     } // of MSIIdRegistry::GetUniqueId()
   } // of namespace util
 } // of namespace bvr20983
