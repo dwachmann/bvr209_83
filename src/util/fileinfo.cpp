@@ -1,9 +1,9 @@
 /*
- * $Id: dirinfo.cpp 184 2009-03-26 16:04:08Z dwachmann $
+ * $Id: $
  * 
- * Windows DC class.
+ * Windows FileInfo class.
  * 
- * Copyright (C) 2008 Dorothea Wachmann
+ * Copyright (C) 2008-2009 Dorothea Wachmann
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

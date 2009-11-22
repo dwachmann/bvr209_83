@@ -22,7 +22,6 @@
 #include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <Msi.h>
 #include "cab/cabinetfci.h"
 #include "cab/cabinetfdi.h"
 #include "util/logstream.h"
@@ -39,6 +38,9 @@
 #include "util/yanew.h"
 #include "util/yaallocatorpool.h"
 #include "util/fileinfo.h"
+#include "util/msiidregistry.h"
+#include "util/msipackage.h"
+#include "util/msidirinfo.h"
 #include "com/covariant.h"
 #include "exception/bvr20983exception.h"
 #include "exception/seexception.h"
@@ -50,33 +52,6 @@ using namespace bvr20983::cab;
 using namespace bvr20983::util;
 using namespace bvr20983::COM;
 using namespace std;
-
-
-/**
- *
- */
-struct MSIDirectoryInfo
-{
-  MSIDirectoryInfo()
-  { }
-
-  MSIDirectoryInfo(LPCTSTR dirName) : m_dirName(dirName)
-  { }
-
-  MSIDirectoryInfo(LPCTSTR dirName,LPCTSTR dirShortName) : m_dirName(dirName),m_dirShortName(dirShortName)
-  { }
-
-  YAString m_dirId;
-  YAString m_parentId;
-  YAString m_dirName;
-  YAString m_dirShortName;
-  YAString m_dirPath;
-}; // of struct MSICABAddFileCB
-
-typedef std::vector<MSIDirectoryInfo> VMSIDirInfoT;
-typedef std::map<TString,UINT>        STR_UINT_Map;
-typedef std::pair<TString,UINT>       STR_UINT_Pair;
-
 
 /**
  *
@@ -91,84 +66,16 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
   /**
    *
    */
-  MSICABAddFile1CB(util::XMLDocument& msiPackageDoc,LPCTSTR msiCompIdPattern) :
+  MSICABAddFile1CB(MSIPackage& msiPackageDoc,MSIIdRegistry& msiIdRegistry) :
     m_msiPackageDoc(msiPackageDoc),
-    m_msiCompIdPattern(msiCompIdPattern),
-    m_lastUniqueId(0)
-  { 
-    if( m_msiPackageDoc.IsEmpty() )
-    { m_msiPackageDoc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
-
-      m_msiPackageDoc.CreateElement(_T("files"),m_filesElement);
-      m_msiPackageDoc.AppendChildToParent(m_filesElement,m_rootElement,1);
-      m_msiPackageDoc.AppendNewline(m_filesElement,1);
-    } // of if
-    else
-    { m_msiPackageDoc.GetFirstElement(_T("msipackage"),m_rootElement);
-      m_msiPackageDoc.GetFirstElement(_T("files"),m_filesElement);
-
-      COMPtr<IXMLDOMNodeList> pFileList;
-      COMPtr<IXMLDOMNode>     pNode;
-
-      m_msiPackageDoc.GetElements(_T("file"),pFileList);
-
-      for( HRESULT hr = pFileList->nextNode(&pNode);hr==S_OK;hr = pFileList->nextNode(&pNode) )
-      { DOMNodeType type;
-
-        THROW_COMEXCEPTION( pNode->get_nodeType(&type) );
-
-        if( type==NODE_ELEMENT )
-        { COMPtr<IXMLDOMElement> e;
-          COVariant              pathValue;
-          COVariant              idValue;
-          const VARIANT*         v = idValue;
-          
-          THROW_COMEXCEPTION( pNode->QueryInterface(IID_IXMLDOMElement,reinterpret_cast<void**>(&e)) );
-          if( SUCCEEDED( e->getAttribute(_T("id"),const_cast<VARIANT*>(v)) ) )
-          { long id = _ttol(V_BSTR(idValue));
-
-            if( m_lastUniqueId<(unsigned int)id )
-              m_lastUniqueId = id;
-
-            if( m_msiPackageDoc.GetNodeValue(pNode,_T("./path/text()"),pathValue) )
-            { BSTR path = V_BSTR(pathValue);
-
-              m_ids.insert( STR_UINT_Pair(TString(path),(UINT)id) );
-            } // of if
-          } // of if
-        } // of if
-      } // of for
-
-      m_msiPackageDoc.RemoveElements(_T("file"));
-      m_msiPackageDoc.RemoveElements(_T("media"));
-      m_msiPackageDoc.RemoveElements(_T("directories"));
-    } // of else
-  } // of MSICABAddFile1CB()
+    m_msiIdRegistry(msiIdRegistry)
+  { }
 
   /**
    *
    */
   ~MSICABAddFile1CB()
   { }
-
-  /**
-   *
-   */
-  unsigned int GetUniqueId(LPCTSTR category,LPCTSTR path)
-  { unsigned int result = 0;
-
-    STR_UINT_Map::const_iterator i = m_ids.find(path);
-
-    if( i!=m_ids.end() )
-      result = i->second;
-    else
-    { result = ++m_lastUniqueId;
-
-      m_ids.insert( STR_UINT_Pair(TString(path),result) );
-    } // of else
-
-    return result;
-  } // of GetUniqueId()
 
   /**
    *   <registryentries>
@@ -204,8 +111,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   void close()
-  { m_msiPackageDoc.AppendNewline(m_rootElement,0);
-  }
+  { m_msiPackageDoc.AppendNewline(m_rootElement,0); }
 
   /**
    *
@@ -237,33 +143,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   void DumpDirectoryInfo()
-  { VMSIDirInfoT::const_iterator iter;
-
-    if( !m_rootElement.IsNULL() )
-    { COMPtr<IXMLDOMElement> directoriesElement;
-
-      m_msiPackageDoc.CreateElement(_T("directories"),directoriesElement);
-      m_msiPackageDoc.AppendChildToParent(directoriesElement,m_rootElement,1);
-
-      for( iter=m_dirInfo.begin();iter!=m_dirInfo.end();iter++ )
-      { COMPtr<IXMLDOMElement> directoryElement;
-
-        m_msiPackageDoc.CreateElement(_T("directory"),directoryElement);
-        m_msiPackageDoc.AddAttribute(directoryElement,_T("id"),iter->m_dirId);
-
-        if( _tcslen(iter->m_parentId)>0 )
-          m_msiPackageDoc.AddAttribute(directoryElement,_T("parentid"),iter->m_parentId);
-
-        m_msiPackageDoc.AppendChildToParent(directoryElement,directoriesElement,2);
-
-        m_msiPackageDoc.AppendElement(directoryElement,_T("path"),iter->m_dirPath,3);
-        m_msiPackageDoc.AppendElement(directoryElement,_T("name"),iter->m_dirName,3);
-        m_msiPackageDoc.AppendElement(directoryElement,_T("shortname"),iter->m_dirShortName,3);
-      } // of for
-
-      m_msiPackageDoc.AppendNewline(directoriesElement,1);
-    } // of if
-  } // of DumpDirectoryInfo()
+  { m_msiPackageDoc.AddDirectoryInfo(m_dirInfo); }
 
 
   /**
@@ -272,8 +152,8 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
   bool AddFile(LPCTSTR prefix,LPCTSTR filePath,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)
   { TCHAR guid[MAX_PATH];
 
-    // ignore subversion subdirectories
-    if( _tcsstr(filePath,_T(".svn"))!=NULL )
+    // ignore subversion or git subdirectories
+    if( _tcsstr(filePath,_T(".svn"))!=NULL _tcsstr(filePath,_T(".git"))!=NULL )
       return false;
 
     FileInfo               fInfo(filePath);
@@ -281,40 +161,35 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     YAPtr<YAString>        fileName              = fInfo.GetName();
     YAPtr<YAString>        strippedFilePath      = fInfo.GetPartialPath(prefix);
     YAPtr<YAString>        shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
-    unsigned int           uniqueId              = GetUniqueId(_T("file"),strippedFilePath->c_str());
-    COMPtr<IXMLDOMElement> fileElement;
-
-    m_msiPackageDoc.CreateElement(_T("file"),fileElement);
-    m_msiPackageDoc.AppendChildToParent(fileElement,m_filesElement,1);
+    unsigned int           uniqueId              = m_msiIdRegistry.GetUniqueId(_T("file"),strippedFilePath->c_str());
+    YAPtr<YAString>        directoryId;
 
     _stprintf_s(guid,MAX_PATH,_T("%s%08X"),m_msiCompIdPattern,uniqueId);
     _tcscpy_s(addedFileName,addedFileNameMaxLen,guid);
 
-    m_msiPackageDoc.AddAttribute(fileElement,_T("id"),YAString((long)uniqueId).c_str());
-    m_msiPackageDoc.AddAttribute(fileElement,_T("guid"),guid);
-    m_msiPackageDoc.AddAttribute(fileElement,_T("diskid"),_T("1"));
-    m_msiPackageDoc.AddAttribute(fileElement,_T("no"),YAString((long)seqNo).c_str());
-
     if( NULL!=pDirInfo )
-      m_msiPackageDoc.AddAttribute(fileElement,_T("directoryid"),YAString(_T("DIR_")).Append((unsigned long)pDirInfo->GetId()).c_str());
+      directoryId = YAString(_T("DIR_")).Append((unsigned long)pDirInfo->GetId()).c_str();
 
     DWORD fileSize=0;
     DirectoryInfo::_GetFileSize(filePath,&fileSize);
       
     LOGGER_DEBUG<<_T("::AddFile() suffix=<")<<suffix<<_T(">")<<endl;
 
-    m_msiPackageDoc.AddAttribute(fileElement,_T("size"),YAString(fileSize).c_str());
-
-    m_msiPackageDoc.AppendElement(fileElement,_T("path"),strippedFilePath->c_str(),2);
-    m_msiPackageDoc.AppendElement(fileElement,_T("name"),fileName->c_str(),2);
-    m_msiPackageDoc.AppendElement(fileElement,_T("shortname"),shortStrippedFileName->c_str(),2);
-
     VersionInfo verInfo(filePath);
     LPCTSTR fileVersion  = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
     
-    if( NULL!=fileVersion )
-      m_msiPackageDoc.AppendElement(fileElement,_T("version"),fileVersion,2);
-    else
+    m_msiPackageDoc.AddFileInfo(uniqueId,
+                                guid,
+                                seqNo,
+                                directoryId,
+                                fileSize,
+                                strippedFilePath->c_str(),
+                                fileName->c_str(),
+                                shortStrippedFileName->c_str(),
+                                fileVersion
+                               );
+
+    if( NULL==fileVersion )
     { MSIFILEHASHINFO msiHash;
 
       ::memset(&msiHash,0,sizeof(msiHash));
@@ -322,15 +197,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
       THROW_LASTERROREXCEPTION( ::MsiGetFileHash(filePath,0,&msiHash) );
 
-      COMPtr<IXMLDOMElement> hashElement;
-
-      m_msiPackageDoc.CreateElement(_T("hash"),hashElement);
-      m_msiPackageDoc.AppendChildToParent(hashElement,fileElement,2);
-
-      m_msiPackageDoc.AddAttribute(hashElement,_T("id0"),YAString((long)msiHash.dwData[0]).c_str());
-      m_msiPackageDoc.AddAttribute(hashElement,_T("id1"),YAString((long)msiHash.dwData[1]).c_str());
-      m_msiPackageDoc.AddAttribute(hashElement,_T("id2"),YAString((long)msiHash.dwData[2]).c_str());
-      m_msiPackageDoc.AddAttribute(hashElement,_T("id3"),YAString((long)msiHash.dwData[3]).c_str());
+      m_msiPackageDoc.AddHash(msiHash);
     } // of if
 
     if( *suffix == _T(".dll") )
@@ -339,16 +206,13 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
       ENUMREGISTRATIONPROC enumProc = (ENUMREGISTRATIONPROC)shLib.GetProcAddress(_T("DllEnumRegistrationInfo"),false);
 
       if( enumProc )
-      { m_msiPackageDoc.CreateElement(_T("registryentries"),m_lastRegistryentriesElement);
-        m_msiPackageDoc.AppendChildToParent(m_lastRegistryentriesElement,fileElement,2);
+      { m_msiPackageDoc.StartRegistryInfo();
 
         enumProc(RegistryInfoCB,(LPARAM)this);
-
-        m_msiPackageDoc.AppendNewline(m_lastRegistryentriesElement,2);
       } // of if
     } // of if
 
-    m_msiPackageDoc.AppendNewline(fileElement,1);
+    m_msiPackageDoc.AppendNewline();
 
     LOGGER_INFO<<_T(" File ")<<filePath<<_T(" as ")<<addedFileName<<endl;
 
@@ -357,13 +221,8 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
 private:
   VMSIDirInfoT           m_dirInfo;
-  LPCTSTR                m_msiCompIdPattern;
-  util::XMLDocument&     m_msiPackageDoc;
-  COMPtr<IXMLDOMElement> m_rootElement;
-  COMPtr<IXMLDOMElement> m_filesElement;
-  COMPtr<IXMLDOMElement> m_lastRegistryentriesElement;
-  STR_UINT_Map           m_ids;
-  unsigned int           m_lastUniqueId;
+  util::MSIPackage&      m_msiPackageDoc;
+  util::MSIIdRegistry&   m_msiIdRegistry;
 }; // of class MSICABAddFile1CB
 
 /**
@@ -381,9 +240,9 @@ bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCT
 /**
  *
  */
-void msicab(LPTSTR versionFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
+void msicab(LPTSTR versionFName,LPTSTR msiIdRegistryFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cabName,LPTSTR argv[],int argc)
 { util::XMLDocument            versionsDoc;
-  util::XMLDocument            msiPackageDoc;
+  util::MSIIdRegistry          msiIdRegistry(msiIdRegistryFName);
   COMPtr<IXMLDOMNodeList>      pXMLDomNodeList;
   COMPtr<IXMLDOMNode>          pNode;
   util::XMLDocument::PropertyM props;
@@ -392,10 +251,6 @@ void msicab(LPTSTR versionFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cab
     props.insert( util::XMLDocument::PropertyP(argv[i],argv[i+1]) );
 
   versionsDoc.SetProperties(props);
-  msiPackageDoc.SetProperties(props);
-
-  if( FileInfo(msiPackageFName).IsFile() )
-    msiPackageDoc.Load(msiPackageFName);
 
   if( versionsDoc.Load(versionFName) )
   { COVariant productidValue;
@@ -420,22 +275,17 @@ void msicab(LPTSTR versionFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cab
       if( versionsDoc.GetNodeValue(_T("//v:versions//v:product//v:versionhistory/v:version[1]//v:msicomponent//text()"),msiComponentID,true) &&
           DirectoryInfo::_IsDirectory(fullCompDir->c_str())
         )
-      { MSICABAddFile1CB addFileCB(msiPackageDoc,V_BSTR(msiComponentID));
+      { MSIPackage       msiPackageDoc(msiPackageFName,V_BSTR(msiComponentID));
+        MSICABAddFile1CB addFileCB(msiPackageDoc,msiIdRegistry);
 
         cabinet.SetAddFileCallback(&addFileCB);
         cabinet.AddFile(fullCompDir->c_str(),fullCompDir->c_str());
         addFileCB.DumpDirectoryInfo();
 
-        COMPtr<IXMLDOMElement> mediaElement;
-
-        msiPackageDoc.CreateElement(_T("media"),mediaElement);
-        msiPackageDoc.AppendChild(mediaElement,1);
-
-        msiPackageDoc.AddAttribute(mediaElement,_T("diskid"),_T("1"));
-        msiPackageDoc.AddAttribute(mediaElement,_T("lastSequence"),YAString((long)cabinet.GetSequenceNo()).c_str());
-        msiPackageDoc.AppendElement(mediaElement,_T("cabname"),cabName,2);
-
+        msiPackageDoc.AddMedia((long)cabinet.GetSequenceNo(),cabName);
         addFileCB.close();
+
+        msiPackageDoc.Save();
 
         cabinet.SetAddFileCallback(NULL);
         cabinet.AddFile(strippedCabName->c_str(),NULL,_T("msipackage.xml"));
@@ -443,8 +293,6 @@ void msicab(LPTSTR versionFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cab
         cabinet.Flush();
       } // of if
     } // of if
-
-    msiPackageDoc.Save(msiPackageFName);
   } // of if
 } // of msicab()
 
@@ -452,7 +300,7 @@ void msicab(LPTSTR versionFName,LPTSTR msiPackageFName,LPTSTR compDir,LPTSTR cab
  *
  */
 void printUsage(LPCTSTR progName)
-{ LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab <versions file> <msipackage file> <component dir> <cabname>")<<endl;
+{ LOGGER_INFO<<_T("Usage: "<<progName<<" -msicab <versions file> <msiidregistry file> <msipackage file> <component dir> <cabname>")<<endl;
   LOGGER_INFO<<endl;
   
   ::exit(0);
@@ -481,8 +329,8 @@ extern "C" int __cdecl _tmain (int argc, TCHAR  * argv[])
     }
       
     if( _tcscmp(argv[1],_T("-msicab"))==0 )
-    { if( argc>=6 )
-        msicab(argv[2],argv[3],argv[4],argv[5],argc>6 ? &argv[6] : NULL,argc-6);
+    { if( argc>=7 )
+        msicab(argv[2],argv[3],argv[4],argv[5],argv[6],argc>7 ? &argv[7] : NULL,argc-7);
       else
         printUsage(argv[0]);
     } // of else if

@@ -86,7 +86,9 @@ $(OUTDIR)\yastring.obj \
 $(OUTDIR)\yaallocatorpool.obj \
 $(OUTDIR)\fileinfo.obj \
 $(OUTDIR)\yanew.obj \
-$(OUTDIR)\msi.obj
+$(OUTDIR)\msi.obj \
+$(OUTDIR)\msipackage.obj \
+$(OUTDIR)\msiidregistry.obj
 
 !ifdef clean
 all: clean

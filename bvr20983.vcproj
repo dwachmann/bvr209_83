@@ -407,6 +407,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\inc\util\msiidregistry.h"
+						>
+					</File>
+					<File
+						RelativePath=".\inc\util\msipackage.h"
+						>
+					</File>
+					<File
 						RelativePath=".\inc\os.h"
 						>
 					</File>
@@ -746,6 +754,14 @@
 					</File>
 					<File
 						RelativePath=".\src\util\msi.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\msiidregistry.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\util\msipackage.cpp"
 						>
 					</File>
 					<File
