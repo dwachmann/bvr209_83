@@ -246,9 +246,13 @@ namespace bvr20983
       FreeBuffer();
 
       m_buffersize = len;
-      m_buffer     = ::calloc(m_buffersize,sizeof(WCHAR));
+      m_buffer     = ::calloc(m_buffersize,sizeof(TCHAR));
 
      _vstprintf_s(reinterpret_cast<TCHAR*>(m_buffer),m_buffersize,fmt,argp);
+
+     m_str = (LPCTSTR)m_buffer;
+
+     FreeBuffer();
 
      return *this;
     } // of YAString::Format()

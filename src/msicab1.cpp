@@ -151,7 +151,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     _tcscpy_s(addedFileName,addedFileNameMaxLen,uniqueId.guid);
 
     if( NULL!=pDirInfo )
-      directoryId.Format(_T("DIR_%l"),pDirInfo->GetId());
+      directoryId.Format(_T("%s%d"),_T("DIR_"),pDirInfo->GetId());
 
     DWORD fileSize=0;
     DirectoryInfo::_GetFileSize(filePath,&fileSize);

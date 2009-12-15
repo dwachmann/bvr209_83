@@ -34,7 +34,8 @@ namespace bvr20983
      */
     MSIIdRegistry::MSIIdRegistry(LPCTSTR fileName,LPCTSTR msiCompIdPattern) : 
       m_fileName(fileName),
-      m_msiCompIdPattern(msiCompIdPattern)
+      m_msiCompIdPattern(msiCompIdPattern),
+      m_lastUniqueId(0)
     { if( FileInfo(m_fileName).IsFile() )
         m_doc.Load(m_fileName);
 

@@ -35,6 +35,9 @@ namespace bvr20983
     struct MSIId
     { YAString     guid;
       unsigned int id;
+
+      MSIId() : id(0)
+      {}
     }; // of struct MSIId
 
     /**

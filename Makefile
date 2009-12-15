@@ -52,7 +52,7 @@ CABRESULT = $(SIGNDIR)\$(BVR20983_RESULT).cab
 !ifdef clean
 all: $(PROJECTS) fullclean
 !else
-all: patch1 $(PROJECTS) 
+all: $(PROJECTS) 
 !endif
 
 rebuildall: incbuild patch $(PROJECTS) 
