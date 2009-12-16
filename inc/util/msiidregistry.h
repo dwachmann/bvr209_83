@@ -59,7 +59,7 @@ namespace bvr20983
 
         XMLDocument            m_doc;
         COMPtr<IXMLDOMElement> m_rootElement;
-        COMPtr<IXMLDOMElement> m_guidElement;
+        COMPtr<IXMLDOMElement> m_guidElements;
     }; // of class MSIIdRegistry
 
   } // of namespace util

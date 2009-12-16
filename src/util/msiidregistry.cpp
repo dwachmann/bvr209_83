@@ -42,13 +42,13 @@ namespace bvr20983
       if( m_doc.IsEmpty() )
       { m_doc.CreateXmlSkeleton(_T("msiguid"),m_rootElement);
 
-        m_doc.CreateElement(_T("guids"),m_guidElement);
-        m_doc.AppendChildToParent(m_guidElement,m_rootElement,1);
-        m_doc.AppendNewline(m_guidElement,1);
+        m_doc.CreateElement(_T("guids"),m_guidElements);
+        m_doc.AppendChildToParent(m_guidElements,m_rootElement,1);
+        m_doc.AppendNewline(m_guidElements,1);
       } // of if
       else
       { m_doc.GetFirstElement(_T("msiguid"),m_rootElement);
-        m_doc.GetFirstElement(_T("guid"),m_guidElement);
+        m_doc.GetFirstElement(_T("guid"),m_guidElements);
 
         COMPtr<IXMLDOMNodeList> pGuidList;
         COMPtr<IXMLDOMNode>     pNode;
@@ -97,7 +97,9 @@ namespace bvr20983
      *
      */
     void MSIIdRegistry::GetUniqueId(LPCTSTR category,LPCTSTR path,MSIId& uniqueId)
-    { COMPtr<IXMLDOMElement> result;
+    { COMPtr<IXMLDOMElement> guidElement;
+      COMPtr<IXMLDOMElement> pathElement;
+      COMPtr<IXMLDOMText>    pathText;
       COVariant              idValue;
       const VARIANT*         v = idValue;
       unsigned int           id = 0;
@@ -105,22 +107,26 @@ namespace bvr20983
       STR_DOMElement_Map::const_iterator i = m_ids.find(path);
 
       if( i!=m_ids.end() )
-      { result = i->second;
-        result->setAttribute(_T("status"),COVariant(_T("modified")));
+      { guidElement = i->second;
+        guidElement->setAttribute(_T("status"),COVariant(_T("used")));
       } // of if
       else
-      { m_doc.CreateElement(_T("guid"),result);
+      { m_doc.CreateElement(_T("guid"),guidElement);
+        m_doc.CreateElement(_T("path"),pathElement);
 
-        m_doc.AppendChildToParent(result,m_guidElement,1);
-        m_doc.AppendNewline(result,1);
+        m_doc.CreateTextNode(path,pathText);
 
-        result->setAttribute(_T("id"),COVariant(YAString((unsigned long)(++m_lastUniqueId))));
-        result->setAttribute(_T("status"),COVariant(_T("new")));
+        m_doc.AppendChildToParent(pathText,pathElement);
+        m_doc.AppendChildToParent(pathElement,guidElement);
+        m_doc.AppendChildToParent(guidElement,m_guidElements,1);
 
-        m_ids.insert( STR_DOMElement_Pair(TString(path),result) );
+        guidElement->setAttribute(_T("id"),COVariant(YAString((unsigned long)(++m_lastUniqueId))));
+        guidElement->setAttribute(_T("status"),COVariant(_T("new")));
+
+        m_ids.insert( STR_DOMElement_Pair(TString(path),guidElement) );
       } // of else
 
-      result->getAttribute(_T("id"),const_cast<VARIANT*>(v));
+      guidElement->getAttribute(_T("id"),const_cast<VARIANT*>(v));
 
       uniqueId.id   = _ttoi(V_BSTR(v));
       uniqueId.guid.Format(_T("%s%08X"),m_msiCompIdPattern,uniqueId.id);
