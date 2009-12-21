@@ -86,10 +86,20 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *     </registry>
    */
   bool RegistryInfo(bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
-  { m_msiPackageDoc.AddRegistryInfo(startSection,key,name,value);
+  { MSIId    uniqueId;
+    YAString regPath(key);
+
+    if( NULL!=name )
+    { regPath.Append(_T("\\"));
+      regPath.Append(name);
+    } // of if
+
+    m_msiIdRegistry.GetUniqueId(_T("registry"),regPath.c_str(),uniqueId);
+
+    m_msiPackageDoc.AddRegistryInfo(uniqueId.id,uniqueId.guid,startSection,key,name,value);
 
     return true;
-  } // of registryInfo()
+  } // of RegistryInfo()
 
   /**
    *

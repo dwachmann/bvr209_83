@@ -48,7 +48,7 @@ namespace bvr20983
       } // of if
       else
       { m_doc.GetFirstElement(_T("msiguid"),m_rootElement);
-        m_doc.GetFirstElement(_T("guid"),m_guidElements);
+        m_doc.GetFirstElement(_T("guids"),m_guidElements);
 
         COMPtr<IXMLDOMNodeList> pGuidList;
         COMPtr<IXMLDOMNode>     pNode;
@@ -118,7 +118,7 @@ namespace bvr20983
 
         m_doc.AppendChildToParent(pathText,pathElement);
         m_doc.AppendChildToParent(pathElement,guidElement);
-        m_doc.AppendChildToParent(guidElement,m_guidElements,1);
+        m_doc.AppendChildToParent(guidElement,m_guidElements,2);
 
         guidElement->setAttribute(_T("id"),COVariant(YAString((unsigned long)(++m_lastUniqueId))));
         guidElement->setAttribute(_T("status"),COVariant(_T("new")));

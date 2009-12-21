@@ -70,11 +70,14 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::AddRegistryInfo(bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
+    void MSIPackage::AddRegistryInfo(long id,LPCTSTR guid,bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
     { if( !m_lastRegistryentriesElement.IsNULL() )
       { COMPtr<IXMLDOMElement> registryElement;
 
         m_doc.CreateElement(_T("registry"),registryElement);
+        m_doc.AddAttribute(registryElement,_T("id"),YAString((long)id).c_str());
+        m_doc.AddAttribute(registryElement,_T("guid"),guid);
+
         m_doc.AppendChildToParent(registryElement,m_lastRegistryentriesElement,3);
 
         m_doc.AppendElement(registryElement,_T("key"),key,4);
