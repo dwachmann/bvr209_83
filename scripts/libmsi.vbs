@@ -470,23 +470,20 @@ End Sub
 ' transform msipackage to idt files
 '
 Sub TransformMsiPackageDescription(f,msidir)
-  Dim objNodeList,selectCriteria,guidAttr,o,fileVersion
+  Dim objNodeList,selectCriteria,guidAttr,o,fileVersion,idAttr,parentIdAttr
   Dim filesIdt,directoryIdt
 
-  selectCriteria = "/msipackage/files/file"
-  
-  WScript.Echo "TransformMsiPackageDescription(f=" & f & ",selectCriteria=" & selectCriteria & ")"
+  WScript.Echo "TransformMsiPackageDescription(f=" & f & ")"
   
   xmlDoc.load(f)
   
   If xmlDoc.parseError.errorCode<>0 Then
     WScript.Echo xmlDoc.parseError.reason
   Else
-    Set objNodeList = xmlDoc.documentElement.selectNodes(selectCriteria)
+    Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/files/file")
     
     If objNodeList.length>0 Then
-      Set filesIdt     = fso.OpenTextFile(msidir&"\File.idt", ForAppending)
-      Set directoryIdt = fso.OpenTextFile(msidir&"\Directory.idt", ForAppending)
+      Set filesIdt = fso.OpenTextFile(msidir&"\File.idt", ForAppending)
 
       For Each o in objNodeList
         If TypeName(o)="IXMLDOMElement" Then
@@ -522,7 +519,36 @@ Sub TransformMsiPackageDescription(f,msidir)
       Next
 
       filesIdt.Close
+    End If
+
+    Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/directories/directory")
+    
+    If objNodeList.length>0 Then
+      Set directoryIdt = fso.OpenTextFile(msidir&"\Directory.idt", ForAppending)
+
+      For Each o in objNodeList
+        If TypeName(o)="IXMLDOMElement" Then
+          Set idAttr       = o.GetAttributeNode("id")
+          Set parentIdAttr = o.GetAttributeNode("parentid")
+      
+          If TypeName(idAttr)<>"Nothing" Then
+            directoryIdt.Write(idAttr.value & vbTab)
+
+            If TypeName(parentIdAttr)<>"Nothing" Then
+              directoryIdt.Write(parentIdAttr.value)
+            End If
+
+            directoryIdt.Write(vbTab)
+            directoryIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)
+            directoryIdt.Write("|")
+            directoryIdt.Write(o.selectSingleNode("./name/text()").nodeValue)
+            directoryIdt.WriteLine()
+          End If
+        End If  
+      Next
+
       directoryIdt.Close
     End If
+
   End If
 End Sub
