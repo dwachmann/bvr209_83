@@ -96,7 +96,11 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
     m_msiIdRegistry.GetUniqueId(_T("registry"),regPath.c_str(),uniqueId);
 
-    m_msiPackageDoc.AddRegistryInfo(uniqueId.id,uniqueId.guid,startSection,key,name,value);
+    YAString registryId;
+
+    registryId.Format(_T("R%08d"),uniqueId.id);
+
+    m_msiPackageDoc.AddRegistryInfo(registryId,uniqueId.guid,startSection,key,name,value);
 
     return true;
   } // of RegistryInfo()
@@ -154,11 +158,14 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     YAPtr<YAString>        strippedFilePath      = fInfo.GetPartialPath(prefix);
     YAPtr<YAString>        shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
     YAString               directoryId;
+    YAString               fileId;
     MSIId                  uniqueId;
 
     m_msiIdRegistry.GetUniqueId(_T("file"),strippedFilePath->c_str(),uniqueId);
 
-    _tcscpy_s(addedFileName,addedFileNameMaxLen,uniqueId.guid);
+    fileId.Format(_T("F%08d"),uniqueId.id);
+
+    _tcscpy_s(addedFileName,addedFileNameMaxLen,fileId);
 
     if( NULL!=pDirInfo )
       directoryId.Format(_T("%s%d"),_T("DIR_"),pDirInfo->GetId());
@@ -171,7 +178,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     VersionInfo verInfo(filePath);
     LPCTSTR fileVersion  = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
     
-    m_msiPackageDoc.AddFileInfo(uniqueId.id,
+    m_msiPackageDoc.AddFileInfo(fileId,
                                 uniqueId.guid,
                                 seqNo,
                                 directoryId.c_str(),

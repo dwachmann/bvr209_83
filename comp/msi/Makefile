@@ -73,7 +73,11 @@ $(MSIDIR)\$(BVR20983_CABMSI): $(INCDIR)\ver\versions.xml
    $(msicab) -msicab $(INCDIR)\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI) $(MSITEMPLATEDIR)
 
 msicab1:
-   $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(MSITEMPLATEDIR)\msiids.xml $(MSITEMPLATEDIR)\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+#   $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(MSITEMPLATEDIR)\msiid.xml $(MSITEMPLATEDIR)\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+   $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(RESULTDIR)\msiid.xml $(RESULTDIR)\msipackage.xml $(SLNDIR) $(RESULTDIR)\$(BVR20983_CABMSI)
+
+transform: 
+  $(cscript) //job:transform $(SCRIPTSDIR)\msi.wsf /File:$(RESULTDIR)\msipackage.xml /MSIDir:$(RESULTDIR)
 
 validate: 
    $(msival) $(MSIDIR)\$(BVR20983_MSI) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f

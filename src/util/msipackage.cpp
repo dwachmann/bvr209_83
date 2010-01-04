@@ -70,12 +70,12 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::AddRegistryInfo(long id,LPCTSTR guid,bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
+    void MSIPackage::AddRegistryInfo(LPCTSTR id,LPCTSTR guid,bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
     { if( !m_lastRegistryentriesElement.IsNULL() )
       { COMPtr<IXMLDOMElement> registryElement;
 
         m_doc.CreateElement(_T("registry"),registryElement);
-        m_doc.AddAttribute(registryElement,_T("id"),YAString((long)id).c_str());
+        m_doc.AddAttribute(registryElement,_T("id"),id);
         m_doc.AddAttribute(registryElement,_T("guid"),guid);
 
         m_doc.AppendChildToParent(registryElement,m_lastRegistryentriesElement,3);
@@ -128,11 +128,11 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::AddFileInfo(long id,LPCTSTR guid,long seqNo,LPCTSTR dirId,DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,LPCTSTR fileVersion)
+    void MSIPackage::AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,LPCTSTR fileVersion)
     { m_doc.CreateElement(_T("file"),m_lastFileElement);
       m_doc.AppendChildToParent(m_lastFileElement,m_filesElement,1);
 
-      m_doc.AddAttribute(m_lastFileElement,_T("id"),YAString((long)id).c_str());
+      m_doc.AddAttribute(m_lastFileElement,_T("id"),id);
       m_doc.AddAttribute(m_lastFileElement,_T("guid"),guid);
       m_doc.AddAttribute(m_lastFileElement,_T("diskid"),_T("1"));
       m_doc.AddAttribute(m_lastFileElement,_T("no"),YAString((long)seqNo).c_str());

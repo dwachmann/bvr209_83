@@ -86,6 +86,8 @@ msicab1: comp\msi\~msicab1
 
 msipatch: comp\msi\~createpatch
 
+msitransform: comp\msi\~transform
+
 comp\msi\~createmsi:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
@@ -102,6 +104,12 @@ comp\msi\~msicab1:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
   @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msicab1
+<<
+
+comp\msi\~transform:
+  @IF EXIST $(@D)\makefile <<nmaketmp.bat
+  @cd $(@D)
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) transform
 <<
 
 $(CABRESULT): $(CABCONTENT)
