@@ -273,6 +273,7 @@ STDAPI_(void) DllEnumRegistrationInfo(REGISTRYINFOPROC pEnumProc, LPARAM lParam)
     Registry registry;
 
     registry.SetComponentId(compPrefix);
+    registry.SetDumpType(Registry::MSI);
 
     COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
 

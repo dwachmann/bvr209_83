@@ -815,9 +815,9 @@ namespace bvr20983
 
               rVal.GetValue(val);
 
-              value.append(_T("\""));
+              //value.append(_T("\""));
               value.append(val);
-              value.append(_T("\""));
+              //value.append(_T("\""));
             } // of if
             else if( REG_DWORD==type )
             { DWORD val;

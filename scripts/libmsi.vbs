@@ -470,8 +470,8 @@ End Sub
 ' transform msipackage to idt files
 '
 Sub TransformMsiPackageDescription(f,msidir)
-  Dim objNodeList,selectCriteria,guidAttr,o,fileVersion,idAttr,parentIdAttr,dirId,fileId
-  Dim filesIdt,directoryIdt,componentIdt
+  Dim objNodeList,selectCriteria,guidAttr,o,fileVersion,idAttr,parentIdAttr,dirId,fileId,nameNode
+  Dim filesIdt,directoryIdt,componentIdt,registryIdt
 
   WScript.Echo "TransformMsiPackageDescription(f=" & f & ")"
   
@@ -481,7 +481,6 @@ Sub TransformMsiPackageDescription(f,msidir)
     WScript.Echo xmlDoc.parseError.reason
   Else
     Set objNodeList  = xmlDoc.documentElement.selectNodes("/msipackage/files/file")
-'    Set componentIdt = fso.OpenTextFile(msidir&"\Component.idt", ForWriting)
     Set componentIdt = fso.CreateTextFile(msidir&"\Component.idt", True)
 
     componentIdt.WriteLine("Component"&vbTab&"ComponentId"&vbTab&"Directory_"&vbTab&"Attributes"&vbTab&"Condition"&vbTab&"KeyPath")
@@ -567,6 +566,49 @@ Sub TransformMsiPackageDescription(f,msidir)
       Next
 
       directoryIdt.Close
+    End If
+
+    Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//registry")
+    
+    If objNodeList.length>0 Then
+      Set registryIdt = fso.CreateTextFile(msidir&"\Registry.idt", True)
+
+      registryIdt.WriteLine("Registry"&vbTab&"Root"&vbTab&"Key"&vbTab&"Name"&vbTab&"Value"&vbTab&"Component_")
+      registryIdt.WriteLine("s72"&vbTab&"i2"&vbTab&"l255"&vbTab&"L255"&vbTab&"L0"&vbTab&"s72")
+      registryIdt.WriteLine("Registry"&vbTab&"Registry")
+      registryIdt.WriteLine("sclogging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\sc.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
+      registryIdt.WriteLine("cclogging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\cc.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
+      registryIdt.WriteLine("lsstglogging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\lsstg.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
+      registryIdt.WriteLine("lstypeinfologging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\lstypeinfo.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
+
+      For Each o in objNodeList
+        If TypeName(o)="IXMLDOMElement" Then
+          Set guidAttr = o.GetAttributeNode("guid")
+          Set idAttr   = o.GetAttributeNode("id")
+      
+          If TypeName(idAttr)<>"Nothing" Then
+            registryIdt.Write(idAttr.value & vbTab)
+            registryIdt.Write("0")
+            registryIdt.Write(vbTab)
+            registryIdt.Write(o.selectSingleNode("./key/text()").nodeValue)
+            registryIdt.Write(vbTab)
+
+            Set nameNode = o.selectSingleNode("./name/text()")
+
+            If TypeName(nameNode)<>"Nothing" and nameNode.nodeValue<>"@" Then
+              registryIdt.Write(nameNode.nodeValue)
+            End If
+            
+            registryIdt.Write(vbTab)
+            registryIdt.Write(o.selectSingleNode("./value/text()").nodeValue)
+            registryIdt.Write(vbTab)
+            registryIdt.Write(guidAttr.value)
+            registryIdt.WriteLine()
+          End If
+        End If  
+      Next
+
+      registryIdt.Close
     End If
 
     componentIdt.Close
