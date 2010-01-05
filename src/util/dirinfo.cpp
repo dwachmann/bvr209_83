@@ -73,7 +73,7 @@ namespace bvr20983
     DirectoryInfo::DirectoryInfo(LPCSTR baseDirectory,LPCSTR fileMask,UINT maxDepth,const DirectoryInfo* parentDir) :
       m_hFind(INVALID_HANDLE_VALUE),
       m_maxDepth(maxDepth),
-      m_dirId(m_gDirId++),
+      m_id(m_gDirId++),
       m_parentDir(parentDir)
     { WCHAR baseDirectoryW[MAX_PATH];
       WCHAR fileMaskW[MAX_PATH];
@@ -92,7 +92,7 @@ namespace bvr20983
     DirectoryInfo::DirectoryInfo(LPCWSTR baseDirectory,LPCWSTR fileMask,UINT maxDepth,const DirectoryInfo* parentDir) :
       m_hFind(INVALID_HANDLE_VALUE),
       m_maxDepth(maxDepth),
-      m_dirId(m_gDirId++),
+      m_id(m_gDirId++),
       m_parentDir(parentDir)
     { Init(baseDirectory,fileMask); }
 
@@ -135,6 +135,16 @@ namespace bvr20983
       ::wcscpy_s(dir,MAX_PATH,m_baseDirectory);
       ::wcscat_s(dir,MAX_PATH,L"\\");
       ::wcscat_s(dir,MAX_PATH,m_fileMask);
+
+      ::wcscpy_s(m_dirId,MAX_PATH,L"DIR");
+
+      WCHAR idBuffer[20];
+      _itow_s(m_id,idBuffer,20,10);
+
+      ::wcscat_s(m_dirId,MAX_PATH,idBuffer);
+
+      if( wcscmp(m_dirName,L"ProgramFilesFolder")==0 )
+        ::wcscpy_s(m_dirId,MAX_PATH,L"ProgramFilesFolder");
 
       m_hFind = ::FindFirstFileW(dir, &m_findData);
 

@@ -120,10 +120,10 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     if( _tcsstr(dirInfo.GetBaseDirectory(),_T(".svn"))==NULL )
     { MSIDirectoryInfo d(dirInfo.GetName(),dirInfo.GetShortName());
 
-      (d.m_dirId = _T("DIR_")) += (unsigned long)dirInfo.GetId();
+      d.m_dirId = dirInfo.GetDirId();
 
       if( NULL!=dirInfo.GetParentDirInfo() )
-        (d.m_parentId = _T("DIR_")) += (unsigned long)dirInfo.GetParentDirInfo()->GetId();
+        d.m_parentId = dirInfo.GetParentDirInfo()->GetDirId();
 
       TCHAR dirPath[MAX_PATH];
 
@@ -168,7 +168,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     _tcscpy_s(addedFileName,addedFileNameMaxLen,fileId);
 
     if( NULL!=pDirInfo )
-      directoryId.Format(_T("%s%d"),_T("DIR_"),pDirInfo->GetId());
+      directoryId = pDirInfo->GetDirId();
 
     DWORD fileSize=0;
     DirectoryInfo::_GetFileSize(filePath,&fileSize);

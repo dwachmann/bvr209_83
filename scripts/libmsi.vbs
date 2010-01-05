@@ -471,7 +471,7 @@ End Sub
 '
 Sub TransformMsiPackageDescription(f,msidir)
   Dim objNodeList,selectCriteria,guidAttr,o,fileVersion,idAttr,parentIdAttr,dirId,fileId,nameNode
-  Dim filesIdt,directoryIdt,componentIdt,registryIdt
+  Dim filesIdt,directoryIdt,componentIdt,registryIdt,targetDirId
 
   WScript.Echo "TransformMsiPackageDescription(f=" & f & ")"
   
@@ -540,7 +540,6 @@ Sub TransformMsiPackageDescription(f,msidir)
       directoryIdt.WriteLine("Directory"&vbTab&"Directory_Parent"&vbTab&"DefaultDir")
       directoryIdt.WriteLine("s72"&vbTab&"S72"&vbTab&"l255")
       directoryIdt.WriteLine("Directory"&vbTab&"Directory")
-      directoryIdt.WriteLine("TARGETDIR"&vbTab&"SourceDir")
 
       For Each o in objNodeList
         If TypeName(o)="IXMLDOMElement" Then
@@ -548,18 +547,33 @@ Sub TransformMsiPackageDescription(f,msidir)
           Set parentIdAttr = o.GetAttributeNode("parentid")
       
           If TypeName(idAttr)<>"Nothing" Then
-            directoryIdt.Write(idAttr.value & vbTab)
-
             If TypeName(parentIdAttr)<>"Nothing" Then
-              directoryIdt.Write(parentIdAttr.value)
+              directoryIdt.Write(idAttr.value)
+              directoryIdt.Write(vbTab)
+
+              If parentIdAttr.value=targetDirId Then
+                directoryIdt.Write("TARGETDIR")
+              Else
+                directoryIdt.Write(parentIdAttr.value)
+              End If
+
+              directoryIdt.Write(vbTab)
+
+              If idAttr.value="ProgramFilesFolder" Then
+                directoryIdt.Write(".")
+              Else
+                directoryIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)
+                directoryIdt.Write("|")
+                directoryIdt.Write(o.selectSingleNode("./name/text()").nodeValue)
+              End If
             Else
               directoryIdt.Write("TARGETDIR")
+              directoryIdt.Write(vbTab)
+              directoryIdt.Write("SourceDir")
+
+              targetDirId = idAttr.value
             End If
 
-            directoryIdt.Write(vbTab)
-            directoryIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)
-            directoryIdt.Write("|")
-            directoryIdt.Write(o.selectSingleNode("./name/text()").nodeValue)
             directoryIdt.WriteLine()
           End If
         End If  
@@ -604,6 +618,8 @@ Sub TransformMsiPackageDescription(f,msidir)
             registryIdt.Write(vbTab)
             registryIdt.Write(guidAttr.value)
             registryIdt.WriteLine()
+
+            componentIdt.WriteLine(guidAttr.value&vbTab&"{"&guidAttr.value&"}"&vbTab&vbTab&"4"&vbTab&idAttr.value)
           End If
         End If  
       Next
