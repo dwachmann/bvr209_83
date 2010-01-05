@@ -471,7 +471,7 @@ End Sub
 '
 Sub TransformMsiPackageDescription(f,msidir)
   Dim objNodeList,selectCriteria,guidAttr,o,fileVersion,idAttr,parentIdAttr,dirId,fileId,nameNode
-  Dim filesIdt,directoryIdt,componentIdt,registryIdt,targetDirId
+  Dim filesIdt,directoryIdt,componentIdt,registryIdt,targetDirId,hiveNode
 
   WScript.Echo "TransformMsiPackageDescription(f=" & f & ")"
   
@@ -601,15 +601,26 @@ Sub TransformMsiPackageDescription(f,msidir)
           Set idAttr   = o.GetAttributeNode("id")
       
           If TypeName(idAttr)<>"Nothing" Then
+            Set hiveNode = o.selectSingleNode("./key/@hive")
+
             registryIdt.Write(idAttr.value & vbTab)
-            registryIdt.Write("0")
+
+            If hiveNode.value="HKEY_LOCAL_MACHINE" Then
+              registryIdt.Write("2")
+            ElseIf hiveNode.value="HKEY_CLASSES_ROOT" Then
+              registryIdt.Write("0")
+            Else
+              registryIdt.Write("-1")
+            End If
+
             registryIdt.Write(vbTab)
+
             registryIdt.Write(o.selectSingleNode("./key/text()").nodeValue)
             registryIdt.Write(vbTab)
 
             Set nameNode = o.selectSingleNode("./name/text()")
 
-            If TypeName(nameNode)<>"Nothing" and nameNode.nodeValue<>"@" Then
+            If TypeName(nameNode)<>"Nothing" Then
               registryIdt.Write(nameNode.nodeValue)
             End If
             

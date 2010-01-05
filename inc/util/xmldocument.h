@@ -67,6 +67,7 @@ namespace bvr20983
         void    AddAttribute(IXMLDOMElement* pElement,LPCTSTR attribName,LPCTSTR attribValue);
 
         void    AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline=-1);
+        void    AppendElement(COMPtr<IXMLDOMElement>& e,IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline=-1);
 
         boolean IsEmpty() const;
         

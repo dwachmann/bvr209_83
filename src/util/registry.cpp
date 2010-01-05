@@ -781,18 +781,18 @@ namespace bvr20983
         const TString&                    subKey  = regKey.GetSubKey();
         const RegistryKey::RegistryValueM values  = it->second.GetValues();
 
+        TString mainKeyStr;
         TString key;
 
         if( mainKey==HKEY_CLASSES_ROOT )
-          key.append(_T("HKEY_CLASSES_ROOT"));
+          mainKeyStr.append(_T("HKEY_CLASSES_ROOT"));
         else if( mainKey==HKEY_CURRENT_USER )
-          key.append(_T("HKEY_CURRENT_USER"));
+          mainKeyStr.append(_T("HKEY_CURRENT_USER"));
         else if( mainKey==HKEY_LOCAL_MACHINE )
-          key.append(_T("HKEY_LOCAL_MACHINE"));
+          mainKeyStr.append(_T("HKEY_LOCAL_MACHINE"));
         else if( mainKey==HKEY_USERS )
-          key.append(_T("HKEY_USERS"));
+          mainKeyStr.append(_T("HKEY_USERS"));
 
-        key.append(_T("\\"));
         key.append(subKey);
 
         if( !values.empty() )
@@ -803,9 +803,7 @@ namespace bvr20983
             TString valueName;
             TString value;
 
-            if( rVal.IsDefaultValue() )
-              valueName.append(_T("@"));
-            else
+            if( !rVal.IsDefaultValue() )
               valueName.append(rVal.GetName());
 
             DWORD type=rVal.GetType();
@@ -825,13 +823,13 @@ namespace bvr20983
 
               rVal.GetValue(val);
 
-              value.append(_T("dword:"));
+              value.append(_T("#"));
 
               _itot_s(val,val1,20,10);
               value.append(val1);
             } // of else if
 
-            if( !(*pEnumProc)(lParam,false,key.c_str(),valueName.c_str(),value.c_str()) )
+            if( !(*pEnumProc)(lParam,false,mainKeyStr.c_str(),key.c_str(),rVal.IsDefaultValue() ? NULL : valueName.c_str(),value.c_str()) )
               return;
           } // of for
         } // of if

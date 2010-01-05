@@ -70,9 +70,9 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::AddRegistryInfo(LPCTSTR id,LPCTSTR guid,bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
+    void MSIPackage::AddRegistryInfo(LPCTSTR id,LPCTSTR guid,bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value)
     { if( !m_lastRegistryentriesElement.IsNULL() )
-      { COMPtr<IXMLDOMElement> registryElement;
+      { COMPtr<IXMLDOMElement> registryElement,keyElement;
 
         m_doc.CreateElement(_T("registry"),registryElement);
         m_doc.AddAttribute(registryElement,_T("id"),id);
@@ -80,14 +80,14 @@ namespace bvr20983
 
         m_doc.AppendChildToParent(registryElement,m_lastRegistryentriesElement,3);
 
-        m_doc.AppendElement(registryElement,_T("key"),key,4);
+        m_doc.AppendElement(keyElement,registryElement,_T("key"),key,4);
+        m_doc.AddAttribute(keyElement,_T("hive"),mainKey);
 
         if( NULL!=name )
-        { m_doc.AppendElement(registryElement,_T("name"),name,4);
+          m_doc.AppendElement(registryElement,_T("name"),name,4);
 
-          if( NULL!=value )
-            m_doc.AppendElement(registryElement,_T("value"),value,4);
-        } // of if
+        if( NULL!=value )
+          m_doc.AppendElement(registryElement,_T("value"),value,4);
 
         m_doc.AppendNewline(registryElement,3);
       } // of if

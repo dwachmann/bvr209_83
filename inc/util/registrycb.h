@@ -17,11 +17,11 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
 #if !defined(REGISTRYCB_H)
-#define REGISTRY_H
+#define REGISTRYCB_H
 
 #include "os.h"
 
-typedef bool (CALLBACK* REGISTRYINFOPROC)    (LPARAM lParam, bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value);
+typedef bool (CALLBACK* REGISTRYINFOPROC)    (LPARAM lParam, bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
 typedef void (WINAPI*   ENUMREGISTRATIONPROC)(REGISTRYINFOPROC pEnumProc, LPARAM lParam);
 
 #endif // REGISTRYCB_H

@@ -136,12 +136,14 @@ namespace bvr20983
 
     THROW_COMEXCEPTION( pTLib->GetDocumentation(-1,&libName,&libDoc,NULL,NULL) );
 
+/*
     LOGGER_INFO<<_T("Registry::RegisterComObjectsInTypeLibrary()")<<endl;
     LOGGER_INFO<<_T("libname=")<<libName<<endl;
     LOGGER_INFO<<_T("libdoc =")<<libDoc<<endl;
     LOGGER_INFO<<_T("guid   =")<<pTLibAttr->guid<<endl;
     LOGGER_INFO<<_T("lcid   =")<<pTLibAttr->lcid<<endl;
     LOGGER_INFO<<_T("version=")<<pTLibAttr->wMajorVerNum<<_T(".")<<pTLibAttr->wMinorVerNum<<endl;
+*/
 
     UINT maxTypeInfo = pTLib->GetTypeInfoCount();
 

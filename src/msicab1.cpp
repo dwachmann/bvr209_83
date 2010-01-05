@@ -56,7 +56,7 @@ using namespace std;
 /**
  *
  */
-bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value);
+bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
 
 /**
  *
@@ -85,7 +85,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *       <value>"BVR20983 LED Control"</value>
    *     </registry>
    */
-  bool RegistryInfo(bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
+  bool RegistryInfo(bool startSection, LPCTSTR mainKey,LPCTSTR key, LPCTSTR name, LPCTSTR value)
   { MSIId    uniqueId;
     YAString regPath(key);
 
@@ -100,7 +100,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
     registryId.Format(_T("R%08d"),uniqueId.id);
 
-    m_msiPackageDoc.AddRegistryInfo(registryId,uniqueId.guid,startSection,key,name,value);
+    m_msiPackageDoc.AddRegistryInfo(registryId,uniqueId.guid,startSection,mainKey,key,name,value);
 
     return true;
   } // of RegistryInfo()
@@ -228,11 +228,11 @@ private:
 /**
  *
  */
-bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value)
+bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value)
 { bool result = false;
 
   if( NULL!=lParam )
-    result = ((MSICABAddFile1CB*)lParam)->RegistryInfo(startSection,key,name,value);
+    result = ((MSICABAddFile1CB*)lParam)->RegistryInfo(startSection,mainKey,key,name,value);
 
   return result;
 } // of RegistryInfoCB()

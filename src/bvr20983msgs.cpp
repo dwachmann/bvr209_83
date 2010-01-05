@@ -263,6 +263,43 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
   { OutputDebugFmt(_T("DllRegistrationInfo(): Exception\n")); }
 } // of _DllRegistrationInfo_()
 
+/**
+ *
+ */
+STDAPI_(void) DllEnumRegistrationInfo(REGISTRYINFOPROC pEnumProc, LPARAM lParam)
+{ try
+  { OutputDebugFmt(_T("DllEnumRegistrationInfo()\n"));
+
+    LPCTSTR prodPrefix = NULL;
+    LPCTSTR compPrefix = NULL;
+    TCHAR   szModulePath[MAX_PATH];
+
+    COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
+
+    VersionInfo verInfo(szModulePath);
+
+    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
+    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+
+    Registry registry;
+
+    registry.SetDumpType(Registry::MSI);
+    registry.SetComponentId(compPrefix);
+
+    EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
+
+    registry.EnumRegistry(pEnumProc,lParam);
+  }
+  catch(BVR20983Exception e)
+  { OutputDebugFmt(_T("DllEnumRegistrationInfo(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
+    OutputDebugFmt(_T("  Filename \"%s\" Line %d\n"),e.GetFileName(),e.GetLineNo());
+  }
+  catch(exception& e) 
+  { OutputDebugFmt(_T("DllEnumRegistrationInfo(): Exception <%s,%s>\n"),typeid(e).name(),e.what()); }
+  catch(...)
+  { OutputDebugFmt(_T("DllEnumRegistrationInfo(): Exception\n")); }
+} // of DllEnumRegistrationInfo()
+
 #ifdef _UNICODE
 #define _DllIsAdministrator_ DllIsAdministratorW
 #else

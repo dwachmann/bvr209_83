@@ -150,7 +150,15 @@ namespace bvr20983
      */
     void XMLDocument::AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline)
     { COMPtr<IXMLDOMElement> e;
-      COMPtr<IXMLDOMText>    eText;
+      
+      AppendElement(e,pParent,elementName,textValue,appendNewline);
+    } // of XMLDocument::AppendElement()
+
+    /**
+     *
+     */
+    void XMLDocument::AppendElement(COMPtr<IXMLDOMElement>& e,IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline)
+    { COMPtr<IXMLDOMText>    eText;
       COMPtr<IXMLDOMText>    newlineText;
 
       CreateElement(elementName,e);

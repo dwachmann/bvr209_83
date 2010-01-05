@@ -40,7 +40,7 @@ namespace bvr20983
         void AddMedia(long seqNo,LPCTSTR cabName);
         void AddDirectoryInfo(VMSIDirInfoT& dirInfo);
         void StartRegistryInfo();
-        void AddRegistryInfo(LPCTSTR id,LPCTSTR guid,bool startSection, LPCTSTR key, LPCTSTR name, LPCTSTR value);
+        void AddRegistryInfo(LPCTSTR id,LPCTSTR guid,bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
         void AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,LPCTSTR fileVersion);
         void AddHash(MSIFILEHASHINFO& msiHash);
         void AppendNewline();
