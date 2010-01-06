@@ -114,7 +114,7 @@ library BVR20983_0_CC
   /**
    * Event Interface for LED control
    */
-  [ uuid(BFE20983-0000-0001-0004-0001FFFFFFFF), 
+  [ uuid(BFE20983-0000-0002-0004-0001FFFFFFFF), 
     helpstring("Event interface for LED control")
   ]
   dispinterface DLEDEvent
@@ -138,7 +138,7 @@ library BVR20983_0_CC
   /**
    * primary dispatch interface for LED control
    */
-  [ uuid(BFE20983-0000-0001-0002-0001FFFFFFFF),
+  [ uuid(BFE20983-0000-0005-0002-0001FFFFFFFF),
     helpstring("LED Control"),
     dual,
     oleautomation

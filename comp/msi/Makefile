@@ -73,11 +73,33 @@ $(MSIDIR)\$(BVR20983_CABMSI): $(INCDIR)\ver\versions.xml
    $(msicab) -msicab $(INCDIR)\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI) $(MSITEMPLATEDIR)
 
 msicab1:
-#   $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(MSITEMPLATEDIR)\msiid.xml $(MSITEMPLATEDIR)\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
-   $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(RESULTDIR)\msiid.xml $(RESULTDIR)\msipackage.xml $(SLNDIR) $(RESULTDIR)\$(BVR20983_CABMSI)
-
+   if not exist "$(MSIDIR)\$(NULL)"                  mkdir $(MSIDIR)
+   if not exist "$(MSIDIR)\templates\$(NULL)"        mkdir $(MSIDIR)\templates
+   if not exist "$(MSIDIR)\templates\Binary\$(NULL)" mkdir $(MSIDIR)\templates\Binary
+   if not exist "$(MSIDIR)\templates\Icon\$(NULL)"   mkdir $(MSIDIR)\templates\Icon
+   @copy $(MSITEMPLATEDIR)\*.idt    $(MSIDIR)\templates
+   @copy $(MSITEMPLATEDIR)\Binary\* $(MSIDIR)\templates\Binary
+   @copy $(MSITEMPLATEDIR)\Icon\*   $(MSIDIR)\templates\Icon
+   @copy $(SLNDIR)\$(BVR20983RES_RESULT).dll $(MSIDIR)\templates\Icon\bvr20983res.exe.ibd
+   $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+ 
 transform: 
-  $(cscript) //job:transform $(SCRIPTSDIR)\msi.wsf /File:$(RESULTDIR)\msipackage.xml /MSIDir:$(RESULTDIR)
+   $(cscript) //job:transform $(SCRIPTSDIR)\msi.wsf /File:$(PROJECTDIR)\comp\msi\msipackage.xml /MSIDir:$(MSIDIR)\templates
+   $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(MSIDIR)\templates -i *
+   $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)
+   $(msiinfo) $(MSIDIR)\$(BVR20983_MSI) \
+             -T "Installation Database" \
+             -J "$(BVR20983_RESULT)" \
+             -A "$(BVR20983_MSI_COMPANY)" \
+             -K "Installer, MSI, Database" \
+             -O "$(BVR20983DESC)" \
+             -P "Intel;1033" \
+             -V {$(BVR20983_MSI_PACKAGECODE)} \
+             -G 200 \
+             -W 2 \
+             -N msidb \
+             -U 0 \
+             -L dw
 
 validate: 
    $(msival) $(MSIDIR)\$(BVR20983_MSI) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f

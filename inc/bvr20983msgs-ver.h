@@ -24,8 +24,8 @@
 #include "bvr20983-prod.h"
 #include "bvr20983volatile-ver.h"
 
-#define verFileVer        1,0,0,258
-#define verFileVer1       "1.0.0.258"
+#define verFileVer        1,0,0,260
+#define verFileVer1       "1.0.0.260"
 #define verFileDesc       "Product installation and message component"
 #define verIntName        "msgs"
 #define verOrigName       "bvr20983.0.msgs.1.dll"

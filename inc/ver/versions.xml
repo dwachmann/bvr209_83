@@ -614,12 +614,12 @@
 			</type>
 			<type id="ILED" typeid="0002">
 				<version major="1"/>
-				<no>0001</no>
+				<no>0005</no>
 				<guid>${guidpattern}</guid>
 			</type>
 			<type id="DLEDEvent" typeid="0004">
 				<version major="1"/>
-				<no>0001</no>
+				<no>0002</no>
 				<guid>${guidpattern}</guid>
 			</type>
 			<type id="LEDPropertyPage" typeid="0013">

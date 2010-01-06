@@ -23,14 +23,14 @@
 
 #include "bvr20983-prod.h"
 
-#define verFileVer        1,0,0,258
-#define verFileVer1       "1.0.0.258"
+#define verFileVer        1,0,0,260
+#define verFileVer1       "1.0.0.260"
 #define verFileDesc       "list COM structure storage"
 #define verIntName        "lsstg"
 #define verOrigName       "bvr20983.0.lsstg.1.exe"
-#define verMakeDate       "01.11.2009 10:51"
+#define verMakeDate       "06.01.2010 00:39"
 #define verRevision       "222"
-#define verCommit         "6853053c5bf8fd6a252425fe55b57dbbdc89fbb6"
+#define verCommit         "c783515223a8aca623b469a51ccb5208e5b5f8dd"
 #define verCompPrefix     "lsstg.1"
 #define verDebugVersion   "1"
 #define verMSIProdVersion "0.1.0"
