@@ -536,6 +536,7 @@ Sub TransformMsiPackageDescription(f,msidir)
     componentIdt.WriteLine("Component"&vbTab&"ComponentId"&vbTab&"Directory_"&vbTab&"Attributes"&vbTab&"Condition"&vbTab&"KeyPath")
     componentIdt.WriteLine("s72"&vbTab&"S38"&vbTab&"s72"&vbTab&"i2"&vbTab&"S255"&vbTab&"S72")
     componentIdt.WriteLine("Component"&vbTab&"Component")
+    componentIdt.WriteLine("globalregistryentries"&vbTab&"{BFE20983-0000-0103-0000-000000000001}"&vbTab&"TARGETDIR"&vbTab&"4"&vbTab&vbTab&"sclogging")
 
     Set objNodeList  = xmlDoc.documentElement.selectNodes("/msipackage/files/file")
     

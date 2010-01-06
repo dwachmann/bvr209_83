@@ -771,7 +771,6 @@ namespace bvr20983
   void Registry::EnumRegistry(REGISTRYINFOPROC pEnumProc, LPARAM lParam)
   { if( NULL!=pEnumProc )
     { DWORD                          i           = 0;
-      const TString&                 compId      = GetComponentId();
       const Registry::RegistryKeyM&  keys        = GetKeys();
       const Registry::RegistryKeyM1& deletedKeys = GetDeletedKeys();
 

@@ -129,7 +129,7 @@ namespace bvr20983
       guidElement->getAttribute(_T("id"),const_cast<VARIANT*>(v));
 
       uniqueId.id   = _ttoi(V_BSTR(v));
-      uniqueId.guid.Format(_T("%s%08X"),m_msiCompIdPattern,uniqueId.id);
+      uniqueId.guid.Format(_T("%s%08X"),m_msiCompIdPattern,uniqueId.id+1024);
     } // of MSIIdRegistry::GetUniqueId()
   } // of namespace util
 } // of namespace bvr20983

@@ -139,11 +139,35 @@
       <xs:element name="msiupgradecode" type="xs:string"   minOccurs="0" />
       <xs:element name="msipatchcode"   type="xs:string"   minOccurs="0" />
       <xs:element name="msino"          type="xs:string"   minOccurs="0" />
+      <xs:element name="msifeatures"    type="msiFeaturesType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
     <xs:attribute name="major"    type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="minor"    type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="fix"      type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="build"    type="xs:nonNegativeInteger" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="msiFeaturesType">
+    <xs:sequence>
+      <xs:element name="msifeature"     type="msiFeatureType"   minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="msiFeatureType">
+    <xs:sequence>
+      <xs:element name="msifeature"     type="msiFeatureType"   minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="msicomponent"   type="msiComponentType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id"          type="xs:string"             use="required"/>
+    <xs:attribute name="title"       type="xs:string"             use="required"/>
+    <xs:attribute name="description" type="xs:string"             use="required"/>
+    <xs:attribute name="directory"   type="xs:string"             />
+    <xs:attribute name="level"       type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="attribute"   type="xs:nonNegativeInteger" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="msiComponentType">
+    <xs:attribute name="compid"      type="xs:string"             use="required"/>
   </xs:complexType>
 
   <xs:simpleType name="comptypeType">

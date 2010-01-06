@@ -37,7 +37,40 @@
 				<msiupgradecode>${msiupdpattern}</msiupgradecode>
 				<msipatchcode>${msipatchpattern}</msipatchcode>
 				<msino>0001</msino>
-			</version>
+
+        <msifeatures>
+          <msifeature id="sc"         directory="TARGETDIR" level="1" attribute="0" title="Smartcard Library"      description="A COM Library to access a smartcard">
+            <msicomponent compid="sc"/>
+            <msicomponent compid="doc"/>
+            <msicomponent id="globalregistryentries"/>
+          </msifeature>
+          <msifeature id="cc"         directory="TARGETDIR" level="1" attribute="0" title="Custom Control Library" description="A OCX Library with several controls">
+            <msicomponent compid="cc"/>
+            <msicomponent compid="doc"/>
+          </msifeature>
+
+          <msifeature id="demo"       directory="TARGETDIR" level="3" attribute="0" title="Demo"                   description="Demo Programs">
+            <msifeature id="digiclock"  level="3" attribute="0" title="A digital clock"        description="A Testfile for the digital clock control">
+              <msicomponent compid="digiclock"/>
+            </msifeature>
+            <msifeature id="samples"    level="3" attribute="0" title="Samples"                description="Usage Samples">
+              <msicomponent compid="sample"/>
+              <msicomponent compid="doc"/>
+            </msifeature>
+          </msifeature>
+
+          <msifeature id="tools"      directory="TARGETDIR" level="2" attribute="0" title="Tools"                  description="Tools">
+            <msifeature id="lsstg"      level="2" attribute="0" title="lsstg"                  description="Display compound file structure">
+              <msicomponent compid="lsstg"/>
+            </msifeature>
+
+            <msifeature id="lstypeinfo" level="2" attribute="0" title="lstypeinfo"             description="Display typelib information">
+              <msicomponent compid="lstypeinfo"/>
+            </msifeature>
+          </msifeature>
+        </msifeatures>
+        
+      </version>
 			<version major="0" minor="0" fix="1" build="0">
 				<msipackagecode>${msipackpattern}</msipackagecode>
 				<msiproductcode>${msiprodpattern}</msiproductcode>
@@ -55,6 +88,7 @@
 				<msino>0001</msino>
 			</version>
 		</versionhistory>
+    
 		<name>BVR2098 Suite</name>
 		<no>BFE20983</no>
 		<company>Dorothea Wachmann</company>
@@ -174,6 +208,7 @@
 			<pattern><key>(^#define.+verProdPrefix[ \t]+)(.*)</key>
 				<value>$1"#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}"</value></pattern>
 		</patch>
+    
 		<component id="res" type="dll">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>Resource Library</name>
