@@ -52,10 +52,13 @@
           <msifeature id="demo"       directory="TARGETDIR" level="3" attribute="0" title="Demo"                   description="Demo Programs">
             <msifeature id="digiclock"  level="3" attribute="0" title="A digital clock"        description="A Testfile for the digital clock control">
               <msicomponent compid="digiclock"/>
+              <msicomponent compid="cc"/>
             </msifeature>
             <msifeature id="samples"    level="3" attribute="0" title="Samples"                description="Usage Samples">
               <msicomponent compid="sample"/>
               <msicomponent compid="doc"/>
+              <msicomponent compid="cc"/>
+              <msicomponent compid="sc"/>
             </msifeature>
           </msifeature>
 

@@ -90,8 +90,7 @@ namespace bvr20983
      *
      */
     MSIIdRegistry::~MSIIdRegistry()
-    { m_doc.Save(m_fileName);
-    }
+    { m_doc.Save(m_fileName); }
 
     /**
      *

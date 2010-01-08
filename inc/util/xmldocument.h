@@ -54,6 +54,8 @@ namespace bvr20983
         boolean GetNodeValue(LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
         boolean GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
 
+        boolean GetAttribute(COMPtr<IXMLDOMNode>& node,LPCTSTR attributeName,COM::COVariant& value);
+
         boolean GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value);
         
         void    CreateXmlSkeleton(LPCTSTR rootElementName,COMPtr<IXMLDOMElement> &ppRoot);
@@ -70,6 +72,8 @@ namespace bvr20983
         void    AppendElement(COMPtr<IXMLDOMElement>& e,IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline=-1);
 
         boolean IsEmpty() const;
+        boolean IsElement(IXMLDOMNode* pNode) const;
+        boolean IsElement(IXMLDOMNode* pNode,LPCTSTR elementName) const;
         
       private:
         COMPtr<MSXML2::IXMLDOMDocument2> m_pXmlDoc;

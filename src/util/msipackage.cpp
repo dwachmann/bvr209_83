@@ -21,6 +21,9 @@
 #include "os.h"
 #include "util/msipackage.h"
 #include "util/yastring.h"
+#include "util/logstream.h"
+
+using namespace bvr20983::COM;
 
 namespace bvr20983 
 {
@@ -29,13 +32,15 @@ namespace bvr20983
     /**
      *
      */
-    MSIPackage::MSIPackage(LPCTSTR fileName) : 
+    MSIPackage::MSIPackage(LPCTSTR fileName,util::XMLDocument versionsDoc) : 
       m_fileName(fileName)
     { m_doc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
 
       m_doc.CreateElement(_T("files"),m_filesElement);
       m_doc.AppendChildToParent(m_filesElement,m_rootElement,1);
       m_doc.AppendNewline(m_filesElement,1);
+
+      LoadFeatures(versionsDoc);
     } // of MSIPackage::MSIPackage()
 
     /**
@@ -43,6 +48,45 @@ namespace bvr20983
      */
     MSIPackage::~MSIPackage()
     { }
+
+    /**
+     *
+     */
+    void MSIPackage::LoadFeatures(util::XMLDocument versionsDoc)
+    { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+
+      versionsDoc.GetSelection(_T("//v:version[1]//v:msicomponent"),pXMLDomNodeList);
+
+      if( !pXMLDomNodeList.IsNULL() )
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
+        { COVariant compid;
+
+          if( versionsDoc.GetAttribute(pNode,_T("compid"),compid) )
+          { COMPtr<IXMLDOMNode> pParentNode;
+            COVariant           id;
+            COVariant           title;
+          
+            THROW_COMEXCEPTION( pNode->get_parentNode(&pParentNode) );
+
+            if( !pParentNode.IsNULL()                               &&
+                versionsDoc.IsElement(pParentNode,_T("msifeature")) &&
+                versionsDoc.GetAttribute(pParentNode,_T("id"),id)   &&
+                versionsDoc.GetAttribute(pParentNode,_T("title"),title)
+              )
+            {
+              LOGGER_INFO<<V_BSTR(compid)<<_T(" --> ")<<V_BSTR(id)<<_T(":\"")<<V_BSTR(title)<<_T("\"")<<endl;
+            } // of if
+          } // of if
+        } // of for
+    } // of MSIPackage::LoadFeatures()
+
+    /**
+     *
+     */
+    LPCTSTR MSIPackage::GetFeature(LPCTSTR fileName)
+    { return _T("bla");
+    } // of MSIPackage::GetFeature()
 
     /**
      *
@@ -128,7 +172,10 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,LPCTSTR fileVersion)
+    void MSIPackage::AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,
+                                 DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,
+                                 LPCTSTR fileVersion
+                                )
     { m_doc.CreateElement(_T("file"),m_lastFileElement);
       m_doc.AppendChildToParent(m_lastFileElement,m_filesElement,1);
 

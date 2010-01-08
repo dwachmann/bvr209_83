@@ -271,10 +271,10 @@ void msicab(LPTSTR versionFName,LPTSTR msiIdRegistryFName,LPTSTR msiPackageFName
       
       COVariant msiComponentID;
 
-      if( versionsDoc.GetNodeValue(_T("//v:versions//v:product//v:versionhistory/v:version[1]//v:msicomponent//text()"),msiComponentID,true) &&
+      if( versionsDoc.GetNodeValue(_T("/v:versions/v:product/v:versionhistory/v:version[1]/v:msicomponent/text()"),msiComponentID,true) &&
           DirectoryInfo::_IsDirectory(fullCompDir->c_str())
         )
-      { MSIPackage       msiPackageDoc(msiPackageFName);
+      { MSIPackage       msiPackageDoc(msiPackageFName,versionsDoc);
         MSIIdRegistry    msiIdRegistry(msiIdRegistryFName,V_BSTR(msiComponentID));
         MSICABAddFile1CB addFileCB(msiPackageDoc,msiIdRegistry);
 

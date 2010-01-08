@@ -336,6 +336,44 @@ namespace bvr20983
     /**
      *
      */
+    boolean XMLDocument::IsElement(IXMLDOMNode* pNode) const
+    { boolean     result = false;
+      DOMNodeType type;
+
+      if( NULL!=pNode )
+      { THROW_COMEXCEPTION( pNode->get_nodeType(&type) );
+
+        result = type==NODE_ELEMENT;
+      } // of if
+
+      return result;
+    } // of XMLDocument::IsElement()
+
+    /**
+     *
+     */
+    boolean XMLDocument::IsElement(IXMLDOMNode* pNode,LPCTSTR elementName) const
+    { boolean     result = false;
+      DOMNodeType type;
+
+      if( NULL!=pNode && NULL!=elementName )
+      { THROW_COMEXCEPTION( pNode->get_nodeType(&type) );
+
+        if( type==NODE_ELEMENT )
+        { COMString nodeName;
+          
+          THROW_COMEXCEPTION( pNode->get_nodeName(&nodeName) );
+
+          result = _tcscmp(nodeName,elementName)==0;
+        } // of if
+      } // of if
+
+      return result;
+    } // of XMLDocument::IsElement()
+
+    /**
+     *
+     */
     boolean XMLDocument::GetNodeValue(LPCTSTR xpath,COVariant& value,boolean evalProperty)
     { boolean result = false;
     
@@ -377,6 +415,30 @@ namespace bvr20983
       
       return result;
     } // of XMLDocument::GetNodeValue()
+
+    /**
+     *
+     */
+    boolean XMLDocument::GetAttribute(COMPtr<IXMLDOMNode>& node,LPCTSTR attributeName,COM::COVariant& attributeValue)
+    { boolean     result = false;
+      DOMNodeType type;
+
+      if( !node.IsNULL() && NULL!=attributeName )
+      { THROW_COMEXCEPTION( node->get_nodeType(&type) );
+
+        if( type==NODE_ELEMENT )
+        { COMPtr<IXMLDOMElement> e;
+          const VARIANT*         v = attributeValue;
+
+          THROW_COMEXCEPTION( node->QueryInterface(IID_IXMLDOMElement,reinterpret_cast<void**>(&e)) );
+          THROW_COMEXCEPTION( e->getAttribute((BSTR)attributeName,const_cast<VARIANT*>(v)) );
+
+          result = attributeValue.IsSet();
+        } // of if
+      } // of if
+
+      return result;
+    } // of XMLDocument::GetAttribute()
 
     /**
      *

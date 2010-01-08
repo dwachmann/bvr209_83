@@ -33,7 +33,7 @@ namespace bvr20983
     class MSIPackage
     {
       public:
-        MSIPackage(LPCTSTR fileName);
+        MSIPackage(LPCTSTR fileName,util::XMLDocument versionsDoc);
         ~MSIPackage();
 
         void Save();
@@ -53,6 +53,9 @@ namespace bvr20983
         COMPtr<IXMLDOMElement> m_lastRegistryentriesElement;
         COMPtr<IXMLDOMElement> m_lastFileElement;
         COMPtr<IXMLDOMElement> m_lastElement;
+
+        void    LoadFeatures(util::XMLDocument versionsDoc);
+        LPCTSTR GetFeature(LPCTSTR fileName);
 	  }; // of class MSIPackage
 
   } // of namespace util

@@ -58,6 +58,15 @@ namespace bvr20983
         HRESULT ChangeType(VARTYPE vt,const COVariant& v);
         HRESULT ChangeType(VARTYPE vt);
 
+        boolean IsEmpty() const
+        { return m_value.vt==VT_EMPTY; }
+
+        boolean IsNULL() const
+        { return m_value.vt==VT_NULL; }
+
+        boolean IsSet() const
+        { return m_value.vt!=VT_NULL && m_value.vt!=VT_EMPTY; }
+
 //        VARIANT* operator&() 
 //        { return &m_value; }
 
