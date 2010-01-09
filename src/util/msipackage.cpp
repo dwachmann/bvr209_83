@@ -41,6 +41,7 @@ namespace bvr20983
       m_doc.AppendNewline(m_filesElement,1);
 
       LoadFeatures(versionsDoc);
+      LoadFilenames(versionsDoc);
     } // of MSIPackage::MSIPackage()
 
     /**
@@ -74,12 +75,74 @@ namespace bvr20983
                 versionsDoc.GetAttribute(pParentNode,_T("id"),id)   &&
                 versionsDoc.GetAttribute(pParentNode,_T("title"),title)
               )
-            {
-              LOGGER_INFO<<V_BSTR(compid)<<_T(" --> ")<<V_BSTR(id)<<_T(":\"")<<V_BSTR(title)<<_T("\"")<<endl;
+            { TString compIdKey(V_BSTR(compid));
+              TString featureIdKey(V_BSTR(id));
+
+              STR_TStringSet_Map::iterator it = m_comp2feature.find(compIdKey);
+
+              if( it==m_comp2feature.end() )
+              { std::set<TString> features;
+
+                features.insert(TString(V_BSTR(id)));
+
+                m_comp2feature.insert(STR_TStringSet_Pair(compIdKey,features));
+              } // of if
+              else
+                it->second.insert(featureIdKey);
             } // of if
           } // of if
         } // of for
+
+      for( STR_TStringSet_Map::const_iterator it0=m_comp2feature.begin();
+           it0!=m_comp2feature.end();
+           it0++
+         )
+      { TString           compId   = it0->first;
+        std::set<TString> features = it0->second;
+
+        for( std::set<TString>::const_iterator it1=features.begin();it1!=features.end();it1++ )
+        { TString featureId = *it1;
+        
+          LOGGER_INFO<<compId.c_str()<<_T(":")<<featureId.c_str()<<endl;
+        } // of for
+      } // of for
     } // of MSIPackage::LoadFeatures()
+
+    /**
+     *
+     */
+    void MSIPackage::LoadFilenames(util::XMLDocument versionsDoc)
+    { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+
+      versionsDoc.GetSelection(_T("//v:component[@type='dll']"),pXMLDomNodeList);
+
+      if( !pXMLDomNodeList.IsNULL() )
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
+        { COVariant id;
+
+          if( versionsDoc.GetAttribute(pNode,_T("id"),id) )
+          { TString filenameKey(_T("//v:component[@id='"));
+            filenameKey += V_BSTR(id);
+            filenameKey += _T("']/v:filename/text()");
+
+            COVariant filename;
+
+            if( versionsDoc.GetNodeValue(filenameKey.c_str(),filename,true) )
+            { TString fullFilename(V_BSTR(filename));
+
+              fullFilename += _T(".dll");
+
+              m_filename2comp.insert( STR_STR_Pair(fullFilename,V_BSTR(id)) );
+            } // of if
+          } // of if
+        } // of for
+
+      for( STR_STR_Map::const_iterator it=m_filename2comp.begin();it!=m_filename2comp.end();it++ )
+      { 
+        LOGGER_INFO<<it->first<<_T(":")<<it->second<<endl;
+      } // of for
+    } // of MSIPackage::LoadFilenames()
 
     /**
      *

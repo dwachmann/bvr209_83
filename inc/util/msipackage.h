@@ -27,6 +27,12 @@ namespace bvr20983
 {
   namespace util
   {
+    typedef std::map<TString,std::set<TString>>  STR_TStringSet_Map;
+    typedef std::pair<TString,std::set<TString>> STR_TStringSet_Pair;
+
+    typedef std::map<TString,TString>            STR_STR_Map;
+    typedef std::pair<TString,TString>           STR_STR_Pair;
+
     /**
      *
      */
@@ -54,7 +60,11 @@ namespace bvr20983
         COMPtr<IXMLDOMElement> m_lastFileElement;
         COMPtr<IXMLDOMElement> m_lastElement;
 
+        STR_TStringSet_Map     m_comp2feature;
+        STR_STR_Map            m_filename2comp;
+
         void    LoadFeatures(util::XMLDocument versionsDoc);
+        void    LoadFilenames(util::XMLDocument versionsDoc);
         LPCTSTR GetFeature(LPCTSTR fileName);
 	  }; // of class MSIPackage
 

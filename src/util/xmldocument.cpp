@@ -514,7 +514,7 @@ namespace bvr20983
                   LPTSTR s = const_cast<LPTSTR>(V_BSTR(v4));
 
                   for( ;*s!=_T('\0');s++ )
-                    *s = toupper(*s);
+                    *s = tolower(*s);
 
                   prop += V_BSTR(v4);
                 } // of if
