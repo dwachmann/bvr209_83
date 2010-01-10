@@ -65,7 +65,7 @@ namespace bvr20983
 
         void    LoadFeatures(util::XMLDocument versionsDoc);
         void    LoadFilenames(util::XMLDocument versionsDoc);
-        LPCTSTR GetFeature(LPCTSTR fileName);
+        boolean AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR fileName);
 	  }; // of class MSIPackage
 
   } // of namespace util

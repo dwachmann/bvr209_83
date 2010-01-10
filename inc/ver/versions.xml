@@ -41,11 +41,17 @@
         <msifeatures>
           <msifeature id="sc"         directory="TARGETDIR" level="1" attribute="0" title="Smartcard Library"      description="A COM Library to access a smartcard">
             <msicomponent compid="sc"/>
+            <msicomponent compid="msgs"/>
+            <msicomponent compid="res"/>
+            <msicomponent compid="update"/>
             <msicomponent compid="doc"/>
             <msicomponent id="globalregistryentries"/>
           </msifeature>
           <msifeature id="cc"         directory="TARGETDIR" level="1" attribute="0" title="Custom Control Library" description="A OCX Library with several controls">
             <msicomponent compid="cc"/>
+            <msicomponent compid="msgs"/>
+            <msicomponent compid="res"/>
+            <msicomponent compid="update"/>
             <msicomponent compid="doc"/>
           </msifeature>
 
@@ -53,12 +59,18 @@
             <msifeature id="digiclock"  level="3" attribute="0" title="A digital clock"        description="A Testfile for the digital clock control">
               <msicomponent compid="digiclock"/>
               <msicomponent compid="cc"/>
+              <msicomponent compid="msgs"/>
+              <msicomponent compid="res"/>
+              <msicomponent compid="update"/>
             </msifeature>
             <msifeature id="samples"    level="3" attribute="0" title="Samples"                description="Usage Samples">
               <msicomponent compid="sample"/>
               <msicomponent compid="doc"/>
               <msicomponent compid="cc"/>
               <msicomponent compid="sc"/>
+              <msicomponent compid="msgs"/>
+              <msicomponent compid="res"/>
+              <msicomponent compid="update"/>
             </msifeature>
           </msifeature>
 

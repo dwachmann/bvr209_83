@@ -93,6 +93,7 @@ namespace bvr20983
           } // of if
         } // of for
 
+/*
       for( STR_TStringSet_Map::const_iterator it0=m_comp2feature.begin();
            it0!=m_comp2feature.end();
            it0++
@@ -106,6 +107,8 @@ namespace bvr20983
           LOGGER_INFO<<compId.c_str()<<_T(":")<<featureId.c_str()<<endl;
         } // of for
       } // of for
+*/
+
     } // of MSIPackage::LoadFeatures()
 
     /**
@@ -115,13 +118,16 @@ namespace bvr20983
     { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
       COMPtr<IXMLDOMNode>     pNode;
 
-      versionsDoc.GetSelection(_T("//v:component[@type='dll']"),pXMLDomNodeList);
+      versionsDoc.GetSelection(_T("//v:component[@type='dll' or @type='exe']"),pXMLDomNodeList);
 
       if( !pXMLDomNodeList.IsNULL() )
         for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
         { COVariant id;
+          COVariant type;
 
-          if( versionsDoc.GetAttribute(pNode,_T("id"),id) )
+          if( versionsDoc.GetAttribute(pNode,_T("id"),id) &&
+              versionsDoc.GetAttribute(pNode,_T("type"),type) 
+            )
           { TString filenameKey(_T("//v:component[@id='"));
             filenameKey += V_BSTR(id);
             filenameKey += _T("']/v:filename/text()");
@@ -129,27 +135,51 @@ namespace bvr20983
             COVariant filename;
 
             if( versionsDoc.GetNodeValue(filenameKey.c_str(),filename,true) )
-            { TString fullFilename(V_BSTR(filename));
+            { TString   fullFilename(V_BSTR(filename));
 
-              fullFilename += _T(".dll");
+              fullFilename += _T(".");
+              fullFilename += V_BSTR(type);
 
               m_filename2comp.insert( STR_STR_Pair(fullFilename,V_BSTR(id)) );
             } // of if
           } // of if
         } // of for
 
+/*
       for( STR_STR_Map::const_iterator it=m_filename2comp.begin();it!=m_filename2comp.end();it++ )
       { 
         LOGGER_INFO<<it->first<<_T(":")<<it->second<<endl;
       } // of for
+*/
     } // of MSIPackage::LoadFilenames()
 
     /**
      *
      */
-    LPCTSTR MSIPackage::GetFeature(LPCTSTR fileName)
-    { return _T("bla");
-    } // of MSIPackage::GetFeature()
+    boolean MSIPackage::AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR fileName)
+    { boolean result = false;
+
+      m_doc.CreateElement(_T("features"),featuresElement);
+
+      STR_STR_Map::const_iterator it0 = m_filename2comp.find(fileName);
+
+      if( it0!=m_filename2comp.end() )
+      { TString                            compid = it0->second;
+        STR_TStringSet_Map::const_iterator it1    = m_comp2feature.find(compid);
+
+        if( it1!=m_comp2feature.end() )
+        { std::set<TString> features = it1->second;
+
+          for( std::set<TString>::const_iterator it2=features.begin();it2!=features.end();it2++ )
+          { result = true;
+
+            m_doc.AppendElement(featuresElement,_T("feature"),it2->c_str(),3);
+          } // of for
+        } // of if
+      } // of if
+
+      return result;
+    } // of MSIPackage::AddFeatures()
 
     /**
      *
@@ -241,6 +271,10 @@ namespace bvr20983
                                 )
     { m_doc.CreateElement(_T("file"),m_lastFileElement);
       m_doc.AppendChildToParent(m_lastFileElement,m_filesElement,1);
+
+      COMPtr<IXMLDOMElement> featuresElement;
+      if( AddFeatures(featuresElement,fileName) )
+        m_doc.AppendChildToParent(featuresElement,m_lastFileElement,2);
 
       m_doc.AddAttribute(m_lastFileElement,_T("id"),id);
       m_doc.AddAttribute(m_lastFileElement,_T("guid"),guid);
