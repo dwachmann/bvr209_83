@@ -456,6 +456,28 @@ namespace bvr20983
     /**
      *
      */
+    YAPtr<YAString> YAString::Strip(const YAString& prefix) const
+    { return Strip(prefix.c_str()); }
+
+    /**
+     *
+     */
+    YAPtr<YAString> YAString::Strip(LPCTSTR prefix) const
+    { YAPtr<YAString> result;
+
+      int i = IndexOf(prefix);
+
+      if( i!=-1 )
+        result = Substring(i+_tcslen(prefix));
+      else
+        result = YAPTR1(YAString,c_str());
+
+      return result;
+    } // of YAString::Strip()
+
+    /**
+     *
+     */
     void YAString::ToLowerCase()
     { unsigned int len = m_str.length();
 

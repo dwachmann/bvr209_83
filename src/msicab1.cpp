@@ -125,11 +125,23 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
       if( NULL!=dirInfo.GetParentDirInfo() )
         d.m_parentId = dirInfo.GetParentDirInfo()->GetDirId();
 
-      TCHAR dirPath[MAX_PATH];
-
-      dirInfo._GetFullName(dirPath,ARRAYSIZE(dirPath));
-
       d.m_dirPath = dirInfo.GetBaseDirectory();
+
+      if( m_baseDir.length()==0 )
+      { m_baseDir = d.m_dirPath;
+        m_baseDir += _T("\\");
+
+        d.m_dirPath      = _T("");
+        d.m_dirName      = _T("");
+        d.m_dirShortName = _T("");
+      } // of if
+      else
+      { YAString dir(d.m_dirPath);
+
+        YAPtr<YAString> dir1 = dir.Strip(m_baseDir.c_str());
+
+        d.m_dirPath      = dir1->c_str();
+      } // of else
 
       m_dirInfo.push_back(d);
     } // of if
@@ -223,6 +235,7 @@ private:
   VMSIDirInfoT           m_dirInfo;
   util::MSIPackage&      m_msiPackageDoc;
   util::MSIIdRegistry&   m_msiIdRegistry;
+  TString                m_baseDir;
 }; // of class MSICABAddFile1CB
 
 /**

@@ -22,15 +22,15 @@
 #define YACLONE(x)        x.Clone(_T(__FILE__),__LINE__)
 #define YANEW(A)          new(YAAllocatorPool::GetAllocator(_T(#A)),_T(__FILE__),__LINE__)A
 
-#define YAVPTR(Ty,x)      YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
-#define YAVPTR1(Ty,x,p1)  YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
-#define YAVPTR2(Ty,x,p1)  YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
-#define YAVPTR3(Ty,x,p1)  YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
+#define YAVPTR(Ty,x)           YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
+#define YAVPTR1(Ty,x,p1)       YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
+#define YAVPTR2(Ty,x,p1,p2)    YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
+#define YAVPTR3(Ty,x,p1,p2,p3) YAPtr<Ty> x(YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
 
-#define YAPTR(Ty)         YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
-#define YAPTR1(Ty,p1)     YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
-#define YAPTR2(Ty,p1)     YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
-#define YAPTR3(Ty,p1)     YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
+#define YAPTR(Ty)              YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty ()   )
+#define YAPTR1(Ty,p1)          YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1) )
+#define YAPTR2(Ty,p1,p2)       YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2) )
+#define YAPTR3(Ty,p1,p2,p3)    YAPtr<Ty>  (YAAllocatorPool::GetAllocator(_T(#Ty)),new(YAAllocatorPool::GetAllocator(_T(#Ty)),_T(__FILE__),__LINE__)Ty (p1,p2,p3) )
 
 namespace bvr20983
 {

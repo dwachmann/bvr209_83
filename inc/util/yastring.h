@@ -50,13 +50,16 @@ namespace bvr20983
         YAString&       Format(LPCTSTR formatStr,...);
 
         int             IndexOf(LPCTSTR str) const throw();
-        int             IndexOf(TCHAR   c) const throw();
+        int             IndexOf(TCHAR c) const throw();
         int             LastIndexOf(LPCTSTR str) const throw();
         int             LastIndexOf(TCHAR   c) const throw();
         void            ToLowerCase();
         void            ToUpperCase();
 
         YAPtr<YAString> Substring(int beginIndex,int endIndex=-1) const;
+
+        YAPtr<YAString> Strip(const YAString& prefix) const;
+        YAPtr<YAString> Strip(LPCTSTR prefix) const;
 
         YAString&       operator+=(LPCTSTR);
         YAString&       operator+=(const YAString&);
