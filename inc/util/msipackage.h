@@ -62,10 +62,12 @@ namespace bvr20983
 
         STR_TStringSet_Map     m_comp2feature;
         STR_STR_Map            m_filename2comp;
+        STR_STR_Map            m_dirname2comp;
 
         void    LoadFeatures(util::XMLDocument versionsDoc);
-        void    LoadFilenames(util::XMLDocument versionsDoc);
-        boolean AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR fileName);
+        void    LoadFileNames(util::XMLDocument versionsDoc);
+        void    LoadDirectoryNames(util::XMLDocument versionsDoc);
+        boolean AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName);
 	  }; // of class MSIPackage
 
   } // of namespace util

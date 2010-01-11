@@ -174,7 +174,8 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="dll"/>
       <xs:enumeration value="exe"/>
-      <xs:enumeration value="data"/>
+      <xs:enumeration value="dir"/>
+      <xs:enumeration value="file"/>
     </xs:restriction>
   </xs:simpleType>
 

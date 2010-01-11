@@ -408,16 +408,21 @@ namespace bvr20983
      */
     int YAString::LastIndexOf(LPCTSTR str) const
     { int result = -1;
+      int lenStr = NULL!=str ? _tcslen(str) : 0;
 
-      if( m_str.length()>0 && NULL!=str && _tcslen(str)>0 )
+      if( m_str.length()>0 && NULL!=str && lenStr )
       { LPCTSTR foundStr = NULL;
+        LPCTSTR lastFound= NULL;
         LPCTSTR actStr   = m_str.c_str();
 
         while( (foundStr=_tcsstr(actStr,str))!=NULL && *actStr!=_T('\0') )
-          actStr = foundStr + 1;
+        { lastFound = foundStr;
 
-        if( NULL!=foundStr )
-          result = foundStr - m_str.c_str();
+          actStr    = foundStr + lenStr;
+        } // of while
+
+        if( NULL!=lastFound )
+          result = lastFound - m_str.c_str();
       } // of if
 
       return result;

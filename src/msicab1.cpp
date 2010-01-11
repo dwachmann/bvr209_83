@@ -167,13 +167,12 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
     FileInfo               fInfo(filePath);
     YAPtr<YAString>        suffix                = fInfo.GetSuffix();
     YAPtr<YAString>        fileName              = fInfo.GetName();
-    YAPtr<YAString>        strippedFilePath      = fInfo.GetPartialPath(prefix);
     YAPtr<YAString>        shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
     YAString               directoryId;
     YAString               fileId;
     MSIId                  uniqueId;
 
-    m_msiIdRegistry.GetUniqueId(_T("file"),strippedFilePath->c_str(),uniqueId);
+    m_msiIdRegistry.GetUniqueId(_T("file"),fInfo.GetPartialPath(prefix)->c_str(),uniqueId);
 
     fileId.Format(_T("F%08d"),uniqueId.id);
 
@@ -195,7 +194,7 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
                                 seqNo,
                                 directoryId.c_str(),
                                 fileSize,
-                                strippedFilePath->c_str(),
+                                fInfo.GetPathWithoutFilename(prefix)->c_str(),
                                 fileName->c_str(),
                                 shortStrippedFileName->c_str(),
                                 fileVersion

@@ -41,7 +41,8 @@ namespace bvr20983
       m_doc.AppendNewline(m_filesElement,1);
 
       LoadFeatures(versionsDoc);
-      LoadFilenames(versionsDoc);
+      LoadFileNames(versionsDoc);
+      LoadDirectoryNames(versionsDoc);
     } // of MSIPackage::MSIPackage()
 
     /**
@@ -114,7 +115,7 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::LoadFilenames(util::XMLDocument versionsDoc)
+    void MSIPackage::LoadFileNames(util::XMLDocument versionsDoc)
     { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
       COMPtr<IXMLDOMNode>     pNode;
 
@@ -151,29 +152,65 @@ namespace bvr20983
         LOGGER_INFO<<it->first<<_T(":")<<it->second<<endl;
       } // of for
 */
-    } // of MSIPackage::LoadFilenames()
+    } // of MSIPackage::LoadFileNames()
 
     /**
      *
      */
-    boolean MSIPackage::AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR fileName)
-    { boolean result = false;
+    void MSIPackage::LoadDirectoryNames(util::XMLDocument versionsDoc)
+    { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
 
-      m_doc.CreateElement(_T("features"),featuresElement);
+      versionsDoc.GetSelection(_T("//v:component[@type='dir']"),pXMLDomNodeList);
 
-      STR_STR_Map::const_iterator it0 = m_filename2comp.find(fileName);
+      if( !pXMLDomNodeList.IsNULL() )
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
+        { COVariant id;
+          COVariant type;
+
+          if( versionsDoc.GetAttribute(pNode,_T("id"),id) )
+          { TString filenameKey(_T("//v:component[@id='"));
+            filenameKey += V_BSTR(id);
+            filenameKey += _T("']/v:filename/text()");
+
+            COVariant filename;
+
+            if( versionsDoc.GetNodeValue(filenameKey.c_str(),filename,true) )
+              m_dirname2comp.insert( STR_STR_Pair(V_BSTR(filename),V_BSTR(id)) );
+          } // of if
+        } // of for
+    } // of MSIPackage::LoadDirectoryNames()
+
+    /**
+     *
+     */
+    boolean MSIPackage::AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName)
+    { boolean                     result = false;
+      TString                     compid;
+      STR_STR_Map::const_iterator it0    = m_filename2comp.find(fileName);
 
       if( it0!=m_filename2comp.end() )
-      { TString                            compid = it0->second;
-        STR_TStringSet_Map::const_iterator it1    = m_comp2feature.find(compid);
+        compid = it0->second;
+      else
+      { STR_STR_Map::const_iterator it1 = m_dirname2comp.find(strippedFilePath);
+
+        if( it1!=m_dirname2comp.end() )
+          compid = it1->second;
+      } // of else
+
+      if( compid.length()>0 )
+      { STR_TStringSet_Map::const_iterator it1    = m_comp2feature.find(compid);
 
         if( it1!=m_comp2feature.end() )
         { std::set<TString> features = it1->second;
 
           for( std::set<TString>::const_iterator it2=features.begin();it2!=features.end();it2++ )
-          { result = true;
+          { if( featuresElement.IsNULL() )
+              m_doc.CreateElement(_T("features"),featuresElement);
 
             m_doc.AppendElement(featuresElement,_T("feature"),it2->c_str(),3);
+            
+            result = true;
           } // of for
         } // of if
       } // of if
@@ -273,7 +310,7 @@ namespace bvr20983
       m_doc.AppendChildToParent(m_lastFileElement,m_filesElement,1);
 
       COMPtr<IXMLDOMElement> featuresElement;
-      if( AddFeatures(featuresElement,fileName) )
+      if( AddFeatures(featuresElement,strippedFilePath,fileName) )
         m_doc.AppendChildToParent(featuresElement,m_lastFileElement,2);
 
       m_doc.AddAttribute(m_lastFileElement,_T("id"),id);

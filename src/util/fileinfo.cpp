@@ -108,6 +108,29 @@ namespace bvr20983
     /**
      *
      */
+    YAPtr<YAString> FileInfo::GetPathWithoutFilename(LPCTSTR prefix) const
+    { YAPtr<YAString> result;
+
+      if( !m_fileName.IsNull() )
+      { result = GetFullPath();
+
+        if( NULL!=prefix && m_fileName->IndexOf(prefix)==0 )
+          result = result->Substring(_tcslen(prefix)+1);
+
+        int i = result->LastIndexOf(_T("\\"));
+
+        if( i!=-1 )
+          result = result->Substring(0,i);
+        else
+          result = YAPTR(YAString);
+      } // of if
+
+      return result;
+    } // of FileInfo::GetPathWithoutFilename()
+
+    /**
+     *
+     */
     YAPtr<YAString> FileInfo::GetShortName() const
     { YAPtr<YAString> result;
 

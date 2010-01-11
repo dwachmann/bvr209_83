@@ -45,7 +45,7 @@
             <msicomponent compid="res"/>
             <msicomponent compid="update"/>
             <msicomponent compid="doc"/>
-            <msicomponent id="globalregistryentries"/>
+            <msicomponent compid="globalregistryentries"/>
           </msifeature>
           <msifeature id="cc"         directory="TARGETDIR" level="1" attribute="0" title="Custom Control Library" description="A OCX Library with several controls">
             <msicomponent compid="cc"/>
@@ -904,21 +904,21 @@
 					<value>${msvcrtlib_pubtok}</value></pattern>
 			</patch>
 		</component>
-		<component id="doc" type="data">
+		<component id="doc" type="dir">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>documentation files</name>
 			<msiguid>${msicomppattern}</msiguid>
 			<msidir>DOCDIR</msidir>
 			<no>000A</no>
-			<filename>documentation</filename>
+			<filename>doc</filename>
 		</component>
-		<component id="sample" type="data">
+		<component id="sample" type="dir">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>sample files</name>
 			<msiguid>${msicomppattern}</msiguid>
 			<msidir>SAMPLEDIR</msidir>
 			<no>000B</no>
-			<filename>samples</filename>
+			<filename>sample</filename>
 		</component>
 	</product>
 </versions>
