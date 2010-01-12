@@ -36,6 +36,8 @@ namespace bvr20983
       m_fileName(fileName)
     { m_doc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
 
+      AddFeatureInfo(versionsDoc);
+
       m_doc.CreateElement(_T("files"),m_filesElement);
       m_doc.AppendChildToParent(m_filesElement,m_rootElement,1);
       m_doc.AppendNewline(m_filesElement,1);
@@ -50,6 +52,62 @@ namespace bvr20983
      */
     MSIPackage::~MSIPackage()
     { }
+
+    /**
+     *
+     */
+    void MSIPackage::AddFeatureInfo(util::XMLDocument versionsDoc)
+    { COMPtr<IXMLDOMElement>  featuresElement;
+      COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+
+      versionsDoc.GetSelection(_T("//v:version[1]//v:msifeature"),pXMLDomNodeList);
+
+      if( !pXMLDomNodeList.IsNULL() )
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
+        { COVariant id;
+          COVariant directory;
+          COVariant level;
+          COVariant attribute;
+          COVariant title;
+          COVariant description;
+
+          if( versionsDoc.GetAttribute(pNode,_T("id"),id) &&
+              versionsDoc.GetAttribute(pNode,_T("directory"),directory) &&
+              versionsDoc.GetAttribute(pNode,_T("level"),level) &&
+              versionsDoc.GetAttribute(pNode,_T("attribute"),attribute) &&
+              versionsDoc.GetAttribute(pNode,_T("title"),title) &&
+              versionsDoc.GetAttribute(pNode,_T("description"),description)
+            )
+          { COMPtr<IXMLDOMNode> pParentNode;
+            COVariant           parentId;
+          
+            THROW_COMEXCEPTION( pNode->get_parentNode(&pParentNode) );
+
+            if( !pParentNode.IsNULL() && versionsDoc.IsElement(pParentNode,_T("msifeature")) )
+              versionsDoc.GetAttribute(pParentNode,_T("id"),parentId);
+
+            if( featuresElement.IsNULL() )
+            { versionsDoc.CreateElement(_T("features"),featuresElement);
+              versionsDoc.AppendChildToParent(featuresElement,m_rootElement,1);
+            } // of if
+      
+            COMPtr<IXMLDOMElement> featureElement;
+            versionsDoc.CreateElement(_T("feature"),featureElement);
+            versionsDoc.AppendChildToParent(featureElement,featuresElement,2);
+
+            versionsDoc.AddAttribute(featureElement,_T("id"),V_BSTR(id));
+            versionsDoc.AddAttribute(featureElement,_T("directory"),V_BSTR(directory));
+            versionsDoc.AddAttribute(featureElement,_T("level"),V_BSTR(level));
+            versionsDoc.AddAttribute(featureElement,_T("attribute"),V_BSTR(attribute));
+            versionsDoc.AddAttribute(featureElement,_T("title"),V_BSTR(title));
+            versionsDoc.AddAttribute(featureElement,_T("description"),V_BSTR(description));
+
+            if( parentId.IsSet() )
+              versionsDoc.AddAttribute(featureElement,_T("parentid"),V_BSTR(parentId));
+          } // of if
+        } // of for
+    } // of MSIPackage::AddFeatureInfo()
 
     /**
      *
@@ -93,23 +151,6 @@ namespace bvr20983
             } // of if
           } // of if
         } // of for
-
-/*
-      for( STR_TStringSet_Map::const_iterator it0=m_comp2feature.begin();
-           it0!=m_comp2feature.end();
-           it0++
-         )
-      { TString           compId   = it0->first;
-        std::set<TString> features = it0->second;
-
-        for( std::set<TString>::const_iterator it1=features.begin();it1!=features.end();it1++ )
-        { TString featureId = *it1;
-        
-          LOGGER_INFO<<compId.c_str()<<_T(":")<<featureId.c_str()<<endl;
-        } // of for
-      } // of for
-*/
-
     } // of MSIPackage::LoadFeatures()
 
     /**
@@ -155,13 +196,6 @@ namespace bvr20983
             } // of if
           } // of if
         } // of for
-
-/*
-      for( STR_STR_Map::const_iterator it=m_filename2comp.begin();it!=m_filename2comp.end();it++ )
-      { 
-        LOGGER_INFO<<it->first<<_T(":")<<it->second<<endl;
-      } // of for
-*/
     } // of MSIPackage::LoadFileNames()
 
     /**

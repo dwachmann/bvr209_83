@@ -57,7 +57,7 @@
           </msifeature>
 
           <msifeature id="demo"       directory="TARGETDIR" level="3" attribute="0" title="Demo"                   description="Demo Programs">
-            <msifeature id="digiclock"  level="3" attribute="0" title="A digital clock"        description="A Testfile for the digital clock control">
+            <msifeature id="digiclock"  directory="TARGETDIR" level="3" attribute="0" title="A digital clock"        description="A Testfile for the digital clock control">
               <msicomponent compid="digiclock"/>
               <msicomponent compid="cc"/>
               <msicomponent compid="msgs"/>
@@ -65,7 +65,7 @@
               <msicomponent compid="update"/>
               <msicomponent compid="com"/>
             </msifeature>
-            <msifeature id="samples"    level="3" attribute="0" title="Samples"                description="Usage Samples">
+            <msifeature id="samples"    directory="TARGETDIR" level="3" attribute="0" title="Samples"                description="Usage Samples">
               <msicomponent compid="sample"/>
               <msicomponent compid="doc"/>
               <msicomponent compid="cc"/>
@@ -79,12 +79,12 @@
           </msifeature>
 
           <msifeature id="tools"      directory="TARGETDIR" level="2" attribute="0" title="Tools"                  description="Tools">
-            <msifeature id="lsstg"      level="2" attribute="0" title="lsstg"                  description="Display compound file structure">
+            <msifeature id="lsstg"    directory="TARGETDIR"   level="2" attribute="0" title="lsstg"                  description="Display compound file structure">
               <msicomponent compid="lsstg"/>
               <msicomponent compid="inc"/>
             </msifeature>
 
-            <msifeature id="lstypeinfo" level="2" attribute="0" title="lstypeinfo"             description="Display typelib information">
+            <msifeature id="lstypeinfo" directory="TARGETDIR" level="2" attribute="0" title="lstypeinfo"             description="Display typelib information">
               <msicomponent compid="lstypeinfo"/>
             </msifeature>
           </msifeature>
@@ -939,7 +939,7 @@
       <msiguid>${msicomppattern}</msiguid>
       <msidir>SAMPLEDIR</msidir>
       <no>000E</no>
-      <filename>libbvr20983.lib</filename>
+      <filename>libbvr20983xxx.lib</filename>
     </component>
     <component id="inc" type="dir">
       <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
