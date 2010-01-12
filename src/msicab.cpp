@@ -82,7 +82,7 @@ void md5sum(LPTSTR fName,LPTSTR argv[],int argc)
 void xmltest(LPTSTR fName,LPTSTR xPath,LPTSTR argv[],int argc)
 { util::XMLDocument            xmlDoc;
   COVariant                    value;
-  boolean                      hasValue=false;
+  bool                         hasValue=false;
   util::XMLDocument::PropertyM props;
 
   for( int i=0;i<argc && i+1<argc;i+=2 )

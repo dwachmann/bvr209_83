@@ -47,7 +47,7 @@ namespace bvr20983
         void AddDirectoryInfo(VMSIDirInfoT& dirInfo);
         void StartRegistryInfo();
         void AddRegistryInfo(LPCTSTR id,LPCTSTR guid,bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
-        void AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,LPCTSTR fileVersion);
+        bool AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,LPCTSTR fileVersion);
         void AddHash(MSIFILEHASHINFO& msiHash);
         void AppendNewline();
 
@@ -67,7 +67,7 @@ namespace bvr20983
         void    LoadFeatures(util::XMLDocument versionsDoc);
         void    LoadFileNames(util::XMLDocument versionsDoc);
         void    LoadDirectoryNames(util::XMLDocument versionsDoc);
-        boolean AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName);
+        bool    AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName);
 	  }; // of class MSIPackage
 
   } // of namespace util

@@ -53,6 +53,7 @@
             <msicomponent compid="res"/>
             <msicomponent compid="update"/>
             <msicomponent compid="doc"/>
+            <msicomponent compid="com"/>
           </msifeature>
 
           <msifeature id="demo"       directory="TARGETDIR" level="3" attribute="0" title="Demo"                   description="Demo Programs">
@@ -62,6 +63,7 @@
               <msicomponent compid="msgs"/>
               <msicomponent compid="res"/>
               <msicomponent compid="update"/>
+              <msicomponent compid="com"/>
             </msifeature>
             <msifeature id="samples"    level="3" attribute="0" title="Samples"                description="Usage Samples">
               <msicomponent compid="sample"/>
@@ -71,12 +73,15 @@
               <msicomponent compid="msgs"/>
               <msicomponent compid="res"/>
               <msicomponent compid="update"/>
+              <msicomponent compid="inc"/>
+              <msicomponent compid="lib"/>
             </msifeature>
           </msifeature>
 
           <msifeature id="tools"      directory="TARGETDIR" level="2" attribute="0" title="Tools"                  description="Tools">
             <msifeature id="lsstg"      level="2" attribute="0" title="lsstg"                  description="Display compound file structure">
               <msicomponent compid="lsstg"/>
+              <msicomponent compid="inc"/>
             </msifeature>
 
             <msifeature id="lstypeinfo" level="2" attribute="0" title="lstypeinfo"             description="Display typelib information">
@@ -920,5 +925,29 @@
 			<no>000B</no>
 			<filename>sample</filename>
 		</component>
-	</product>
+    <component id="com" type="dir">
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
+      <name>include files</name>
+      <msiguid>${msicomppattern}</msiguid>
+      <msidir>SAMPLEDIR</msidir>
+      <no>000D</no>
+      <filename>inc\com</filename>
+    </component>
+    <component id="lib" type="file">
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
+      <name>Library file</name>
+      <msiguid>${msicomppattern}</msiguid>
+      <msidir>SAMPLEDIR</msidir>
+      <no>000E</no>
+      <filename>libbvr20983.lib</filename>
+    </component>
+    <component id="inc" type="dir">
+      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
+      <name>include files</name>
+      <msiguid>${msicomppattern}</msiguid>
+      <msidir>SAMPLEDIR</msidir>
+      <no>000C</no>
+      <filename>inc</filename>
+    </component>
+  </product>
 </versions>

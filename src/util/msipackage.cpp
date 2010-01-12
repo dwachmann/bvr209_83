@@ -119,7 +119,7 @@ namespace bvr20983
     { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
       COMPtr<IXMLDOMNode>     pNode;
 
-      versionsDoc.GetSelection(_T("//v:component[@type='dll' or @type='exe']"),pXMLDomNodeList);
+      versionsDoc.GetSelection(_T("//v:component[@type='dll' or @type='exe' or @type='file']"),pXMLDomNodeList);
 
       if( !pXMLDomNodeList.IsNULL() )
         for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
@@ -136,12 +136,22 @@ namespace bvr20983
             COVariant filename;
 
             if( versionsDoc.GetNodeValue(filenameKey.c_str(),filename,true) )
-            { TString   fullFilename(V_BSTR(filename));
+            { TString fullFilename(V_BSTR(filename));
 
-              fullFilename += _T(".");
-              fullFilename += V_BSTR(type);
+              if( _tcscmp(V_BSTR(type),_T("dll"))==0 || _tcscmp(V_BSTR(type),_T("exe"))==0 )
+              { fullFilename += _T(".");
+                fullFilename += V_BSTR(type);
+              } // of if
 
               m_filename2comp.insert( STR_STR_Pair(fullFilename,V_BSTR(id)) );
+
+              if( _tcscmp(V_BSTR(type),_T("dll"))==0 )
+              { TString fullFilename(V_BSTR(filename));
+
+                fullFilename += _T(".lib");
+
+                m_filename2comp.insert( STR_STR_Pair(fullFilename,V_BSTR(id)) );
+              }
             } // of if
           } // of if
         } // of for
@@ -184,8 +194,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean MSIPackage::AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName)
-    { boolean                     result = false;
+    bool MSIPackage::AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName)
+    { bool                        result = false;
       TString                     compid;
       STR_STR_Map::const_iterator it0    = m_filename2comp.find(fileName);
 
@@ -196,6 +206,17 @@ namespace bvr20983
 
         if( it1!=m_dirname2comp.end() )
           compid = it1->second;
+        else if( _tcschr(strippedFilePath,_T('\\'))!=NULL )
+        { YAString fileDirName(strippedFilePath);
+          
+          for( STR_STR_Map::const_reverse_iterator it2=m_dirname2comp.rbegin();it2!=m_dirname2comp.rend();it2++ )
+          { if( fileDirName.IndexOf(it2->first.c_str())==0 )
+            { compid = it2->second;
+
+              break;
+            } // of if
+          } // of for
+        } // of else
       } // of else
 
       if( compid.length()>0 )
@@ -302,32 +323,39 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,
+    bool MSIPackage::AddFileInfo(LPCTSTR id,LPCTSTR guid,long seqNo,LPCTSTR dirId,
                                  DWORD fileSize,LPCTSTR strippedFilePath,LPCTSTR fileName,LPCTSTR shortStrippedFileName,
                                  LPCTSTR fileVersion
                                 )
-    { m_doc.CreateElement(_T("file"),m_lastFileElement);
-      m_doc.AppendChildToParent(m_lastFileElement,m_filesElement,1);
+    { bool result = false;
 
       COMPtr<IXMLDOMElement> featuresElement;
       if( AddFeatures(featuresElement,strippedFilePath,fileName) )
+      { m_doc.CreateElement(_T("file"),m_lastFileElement);
+        m_doc.AppendChildToParent(m_lastFileElement,m_filesElement,1);
+
         m_doc.AppendChildToParent(featuresElement,m_lastFileElement,2);
 
-      m_doc.AddAttribute(m_lastFileElement,_T("id"),id);
-      m_doc.AddAttribute(m_lastFileElement,_T("guid"),guid);
-      m_doc.AddAttribute(m_lastFileElement,_T("diskid"),_T("1"));
-      m_doc.AddAttribute(m_lastFileElement,_T("no"),YAString((long)seqNo).c_str());
+        m_doc.AddAttribute(m_lastFileElement,_T("id"),id);
+        m_doc.AddAttribute(m_lastFileElement,_T("guid"),guid);
+        m_doc.AddAttribute(m_lastFileElement,_T("diskid"),_T("1"));
+        m_doc.AddAttribute(m_lastFileElement,_T("no"),YAString((long)seqNo).c_str());
 
-      if( NULL!=dirId )
-        m_doc.AddAttribute(m_lastFileElement,_T("directoryid"),dirId);
+        if( NULL!=dirId )
+          m_doc.AddAttribute(m_lastFileElement,_T("directoryid"),dirId);
 
-      m_doc.AddAttribute(m_lastFileElement,_T("size"),YAString(fileSize).c_str());
-      m_doc.AppendElement(m_lastFileElement,_T("path"),strippedFilePath,2);
-      m_doc.AppendElement(m_lastFileElement,_T("name"),fileName,2);
-      m_doc.AppendElement(m_lastFileElement,_T("shortname"),shortStrippedFileName,2);
+        m_doc.AddAttribute(m_lastFileElement,_T("size"),YAString(fileSize).c_str());
+        m_doc.AppendElement(m_lastFileElement,_T("path"),strippedFilePath,2);
+        m_doc.AppendElement(m_lastFileElement,_T("name"),fileName,2);
+        m_doc.AppendElement(m_lastFileElement,_T("shortname"),shortStrippedFileName,2);
 
-      if( NULL!=fileVersion )
-        m_doc.AppendElement(m_lastFileElement,_T("version"),fileVersion,2);
+        if( NULL!=fileVersion )
+          m_doc.AppendElement(m_lastFileElement,_T("version"),fileVersion,2);
+
+        result = true;
+      }
+     
+      return result;
     } // of MSIPackage::AddFileInfo()
 
     /**

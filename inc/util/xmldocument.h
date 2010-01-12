@@ -41,7 +41,7 @@ namespace bvr20983
 
         XMLDocument(LPCOLESTR domDocProgId=_T("Msxml2.DOMDocument.6.0"));
         
-        boolean Load(LPCTSTR fileName);
+        bool    Load(LPCTSTR fileName);
         void    Save(LPCTSTR fileName);
         void    DumpSelection(LPCTSTR xpathExpression);
         void    GetSelection(LPCTSTR xpathExpression,COMPtr<IXMLDOMNodeList>& pXMLDomNodeList);
@@ -51,12 +51,12 @@ namespace bvr20983
         void    SetProperties(const PropertyM& prop)
         { m_properties = prop; }
         
-        boolean GetNodeValue(LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
-        boolean GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value,boolean evalProperty=false);
+        bool    GetNodeValue(LPCTSTR xpath,COM::COVariant& value,bool evalProperty=false);
+        bool    GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COM::COVariant& value,bool evalProperty=false);
 
-        boolean GetAttribute(COMPtr<IXMLDOMNode>& node,LPCTSTR attributeName,COM::COVariant& value);
+        bool    GetAttribute(COMPtr<IXMLDOMNode>& node,LPCTSTR attributeName,COM::COVariant& value);
 
-        boolean GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value);
+        bool    GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value);
         
         void    CreateXmlSkeleton(LPCTSTR rootElementName,COMPtr<IXMLDOMElement> &ppRoot);
         void    CreateElement(LPCTSTR elementName,COMPtr<IXMLDOMElement> &ppElement);
@@ -71,9 +71,9 @@ namespace bvr20983
         void    AppendElement(IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline=-1);
         void    AppendElement(COMPtr<IXMLDOMElement>& e,IXMLDOMElement* pParent,LPCTSTR elementName,LPCTSTR textValue,int appendNewline=-1);
 
-        boolean IsEmpty() const;
-        boolean IsElement(IXMLDOMNode* pNode) const;
-        boolean IsElement(IXMLDOMNode* pNode,LPCTSTR elementName) const;
+        bool    IsEmpty() const;
+        bool    IsElement(IXMLDOMNode* pNode) const;
+        bool    IsElement(IXMLDOMNode* pNode,LPCTSTR elementName) const;
         
       private:
         COMPtr<MSXML2::IXMLDOMDocument2> m_pXmlDoc;

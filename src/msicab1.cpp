@@ -160,74 +160,83 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
    *
    */
   bool AddFile(LPCTSTR prefix,LPCTSTR filePath,LPTSTR addedFileName,int addedFileNameMaxLen,int seqNo,util::DirectoryInfo* pDirInfo)
-  { // ignore subversion or git subdirectories
-    if( _tcsstr(filePath,_T(".svn"))!=NULL || _tcsstr(filePath,_T(".git"))!=NULL )
-      return false;
+  { bool result = false;
 
-    FileInfo               fInfo(filePath);
-    YAPtr<YAString>        suffix                = fInfo.GetSuffix();
-    YAPtr<YAString>        fileName              = fInfo.GetName();
-    YAPtr<YAString>        shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
-    YAString               directoryId;
-    YAString               fileId;
-    MSIId                  uniqueId;
+    // ignore subversion or git subdirectories
+    if( _tcsstr(filePath,_T(".svn"))==NULL && _tcsstr(filePath,_T(".git"))==NULL )
+    { FileInfo               fInfo(filePath);
+      YAPtr<YAString>        suffix                = fInfo.GetSuffix();
+      YAPtr<YAString>        fileName              = fInfo.GetName();
+      YAPtr<YAString>        shortStrippedFileName = FileInfo(fInfo.GetShortName()).GetName();
+      YAString               directoryId;
+      YAString               fileId;
+      MSIId                  uniqueId;
 
-    m_msiIdRegistry.GetUniqueId(_T("file"),fInfo.GetPartialPath(prefix)->c_str(),uniqueId);
+      m_msiIdRegistry.GetUniqueId(_T("file"),fInfo.GetPartialPath(prefix)->c_str(),uniqueId);
 
-    fileId.Format(_T("F%08d"),uniqueId.id);
+      fileId.Format(_T("F%08d"),uniqueId.id);
 
-    _tcscpy_s(addedFileName,addedFileNameMaxLen,fileId);
+      _tcscpy_s(addedFileName,addedFileNameMaxLen,fileId);
 
-    if( NULL!=pDirInfo )
-      directoryId = pDirInfo->GetDirId();
+      if( NULL!=pDirInfo )
+        directoryId = pDirInfo->GetDirId();
 
-    DWORD fileSize=0;
-    DirectoryInfo::_GetFileSize(filePath,&fileSize);
+      DWORD fileSize=0;
+      DirectoryInfo::_GetFileSize(filePath,&fileSize);
+        
+      LOGGER_DEBUG<<_T("::AddFile() suffix=<")<<suffix<<_T(">")<<endl;
+
+      VersionInfo verInfo(filePath);
+      LPCTSTR fileVersion  = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
       
-    LOGGER_DEBUG<<_T("::AddFile() suffix=<")<<suffix<<_T(">")<<endl;
+      if( m_msiPackageDoc.AddFileInfo(fileId,
+                                      uniqueId.guid,
+                                      seqNo,
+                                      directoryId.c_str(),
+                                      fileSize,
+                                      fInfo.GetPathWithoutFilename(prefix)->c_str(),
+                                      fileName->c_str(),
+                                      shortStrippedFileName->c_str(),
+                                      fileVersion
+                                     )
+        )
+      { if( NULL==fileVersion )
+        { MSIFILEHASHINFO msiHash;
 
-    VersionInfo verInfo(filePath);
-    LPCTSTR fileVersion  = (LPCTSTR)verInfo.GetStringInfo(_T("FileVersion"));
-    
-    m_msiPackageDoc.AddFileInfo(fileId,
-                                uniqueId.guid,
-                                seqNo,
-                                directoryId.c_str(),
-                                fileSize,
-                                fInfo.GetPathWithoutFilename(prefix)->c_str(),
-                                fileName->c_str(),
-                                shortStrippedFileName->c_str(),
-                                fileVersion
-                               );
+          ::memset(&msiHash,0,sizeof(msiHash));
+          msiHash.dwFileHashInfoSize = sizeof(msiHash);
 
-    if( NULL==fileVersion )
-    { MSIFILEHASHINFO msiHash;
+          THROW_LASTERROREXCEPTION( ::MsiGetFileHash(filePath,0,&msiHash) );
 
-      ::memset(&msiHash,0,sizeof(msiHash));
-      msiHash.dwFileHashInfoSize = sizeof(msiHash);
+          m_msiPackageDoc.AddHash(msiHash);
+        } // of if
 
-      THROW_LASTERROREXCEPTION( ::MsiGetFileHash(filePath,0,&msiHash) );
+        if( *suffix == _T(".dll") )
+        { SharedLibrary shLib(filePath);
+        
+          ENUMREGISTRATIONPROC enumProc = (ENUMREGISTRATIONPROC)shLib.GetProcAddress(_T("DllEnumRegistrationInfo"),false);
 
-      m_msiPackageDoc.AddHash(msiHash);
-    } // of if
+          if( enumProc )
+          { m_msiPackageDoc.StartRegistryInfo();
 
-    if( *suffix == _T(".dll") )
-    { SharedLibrary shLib(filePath);
-    
-      ENUMREGISTRATIONPROC enumProc = (ENUMREGISTRATIONPROC)shLib.GetProcAddress(_T("DllEnumRegistrationInfo"),false);
+            enumProc(RegistryInfoCB,(LPARAM)this);
+          } // of if
+        } // of if
 
-      if( enumProc )
-      { m_msiPackageDoc.StartRegistryInfo();
+        m_msiPackageDoc.AppendNewline();
 
-        enumProc(RegistryInfoCB,(LPARAM)this);
+        LOGGER_DEBUG<<_T(" File ")<<filePath<<_T(" as ")<<addedFileName<<endl;
+
+        result = true;
       } // of if
+      else
+      { LOGGER_WARN<<_T(" File ")<<filePath<<_T(" ignored, not feature mapping found.")<<endl;
+
+        result = false;
+      } // of else
     } // of if
 
-    m_msiPackageDoc.AppendNewline();
-
-    LOGGER_INFO<<_T(" File ")<<filePath<<_T(" as ")<<addedFileName<<endl;
-
-    return true;
+    return result;
   } // of AddFile()
 
 private:
@@ -286,21 +295,24 @@ void msicab(LPTSTR versionFName,LPTSTR msiIdRegistryFName,LPTSTR msiPackageFName
       if( versionsDoc.GetNodeValue(_T("/v:versions/v:product/v:versionhistory/v:version[1]/v:msicomponent/text()"),msiComponentID,true) &&
           DirectoryInfo::_IsDirectory(fullCompDir->c_str())
         )
-      { MSIPackage       msiPackageDoc(msiPackageFName,versionsDoc);
-        MSIIdRegistry    msiIdRegistry(msiIdRegistryFName,V_BSTR(msiComponentID));
-        MSICABAddFile1CB addFileCB(msiPackageDoc,msiIdRegistry);
+      { 
+        { MSIPackage       msiPackageDoc(msiPackageFName,versionsDoc);
+          MSIIdRegistry    msiIdRegistry(msiIdRegistryFName,V_BSTR(msiComponentID));
+          MSICABAddFile1CB addFileCB(msiPackageDoc,msiIdRegistry);
 
-        cabinet.SetAddFileCallback(&addFileCB);
-        cabinet.AddFile(fullCompDir->c_str(),fullCompDir->c_str());
-        addFileCB.DumpDirectoryInfo();
+          cabinet.SetAddFileCallback(&addFileCB);
+          cabinet.AddFile(fullCompDir->c_str(),fullCompDir->c_str());
+          addFileCB.DumpDirectoryInfo();
 
-        msiPackageDoc.AddMedia((long)cabinet.GetSequenceNo(),cabName);
-        addFileCB.close();
+          msiPackageDoc.AddMedia((long)cabinet.GetSequenceNo(),cabName);
+          addFileCB.close();
 
-        msiPackageDoc.Save();
+          msiPackageDoc.Save();
+        }
 
         cabinet.SetAddFileCallback(NULL);
-        cabinet.AddFile(strippedCabName->c_str(),NULL,_T("msipackage.xml"));
+        cabinet.AddFile(msiPackageFName,NULL,_T("msipackage.xml"));
+        cabinet.AddFile(msiIdRegistryFName,NULL,_T("msiid.xml"));
 
         cabinet.Flush();
       } // of if

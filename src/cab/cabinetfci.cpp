@@ -528,8 +528,6 @@ namespace bvr20983
     int CabinetFCI::FCIFilePlaced(PCCAB pccab,char *pszFile,long  cbFile,BOOL  fContinuation)
     { LOGGER_DEBUG<<_T("FCIFilePlaced(pccab->szCab=")<<pccab->szCab<<_T(",pszFile=")<<pszFile<<_T(",cbFile=")<<cbFile<<_T(",fContinuation=")<<fContinuation<<_T(")")<<endl;
     
-      LOGGER_INFO<<_T(" File ")<<pszFile<<_T(" placed in cabinet ")<<pccab->szCab<<endl;
-    
       return 0;
     }
 

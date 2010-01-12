@@ -73,14 +73,14 @@ $(MSIDIR)\$(BVR20983_CABMSI): $(INCDIR)\ver\versions.xml
    $(msicab) -msicab $(INCDIR)\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI) $(MSITEMPLATEDIR)
 
 msicab1:
-   if not exist "$(MSIDIR)\$(NULL)"                  mkdir $(MSIDIR)
-   if not exist "$(MSIDIR)\templates\$(NULL)"        mkdir $(MSIDIR)\templates
-   if not exist "$(MSIDIR)\templates\Binary\$(NULL)" mkdir $(MSIDIR)\templates\Binary
-   if not exist "$(MSIDIR)\templates\Icon\$(NULL)"   mkdir $(MSIDIR)\templates\Icon
-   @copy $(MSITEMPLATEDIR)\*.idt    $(MSIDIR)\templates
-   @copy $(MSITEMPLATEDIR)\Binary\* $(MSIDIR)\templates\Binary
-   @copy $(MSITEMPLATEDIR)\Icon\*   $(MSIDIR)\templates\Icon
-   @copy $(SLNDIR)\$(BVR20983RES_RESULT).dll $(MSIDIR)\templates\Icon\bvr20983res.exe.ibd
+   @if not exist "$(MSIDIR)\$(NULL)"                  mkdir $(MSIDIR)
+   @if not exist "$(MSIDIR)\templates\$(NULL)"        mkdir $(MSIDIR)\templates
+   @if not exist "$(MSIDIR)\templates\Binary\$(NULL)" mkdir $(MSIDIR)\templates\Binary
+   @if not exist "$(MSIDIR)\templates\Icon\$(NULL)"   mkdir $(MSIDIR)\templates\Icon
+   @xcopy /Q /Y $(MSITEMPLATEDIR)\*.idt    $(MSIDIR)\templates
+   @xcopy /Q /Y $(MSITEMPLATEDIR)\Binary\* $(MSIDIR)\templates\Binary
+   @xcopy /Q /Y $(MSITEMPLATEDIR)\Icon\*   $(MSIDIR)\templates\Icon
+   @xcopy /Q /Y $(SLNDIR)\$(BVR20983RES_RESULT).dll $(MSIDIR)\templates\Icon\bvr20983res.exe.ibd
    $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
  
 transform: 

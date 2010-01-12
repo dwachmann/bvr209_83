@@ -210,7 +210,7 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
     ::memset(filename,_T('\0'),MAX_PATH);
 
     int     i         = 0;
-    boolean stop      = false;
+    bool    stop      = false;
     LPTSTR  nextToken = NULL;
     for( LPTSTR tok=_tcstok_s(lpszCmdLine,_T(" "),&nextToken);NULL!=tok && !stop;tok=_tcstok_s(NULL,_T(" "),&nextToken),i++ )
     {

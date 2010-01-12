@@ -58,8 +58,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::Load(LPCTSTR fileName)
-    { boolean                   result = false;
+    bool XMLDocument::Load(LPCTSTR fileName)
+    { bool                      result = false;
       VARIANT_BOOL              status;
       COMPtr<IXMLDOMParseError> pXMLErr;
       COMString                 bstr;
@@ -323,8 +323,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::IsEmpty() const
-    { boolean      result = false;
+    bool XMLDocument::IsEmpty() const
+    { bool         result = false;
       VARIANT_BOOL hasChild;
 
       if( !m_pXmlDoc.IsNULL() )
@@ -336,8 +336,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::IsElement(IXMLDOMNode* pNode) const
-    { boolean     result = false;
+    bool XMLDocument::IsElement(IXMLDOMNode* pNode) const
+    { bool        result = false;
       DOMNodeType type;
 
       if( NULL!=pNode )
@@ -352,8 +352,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::IsElement(IXMLDOMNode* pNode,LPCTSTR elementName) const
-    { boolean     result = false;
+    bool XMLDocument::IsElement(IXMLDOMNode* pNode,LPCTSTR elementName) const
+    { bool        result = false;
       DOMNodeType type;
 
       if( NULL!=pNode && NULL!=elementName )
@@ -374,8 +374,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::GetNodeValue(LPCTSTR xpath,COVariant& value,boolean evalProperty)
-    { boolean result = false;
+    bool XMLDocument::GetNodeValue(LPCTSTR xpath,COVariant& value,bool evalProperty)
+    { bool result = false;
     
       if( !m_pXmlDoc.IsNULL() )
       { COMPtr<IXMLDOMElement>  pXMLDocElement;
@@ -393,8 +393,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COVariant& value,boolean evalProperty)
-    { boolean             result = false;
+    bool XMLDocument::GetNodeValue(COMPtr<IXMLDOMNode>& node,LPCTSTR xpath,COVariant& value,bool evalProperty)
+    { bool                result = false;
       COMPtr<IXMLDOMNode> selectedNode;
     
       if( !node.IsNULL() )
@@ -419,8 +419,8 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::GetAttribute(COMPtr<IXMLDOMNode>& node,LPCTSTR attributeName,COM::COVariant& attributeValue)
-    { boolean     result = false;
+    bool XMLDocument::GetAttribute(COMPtr<IXMLDOMNode>& node,LPCTSTR attributeName,COM::COVariant& attributeValue)
+    { bool        result = false;
       DOMNodeType type;
 
       if( !node.IsNULL() && NULL!=attributeName )
@@ -443,15 +443,15 @@ namespace bvr20983
     /**
      *
      */
-    boolean XMLDocument::GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value)
-    { boolean result = false;
+    bool XMLDocument::GetProperty(COMPtr<IXMLDOMNode>& node,COM::COVariant& value)
+    { bool result = false;
     
       if( value.GetType()==VT_BSTR )
       { LPTSTR  v0       = V_BSTR(value);
         LPTSTR  v        = V_BSTR(value);
         UINT    vLen     = ::SysStringLen(v);
         BSTR    vEnd     = v+vLen;
-        boolean evalExpr = false;
+        bool    evalExpr = false;
         UINT    varDepth = 0;
         LPTSTR  begin    = NULL;
         LPTSTR  end      = NULL;
@@ -567,7 +567,7 @@ namespace bvr20983
                   } // of if
                 } // of if
 
-                boolean getNodeValueResult = false;
+                bool getNodeValueResult = false;
                 try
                 { getNodeValueResult = GetNodeValue(node,xpath,v2,true); }
                 catch(COMException&)
