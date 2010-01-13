@@ -21,8 +21,24 @@
 
 #include "os.h"
 
-typedef bool (CALLBACK* REGISTRYINFOPROC)    (LPARAM lParam, bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
-typedef void (WINAPI*   ENUMREGISTRATIONPROC)(REGISTRYINFOPROC pEnumProc, LPARAM lParam);
+#define REG_QUERY_PARAMETER(a,key,value,maxValueLen,hDllInst) if( NULL!=a && NULL!=a->pQueryParam ) a->pQueryParam(a->lParam,hDllInst,key,value,maxValueLen);
+
+typedef bool  (CALLBACK* REGISTRYINFOPROC)    (LPARAM lParam, bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
+typedef DWORD (CALLBACK* REGISTRYPARAMPROC)   (LPARAM lParam, HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen);
+
+struct EnumRegistration
+{ REGISTRYINFOPROC  pEnumProc;
+  REGISTRYPARAMPROC pQueryParam;
+  LPARAM            lParam;
+
+  EnumRegistration(REGISTRYINFOPROC pEnumProc=NULL,LPARAM lParam=NULL,REGISTRYPARAMPROC pQueryParam=NULL)
+  { this->pEnumProc   = pEnumProc;
+    this->pQueryParam = pQueryParam;
+    this->lParam      = lParam; 
+  }
+};
+
+typedef void (WINAPI* ENUMREGISTRATIONPROC)(EnumRegistration* pEnumRegistration);
 
 #endif // REGISTRYCB_H
 //=================================END-OF-FILE==============================

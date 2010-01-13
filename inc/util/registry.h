@@ -173,7 +173,6 @@ namespace bvr20983
     public:
       enum DumpT
       { REGEDIT,
-        MSI,
         XML
       };
 
@@ -224,13 +223,7 @@ namespace bvr20983
       DumpT GetDumpType() const
       { return m_dumpType; }
 
-      void SetComponentId(LPCTSTR compId)
-      { m_componentId = compId; }
-
-      const TString& GetComponentId() const
-      { return m_componentId; }
-      
-      void EnumRegistry(REGISTRYINFOPROC pEnumProc, LPARAM lParam);
+      void EnumRegistry(EnumRegistration* pEnumRegistration);
 
     private:
       void GetKeyPath(LPCTSTR subkey,TString& keyPath) const;
@@ -240,7 +233,6 @@ namespace bvr20983
       TString        m_keyPrefix;
 
       DumpT          m_dumpType;
-      TString        m_componentId;
   }; // of class Registry
 
   template<class charT, class Traits>

@@ -41,22 +41,13 @@ using namespace bvr20983::util;
  *
  */
 STDAPI DllRegisterServer()
-{ HRESULT hr         = S_OK;
-  LPCTSTR prodPrefix = NULL;
-  LPCTSTR compPrefix = NULL;
-  TCHAR   szModulePath[MAX_PATH];
-
-  COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
-
-  VersionInfo verInfo(szModulePath);
-
-  prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-  compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+{ HRESULT           hr                = S_OK;
+  EnumRegistration* pEnumRegistration = RegistryParameter::GetEnumRegistration();
 
   try
   { Registry registry;
 
-    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,RegistryUtil::AUTO);
+    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,RegistryUtil::AUTO,pEnumRegistration);
 
     if( registry.Prepare() )
       registry.Commit();
@@ -84,7 +75,7 @@ STDAPI DllRegisterServer()
     hr = SELFREG_E_CLASS;
   }
 
-  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=compPrefix ? compPrefix : _T("unknown"),TRUE,hr);
+  EvtLogInstall(pEnumRegistration,TRUE,hr);
 
   return hr;
 } // of DllRegisterServer()
@@ -93,22 +84,13 @@ STDAPI DllRegisterServer()
  *
  */
 STDAPI DllUnregisterServer()
-{ HRESULT hr         = S_OK;
-  LPCTSTR prodPrefix = NULL;
-  LPCTSTR compPrefix = NULL;
-  TCHAR   szModulePath[MAX_PATH];
-
-  COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
-
-  VersionInfo verInfo(szModulePath);
-
-  prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-  compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+{ HRESULT           hr                = S_OK;
+  EnumRegistration* pEnumRegistration = RegistryParameter::GetEnumRegistration();
 
   try
   { Registry registry;
    
-    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath,RegistryUtil::AUTO);
+    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,RegistryUtil::AUTO,pEnumRegistration);
 
     registry.DeleteKeys();
 
@@ -131,7 +113,7 @@ STDAPI DllUnregisterServer()
     hr = SELFREG_E_CLASS;
   }
 
-  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=compPrefix ? compPrefix : _T("unknown"),FALSE,hr);
+  EvtLogInstall(pEnumRegistration,FALSE,hr);
   
   return hr;
 } // of DllUnregisterServer()
@@ -178,18 +160,10 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 { try
   { OutputDebugFmt(_T("DllRegistrationInfo(): <%s>\n"),lpszCmdLine);
 
-    LPCTSTR prodPrefix = NULL;
-    LPCTSTR compPrefix = NULL;
-    TCHAR   szModulePath[MAX_PATH];
+    LPCTSTR prodPrefix = RegistryParameter::GetInstance()->GetProductPrefix();
+    LPCTSTR compPrefix = RegistryParameter::GetInstance()->GetComponentPrefix();
 
-    COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
-
-    VersionInfo verInfo(szModulePath);
-
-    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
-
-    TCHAR filename[MAX_PATH];
+    TCHAR   filename[MAX_PATH];
 
     ::memset(filename,_T('\0'),MAX_PATH);
 
@@ -215,18 +189,11 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
       //::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
 
       { Registry registry;
-        TCHAR    szModulePath[MAX_PATH];
-
+        
         if( newFormat )
           registry.SetDumpType(Registry::XML);
-        else
-          registry.SetDumpType(Registry::MSI);
 
-        registry.SetComponentId(compPrefix);
-
-        COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
-
-        RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath);
+        RegistryUtil::RegisterComObjectsInTypeLibrary(registry);
 
 #ifdef _UNICODE
         wofstream fos(filename,ios::app);
@@ -255,31 +222,17 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 /**
  *
  */
-STDAPI_(void) DllEnumRegistrationInfo(REGISTRYINFOPROC pEnumProc, LPARAM lParam)
+STDAPI_(void) DllEnumRegistrationInfo(EnumRegistration* pEnumRegistration)
 { try
-  { OutputDebugFmt(_T("DllEnumRegistrationInfo()\n"));
+  { if( NULL!=pEnumRegistration )
+    { OutputDebugFmt(_T("DllEnumRegistrationInfo()\n"));
 
-    LPCTSTR prodPrefix = NULL;
-    LPCTSTR compPrefix = NULL;
-    TCHAR   szModulePath[MAX_PATH];
+      Registry registry;
 
-    COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
+      RegistryUtil::RegisterComObjectsInTypeLibrary(registry,RegistryUtil::CLASSES_ROOT,pEnumRegistration);
 
-    VersionInfo verInfo(szModulePath);
-
-    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
-
-    Registry registry;
-
-    registry.SetComponentId(compPrefix);
-    registry.SetDumpType(Registry::MSI);
-
-    COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
-
-    RegistryUtil::RegisterComObjectsInTypeLibrary(registry,szModulePath);
-
-    registry.EnumRegistry(pEnumProc,lParam);
+      registry.EnumRegistry(pEnumRegistration);
+    } // of if
   }
   catch(BVR20983Exception e)
   { OutputDebugFmt(_T("DllEnumRegistrationInfo(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());

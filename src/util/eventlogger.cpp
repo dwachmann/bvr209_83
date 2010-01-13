@@ -75,32 +75,25 @@ namespace bvr20983
     /**
      *
      */
-    void EventLogger::RegisterInRegistry(Registry& evtSrcRegKey,LPCTSTR serviceName)
+    void EventLogger::RegisterInRegistry(Registry& evtSrcRegKey,EnumRegistration* pEnumRegistration)
     { TCHAR szModulePath[MAX_PATH];
+      TCHAR szServiceName[MAX_PATH];
 
-      COM::COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
+      szModulePath[0] = szServiceName[0] = _T('\0');
 
-      if( _tcslen(szModulePath)>0 && NULL!=serviceName )
+      REG_QUERY_PARAMETER(pEnumRegistration,_T("MODULEPATH"),szModulePath,ARRAYSIZE(szModulePath),COM::COMServer::GetInstanceHandle());
+      REG_QUERY_PARAMETER(pEnumRegistration,_T("SERVICENAME"),szServiceName,ARRAYSIZE(szServiceName),COM::COMServer::GetInstanceHandle());
+
+      if( _tcslen(szModulePath)>0 && _tcslen(szServiceName)>0 )
       { TString evtSrcRegKeyStr(_T("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\"));
-        evtSrcRegKeyStr += serviceName;
+        evtSrcRegKeyStr += szServiceName;
 
         evtSrcRegKey.SetKeyPrefix(evtSrcRegKeyStr);
 
-        OutputDebugFmt(_T("EventLogger::RegisterInRegistry(%s) <%s>\n"),serviceName,evtSrcRegKeyStr.c_str());
+        OutputDebugFmt(_T("EventLogger::RegisterInRegistry(%s) <%s>\n"),szServiceName,evtSrcRegKeyStr.c_str());
         
-        TString msiInprocServerName(_T("[!"));
-        msiInprocServerName += evtSrcRegKey.GetComponentId();
-        msiInprocServerName += _T("]");
-    
-        if( evtSrcRegKey.GetDumpType()==Registry::MSI || evtSrcRegKey.GetDumpType()==Registry::XML )
-        { evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),msiInprocServerName);
-          evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),msiInprocServerName);
-        } // of if
-        else
-        { evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),szModulePath);
-          evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),szModulePath);
-        } // of else
-
+        evtSrcRegKey.SetValue(NULL,_T("EventMessageFile"),szModulePath);
+        evtSrcRegKey.SetValue(NULL,_T("CategoryMessageFile"),szModulePath);
         evtSrcRegKey.SetValue(NULL,_T("TypesSupported"),EVENTLOG_ERROR_TYPE|EVENTLOG_INFORMATION_TYPE|EVENTLOG_WARNING_TYPE);
         evtSrcRegKey.SetValue(NULL,_T("CategoryCount"),3);
       } // of if
@@ -176,8 +169,17 @@ namespace bvr20983
     /**
      *
      */
-    void EventLogger::LogInstall(LPCTSTR product,LPCTSTR component,BOOL install,HRESULT hr)
-    { LPCTSTR messages[3] = { product,component,NULL };
+    void EventLogger::LogInstall(EnumRegistration* pEnumRegistration,BOOL install,HRESULT hr)
+    { TCHAR product[32];
+      TCHAR component[32];
+
+      _tcscpy_s(product,ARRAYSIZE(product),_T("bvr"));
+      _tcscpy_s(component,ARRAYSIZE(component),_T("comp"));
+
+      REG_QUERY_PARAMETER(pEnumRegistration,_T("PRODUCTPREFIX"),product,ARRAYSIZE(product),COM::COMServer::GetInstanceHandle());
+      REG_QUERY_PARAMETER(pEnumRegistration,_T("COMPONENTPREFIX"),component,ARRAYSIZE(component),COM::COMServer::GetInstanceHandle());
+
+      LPCTSTR messages[3] = { product,component,NULL };
       LPTSTR  hrErrorText = NULL;
       WORD    eventType   = SUCCEEDED(hr) ? EVENTLOG_SUCCESS : EVENTLOG_ERROR_TYPE;
       DWORD   eventId     = EVENT_COMPONENT_INSTALLED;
@@ -228,6 +230,6 @@ STDAPI_(void) EvtLogFunctionError(LPCTSTR functionName)
 STDAPI_(void) EvtLogFunctionMessage(LPCTSTR functionName, LPCTSTR messageText)
 { bvr20983::util::EventLogger::GetInstance()->LogFunctionMessage(functionName,messageText); }
 
-STDAPI_(void) EvtLogInstall(LPCTSTR product,LPCTSTR component,BOOL install,HRESULT hr)
-{ bvr20983::util::EventLogger::GetInstance()->LogInstall(product,component,install,hr); }
+STDAPI_(void) EvtLogInstall(EnumRegistration* pEnumRegistration,BOOL install,HRESULT hr)
+{ bvr20983::util::EventLogger::GetInstance()->LogInstall(pEnumRegistration,install,hr); }
 /*==========================END-OF-FILE===================================*/

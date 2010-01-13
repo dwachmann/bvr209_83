@@ -22,12 +22,44 @@
 #include "os.h"
 #include "util/logstream.h"
 #include "util/registry.h"
+#include "util/registrycb.h"
 #include <iostream>
 #include <fstream>
 #include <stack>
 
 namespace bvr20983
 {
+  /**
+   *
+   */
+  class RegistryParameter
+  {
+    public:
+      static DWORD CALLBACK     GetValueCB(LPARAM lParam, HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen);
+      static EnumRegistration*  GetEnumRegistration();
+      static RegistryParameter* GetInstance();
+
+      LPCTSTR GetProductPrefix() const
+      { return m_prodPrefix.c_str(); }
+
+      LPCTSTR GetComponentPrefix() const
+      { return m_compPrefix.c_str(); }
+
+    private:
+      static EnumRegistration* m_pEnumRegistration;
+
+      TCHAR   m_szModulePath[MAX_PATH];
+      TCHAR   m_szWindowsDir[MAX_PATH];
+      TString m_prodPrefix;
+      TString m_compPrefix;
+
+      RegistryParameter();
+      DWORD GetValue(HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen);
+  }; // of class RegistryParameter
+
+  /**
+   *
+   */
   class RegistryUtil
   {
     public:
@@ -39,38 +71,42 @@ namespace bvr20983
       };
 
       static void RegisterComObjectsInTypeLibrary(Registry& reg,
-                                                  LPCTSTR szModulePath,
-                                                  COMRegistrationType registrationType=CLASSES_ROOT
+                                                  COMRegistrationType registrationType=CLASSES_ROOT,
+                                                  EnumRegistration* pEnumRegistration=RegistryParameter::GetEnumRegistration()
                                                  );
 
       static void RegisterCoClass(Registry& reg,
                                   TLIBATTR* pTypeLib,LPCTSTR typelibName,
                                   REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,WORD typeVersion,
-                                  LPCTSTR modulePath,
                                   ITypeInfo2& rTypeInfo2,
                                   bool isControl=false,
                                   COMRegistrationType registrationType=CLASSES_ROOT,
-                                  LPCTSTR threadingModel=_T("Apartment")
+                                  EnumRegistration* pEnumRegistration=RegistryParameter::GetEnumRegistration()
                                  );
 
       static void RegisterInterface(Registry& reg,
                                     REFGUID typelibGUID,
                                     WORD majorVersion,WORD minorVersion,
                                     REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,
-                                    COMRegistrationType registrationType=CLASSES_ROOT
+                                    COMRegistrationType registrationType=CLASSES_ROOT,
+                                    EnumRegistration* pEnumRegistration=RegistryParameter::GetEnumRegistration()
                                    );
 
       static void RegisterTypeLib(Registry& registry,
                                   LPCTSTR typelibDesc,
                                   REFGUID typelibGUID,
                                   LCID lcid,USHORT majorVersion,USHORT minorVersion,
-                                  LPCTSTR modulePath,LPCTSTR helpPath,
-                                  COMRegistrationType registrationType=CLASSES_ROOT
+                                  COMRegistrationType registrationType=CLASSES_ROOT,
+                                  EnumRegistration* pEnumRegistration=RegistryParameter::GetEnumRegistration()
+                                 );
+
+      static void RegisterTypeLib(bool register4User,
+                                  REFGUID typelibGUID,
+                                  LCID lcid,USHORT majorVersion,USHORT minorVersion,
+                                  EnumRegistration* pEnumRegistration=RegistryParameter::GetEnumRegistration()
                                  );
 
       static void GetKeyPrefix(COMRegistrationType registrationType,TString& keyPrefix);
-
-      static void RegisterTypeLib(bool register4User,REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath);
   }; // of class RegistryUtil
 } // of namespace bvr20983
 #endif // REGISTRYUTIL_H

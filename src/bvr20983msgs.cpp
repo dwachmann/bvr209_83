@@ -19,6 +19,7 @@
 
 #include "os.h"
 #include "util/registry.h"
+#include "util/registryutil.h"
 #include "util/logstream.h"
 #include "util/comlogstream.h"
 #include "util/comptr.h"
@@ -72,27 +73,16 @@ BOOL WINAPI DllMain(HINSTANCE hDllInst,DWORD fdwReason,LPVOID lpvReserved)
  *
  */
 STDAPI DllRegisterServer()
-{ HRESULT hr         = S_OK;
-  LPCTSTR prodPrefix = NULL;
-  LPCTSTR compPrefix = NULL;
-  TCHAR   szModulePath[MAX_PATH];
-
-  COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
-
-  VersionInfo verInfo(szModulePath);
-
-  prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-  compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+{ HRESULT           hr                = S_OK;
+  EnumRegistration* pEnumRegistration = RegistryParameter::GetEnumRegistration();
 
   try
-  { if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
-    { Registry registry;
+  { Registry registry;
 
-      EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
+    EventLogger::RegisterInRegistry(registry,pEnumRegistration);
 
-      if( registry.Prepare() )
-        registry.Commit();
-    } // of if
+    if( registry.Prepare() )
+      registry.Commit();
   }
   catch(BVR20983Exception e)
   { LOGGER_ERROR<<e<<endl;
@@ -110,7 +100,7 @@ STDAPI DllRegisterServer()
     hr = SELFREG_E_CLASS;
   }
 
-  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=compPrefix ? compPrefix : _T("unknown"),TRUE,hr);
+  EvtLogInstall(pEnumRegistration,TRUE,hr);
 
   return hr;
 } // of DllRegisterServer()
@@ -119,29 +109,18 @@ STDAPI DllRegisterServer()
  *
  */
 STDAPI DllUnregisterServer()
-{ HRESULT hr         = S_OK;
-  LPCTSTR prodPrefix = NULL;
-  LPCTSTR compPrefix = NULL;
-  TCHAR   szModulePath[MAX_PATH];
-
-  COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
-
-  VersionInfo verInfo(szModulePath);
-
-  prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-  compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+{ HRESULT           hr                = S_OK;
+  EnumRegistration* pEnumRegistration = RegistryParameter::GetEnumRegistration();
 
   try
-  { if( NULL!=prodPrefix && ((LPCTSTR)prodPrefix)[0]!=_T('\0') )
-    { Registry registry;
+  { Registry registry;
       
-      EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
+    EventLogger::RegisterInRegistry(registry,pEnumRegistration);
 
-      registry.DeleteKeys();
+    registry.DeleteKeys();
 
-      if( registry.Prepare() )
-        registry.Commit();
-    } // of if
+    if( registry.Prepare() )
+      registry.Commit();
   }
   catch(BVR20983Exception e)
   { LOGGER_ERROR<<e<<endl;
@@ -159,7 +138,7 @@ STDAPI DllUnregisterServer()
     hr = SELFREG_E_CLASS;
   }
 
-  EvtLogInstall(NULL!=prodPrefix ? prodPrefix : _T("unknown"),NULL!=compPrefix ? compPrefix : _T("unknown"),FALSE,hr);
+  EvtLogInstall(pEnumRegistration,FALSE,hr);
   
   return hr;
 } // of DllUnregisterServer()
@@ -194,18 +173,9 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 { try
   { OutputDebugFmt(_T("DllRegistrationInfo(): <%s>\n"),lpszCmdLine);
 
-    LPCTSTR prodPrefix = NULL;
-    LPCTSTR compPrefix = NULL;
-    TCHAR   szModulePath[MAX_PATH];
-
-    COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
-
-    VersionInfo verInfo(szModulePath);
-
-    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
-
-    TCHAR filename[MAX_PATH];
+    HRESULT           hr                = S_OK;
+    EnumRegistration* pEnumRegistration = RegistryParameter::GetEnumRegistration();
+    TCHAR             filename[MAX_PATH];
 
     ::memset(filename,_T('\0'),MAX_PATH);
 
@@ -230,14 +200,9 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
     { basic_ostringstream<TCHAR> msgStream;
       msgStream<<_T("file=")<<filename;
 
-      //::MessageBox(hwnd,msgStream.str().c_str(),_T("DllRegistrationInfo"),MB_OK | MB_ICONINFORMATION);
-
       { Registry registry;
 
-        registry.SetDumpType(Registry::MSI);
-        registry.SetComponentId(compPrefix);
-
-        EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
+        EventLogger::RegisterInRegistry(registry,pEnumRegistration);
 
 #ifdef _UNICODE
         wofstream fos(filename,ios::app);
@@ -266,29 +231,17 @@ STDAPI_(void) _DllRegistrationInfo_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLi
 /**
  *
  */
-STDAPI_(void) DllEnumRegistrationInfo(REGISTRYINFOPROC pEnumProc, LPARAM lParam)
+STDAPI_(void) DllEnumRegistrationInfo(EnumRegistration* pEnumRegistration)
 { try
-  { OutputDebugFmt(_T("DllEnumRegistrationInfo()\n"));
+  { if( NULL!=pEnumRegistration )
+    { OutputDebugFmt(_T("DllEnumRegistrationInfo()\n"));
 
-    LPCTSTR prodPrefix = NULL;
-    LPCTSTR compPrefix = NULL;
-    TCHAR   szModulePath[MAX_PATH];
+      Registry registry;
 
-    COMServer::GetModuleFileName(szModulePath,sizeof(szModulePath)/sizeof(szModulePath[0]));
+      EventLogger::RegisterInRegistry(registry,pEnumRegistration);
 
-    VersionInfo verInfo(szModulePath);
-
-    prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
-    compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
-
-    Registry registry;
-
-    registry.SetDumpType(Registry::MSI);
-    registry.SetComponentId(compPrefix);
-
-    EventLogger::RegisterInRegistry(registry,(LPCTSTR)prodPrefix);
-
-    registry.EnumRegistry(pEnumProc,lParam);
+      registry.EnumRegistry(pEnumRegistration);
+    } // of if
   }
   catch(BVR20983Exception e)
   { OutputDebugFmt(_T("DllEnumRegistrationInfo(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());
@@ -319,7 +272,6 @@ STDAPI_(void) _DllIsAdministrator_(HWND hwnd, HINSTANCE hinst, LPWSTR lpszCmdLin
     msgStream<<_T("isAdmin=")<<isAdmin;
 
     ::MessageBox(hwnd,msgStream.str().c_str(),_T("DllIsAdministrator"),MB_OK | MB_ICONINFORMATION);
-
   }
   catch(BVR20983Exception e)
   { OutputDebugFmt(_T("DllIsAdministrator(): Exception \"%s\" [%ld]>\n"),e.GetErrorMessage(),e.GetErrorCode());

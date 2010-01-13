@@ -29,6 +29,8 @@
 #include "util/comstring.h"
 #include "util/apputil.h"
 #include "util/guid.h"
+#include "util/versioninfo.h"
+#include "com/comserver.h"
 #include "exception/lasterrorexception.h"
 #include "exception/comexception.h"
 
@@ -85,6 +87,88 @@ CATID g_KnownCATIDs[] =
 
 namespace bvr20983
 {
+  EnumRegistration* RegistryParameter::m_pEnumRegistration = NULL;
+
+  /**
+   *
+   */
+  EnumRegistration* RegistryParameter::GetEnumRegistration()
+  { if( NULL==m_pEnumRegistration )
+      m_pEnumRegistration = new EnumRegistration(NULL,(LPARAM)new RegistryParameter(),GetValueCB);
+
+    return m_pEnumRegistration;
+  } // of RegistryParameter::GetEnumRegistration()
+
+  /**
+   *
+   */
+  RegistryParameter* RegistryParameter::GetInstance()
+  { return (RegistryParameter*) (GetEnumRegistration()->lParam); }
+
+
+  /**
+   *
+   */
+  RegistryParameter::RegistryParameter()
+  { COM::COMServer::GetModuleFileName(m_szModulePath,ARRAYSIZE(m_szModulePath));
+
+    util::VersionInfo verInfo(m_szModulePath);
+
+    m_prodPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ProductPrefix"));
+    m_compPrefix = (LPCTSTR)verInfo.GetStringInfo(_T("ComponentPrefix"));
+  } // of RegistryParameter::RegistryParameter()
+
+  /**
+   *
+   */
+  DWORD RegistryParameter::GetValue(HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen)
+  { DWORD result   = ULONG_MAX;
+    bool  knownKey = false;
+    
+    if( NULL!=key && NULL!=value )
+    { value[0] = _T('\0');
+
+      if( _tcscmp(key,_T("WINDOWSDIRECTORY"))==0 || _tcscmp(key,_T("HELPDIRECTORY"))==0 )
+      { ::GetSystemWindowsDirectory(value,maxValueLen);
+
+        knownKey = true;
+      } // of if
+      else if( _tcscmp(key,_T("MODULEPATH"))==0 )
+      { if( _tcscpy_s(value,maxValueLen,m_szModulePath)==0 )
+          knownKey = true;
+      } // of else if
+      else if( _tcscmp(key,_T("PRODUCTPREFIX"))==0 || _tcscmp(key,_T("SERVICENAME"))==0 )
+      { if( _tcscpy_s(value,maxValueLen,m_prodPrefix.c_str())==0 )
+          knownKey = true;
+      } // of else if
+      else if( _tcscmp(key,_T("COMPONENTPREFIX"))==0 )
+      { if( _tcscpy_s(value,maxValueLen,m_compPrefix.c_str())==0 )
+          knownKey = true;
+      } // of else if
+      else if( _tcscmp(key,_T("THREADINGMODEL"))==0 )
+      { if( _tcscpy_s(value,maxValueLen,_T("Apartment"))==0 )
+          knownKey = true;
+      } // of else if
+
+      if( knownKey )
+        result = _tcslen(value);
+    } // of if
+
+    return result;
+  } // of RegistryParameter::GetValue()
+
+  /**
+   *
+   */
+  DWORD RegistryParameter::GetValueCB(LPARAM lParam, HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen)
+  { DWORD result = ULONG_MAX;
+
+    if( NULL!=lParam )
+      result = ((RegistryParameter*)lParam)->GetValue(hDllInst,key,value,maxValueLen);
+
+    return result;
+  } // of RegistryParameter::GetValueCB()
+
   /**
    *
    */
@@ -115,14 +199,16 @@ namespace bvr20983
   /**
    *
    */
-  void RegistryUtil::RegisterComObjectsInTypeLibrary(Registry& registry,LPCTSTR szModulePath,COMRegistrationType registrationType)
-  { TCHAR            szWindowsDir[MAX_PATH];
-    TLIBATTR*        pTLibAttr = NULL;
+  void RegistryUtil::RegisterComObjectsInTypeLibrary(Registry& registry,
+                                                     COMRegistrationType registrationType,
+                                                     EnumRegistration* pEnumRegistration
+                                                    )
+  { TLIBATTR*        pTLibAttr = NULL;
     COMPtr<ITypeLib> pTLib;
     ITypeLib*        pTLib0=NULL;         
+    TCHAR            szModulePath[MAX_PATH];
 
-    ::GetSystemWindowsDirectory(szWindowsDir,sizeof(szWindowsDir)/sizeof(szWindowsDir[0]));
-
+    COM::COMServer::GetModuleFileName(szModulePath,ARRAYSIZE(szModulePath));
     THROW_COMEXCEPTION( ::LoadTypeLibEx(szModulePath,REGKIND_NONE,&pTLib0) );
 
     pTLib = pTLib0;
@@ -164,9 +250,9 @@ namespace bvr20983
 
         RegisterCoClass(registry,pTLibAttr,libName,
                         pTypeAttr->guid,typeName,typeDoc,pTypeAttr->wMajorVerNum,
-                        szModulePath,
                         *pTypeInfo2,
-                        (pTypeAttr->wTypeFlags & TYPEFLAG_FCONTROL)!=0 ? true : false,registrationType
+                        (pTypeAttr->wTypeFlags & TYPEFLAG_FCONTROL)!=0 ? true : false,registrationType,
+                        pEnumRegistration
                        );
       } // of if
 
@@ -189,7 +275,8 @@ namespace bvr20983
           if( (refTypeAttr&IMPLTYPEFLAG_FSOURCE)!=0 || (pRefTypeAttr->typekind&TKIND_DISPATCH)!=0 )
           { RegisterInterface(registry,
                               pTLibAttr->guid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,
-                              pRefTypeAttr->guid,refTypeName,refTypeDoc,registrationType
+                              pRefTypeAttr->guid,refTypeName,refTypeDoc,registrationType,
+                              pEnumRegistration
                              );
           } // of if
         }
@@ -202,8 +289,8 @@ namespace bvr20983
                     _T("TypeLib BVR20983"),
                     pTLibAttr->guid,
                     pTLibAttr->lcid,pTLibAttr->wMajorVerNum,pTLibAttr->wMinorVerNum,
-                    szModulePath,szWindowsDir,
-                    registrationType
+                    registrationType,
+                    pEnumRegistration
                    );
 
     pTLib->ReleaseTLibAttr(pTLibAttr);
@@ -215,11 +302,10 @@ namespace bvr20983
    */
   void RegistryUtil::RegisterCoClass(Registry& registry,TLIBATTR* pTypeLib,LPCTSTR typelibName,
                                      REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,WORD typeVersion,
-                                     LPCTSTR modulePath,
                                      ITypeInfo2& rTypeInfo2,
                                      bool isControl,
                                      COMRegistrationType registrationType,
-                                     LPCTSTR threadingModel
+                                     EnumRegistration* pEnumRegistration
                                     )
   { LOGGER_DEBUG<<_T("RegistryUtil::RegisterCoClass()")<<endl;
     LOGGER_DEBUG<<_T("typelibGUID=")<<pTypeLib->guid<<endl;
@@ -300,24 +386,16 @@ namespace bvr20983
     registry.SetValue(_T("TypeLib"),NULL,tlibID);
     registry.SetValue(_T("Version"),NULL,tlibVersion.str());
 
-    TString msiInprocServerName(_T("[!"));
-    msiInprocServerName += registry.GetComponentId();
-    msiInprocServerName += _T("]");
+    TCHAR szModulePath[MAX_PATH];
+    TCHAR threadingModel[64];
 
-    if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
-      registry.SetValue(_T("InprocServer32"),NULL,msiInprocServerName);
-    else
-      registry.SetValue(_T("InprocServer32"),NULL,modulePath);
+    REG_QUERY_PARAMETER(pEnumRegistration,_T("MODULEPATH"),szModulePath,ARRAYSIZE(szModulePath),COM::COMServer::GetInstanceHandle());
+    REG_QUERY_PARAMETER(pEnumRegistration,_T("THREADINGMODEL"),threadingModel,ARRAYSIZE(threadingModel),COM::COMServer::GetInstanceHandle());
 
+    registry.SetValue(_T("InprocServer32"),NULL,szModulePath);
     registry.SetValue(_T("InprocServer32"),_T("ThreadingModel"),threadingModel);
 
-    TString defaultIcon;
-
-    if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
-      defaultIcon += msiInprocServerName;
-    else
-      defaultIcon += modulePath;
-
+    TString defaultIcon(szModulePath);
     defaultIcon += _T(",1");
 
     registry.SetValue(_T("DefaultIcon"),NULL,defaultIcon);
@@ -326,16 +404,10 @@ namespace bvr20983
     { registry.SetKey(_T("Control"));
 
       if( NULL!=toolboxBitmap )
-      { TString tBitmap;
+      { TString tBitmap(szModulePath);
 
         if( toolboxBitmap[0]==_T('#') )
-        { 
-          if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
-            tBitmap += msiInprocServerName;
-          else
-            tBitmap += modulePath;
-
-          tBitmap += _T(", ");
+        { tBitmap += _T(", ");
           tBitmap += (toolboxBitmap+1);
         } // of if
         else
@@ -393,7 +465,8 @@ namespace bvr20983
   void RegistryUtil::RegisterInterface(Registry& regIf,REFGUID typelibGUID,
                                        WORD majorVersion,WORD minorVersion,
                                        REFGUID typeGUID,LPCTSTR typeName,LPCTSTR typeDesc,
-                                       COMRegistrationType registrationType
+                                       COMRegistrationType registrationType,
+                                       EnumRegistration* pEnumRegistration
                                       )
   { LOGGER_DEBUG<<_T("RegistryUtil::RegisterInterface()")<<endl;
     LOGGER_DEBUG<<_T("typelibGUID=")<<typelibGUID<<endl;
@@ -430,8 +503,8 @@ namespace bvr20983
   void RegistryUtil::RegisterTypeLib(Registry& registry,
                                      LPCTSTR typelibDesc,
                                      REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,
-                                     LPCTSTR modulePath,LPCTSTR helpPath,
-                                     COMRegistrationType registrationType
+                                     COMRegistrationType registrationType,
+                                     EnumRegistration* pEnumRegistration
                                     )
   { LOGGER_DEBUG<<_T("RegistryUtil::RegisterTypeLib()")<<endl;
     LOGGER_DEBUG<<_T("typelibGUID=")<<typelibGUID<<endl;
@@ -464,29 +537,35 @@ namespace bvr20983
 
     os1<<_T("\\win32");
 
-    TString msiInprocServerName(_T("[!"));
-    msiInprocServerName += registry.GetComponentId();
-    msiInprocServerName += _T("]");
+    TCHAR szModulePath[MAX_PATH];
+    TCHAR szHelpDirectory[MAX_PATH];
 
-    if( registry.GetDumpType()==Registry::MSI || registry.GetDumpType()==Registry::XML )
-      registry.SetValue(TString(os1.str()).c_str(),NULL,msiInprocServerName);
-    else
-      registry.SetValue(TString(os1.str()).c_str(),NULL,modulePath);
-    
+    REG_QUERY_PARAMETER(pEnumRegistration,_T("MODULEPATH"),szModulePath,ARRAYSIZE(szModulePath),COM::COMServer::GetInstanceHandle());
+    REG_QUERY_PARAMETER(pEnumRegistration,_T("HELPDIRECTORY"),szHelpDirectory,ARRAYSIZE(szHelpDirectory),COM::COMServer::GetInstanceHandle());
+
+    registry.SetValue(TString(os1.str()).c_str(),NULL,szModulePath);
     registry.SetValue(_T("FLAGS"),NULL,_T("0"));
 
-    if( NULL!=helpPath )
-      registry.SetValue(_T("HELPDIR"),NULL,helpPath);
+    registry.SetValue(_T("HELPDIR"),NULL,szHelpDirectory);
   } // of RegistryUtil::RegisterTypeLib()
 
   /**
    *
    */
-  void RegistryUtil::RegisterTypeLib(bool register4User,REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,LPCTSTR modulePath,LPCTSTR helpPath)
+  void RegistryUtil::RegisterTypeLib(bool register4User,
+                                     REFGUID typelibGUID,LCID lcid,USHORT majorVersion,USHORT minorVersion,
+                                     EnumRegistration* pEnumRegistration
+                                    )
   { ITypeLib*        pITypeLib       = NULL;
     ICreateTypeLib2* pICreateTypeLib = NULL;
     
-    THROW_COMEXCEPTION( ::CreateTypeLib2(SYS_WIN32,(LPCOLESTR)modulePath,&pICreateTypeLib) );
+    TCHAR szModulePath[MAX_PATH];
+    TCHAR szHelpDirectory[MAX_PATH];
+
+    REG_QUERY_PARAMETER(pEnumRegistration,_T("MODULEPATH"),szModulePath,ARRAYSIZE(szModulePath),COM::COMServer::GetInstanceHandle());
+    REG_QUERY_PARAMETER(pEnumRegistration,_T("HELPDIRECTORY"),szHelpDirectory,ARRAYSIZE(szHelpDirectory),COM::COMServer::GetInstanceHandle());
+
+    THROW_COMEXCEPTION( ::CreateTypeLib2(SYS_WIN32,(LPCOLESTR)szModulePath,&pICreateTypeLib) );
 
     THROW_COMEXCEPTION( pICreateTypeLib->SetVersion(majorVersion,minorVersion) );
     THROW_COMEXCEPTION( pICreateTypeLib->SetGuid(typelibGUID) );
@@ -494,9 +573,9 @@ namespace bvr20983
     THROW_COMEXCEPTION( pICreateTypeLib->QueryInterface(IID_ITypeLib,(PPVOID)&pITypeLib) );
       
     //if( register4User )
-    //{ THROW_COMEXCEPTION( ::RegisterTypeLibForUser (pITypeLib,(LPOLESTR)modulePath,(LPOLESTR)helpPath) ); }
+    //{ THROW_COMEXCEPTION( ::RegisterTypeLibForUser (pITypeLib,(LPOLESTR)szModulePath,(LPOLESTR)szHelpDirectory) ); }
     //else
-    { THROW_COMEXCEPTION( ::RegisterTypeLib(pITypeLib,(LPOLESTR)modulePath,(LPOLESTR)helpPath) ); }
+    { THROW_COMEXCEPTION( ::RegisterTypeLib(pITypeLib,(LPOLESTR)szModulePath,(LPOLESTR)szHelpDirectory) ); }
 
     pITypeLib->Release();
   } // of RegistryUtil::RegisterTypeLib()

@@ -56,7 +56,8 @@ using namespace std;
 /**
  *
  */
-bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
+bool  CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR mainKey, LPCTSTR key, LPCTSTR name, LPCTSTR value);
+DWORD CALLBACK RegistryParamCB(LPARAM lParam, HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen);
 
 /**
  *
@@ -104,6 +105,55 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
 
     return true;
   } // of RegistryInfo()
+
+  /**
+   *
+   */
+  DWORD RegistryParam(HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen)
+  { DWORD result   = ULONG_MAX;
+    bool  knownKey = false;
+    
+    if( NULL!=key && NULL!=value )
+    { value[0] = _T('\0');
+
+      if( _tcscmp(key,_T("WINDOWSDIRECTORY"))==0 || _tcscmp(key,_T("HELPDIRECTORY"))==0 )
+      { ::GetSystemWindowsDirectory(value,maxValueLen);
+
+        knownKey = true;
+      } // of if
+      else if( _tcscmp(key,_T("MODULEPATH"))==0 && m_actFileId.length()>0 )
+      { if( _tcscpy_s(value,maxValueLen,_T("[!"))==0 &&
+            _tcscat_s(value,maxValueLen,m_actFileId.c_str())==0 &&
+            _tcscat_s(value,maxValueLen,_T("]"))==0 
+          )
+          knownKey = true;
+      } // of else if
+      else if( _tcscmp(key,_T("PRODUCTPREFIX"))==0 || _tcscmp(key,_T("SERVICENAME"))==0 )
+      { if( _tcscpy_s(value,maxValueLen,_T("ProductPrefix"))==0 )
+          knownKey = true;
+      } // of else if
+      else if( _tcscmp(key,_T("COMPONENTPREFIX"))==0 )
+      { if( _tcscpy_s(value,maxValueLen,_T("ComponentPrefix"))==0 )
+          knownKey = true;
+      } // of else if
+      else if( _tcscmp(key,_T("THREADINGMODEL"))==0 )
+      { if( _tcscpy_s(value,maxValueLen,_T("Apartment"))==0 )
+          knownKey = true;
+      } // of else if
+
+      if( knownKey )
+        result = _tcslen(value);
+    } // of if
+
+    LOGGER_INFO<<_T("RegistryParam(key=")<<key<<_T(")");
+
+    if( result!=ULONG_MAX )
+    { LOGGER_INFO<<_T(":")<<value; }
+
+    LOGGER_INFO<<endl;
+
+    return result;
+  } // of RegistryParam()
 
   /**
    *
@@ -219,7 +269,13 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
           if( enumProc )
           { m_msiPackageDoc.StartRegistryInfo();
 
-            enumProc(RegistryInfoCB,(LPARAM)this);
+            EnumRegistration enumReg(RegistryInfoCB,(LPARAM)this,RegistryParamCB);
+
+            m_actFileId = fileId;
+
+            enumProc(&enumReg);
+
+            m_actFileId.clear();
           } // of if
         } // of if
 
@@ -244,6 +300,7 @@ private:
   util::MSIPackage&      m_msiPackageDoc;
   util::MSIIdRegistry&   m_msiIdRegistry;
   TString                m_baseDir;
+  TString                m_actFileId;
 }; // of class MSICABAddFile1CB
 
 /**
@@ -257,6 +314,18 @@ bool CALLBACK RegistryInfoCB(LPARAM lParam, bool startSection, LPCTSTR mainKey, 
 
   return result;
 } // of RegistryInfoCB()
+
+/**
+ *
+ */
+DWORD CALLBACK RegistryParamCB(LPARAM lParam, HINSTANCE hDllInst,LPCTSTR key, LPTSTR value, DWORD maxValueLen)
+{ DWORD result = ULONG_MAX;
+
+  if( NULL!=lParam )
+    result = ((MSICABAddFile1CB*)lParam)->RegistryParam(hDllInst,key,value,maxValueLen);
+
+  return result;
+} // of RegistryParamCB()
 
 /**
  *
