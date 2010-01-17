@@ -31,7 +31,8 @@
 	<product id="BVR20983" commit="${commit}">
 		<versionhistory>
 			<version major="0" minor="1" fix="0" build="260">
-				<msipackagecode>${msipackpattern}</msipackagecode>
+
+        <msipackagecode>${msipackpattern}</msipackagecode>
 				<msiproductcode>${msiprodpattern}</msiproductcode>
 				<msicomponent>${msicomppattern1}</msicomponent>
 				<msiupgradecode>${msiupdpattern}</msiupgradecode>
@@ -89,9 +90,35 @@
             </msifeature>
           </msifeature>
         </msifeatures>
-        
+
+        <msiproperties>
+          <msiproperty key="ProductCode	">${../../../v:msiproductcode/text()}</msiproperty>
+          <msiproperty key="ProductName">${../../../../../v:name/text()}</msiproperty>
+          <msiproperty key="Manufacturer">${../../../../../v:company/text()}</msiproperty>
+          <msiproperty key="ProductVersion">${../../../@major}.${../../../@minor}.0</msiproperty>
+          <msiproperty key="@ProductId@">#{UCase("${../../../../../@id}")}</msiproperty>
+          <msiproperty key="ARPHELPLINK">http://#{LCase("${../../../../../@id}")}.berlios.de/</msiproperty>
+          <msiproperty key="ARPURLINFOABOUT">http://developer.berlios.de/projects/#{LCase("${../../../../../@id}")}</msiproperty>
+          <msiproperty key="ARPURLUPDATEINFO">http://#{LCase("${../../../../../@id}")}.berlios.de/msi/</msiproperty>
+          <msiproperty key="@GITURL@">git://git.berlios.de/#{LCase("${../../../../../@id}")}</msiproperty>
+          <msiproperty key="UpgradeCode">#{UCase("${../../../v:msiupgradecode/text()}")}</msiproperty>
+          <msiproperty key="ComponentDownload">http://#{LCase("${../../../../../@id}")}.berlios.de/update/</msiproperty>
+        </msiproperties>
+
+        <msipatch>
+          <msipatchmetadata>
+            <msiproperty key="ManufacturerName">${../../../../../v:company/text()}</msiproperty>
+            <msiproperty key="MoreInfoURL">http://#{LCase("${../../../../../@id}")}.berlios.de/</msiproperty>
+            <msiproperty key="TargetProductName">${../../../../../v:name/text()}</msiproperty>
+            <msiproperty key="DisplayName">${../../../../../v:name/text()} Update</msiproperty>
+            <msiproperty key="Description">#{LCase("${../../../../../@id}")} MSI Patch</msiproperty>
+            <msiproperty key="AllowRemoval">1</msiproperty>
+            <msiproperty key="Classification">update</msiproperty>
+          </msipatchmetadata>
+        </msipatch>
       </version>
-			<version major="0" minor="0" fix="1" build="0">
+
+      <version major="0" minor="0" fix="1" build="0">
 				<msipackagecode>${msipackpattern}</msipackagecode>
 				<msiproductcode>${msiprodpattern}</msiproductcode>
 				<msicomponent>${msicomppattern1}</msicomponent>
@@ -130,55 +157,6 @@
 			<pattern><key>(^#define.+verMSIUpdCode.+")(.+)(")</key>
 				<value>$1${../../../../v:versionhistory/v:version[1]/v:msiupgradecode/text()}$3</value></pattern>
 		</patch>
-		<patch template="Property.tmpl" filename="Property.idt">
-			<pattern><key>@ProductCode@</key><value>${../../../../v:versionhistory/v:version[1]/v:msiproductcode/text()}</value></pattern>
-			<pattern><key>@ProductName@</key><value>${../../../../v:name/text()}</value></pattern>
-			<pattern><key>@Manufacturer@</key><value>${../../../../v:company/text()}</value></pattern>
-			<pattern><key>@ProductVersion@</key><value>${../../../../v:versionhistory/v:version[1]/@major}.${../../../../v:versionhistory/v:version[1]/@minor}.0</value></pattern>
-			<pattern><key>@ProductId@</key><value>#{UCase("${../../../../@id}")}</value></pattern>
-			<pattern><key>@URL@</key><value>http://#{LCase("${../../../../@id}")}.berlios.de/</value></pattern>
-			<pattern><key>@URL1@</key><value>http://developer.berlios.de/projects/#{LCase("${../../../../@id}")}</value></pattern>
-			<pattern><key>@URL2@</key><value>http://bvr20983.berlios.de/msi/</value></pattern>
-			<pattern><key>@SVNURL@</key><value>http://svn.berlios.de/wsvn/#{LCase("${../../../../@id}")}</value></pattern>
-			<pattern><key>@UpgradeCode@</key><value>#{UCase("${../../../../v:versionhistory/v:version[1]/v:msiupgradecode/text()}")}</value></pattern>
-		</patch>
-		<patch filename="PatchMetadata.idt">
-			<pattern><key>(ManufacturerName[\t])(.+)</key><value>$1${../../../../v:company/text()}</value></pattern>
-			<pattern><key>(MoreInfoURL[\t])(.+)</key><value>$1http://#{LCase("${../../../../@id}")}.berlios.de/</value></pattern>
-			<pattern><key>(TargetProductName[\t])(.+)</key><value>$1${../../../../v:name/text()}</value></pattern>
-			<pattern><key>(DisplayName[\t])(.+)</key><value>$1${../../../../v:name/text()} Update</value></pattern>
-			<pattern><key>(Description[\t])(.+)</key><value>$1#{LCase("${../../../../@id}")} MSI Patch</value></pattern>
-		</patch>
-		<patch template="Registry.tmpl" filename="Registry0.tmpl">
-			<pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}</value></pattern>
-			<pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
-			<pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>
-			<pattern><key>@CCID@</key><value>cc.${../../../../v:component[@id='cc']/v:version/@major}</value></pattern>
-			<pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
-		</patch>
-		<patch template="Shortcut.tmpl" filename="Shortcut.idt">
-			<pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}</value></pattern>
-			<pattern><key>@DigiclockID@</key><value>digiclock.${../../../../v:component[@id='digiclock']/v:version/@major}</value></pattern>
-			<pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
-			<pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>
-			<pattern><key>@CCID@</key><value>cc.${../../../../v:component[@id='cc']/v:version/@major}</value></pattern>
-			<pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
-		</patch>
-		<patch template="FeatureComponents.tmpl" filename="FeatureComponents.idt">
-			<pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}</value></pattern>
-			<pattern><key>@DigiclockID@</key><value>digiclock.${../../../../v:component[@id='digiclock']/v:version/@major}</value></pattern>
-			<pattern><key>@LstypeinfoID@</key><value>lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}</value></pattern>
-			<pattern><key>@LsstgID@</key><value>lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}</value></pattern>
-			<pattern><key>@CCID@</key><value>cc.${../../../../v:component[@id='cc']/v:version/@major}</value></pattern>
-			<pattern><key>@SCID@</key><value>sc.${../../../../v:component[@id='sc']/v:version/@major}</value></pattern>
-			<pattern><key>@SampleID@</key><value>sample.${../../../../v:component[@id='sample']/v:version/@major}</value></pattern>
-			<pattern><key>@DocID@</key><value>doc.${../../../../v:component[@id='doc']/v:version/@major}</value></pattern>
-			<pattern><key>@ResID@</key><value>res.${../../../../v:component[@id='res']/v:version/@major}</value></pattern>
-			<pattern><key>@MsgsID@</key><value>msgs.${../../../../v:component[@id='msgs']/v:version/@major}</value></pattern>
-		</patch>
-		<patch template="Directory.tmpl" filename="Directory.idt">
-			<pattern><key>@ProductId@</key><value>#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}</value></pattern>
-		</patch>
 		<patch template="Makefile.inc.tmpl" filename="Makefile.inc">
 			<pattern><key>@bvr20983resresult</key><value>${../../../../v:component[@id='res']/v:filename/text()}</value></pattern>
 			<pattern><key>@bvr20983ccresult</key><value>${../../../../v:component[@id='cc']/v:filename/text()}</value></pattern>
@@ -188,7 +166,6 @@
 			<pattern><key>@lsstgresult</key><value>${../../../../v:component[@id='lsstg']/v:filename/text()}</value></pattern>
 			<pattern><key>@lstypeinforesult</key><value>${../../../../v:component[@id='lstypeinfo']/v:filename/text()}</value></pattern>
 			<pattern><key>@msicabresult</key><value>${../../../../v:component[@id='msicab']/v:filename/text()}</value></pattern>
-			<pattern><key>@msicab1result</key><value>${../../../../v:component[@id='msicab']/v:filename/text()}_1</value></pattern>
 			<pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}</value></pattern>
 			<pattern><key>@bvr20983result</key><value>${../../../../v:filename/text()}</value></pattern>
 			<pattern><key>@bvr20983desc</key><value>${../../../../v:name/text()}</value></pattern>
@@ -232,8 +209,6 @@
 		<component id="res" type="dll">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>Resource Library</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0001</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="bvr20983res-ver.h">
@@ -267,8 +242,6 @@
 		<component id="msgs" type="dll">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>Product installation and message component</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0002</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="bvr20983msgs-ver.h">
@@ -317,8 +290,6 @@
 		<component id="update" type="dll">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>Autoupdate component</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0003</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="bvr20983update-ver.h">
@@ -399,8 +370,6 @@
 		<component id="sc" type="dll">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>Smartcard Library</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0004</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="bvr20983sc-ver.h">
@@ -604,8 +573,6 @@
 		<component id="cc" type="dll">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>Custom Control Library</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0005</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="bvr20983cc-ver.h">
@@ -713,10 +680,14 @@
 		<component id="digiclock" type="exe">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>A digital clock</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0006</no>
 			<filename>${filenamepattern}</filename>
+
+      <shortcut id="digiclock" name="Digiclck|The Digiclock" 
+                directoryid="StartupMenuFolder" 
+                featureid="digiclock" 
+                icon="bvr20983res.exe" iconindex="1"/>
+      
 			<patch filename="digiclock-ver.h">
 				<pattern><key>(^#define.+verFileVer1.+")([0-9]+[\.][0-9]+[\.][0-9]+[\.][0-9]+)(".*)</key><value>$1${../../../../v:version/@major}.${../../../../v:version/@minor}.${../../../../v:version/@fix}.${../../../../v:version/@build}$3</value></pattern>
 				<pattern><key>(^#define.+verFileVer.+)([0-9]+[,][0-9]+[,][0-9]+[,][0-9]+)(.*)</key>
@@ -763,8 +734,6 @@
 		<component id="lsstg" type="exe">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>list COM structure storage</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0007</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="lsstg-ver.h">
@@ -813,8 +782,6 @@
 		<component id="lstypeinfo" type="exe">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>list typeinfo of registered COM objects</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>BINDIR</msidir>
 			<no>0008</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="lstypeinfo-ver.h">
@@ -863,7 +830,6 @@
 		<component id="msicab" type="exe">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>create cabinet files and necessary msi information</name>
-			<!--      <msiguid>${msicomppattern}</msiguid> -->
 			<no>0009</no>
 			<filename>${filenamepattern}</filename>
 			<patch filename="msicab-ver.h">
@@ -912,42 +878,60 @@
 		<component id="doc" type="dir">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>documentation files</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>DOCDIR</msidir>
 			<no>000A</no>
 			<filename>doc</filename>
 		</component>
 		<component id="sample" type="dir">
 			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>sample files</name>
-			<msiguid>${msicomppattern}</msiguid>
-			<msidir>SAMPLEDIR</msidir>
 			<no>000B</no>
 			<filename>sample</filename>
 		</component>
     <component id="com" type="dir">
       <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>include files</name>
-      <msiguid>${msicomppattern}</msiguid>
-      <msidir>SAMPLEDIR</msidir>
       <no>000D</no>
       <filename>inc\com</filename>
     </component>
     <component id="lib" type="file">
       <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>Library file</name>
-      <msiguid>${msicomppattern}</msiguid>
-      <msidir>SAMPLEDIR</msidir>
       <no>000E</no>
       <filename>libbvr20983xxx.lib</filename>
     </component>
     <component id="inc" type="dir">
       <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
       <name>include files</name>
-      <msiguid>${msicomppattern}</msiguid>
-      <msidir>SAMPLEDIR</msidir>
       <no>000C</no>
       <filename>inc</filename>
     </component>
+
+    <registryentries id="globalregistryentries">
+      <registry>
+        <key hive="HKEY_CURRENT_USER">Software\#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}\sc.${../../../../v:component[@id='sc']/v:version/@major}\logging</key>
+        <name>tracelevel</name>
+        <value>debug</value>
+      </registry>
+      <registry>
+        <key hive="HKEY_CURRENT_USER">Software\#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}\cc.${../../../../v:component[@id='cc']/v:version/@major}\logging</key>
+        <name>tracelevel</name>
+        <value>debug</value>
+      </registry>
+      <registry>
+        <key hive="HKEY_CURRENT_USER">Software\#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}\lsstg.${../../../../v:component[@id='lsstg']/v:version/@major}\logging</key>
+        <name>tracelevel</name>
+        <value>debug</value>
+      </registry>
+      <registry>
+        <key hive="HKEY_CURRENT_USER">Software\#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}\lstypeinfo.${../../../../v:component[@id='lstypeinfo']/v:version/@major}\logging</key>
+        <name>tracelevel</name>
+        <value>debug</value>
+      </registry>
+
+      <registry>
+        <key hive="HKEY_CURRENT_USER">Software\#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}\logging</key>
+        <value>test</value>
+      </registry>
+    </registryentries>
   </product>
 </versions>

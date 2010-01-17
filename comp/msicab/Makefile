@@ -31,22 +31,16 @@ $(SLNDIR)\libbvr20983.lib
 all: clean
 !else
 all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB_RESULT).exe
-all: $(OUTDIR) $(RESULTDIR) $(SLNDIR) $(SLNDIR)\$(MSICAB1_RESULT).exe
 !endif
 
-$(OUTDIR)\$(MSICAB_RESULT).exe: $(OBJS) $(OUTDIR)\msicab.obj
-  $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) wintrust.lib FCI.LIB FDI.LIB MSI.LIB $(OBJS) $(OUTDIR)\msicab.obj
-
-$(OUTDIR)\$(MSICAB1_RESULT).exe: $(OBJS) $(OUTDIR)\msicab1.obj
+$(OUTDIR)\$(MSICAB_RESULT).exe: $(OBJS) $(OUTDIR)\msicab1.obj
   $(link) $(ldebug) $(conlflags) $(lvars) -out:$@ -pdb:$(@R).pdb $(olelibsmt) wintrust.lib FCI.LIB FDI.LIB MSI.LIB $(OBJS) $(OUTDIR)\msicab1.obj
 
-$(SLNDIR)\$(MSICAB_RESULT).exe: $(OUTDIR)\$(MSICAB_RESULT).exe $(OUTDIR)\$(MSICAB1_RESULT).exe
+$(SLNDIR)\$(MSICAB_RESULT).exe: $(OUTDIR)\$(MSICAB_RESULT).exe
   @copy $(OUTDIR)\$(MSICAB_RESULT).exe $(SLNDIR)
-  @copy $(OUTDIR)\$(MSICAB1_RESULT).exe $(SLNDIR)
 
 clean:
   if exist $(OUTDIR)\$(NULL) rd /s /q $(OUTDIR)
-  if exist $(SLNDIR)\$(MSICAB_RESULT).exe  del /q $(SLNDIR)\$(MSICAB_RESULT).exe
-  if exist $(SLNDIR)\$(MSICAB1_RESULT).exe del /q $(SLNDIR)\$(MSICAB1_RESULT).exe
+  if exist $(SLNDIR)\$(MSICAB_RESULT).exe del /q $(SLNDIR)\$(MSICAB_RESULT).exe
 
 !include <../../inc/Makefile.rule>

@@ -537,7 +537,6 @@ Sub TransformMsiPackageDescription(f,msidir)
     componentIdt.WriteLine("Component"&vbTab&"ComponentId"&vbTab&"Directory_"&vbTab&"Attributes"&vbTab&"Condition"&vbTab&"KeyPath")
     componentIdt.WriteLine("s72"&vbTab&"S38"&vbTab&"s72"&vbTab&"i2"&vbTab&"S255"&vbTab&"S72")
     componentIdt.WriteLine("Component"&vbTab&"Component")
-    componentIdt.WriteLine("globalregistryentries"&vbTab&"{BFE20983-0000-0103-0000-000000000001}"&vbTab&"TARGETDIR"&vbTab&"4"&vbTab&vbTab&"sclogging")
 
     Set objNodeList  = xmlDoc.documentElement.selectNodes("/msipackage/files/file")
     
@@ -601,10 +600,6 @@ Sub TransformMsiPackageDescription(f,msidir)
       registryIdt.WriteLine("Registry"&vbTab&"Root"&vbTab&"Key"&vbTab&"Name"&vbTab&"Value"&vbTab&"Component_")
       registryIdt.WriteLine("s72"&vbTab&"i2"&vbTab&"l255"&vbTab&"L255"&vbTab&"L0"&vbTab&"s72")
       registryIdt.WriteLine("Registry"&vbTab&"Registry")
-      registryIdt.WriteLine("sclogging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\sc.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
-      registryIdt.WriteLine("cclogging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\cc.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
-      registryIdt.WriteLine("lsstglogging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\lsstg.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
-      registryIdt.WriteLine("lstypeinfologging"&vbTab&"-1"&vbTab&"Software\bvr20983.0\lstypeinfo.1\logging"&vbTab&"tracelevel"&vbTab&"debug"&vbTab&"globalregistryentries")
 
       For Each o in objNodeList
         If TypeName(o)="IXMLDOMElement" Then

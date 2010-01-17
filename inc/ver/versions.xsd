@@ -49,14 +49,15 @@
 
   <xs:complexType name="productType">
     <xs:sequence>
-      <xs:element name="versionhistory" type="versionHistoryType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="name"           type="xs:string"/>
-      <xs:element name="no"             type="xs:string"/>
-      <xs:element name="company"        type="xs:string"/>
-      <xs:element name="copyright"      type="xs:string"/>
-      <xs:element name="filename"       type="xs:string"/>
-      <xs:element name="patch"          type="patchType"     minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="component"      type="componentType" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="versionhistory"  type="versionHistoryType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="name"            type="xs:string"/>
+      <xs:element name="no"              type="xs:string"/>
+      <xs:element name="company"         type="xs:string"/>
+      <xs:element name="copyright"       type="xs:string"/>
+      <xs:element name="filename"        type="xs:string"/>
+      <xs:element name="patch"           type="patchType"             minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="component"       type="componentType"         minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="registryentries" type="registryEntriesType"   minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
     <xs:attribute name="id"        type="xs:ID"      use="required"/>
     <xs:attribute name="commit"    type="xs:string"/>
@@ -66,17 +67,39 @@
     <xs:sequence>
       <xs:element name="version"   type="versionType"/>
       <xs:element name="name"      type="xs:string"/>
-      <xs:element name="msiguid"   type="xs:string"   minOccurs="0" />
-      <xs:element name="msidir"    type="xs:string"   minOccurs="0" />
-      <xs:element name="no"        type="xs:string"   minOccurs="0" />
+      <xs:element name="no"        type="xs:string"    minOccurs="0" />
       <xs:element name="filename"  type="xs:string"/>
-      <xs:element name="patch"     type="patchType"   minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="type"      type="typeType"    minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="typelib"   type="typelibType" minOccurs="0"/>
+      <xs:element name="shortcut"  type="shortcutType" minOccurs="0" />
+      <xs:element name="patch"     type="patchType"    minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="type"      type="typeType"     minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="typelib"   type="typelibType"  minOccurs="0"/>
     </xs:sequence>
 
     <xs:attribute name="id"   type="xs:ID"        use="required"/>
     <xs:attribute name="type" type="comptypeType" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="registryEntriesType">
+    <xs:sequence>
+      <xs:element name="registry" type="registryType"   minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id"   type="xs:ID"        use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="registryType">
+    <xs:sequence>
+      <xs:element name="key"   type="registryKeyType"/>
+      <xs:element name="name"  type="xs:string" minOccurs="0"/>
+      <xs:element name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="registryKeyType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="hive" type="hiveType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
   <xs:complexType name="typeType">
@@ -133,13 +156,15 @@
 
   <xs:complexType name="productVersionType">
     <xs:sequence>
-      <xs:element name="msipackagecode" type="xs:string"   minOccurs="0" />
-      <xs:element name="msiproductcode" type="xs:string"   minOccurs="0" />
-      <xs:element name="msicomponent"   type="xs:string"   minOccurs="0" />
-      <xs:element name="msiupgradecode" type="xs:string"   minOccurs="0" />
-      <xs:element name="msipatchcode"   type="xs:string"   minOccurs="0" />
-      <xs:element name="msino"          type="xs:string"   minOccurs="0" />
-      <xs:element name="msifeatures"    type="msiFeaturesType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="msipackagecode" type="xs:string"         minOccurs="0" />
+      <xs:element name="msiproductcode" type="xs:string"         minOccurs="0" />
+      <xs:element name="msicomponent"   type="xs:string"         minOccurs="0" />
+      <xs:element name="msiupgradecode" type="xs:string"         minOccurs="0" />
+      <xs:element name="msipatchcode"   type="xs:string"         minOccurs="0" />
+      <xs:element name="msino"          type="xs:string"         minOccurs="0" />
+      <xs:element name="msifeatures"    type="msiFeaturesType"   minOccurs="0" maxOccurs="1"/>
+      <xs:element name="msiproperties"  type="msiPropertiesType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="msipatch"       type="msiPatchType"      minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
     <xs:attribute name="major"    type="xs:nonNegativeInteger" use="required"/>
     <xs:attribute name="minor"    type="xs:nonNegativeInteger" use="required"/>
@@ -166,6 +191,32 @@
     <xs:attribute name="attribute"   type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="msiPatchType">
+    <xs:sequence>
+      <xs:element name="msipatchmetadata"     type="msiMetadataType"   minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="msiMetadataType">
+    <xs:sequence>
+      <xs:element name="msiproperty"     type="msiPropertyType"   minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="msiPropertiesType">
+    <xs:sequence>
+      <xs:element name="msiproperty"     type="msiPropertyType"   minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="msiPropertyType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="key" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
   <xs:complexType name="msiComponentType">
     <xs:attribute name="compid"      type="xs:string"             use="required"/>
   </xs:complexType>
@@ -176,6 +227,14 @@
       <xs:enumeration value="exe"/>
       <xs:enumeration value="dir"/>
       <xs:enumeration value="file"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="hiveType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HKEY_CURRENT_USER"/>
+      <xs:enumeration value="HKEY_LOCAL_MACHINE"/>
+      <xs:enumeration value="HKEY_CLASSES_ROOT"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -190,5 +249,14 @@
       <xs:pattern value="[0-9]{1,10}|\$\{.*\}"/>
     </xs:restriction>
   </xs:simpleType>
+
+  <xs:complexType name="shortcutType">
+    <xs:attribute name="id"          type="xs:string"             use="required"/>
+    <xs:attribute name="name"        type="xs:string"             use="required"/>
+    <xs:attribute name="directoryid" type="xs:string"             use="required"/>
+    <xs:attribute name="featureid"   type="xs:string"             use="required"/>
+    <xs:attribute name="icon"        type="xs:string"             use="required"/>
+    <xs:attribute name="iconindex"   type="xs:nonNegativeInteger" use="required"/>
+  </xs:complexType>
 
 </xs:schema>

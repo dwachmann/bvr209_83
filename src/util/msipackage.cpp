@@ -32,7 +32,7 @@ namespace bvr20983
     /**
      *
      */
-    MSIPackage::MSIPackage(LPCTSTR fileName,util::XMLDocument versionsDoc) : 
+    MSIPackage::MSIPackage(LPCTSTR fileName,util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry) : 
       m_fileName(fileName)
     { m_doc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
 
@@ -45,6 +45,7 @@ namespace bvr20983
       LoadFeatures(versionsDoc);
       LoadFileNames(versionsDoc);
       LoadDirectoryNames(versionsDoc);
+      LoadRegistryEntries(versionsDoc,idRegistry);
     } // of MSIPackage::MSIPackage()
 
     /**
@@ -224,6 +225,61 @@ namespace bvr20983
           } // of if
         } // of for
     } // of MSIPackage::LoadDirectoryNames()
+
+    /**
+     *
+     */
+    void MSIPackage::LoadRegistryEntries(util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry)
+    { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+
+      versionsDoc.GetSelection(_T("//v:product/v:registryentries/v:registry"),pXMLDomNodeList);
+
+      if( !pXMLDomNodeList.IsNULL() )
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
+        { COVariant hive;
+
+          if( versionsDoc.GetNodeValue(pNode,_T("./v:key/@hive"),hive) )
+          { COVariant key;
+            COVariant name;
+            COVariant value;
+
+            versionsDoc.GetNodeValue(pNode,_T("./v:key/text()"),key,true);
+            versionsDoc.GetNodeValue(pNode,_T("./v:name/text()"),name,true);
+            versionsDoc.GetNodeValue(pNode,_T("./v:value/text()"),value,true);
+
+            LOGGER_INFO<<V_BSTR(key);
+
+            if( !name.IsEmpty() )
+            { LOGGER_INFO<<_T("\\")<<V_BSTR(name); }
+
+            LOGGER_INFO<<_T(":")<<V_BSTR(value)<<endl;
+
+            MSIId    uniqueId;
+            YAString regPath(V_BSTR(key));
+
+            if( !name.IsEmpty() )
+            { regPath.Append(_T("\\"));
+              regPath.Append(V_BSTR(name));
+            } // of if
+
+            idRegistry.GetUniqueId(_T("registry"),regPath.c_str(),uniqueId);
+
+            YAString registryId;
+            registryId.Format(_T("R%08d"),uniqueId.id);
+
+            if( m_lastRegistryentriesElement.IsNULL() )
+            { m_doc.CreateElement(_T("registryentries"),m_lastRegistryentriesElement);
+              m_doc.AppendChildToParent(m_lastRegistryentriesElement,m_rootElement,1);
+              m_doc.AppendNewline(m_lastRegistryentriesElement,2);
+            } // of if
+
+            AddRegistryInfo(registryId.c_str(),uniqueId.guid,false,V_BSTR(hive),V_BSTR(key),!name.IsEmpty() ? V_BSTR(name) : NULL, V_BSTR(value));
+          } // of if
+        } // of for
+
+      m_lastRegistryentriesElement.Release();
+    } // of MSIPackage::LoadRegistryEntries()
 
     /**
      *

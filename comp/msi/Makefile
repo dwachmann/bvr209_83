@@ -18,7 +18,6 @@
 !include <../../inc/Makefile.inc>
 
 msicab      = $(SLNDIR)\$(MSICAB_RESULT).exe
-msicab1     = $(SLNDIR)\$(MSICAB1_RESULT).exe
 msidb       = msidb
 msival      = msival2
 msimsp      = msimsp
@@ -36,43 +35,7 @@ all: distribute
 
 distribute:
 
-createmsi: clean $(RESULTDIR) $(MSIDIR) $(MSIDIR)\$(BVR20983_CABMSI)
-   @copy $(MSITEMPLATEDIR)\Registry0.tmpl /B + $(MSITEMPLATEDIR)\Registry1.tmpl /B $(MSITEMPLATEDIR)\Registry.idt /B
-   @copy $(SLNDIR)\$(BVR20983RES_RESULT).dll $(MSITEMPLATEDIR)\Icon\bvr20983res.exe.ibd
-   $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(MSITEMPLATEDIR) -i *
-   $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)
-   $(msiinfo) $(MSIDIR)\$(BVR20983_MSI) \
-             -T "Installation Database" \
-             -J "$(BVR20983_RESULT)" \
-             -A "$(BVR20983_MSI_COMPANY)" \
-             -K "Installer, MSI, Database" \
-             -O "$(BVR20983DESC)" \
-             -P "Intel;1033" \
-             -V {$(BVR20983_MSI_PACKAGECODE)} \
-             -G 200 \
-             -W 2 \
-             -N msidb \
-             -U 0 \
-             -L dw
-
-$(MSIDIR)\$(BVR20983_CABMSI): $(INCDIR)\ver\versions.xml
-   @copy $(MSITEMPLATEDIR)\File.tmpl $(MSITEMPLATEDIR)\File.idt
-   @copy $(MSITEMPLATEDIR)\Component.tmpl $(MSITEMPLATEDIR)\Component.idt
-   @copy $(MSITEMPLATEDIR)\Media.tmpl $(MSITEMPLATEDIR)\Media.idt
-   @copy $(MSITEMPLATEDIR)\MsiFileHash.tmpl $(MSITEMPLATEDIR)\MsiFileHash.idt
-   if not exist "$(SLNDIR)\documentation/$(NULL)" mkdir $(SLNDIR)\documentation
-   if not exist "$(SLNDIR)\samples/$(NULL)" mkdir $(SLNDIR)\samples
-   @xcopy $(HTMLDIR)\* $(SLNDIR)\samples /S
-   @copy $(SCRIPTSDIR)\bvr20983.vbs $(SLNDIR)\samples
-   @copy $(SCRIPTSDIR)\test1.vbs    $(SLNDIR)\samples
-   @xcopy $(DOCDIR)\* $(SLNDIR)\documentation /S
-   cd $(SLNDIR)
-   rundll32.exe $(BVR20983MSGS_RESULT).dll,DllRegistrationInfo $(MSITEMPLATEDIR)\Registry1.tmpl
-   rundll32.exe $(BVR20983SC_RESULT).dll,DllRegistrationInfo $(MSITEMPLATEDIR)\Registry1.tmpl
-   rundll32.exe $(BVR20983CC_RESULT).dll,DllRegistrationInfo $(MSITEMPLATEDIR)\Registry1.tmpl
-   $(msicab) -msicab $(INCDIR)\ver\versions.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI) $(MSITEMPLATEDIR)
-
-msicab1:
+msicab:
    @if not exist "$(MSIDIR)\$(NULL)"                  mkdir $(MSIDIR)
    @if not exist "$(MSIDIR)\templates\$(NULL)"        mkdir $(MSIDIR)\templates
    @if not exist "$(MSIDIR)\templates\Binary\$(NULL)" mkdir $(MSIDIR)\templates\Binary
@@ -81,9 +44,9 @@ msicab1:
    @xcopy /Q /Y $(MSITEMPLATEDIR)\Binary\* $(MSIDIR)\templates\Binary
    @xcopy /Q /Y $(MSITEMPLATEDIR)\Icon\*   $(MSIDIR)\templates\Icon
    @xcopy /Q /Y $(SLNDIR)\$(BVR20983RES_RESULT).dll $(MSIDIR)\templates\Icon\bvr20983res.exe.ibd
-   $(msicab1) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+   $(msicab) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
  
-transform: 
+msitransform: 
    $(cscript) //job:transform $(SCRIPTSDIR)\msi.wsf /File:$(PROJECTDIR)\comp\msi\msipackage.xml /MSIDir:$(MSIDIR)\templates
    $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(MSIDIR)\templates -i *
    $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)
@@ -103,10 +66,6 @@ transform:
 
 validate: 
    $(msival) $(MSIDIR)\$(BVR20983_MSI) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f
-
-distsrc: 
-   svn export $(PROJECTDIR) $(DISTSRCDIR)
-   $(msicab) c $(RESULTDIR)\$(BVR20983_RESULT)-src.cab $(DISTSRCDIR)
 
 createpatch: $(MSIPATCHDIR)
   $(cscript) //job:msipatch $(SCRIPTSDIR)\patch.wsf /File:$(INCDIR)\ver\versions.xml /MSIDir:$(MSIDIR) /MSIPatchDir:$(MSIPATCHDIR)  /MSIPatchTemplateDir:$(MSIPATCHTMPLDIR)

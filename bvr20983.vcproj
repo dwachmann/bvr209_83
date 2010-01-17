@@ -66,6 +66,10 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\src\util\yanew.cpp"
+				>
+			</File>
 			<Filter
 				Name="Header Files"
 				Filter="h;hpp;hxx;hm;inl;inc;xsd"
@@ -958,10 +962,6 @@
 					</File>
 					<File
 						RelativePath=".\src\lstypeinfo.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\src\msicab.cpp"
 						>
 					</File>
 					<File

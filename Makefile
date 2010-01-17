@@ -64,7 +64,6 @@ distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
   @copy $(HTMLDIR)\*.jpg                  $(DISTDIR)
   @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
 
-
 patch:
   cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions//v:patch" 
 
@@ -80,19 +79,11 @@ tagbuild:
 tagmsi:
   cscript //nologo //job:tagmsiversion $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml
   
-msi: comp\msi\~createmsi
-
-msicab1: comp\msi\~msicab1
+msicab: comp\msi\~msicab
 
 msipatch: comp\msi\~createpatch
 
-msitransform: comp\msi\~transform
-
-comp\msi\~createmsi:
-  @IF EXIST $(@D)\makefile <<nmaketmp.bat
-  @cd $(@D)
-  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) createmsi
-<<
+msitransform: comp\msi\~msitransform
 
 comp\msi\~createpatch:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
@@ -100,16 +91,16 @@ comp\msi\~createpatch:
   @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) createpatch
 <<
 
-comp\msi\~msicab1:
+comp\msi\~msicab:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
-  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msicab1
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msicab
 <<
 
-comp\msi\~transform:
+comp\msi\~msitransform:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
-  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) transform
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msitransform
 <<
 
 $(CABRESULT): $(CABCONTENT)

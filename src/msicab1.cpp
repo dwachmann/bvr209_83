@@ -145,12 +145,14 @@ struct MSICABAddFile1CB : bvr20983::cab::CabinetFCIAddFileCB
         result = _tcslen(value);
     } // of if
 
+/*
     LOGGER_INFO<<_T("RegistryParam(key=")<<key<<_T(")");
 
     if( result!=ULONG_MAX )
     { LOGGER_INFO<<_T(":")<<value; }
 
     LOGGER_INFO<<endl;
+*/
 
     return result;
   } // of RegistryParam()
@@ -365,8 +367,8 @@ void msicab(LPTSTR versionFName,LPTSTR msiIdRegistryFName,LPTSTR msiPackageFName
           DirectoryInfo::_IsDirectory(fullCompDir->c_str())
         )
       { 
-        { MSIPackage       msiPackageDoc(msiPackageFName,versionsDoc);
-          MSIIdRegistry    msiIdRegistry(msiIdRegistryFName,V_BSTR(msiComponentID));
+        { MSIIdRegistry    msiIdRegistry(msiIdRegistryFName,V_BSTR(msiComponentID));
+          MSIPackage       msiPackageDoc(msiPackageFName,versionsDoc,msiIdRegistry);
           MSICABAddFile1CB addFileCB(msiPackageDoc,msiIdRegistry);
 
           cabinet.SetAddFileCallback(&addFileCB);
