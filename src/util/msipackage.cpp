@@ -46,6 +46,7 @@ namespace bvr20983
       LoadFileNames(versionsDoc);
       LoadDirectoryNames(versionsDoc);
       LoadRegistryEntries(versionsDoc,idRegistry);
+      LoadProperties(versionsDoc);
     } // of MSIPackage::MSIPackage()
 
     /**
@@ -248,13 +249,6 @@ namespace bvr20983
             versionsDoc.GetNodeValue(pNode,_T("./v:name/text()"),name,true);
             versionsDoc.GetNodeValue(pNode,_T("./v:value/text()"),value,true);
 
-            LOGGER_INFO<<V_BSTR(key);
-
-            if( !name.IsEmpty() )
-            { LOGGER_INFO<<_T("\\")<<V_BSTR(name); }
-
-            LOGGER_INFO<<_T(":")<<V_BSTR(value)<<endl;
-
             MSIId    uniqueId;
             YAString regPath(V_BSTR(key));
 
@@ -280,6 +274,38 @@ namespace bvr20983
 
       m_lastRegistryentriesElement.Release();
     } // of MSIPackage::LoadRegistryEntries()
+
+    /**
+     *
+     */
+    void MSIPackage::LoadProperties(util::XMLDocument versionsDoc)
+    { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+      COMPtr<IXMLDOMElement>  pProperties;
+
+      versionsDoc.GetSelection(_T("//v:version[1]//v:msiproperties/v:msiproperty"),pXMLDomNodeList);
+
+      if( !pXMLDomNodeList.IsNULL() )
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
+        { COVariant key;
+
+          if( versionsDoc.GetAttribute(pNode,_T("key"),key) )
+          { COVariant value;
+
+            versionsDoc.GetNodeValue(pNode,_T(".//text()"),value,true);
+
+            if( pProperties.IsNULL() )
+            { m_doc.CreateElement(_T("properties"),pProperties);
+              m_doc.AppendChildToParent(pProperties,m_rootElement,1);
+              m_doc.AppendNewline(pProperties,2);
+            } // of if
+
+            COMPtr<IXMLDOMElement> pProperty;
+            m_doc.AppendElement(pProperty,pProperties,_T("property"),V_BSTR(value),2);
+            m_doc.AddAttribute(pProperty,_T("key"),V_BSTR(key));
+          } // of if
+        } // of for
+    } // of MSIPackage::LoadProperties()
 
     /**
      *

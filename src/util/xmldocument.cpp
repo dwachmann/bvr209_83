@@ -518,6 +518,19 @@ namespace bvr20983
 
                   prop += V_BSTR(v4);
                 } // of if
+                else if( _tcsstr(xpath,_T("UCase(\""))==xpath )
+                { TString param(xpath+7,_tcslen(xpath)-2-7);
+                  COVariant v4(param);
+                  
+                  GetProperty(node,v4);
+
+                  LPTSTR s = const_cast<LPTSTR>(V_BSTR(v4));
+
+                  for( ;*s!=_T('\0');s++ )
+                    *s = toupper(*s);
+
+                  prop += V_BSTR(v4);
+                } // of if
                 else if( _tcsstr(xpath,_T("zerofill(\""))==xpath )
                 { TString params( xpath+10,_tcslen(xpath)-1-10);
 

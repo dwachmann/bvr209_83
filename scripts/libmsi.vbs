@@ -467,12 +467,303 @@ Sub MsiPatchInfo(f,msidir,msipatchdir,msipatchtemplatedir)
 End Sub
 
 '
+' transform directory info in msipackage to idt file
+'
+Sub TransformMsiDirectoryInfo(xmlDoc,msidir,ByRef targetDirId)
+  Dim objNodeList,o,idAttr,parentIdAttr,dirId,fileId,nameNode,parentNode,directoryIdt
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/directories/directory")
+  
+  If objNodeList.length>0 Then
+    Set directoryIdt = fso.CreateTextFile(msidir&"\Directory.idt", True)
+
+    directoryIdt.WriteLine("Directory"&vbTab&"Directory_Parent"&vbTab&"DefaultDir")
+    directoryIdt.WriteLine("s72"&vbTab&"S72"&vbTab&"l255")
+    directoryIdt.WriteLine("Directory"&vbTab&"Directory")
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        Set idAttr       = o.GetAttributeNode("id")
+        Set parentIdAttr = o.GetAttributeNode("parentid")
+    
+        If TypeName(idAttr)<>"Nothing" Then
+          If TypeName(parentIdAttr)<>"Nothing" Then
+            directoryIdt.Write(idAttr.value)
+            directoryIdt.Write(vbTab)
+
+            If parentIdAttr.value=targetDirId Then
+              directoryIdt.Write("TARGETDIR")
+            Else
+              directoryIdt.Write(parentIdAttr.value)
+            End If
+
+            directoryIdt.Write(vbTab)
+
+            If idAttr.value="ProgramFilesFolder" Then
+              directoryIdt.Write(".")
+            Else
+              directoryIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)
+              directoryIdt.Write("|")
+              directoryIdt.Write(o.selectSingleNode("./name/text()").nodeValue)
+            End If
+          Else
+            directoryIdt.Write("TARGETDIR")
+            directoryIdt.Write(vbTab)
+            directoryIdt.Write(vbTab)
+            directoryIdt.Write("SourceDir")
+
+            targetDirId = idAttr.value
+          End If
+
+          directoryIdt.WriteLine()
+        End If
+      End If  
+    Next
+
+    directoryIdt.Close
+  End If
+End Sub
+
+'
+' transform file info in msipackage to idt file
+'
+Sub TransformMsiFileInfo(xmlDoc,msidir,targetDirId,componentIdt)
+  Dim objNodeList,o,fileId,guidAttr,dirId,fileVersion,filesIdt
+
+  Set objNodeList  = xmlDoc.documentElement.selectNodes("/msipackage/files/file")
+  
+  If objNodeList.length>0 Then
+    Set filesIdt = fso.CreateTextFile(msidir&"\File.idt", True)
+
+    filesIdt.WriteLine("File"&vbTab&"Component_"&vbTab&"FileName"&vbTab&"FileSize"&vbTab&"Version"&vbTab&"Language"&vbTab&"Attributes"&vbTab&"Sequence")
+    filesIdt.WriteLine("s72"&vbTab&"s72"&vbTab&"l255"&vbTab&"i4"&vbTab&"S72"&vbTab&"S20"&vbTab&"I2"&vbTab&"i2")
+    filesIdt.WriteLine("File"&vbTab&"File")
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        Set fileId   = o.GetAttributeNode("id")
+        Set guidAttr = o.GetAttributeNode("guid")
+        Set dirId    = o.GetAttributeNode("directoryid")
+    
+        If TypeName(guidAttr)<>"Nothing" Then
+          Set fileVersion = o.selectSingleNode("./version/text()")
+
+          filesIdt.Write(fileId.value & vbTab)
+          filesIdt.Write(fileId.value & vbTab)
+          filesIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)
+          filesIdt.Write("|")
+          filesIdt.Write(o.selectSingleNode("./name/text()").nodeValue)
+
+          filesIdt.Write(vbTab)
+          filesIdt.Write(o.GetAttributeNode("size").value & vbTab)
+
+          If TypeName(fileVersion)<>"Nothing" Then
+            filesIdt.Write(fileVersion.nodeValue)
+          End If
+          filesIdt.Write(vbTab)
+
+          filesIdt.Write("1033" & vbTab)
+          filesIdt.Write("0" & vbTab)
+
+          filesIdt.Write(o.GetAttributeNode("no").value)
+
+          filesIdt.WriteLine()
+
+          componentIdt.Write(fileId.value&vbTab&"{"&guidAttr.value&"}"&vbTab)
+
+          If dirId.value=targetDirId Then
+            componentIdt.Write("TARGETDIR")
+          Else
+            componentIdt.Write(dirId.value)
+          End If
+          
+          componentIdt.WriteLine(vbTab&"0"&vbTab&vbTab&fileId.value)
+        End If
+      End If  
+    Next
+
+    filesIdt.Close
+  End If
+End Sub
+
+'
+' transform registry info in msipackage to idt file
+'
+Sub TransformMsiRegistryInfo(xmlDoc,msidir,componentIdt)
+  Dim objNodeList,o,guidAttr,idAttr,hiveNode,nameNode,registryIdt
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//registry")
+  If objNodeList.length>0 Then
+    Set registryIdt = fso.CreateTextFile(msidir&"\Registry.idt", True)
+
+    registryIdt.WriteLine("Registry"&vbTab&"Root"&vbTab&"Key"&vbTab&"Name"&vbTab&"Value"&vbTab&"Component_")
+    registryIdt.WriteLine("s72"&vbTab&"i2"&vbTab&"l255"&vbTab&"L255"&vbTab&"L0"&vbTab&"s72")
+    registryIdt.WriteLine("Registry"&vbTab&"Registry")
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        Set guidAttr = o.GetAttributeNode("guid")
+        Set idAttr   = o.GetAttributeNode("id")
+    
+        If TypeName(idAttr)<>"Nothing" Then
+          Set hiveNode = o.selectSingleNode("./key/@hive")
+
+          registryIdt.Write(idAttr.value & vbTab)
+
+          If hiveNode.value="HKEY_LOCAL_MACHINE" Then
+            registryIdt.Write("2")
+          ElseIf hiveNode.value="HKEY_CLASSES_ROOT" Then
+            registryIdt.Write("0")
+          Else
+            registryIdt.Write("-1")
+          End If
+
+          registryIdt.Write(vbTab)
+
+          registryIdt.Write(o.selectSingleNode("./key/text()").nodeValue)
+          registryIdt.Write(vbTab)
+
+          Set nameNode = o.selectSingleNode("./name/text()")
+
+          If TypeName(nameNode)<>"Nothing" Then
+            registryIdt.Write(nameNode.nodeValue)
+          End If
+          
+          registryIdt.Write(vbTab)
+          registryIdt.Write(o.selectSingleNode("./value/text()").nodeValue)
+          registryIdt.Write(vbTab)
+          registryIdt.Write(idAttr.value)
+          registryIdt.WriteLine()
+
+          componentIdt.WriteLine(idAttr.value&vbTab&"{"&guidAttr.value&"}"&vbTab&"TARGETDIR"&vbTab&"4"&vbTab&vbTab&idAttr.value)
+        End If
+      End If  
+    Next
+
+    registryIdt.Close
+  End If
+End Sub
+
+'
+' transform feature info in msipackage to idt file
+'
+Sub TransformMsiFeatureInfo(xmlDoc,msidir)
+  Dim objNodeList,o,displayAttr,parentIdAttr,featureIdt
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/features/feature")
+  If objNodeList.length>0 Then
+    Set featureIdt = fso.CreateTextFile(msidir&"\Feature.idt", True)
+
+    featureIdt.WriteLine("Feature"&vbTab&"Feature_Parent"&vbTab&"Title"&vbTab&"Description"&vbTab&"Display"&vbTab&"Level"&vbTab&"Directory_"&vbTab&"Attributes")
+    featureIdt.WriteLine("s38"&vbTab&"S38"&vbTab&"L64"&vbTab&"L255"&vbTab&"I2"&vbTab&"i2"&vbTab&"S72"&vbTab&"i2")
+    featureIdt.WriteLine("Feature"&vbTab&"Feature")
+
+    displayAttr = 1
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        Set parentIdAttr = o.GetAttributeNode("parentid")
+
+        featureIdt.Write(o.GetAttributeNode("id").value)
+        featureIdt.Write(vbTab)
+
+        if TypeName(parentIdAttr)<>"Nothing" Then
+          featureIdt.Write(parentIdAttr.value)
+        End If
+        featureIdt.Write(vbTab)
+
+        featureIdt.Write(o.GetAttributeNode("title").value)
+        featureIdt.Write(vbTab)
+
+        featureIdt.Write(o.GetAttributeNode("description").value)
+        featureIdt.Write(vbTab)
+
+        featureIdt.Write(displayAttr)
+        featureIdt.Write(vbTab)
+        displayAttr = displayAttr + 1
+
+        featureIdt.Write(o.GetAttributeNode("level").value)
+        featureIdt.Write(vbTab)
+
+        featureIdt.Write(o.GetAttributeNode("directory").value)
+        featureIdt.Write(vbTab)
+
+        featureIdt.Write(o.GetAttributeNode("attribute").value)
+
+        featureIdt.WriteLine()
+      End If  
+    Next
+
+    featureIdt.Close
+  End If
+End Sub
+
+'
+' transform feature2comp info in msipackage to idt file
+'
+Sub TransformMsiFeature2ComponentInfo(xmlDoc,msidir)
+  Dim objNodeList,objNodeList1,o,o1,parentNode,feature2compIdt
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//file/features/feature/text()")
+  If objNodeList.length>0 Then
+    Set feature2compIdt = fso.CreateTextFile(msidir&"\FeatureComponents.idt", True)
+
+    feature2compIdt.WriteLine("Feature_"&vbTab&"Component_")
+    feature2compIdt.WriteLine("s38"&vbTab&"s72")
+    feature2compIdt.WriteLine("FeatureComponents"&vbTab&"Feature_"&vbTab&"Component_")
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMText" Then
+        feature2compIdt.Write(o.nodeValue)
+        feature2compIdt.Write(vbTab)
+
+        Set parentNode = o.parentNode.parentNode.parentNode
+        feature2compIdt.WriteLine(parentNode.GetAttributeNode("id").value)
+
+        Set objNodeList1 = parentNode.selectNodes(".//registry/@id")
+        If objNodeList1.length>0 Then
+          For Each o1 in objNodeList1
+            feature2compIdt.Write(o.nodeValue)
+            feature2compIdt.Write(vbTab)
+            feature2compIdt.WriteLine(o1.value)
+          Next
+        End If  
+      End If  
+    Next
+
+    feature2compIdt.Close
+  End If
+End Sub
+
+'
+' transform property info in msipackage to idt file
+'
+Sub TransformMsiPropertyInfo(xmlDoc,msidir)
+  Dim objNodeList,o,keyAttr,parentIdAttr,propertyIdt
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/properties/property")
+  If objNodeList.length>0 Then
+    Set propertyIdt = fso.OpenTextFile(msidir&"\Property.idt", ForAppending)
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        propertyIdt.Write(o.GetAttributeNode("key").value)
+        propertyIdt.Write(vbTab)
+        propertyIdt.Write(o.selectSingleNode("./text()").nodeValue)
+        propertyIdt.WriteLine()
+      End If  
+    Next
+
+    propertyIdt.Close
+  End If
+End Sub
+
+
+'
 ' transform msipackage to idt files
 '
 Sub TransformMsiPackageDescription(f,msidir)
-  Dim objNodeList,selectCriteria,guidAttr,o,fileVersion,idAttr,parentIdAttr,dirId,fileId,nameNode,parentNode
-  Dim filesIdt,directoryIdt,componentIdt,registryIdt,targetDirId,hiveNode,featureIdt,displayAttr,feature2compIdt
-  Dim objNodeList1,o1
+  Dim objNodeList,o,targetDirId,componentIdt
 
   WScript.Echo "TransformMsiPackageDescription(f=" & f & ")"
   
@@ -482,244 +773,16 @@ Sub TransformMsiPackageDescription(f,msidir)
     WScript.Echo xmlDoc.parseError.reason
   Else
     Set componentIdt = fso.CreateTextFile(msidir&"\Component.idt", True)
-
-    Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/directories/directory")
-    
-    If objNodeList.length>0 Then
-      Set directoryIdt = fso.CreateTextFile(msidir&"\Directory.idt", True)
-
-      directoryIdt.WriteLine("Directory"&vbTab&"Directory_Parent"&vbTab&"DefaultDir")
-      directoryIdt.WriteLine("s72"&vbTab&"S72"&vbTab&"l255")
-      directoryIdt.WriteLine("Directory"&vbTab&"Directory")
-
-      For Each o in objNodeList
-        If TypeName(o)="IXMLDOMElement" Then
-          Set idAttr       = o.GetAttributeNode("id")
-          Set parentIdAttr = o.GetAttributeNode("parentid")
-      
-          If TypeName(idAttr)<>"Nothing" Then
-            If TypeName(parentIdAttr)<>"Nothing" Then
-              directoryIdt.Write(idAttr.value)
-              directoryIdt.Write(vbTab)
-
-              If parentIdAttr.value=targetDirId Then
-                directoryIdt.Write("TARGETDIR")
-              Else
-                directoryIdt.Write(parentIdAttr.value)
-              End If
-
-              directoryIdt.Write(vbTab)
-
-              If idAttr.value="ProgramFilesFolder" Then
-                directoryIdt.Write(".")
-              Else
-                directoryIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)
-                directoryIdt.Write("|")
-                directoryIdt.Write(o.selectSingleNode("./name/text()").nodeValue)
-              End If
-            Else
-              directoryIdt.Write("TARGETDIR")
-              directoryIdt.Write(vbTab)
-              directoryIdt.Write(vbTab)
-              directoryIdt.Write("SourceDir")
-
-              targetDirId = idAttr.value
-            End If
-
-            directoryIdt.WriteLine()
-          End If
-        End If  
-      Next
-
-      directoryIdt.Close
-    End If
-
     componentIdt.WriteLine("Component"&vbTab&"ComponentId"&vbTab&"Directory_"&vbTab&"Attributes"&vbTab&"Condition"&vbTab&"KeyPath")
     componentIdt.WriteLine("s72"&vbTab&"S38"&vbTab&"s72"&vbTab&"i2"&vbTab&"S255"&vbTab&"S72")
     componentIdt.WriteLine("Component"&vbTab&"Component")
 
-    Set objNodeList  = xmlDoc.documentElement.selectNodes("/msipackage/files/file")
-    
-    If objNodeList.length>0 Then
-      Set filesIdt = fso.CreateTextFile(msidir&"\File.idt", True)
-
-      filesIdt.WriteLine("File"&vbTab&"Component_"&vbTab&"FileName"&vbTab&"FileSize"&vbTab&"Version"&vbTab&"Language"&vbTab&"Attributes"&vbTab&"Sequence")
-      filesIdt.WriteLine("s72"&vbTab&"s72"&vbTab&"l255"&vbTab&"i4"&vbTab&"S72"&vbTab&"S20"&vbTab&"I2"&vbTab&"i2")
-      filesIdt.WriteLine("File"&vbTab&"File")
-
-      For Each o in objNodeList
-        If TypeName(o)="IXMLDOMElement" Then
-          Set fileId   = o.GetAttributeNode("id")
-          Set guidAttr = o.GetAttributeNode("guid")
-          Set dirId    = o.GetAttributeNode("directoryid")
-      
-          If TypeName(guidAttr)<>"Nothing" Then
-            Set fileVersion = o.selectSingleNode("./version/text()")
-
-            filesIdt.Write(fileId.value & vbTab)
-            filesIdt.Write(fileId.value & vbTab)
-            filesIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)
-            filesIdt.Write("|")
-            filesIdt.Write(o.selectSingleNode("./name/text()").nodeValue)
-
-            filesIdt.Write(vbTab)
-            filesIdt.Write(o.GetAttributeNode("size").value & vbTab)
-
-            If TypeName(fileVersion)<>"Nothing" Then
-              filesIdt.Write(fileVersion.nodeValue)
-            End If
-            filesIdt.Write(vbTab)
-
-            filesIdt.Write("1033" & vbTab)
-            filesIdt.Write("0" & vbTab)
-
-            filesIdt.Write(o.GetAttributeNode("no").value)
-
-            filesIdt.WriteLine()
-
-            componentIdt.Write(fileId.value&vbTab&"{"&guidAttr.value&"}"&vbTab)
-  
-            If dirId.value=targetDirId Then
-              componentIdt.Write("TARGETDIR")
-            Else
-              componentIdt.Write(dirId.value)
-            End If
-            
-            componentIdt.WriteLine(vbTab&"0"&vbTab&vbTab&fileId.value)
-          End If
-        End If  
-      Next
-
-      filesIdt.Close
-    End If
-
-    Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//registry")
-    If objNodeList.length>0 Then
-      Set registryIdt = fso.CreateTextFile(msidir&"\Registry.idt", True)
-
-      registryIdt.WriteLine("Registry"&vbTab&"Root"&vbTab&"Key"&vbTab&"Name"&vbTab&"Value"&vbTab&"Component_")
-      registryIdt.WriteLine("s72"&vbTab&"i2"&vbTab&"l255"&vbTab&"L255"&vbTab&"L0"&vbTab&"s72")
-      registryIdt.WriteLine("Registry"&vbTab&"Registry")
-
-      For Each o in objNodeList
-        If TypeName(o)="IXMLDOMElement" Then
-          Set guidAttr = o.GetAttributeNode("guid")
-          Set idAttr   = o.GetAttributeNode("id")
-      
-          If TypeName(idAttr)<>"Nothing" Then
-            Set hiveNode = o.selectSingleNode("./key/@hive")
-
-            registryIdt.Write(idAttr.value & vbTab)
-
-            If hiveNode.value="HKEY_LOCAL_MACHINE" Then
-              registryIdt.Write("2")
-            ElseIf hiveNode.value="HKEY_CLASSES_ROOT" Then
-              registryIdt.Write("0")
-            Else
-              registryIdt.Write("-1")
-            End If
-
-            registryIdt.Write(vbTab)
-
-            registryIdt.Write(o.selectSingleNode("./key/text()").nodeValue)
-            registryIdt.Write(vbTab)
-
-            Set nameNode = o.selectSingleNode("./name/text()")
-
-            If TypeName(nameNode)<>"Nothing" Then
-              registryIdt.Write(nameNode.nodeValue)
-            End If
-            
-            registryIdt.Write(vbTab)
-            registryIdt.Write(o.selectSingleNode("./value/text()").nodeValue)
-            registryIdt.Write(vbTab)
-            registryIdt.Write(idAttr.value)
-            registryIdt.WriteLine()
-
-            componentIdt.WriteLine(idAttr.value&vbTab&"{"&guidAttr.value&"}"&vbTab&"TARGETDIR"&vbTab&"4"&vbTab&vbTab&idAttr.value)
-          End If
-        End If  
-      Next
-
-      registryIdt.Close
-    End If
-
-    Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/features/feature")
-    If objNodeList.length>0 Then
-      Set featureIdt = fso.CreateTextFile(msidir&"\Feature.idt", True)
-
-      featureIdt.WriteLine("Feature"&vbTab&"Feature_Parent"&vbTab&"Title"&vbTab&"Description"&vbTab&"Display"&vbTab&"Level"&vbTab&"Directory_"&vbTab&"Attributes")
-      featureIdt.WriteLine("s38"&vbTab&"S38"&vbTab&"L64"&vbTab&"L255"&vbTab&"I2"&vbTab&"i2"&vbTab&"S72"&vbTab&"i2")
-      featureIdt.WriteLine("Feature"&vbTab&"Feature")
-
-      displayAttr = 1
-
-      For Each o in objNodeList
-        If TypeName(o)="IXMLDOMElement" Then
-          Set parentIdAttr = o.GetAttributeNode("parentid")
-
-          featureIdt.Write(o.GetAttributeNode("id").value)
-          featureIdt.Write(vbTab)
-
-          if TypeName(parentIdAttr)<>"Nothing" Then
-            featureIdt.Write(parentIdAttr.value)
-          End If
-          featureIdt.Write(vbTab)
-
-          featureIdt.Write(o.GetAttributeNode("title").value)
-          featureIdt.Write(vbTab)
-
-          featureIdt.Write(o.GetAttributeNode("description").value)
-          featureIdt.Write(vbTab)
-
-          featureIdt.Write(displayAttr)
-          featureIdt.Write(vbTab)
-          displayAttr = displayAttr + 1
-
-          featureIdt.Write(o.GetAttributeNode("level").value)
-          featureIdt.Write(vbTab)
-
-          featureIdt.Write(o.GetAttributeNode("directory").value)
-          featureIdt.Write(vbTab)
-
-          featureIdt.Write(o.GetAttributeNode("attribute").value)
-
-          featureIdt.WriteLine()
-        End If  
-      Next
-
-      featureIdt.Close
-    End If
-
-    Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//file/features/feature/text()")
-    If objNodeList.length>0 Then
-      Set feature2compIdt = fso.CreateTextFile(msidir&"\FeatureComponents.idt", True)
-
-      feature2compIdt.WriteLine("Feature_"&vbTab&"Component_")
-      feature2compIdt.WriteLine("s38"&vbTab&"s72")
-      feature2compIdt.WriteLine("FeatureComponents"&vbTab&"Feature_"&vbTab&"Component_")
-
-      For Each o in objNodeList
-        If TypeName(o)="IXMLDOMText" Then
-          feature2compIdt.Write(o.nodeValue)
-          feature2compIdt.Write(vbTab)
-
-          Set parentNode = o.parentNode.parentNode.parentNode
-          feature2compIdt.WriteLine(parentNode.GetAttributeNode("id").value)
-
-          Set objNodeList1 = parentNode.selectNodes(".//registry/@id")
-          If objNodeList1.length>0 Then
-            For Each o1 in objNodeList1
-              feature2compIdt.Write(o.nodeValue)
-              feature2compIdt.Write(vbTab)
-              feature2compIdt.WriteLine(o1.value)
-            Next
-          End If  
-        End If  
-      Next
-
-      feature2compIdt.Close
-    End If
+    TransformMsiDirectoryInfo xmlDoc,msidir,targetDirId
+    TransformMsiFileInfo xmlDoc,msidir,targetDirId,componentIdt
+    TransformMsiRegistryInfo xmlDoc,msidir,componentIdt
+    TransformMsiFeatureInfo xmlDoc,msidir
+    TransformMsiFeature2ComponentInfo xmlDoc,msidir
+    TransformMsiPropertyInfo xmlDoc,msidir
 
     componentIdt.Close
   End If

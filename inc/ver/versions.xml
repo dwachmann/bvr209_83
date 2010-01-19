@@ -92,26 +92,26 @@
         </msifeatures>
 
         <msiproperties>
-          <msiproperty key="ProductCode	">${../../../v:msiproductcode/text()}</msiproperty>
+          <msiproperty key="ProductCode">${../../../v:msiproductcode/text()}</msiproperty>
           <msiproperty key="ProductName">${../../../../../v:name/text()}</msiproperty>
           <msiproperty key="Manufacturer">${../../../../../v:company/text()}</msiproperty>
           <msiproperty key="ProductVersion">${../../../@major}.${../../../@minor}.0</msiproperty>
-          <msiproperty key="@ProductId@">#{UCase("${../../../../../@id}")}</msiproperty>
+          <msiproperty key="ProductId">#{UCase("${../../../../../@id}")}</msiproperty>
           <msiproperty key="ARPHELPLINK">http://#{LCase("${../../../../../@id}")}.berlios.de/</msiproperty>
           <msiproperty key="ARPURLINFOABOUT">http://developer.berlios.de/projects/#{LCase("${../../../../../@id}")}</msiproperty>
           <msiproperty key="ARPURLUPDATEINFO">http://#{LCase("${../../../../../@id}")}.berlios.de/msi/</msiproperty>
-          <msiproperty key="@GITURL@">git://git.berlios.de/#{LCase("${../../../../../@id}")}</msiproperty>
+          <msiproperty key="GITURL">git://git.berlios.de/#{LCase("${../../../../../@id}")}</msiproperty>
           <msiproperty key="UpgradeCode">#{UCase("${../../../v:msiupgradecode/text()}")}</msiproperty>
           <msiproperty key="ComponentDownload">http://#{LCase("${../../../../../@id}")}.berlios.de/update/</msiproperty>
         </msiproperties>
 
         <msipatch>
           <msipatchmetadata>
-            <msiproperty key="ManufacturerName">${../../../../../v:company/text()}</msiproperty>
-            <msiproperty key="MoreInfoURL">http://#{LCase("${../../../../../@id}")}.berlios.de/</msiproperty>
-            <msiproperty key="TargetProductName">${../../../../../v:name/text()}</msiproperty>
-            <msiproperty key="DisplayName">${../../../../../v:name/text()} Update</msiproperty>
-            <msiproperty key="Description">#{LCase("${../../../../../@id}")} MSI Patch</msiproperty>
+            <msiproperty key="ManufacturerName">${../../../../../../v:company/text()}</msiproperty>
+            <msiproperty key="MoreInfoURL">http://#{LCase("${../../../../../../@id}")}.berlios.de/</msiproperty>
+            <msiproperty key="TargetProductName">${../../../../../../v:name/text()}</msiproperty>
+            <msiproperty key="DisplayName">${../../../../../../v:name/text()} Update</msiproperty>
+            <msiproperty key="Description">#{LCase("${../../../../../../@id}")} MSI Patch</msiproperty>
             <msiproperty key="AllowRemoval">1</msiproperty>
             <msiproperty key="Classification">update</msiproperty>
           </msipatchmetadata>

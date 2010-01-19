@@ -69,6 +69,7 @@ namespace bvr20983
         void    LoadFileNames(util::XMLDocument versionsDoc);
         void    LoadDirectoryNames(util::XMLDocument versionsDoc);
         void    LoadRegistryEntries(util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry);
+        void    LoadProperties(util::XMLDocument versionsDoc);
         bool    AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName);
         void    AddFeatureInfo(util::XMLDocument versionsDoc);
 	  }; // of class MSIPackage
