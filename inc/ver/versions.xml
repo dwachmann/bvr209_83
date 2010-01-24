@@ -92,7 +92,7 @@
         </msifeatures>
 
         <msiproperties>
-          <msiproperty key="ProductCode">${../../../v:msiproductcode/text()}</msiproperty>
+          <msiproperty key="ProductCode">{${../../../v:msiproductcode/text()}}</msiproperty>
           <msiproperty key="ProductName">${../../../../../v:name/text()}</msiproperty>
           <msiproperty key="Manufacturer">${../../../../../v:company/text()}</msiproperty>
           <msiproperty key="ProductVersion">${../../../@major}.${../../../@minor}.0</msiproperty>
@@ -101,7 +101,7 @@
           <msiproperty key="ARPURLINFOABOUT">http://developer.berlios.de/projects/#{LCase("${../../../../../@id}")}</msiproperty>
           <msiproperty key="ARPURLUPDATEINFO">http://#{LCase("${../../../../../@id}")}.berlios.de/msi/</msiproperty>
           <msiproperty key="GITURL">git://git.berlios.de/#{LCase("${../../../../../@id}")}</msiproperty>
-          <msiproperty key="UpgradeCode">#{UCase("${../../../v:msiupgradecode/text()}")}</msiproperty>
+          <msiproperty key="UpgradeCode">{#{UCase("${../../../v:msiupgradecode/text()}")}}</msiproperty>
           <msiproperty key="ComponentDownload">http://#{LCase("${../../../../../@id}")}.berlios.de/update/</msiproperty>
         </msiproperties>
 

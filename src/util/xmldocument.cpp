@@ -463,7 +463,7 @@ namespace bvr20983
           LPTSTR beginExpr = NULL!=propStart && NULL!=exprStart            ? 
                             (propStart<exprStart ? propStart : exprStart) : 
                             (propStart!=NULL     ? propStart : exprStart);
-          LPTSTR endExpr   = _tcschr(v,_T('}'));
+          LPTSTR endExpr   = NULL!=beginExpr ? _tcschr(v,_T('}')) : NULL;
           
           if( NULL!=beginExpr && NULL!=endExpr && beginExpr<endExpr )
           { varDepth++;
@@ -481,7 +481,7 @@ namespace bvr20983
             if( v+2<vEnd )
               v = beginExpr+2;
           } // of if          
-          else
+          else if( varDepth>0 )
           { end = _tcschr(v,_T('}'));
 
             if( NULL!=end )
