@@ -37,6 +37,9 @@ distribute:
 
 msicab:
    @if not exist "$(MSIDIR)\$(NULL)"                  mkdir $(MSIDIR)
+   $(msicab) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+ 
+msitransform: 
    @if not exist "$(MSIDIR)\templates\$(NULL)"        mkdir $(MSIDIR)\templates
    @if not exist "$(MSIDIR)\templates\Binary\$(NULL)" mkdir $(MSIDIR)\templates\Binary
    @if not exist "$(MSIDIR)\templates\Icon\$(NULL)"   mkdir $(MSIDIR)\templates\Icon
@@ -44,9 +47,6 @@ msicab:
    @xcopy /Q /Y $(MSITEMPLATEDIR)\Binary\* $(MSIDIR)\templates\Binary
    @xcopy /Q /Y $(MSITEMPLATEDIR)\Icon\*   $(MSIDIR)\templates\Icon
    @xcopy /Q /Y $(SLNDIR)\$(BVR20983RES_RESULT).dll $(MSIDIR)\templates\Icon\bvr20983res.exe.ibd
-   $(msicab) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
- 
-msitransform: 
    $(cscript) //job:transform $(SCRIPTSDIR)\msi.wsf /File:$(PROJECTDIR)\comp\msi\msipackage.xml /MSIDir:$(MSIDIR)\templates
    $(msidb) -c -d $(MSIDIR)\$(BVR20983_MSI) -f $(MSIDIR)\templates -i *
    $(msidb) -d $(MSIDIR)\$(BVR20983_MSI) -a $(MSIDIR)\$(BVR20983_CABMSI)

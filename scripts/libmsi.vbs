@@ -589,59 +589,75 @@ End Sub
 '
 ' transform registry info in msipackage to idt file
 '
-Sub TransformMsiRegistryInfo(xmlDoc,msidir,componentIdt)
-  Dim objNodeList,o,guidAttr,idAttr,hiveNode,nameNode,registryIdt
+Sub DumpRegistryInfo(registryIdt,componentIdt,o)
+  Dim guidAttr,idAttr,hiveNode,nameNode
 
-  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//registry")
-  If objNodeList.length>0 Then
-    Set registryIdt = fso.CreateTextFile(msidir&"\Registry.idt", True)
+  If TypeName(o)="IXMLDOMElement" Then
+    Set guidAttr = o.GetAttributeNode("guid")
+    Set idAttr   = o.GetAttributeNode("id")
 
-    registryIdt.WriteLine("Registry"&vbTab&"Root"&vbTab&"Key"&vbTab&"Name"&vbTab&"Value"&vbTab&"Component_")
-    registryIdt.WriteLine("s72"&vbTab&"i2"&vbTab&"l255"&vbTab&"L255"&vbTab&"L0"&vbTab&"s72")
-    registryIdt.WriteLine("Registry"&vbTab&"Registry")
+    If TypeName(idAttr)<>"Nothing" Then
+      Set hiveNode = o.selectSingleNode("./key/@hive")
 
-    For Each o in objNodeList
-      If TypeName(o)="IXMLDOMElement" Then
-        Set guidAttr = o.GetAttributeNode("guid")
-        Set idAttr   = o.GetAttributeNode("id")
-    
-        If TypeName(idAttr)<>"Nothing" Then
-          Set hiveNode = o.selectSingleNode("./key/@hive")
+      registryIdt.Write(idAttr.value & vbTab)
 
-          registryIdt.Write(idAttr.value & vbTab)
+      If hiveNode.value="HKEY_LOCAL_MACHINE" Then
+        registryIdt.Write("2")
+      ElseIf hiveNode.value="HKEY_CLASSES_ROOT" Then
+        registryIdt.Write("0")
+      Else
+        registryIdt.Write("-1")
+      End If
 
-          If hiveNode.value="HKEY_LOCAL_MACHINE" Then
-            registryIdt.Write("2")
-          ElseIf hiveNode.value="HKEY_CLASSES_ROOT" Then
-            registryIdt.Write("0")
-          Else
-            registryIdt.Write("-1")
-          End If
+      registryIdt.Write(vbTab)
 
-          registryIdt.Write(vbTab)
+      registryIdt.Write(o.selectSingleNode("./key/text()").nodeValue)
+      registryIdt.Write(vbTab)
 
-          registryIdt.Write(o.selectSingleNode("./key/text()").nodeValue)
-          registryIdt.Write(vbTab)
+      Set nameNode = o.selectSingleNode("./name/text()")
 
-          Set nameNode = o.selectSingleNode("./name/text()")
+      If TypeName(nameNode)<>"Nothing" Then
+        registryIdt.Write(nameNode.nodeValue)
+      End If
+      
+      registryIdt.Write(vbTab)
+      registryIdt.Write(o.selectSingleNode("./value/text()").nodeValue)
+      registryIdt.Write(vbTab)
+      registryIdt.Write(idAttr.value)
+      registryIdt.WriteLine()
 
-          If TypeName(nameNode)<>"Nothing" Then
-            registryIdt.Write(nameNode.nodeValue)
-          End If
-          
-          registryIdt.Write(vbTab)
-          registryIdt.Write(o.selectSingleNode("./value/text()").nodeValue)
-          registryIdt.Write(vbTab)
-          registryIdt.Write(idAttr.value)
-          registryIdt.WriteLine()
-
-          componentIdt.WriteLine(idAttr.value&vbTab&"{"&guidAttr.value&"}"&vbTab&"TARGETDIR"&vbTab&"4"&vbTab&vbTab&idAttr.value)
-        End If
-      End If  
-    Next
-
-    registryIdt.Close
+      componentIdt.WriteLine(idAttr.value&vbTab&"{"&guidAttr.value&"}"&vbTab&"TARGETDIR"&vbTab&"4"&vbTab&vbTab&idAttr.value)
+    End If
   End If
+End Sub
+
+'
+' transform registry info in msipackage to idt file
+'
+Sub TransformMsiRegistryInfo(xmlDoc,msidir,componentIdt)
+  Dim objNodeList,o,registryIdt
+
+  Set registryIdt = fso.CreateTextFile(msidir&"\Registry.idt", True)
+
+  registryIdt.WriteLine("Registry"&vbTab&"Root"&vbTab&"Key"&vbTab&"Name"&vbTab&"Value"&vbTab&"Component_")
+  registryIdt.WriteLine("s72"&vbTab&"i2"&vbTab&"l255"&vbTab&"L255"&vbTab&"L0"&vbTab&"s72")
+  registryIdt.WriteLine("Registry"&vbTab&"Registry")
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//file/registryentries/registry")
+  If objNodeList.length>0 Then
+    For Each o in objNodeList
+      DumpRegistryInfo registryIdt,componentIdt,o
+    Next
+  End If
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/registryentries/registry")
+  If objNodeList.length>0 Then
+    For Each o in objNodeList
+      DumpRegistryInfo registryIdt,componentIdt,o
+    Next
+  End If
+
+  registryIdt.Close
 End Sub
 
 '
@@ -704,14 +720,14 @@ End Sub
 Sub TransformMsiFeature2ComponentInfo(xmlDoc,msidir)
   Dim objNodeList,objNodeList1,o,o1,parentNode,feature2compIdt
 
-  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage//file/features/feature/text()")
+  Set feature2compIdt = fso.CreateTextFile(msidir&"\FeatureComponents.idt", True)
+
+  Set objNodeList     = xmlDoc.documentElement.selectNodes("/msipackage//file/features/feature/text()")
+  feature2compIdt.WriteLine("Feature_"&vbTab&"Component_")
+  feature2compIdt.WriteLine("s38"&vbTab&"s72")
+  feature2compIdt.WriteLine("FeatureComponents"&vbTab&"Feature_"&vbTab&"Component_")
+
   If objNodeList.length>0 Then
-    Set feature2compIdt = fso.CreateTextFile(msidir&"\FeatureComponents.idt", True)
-
-    feature2compIdt.WriteLine("Feature_"&vbTab&"Component_")
-    feature2compIdt.WriteLine("s38"&vbTab&"s72")
-    feature2compIdt.WriteLine("FeatureComponents"&vbTab&"Feature_"&vbTab&"Component_")
-
     For Each o in objNodeList
       If TypeName(o)="IXMLDOMText" Then
         feature2compIdt.Write(o.nodeValue)
@@ -730,9 +746,25 @@ Sub TransformMsiFeature2ComponentInfo(xmlDoc,msidir)
         End If  
       End If  
     Next
-
-    feature2compIdt.Close
   End If
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/registryentries/features/feature/text()")
+  If objNodeList.length>0 Then
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMText" Then
+        Set objNodeList1 = o.selectNodes("../../../registry/@id")
+        If objNodeList1.length>0 Then
+          For Each o1 in objNodeList1
+            feature2compIdt.Write(o.nodeValue)
+            feature2compIdt.Write(vbTab)
+            feature2compIdt.WriteLine(o1.value)
+          Next
+        End If  
+      End If  
+    Next
+  End If
+
+  feature2compIdt.Close
 End Sub
 
 '

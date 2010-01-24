@@ -234,45 +234,75 @@ namespace bvr20983
     { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
       COMPtr<IXMLDOMNode>     pNode;
 
-      versionsDoc.GetSelection(_T("//v:product/v:registryentries/v:registry"),pXMLDomNodeList);
+      versionsDoc.GetSelection(_T("//v:product/v:registryentries"),pXMLDomNodeList);
 
       if( !pXMLDomNodeList.IsNULL() )
+      {
         for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
-        { COVariant hive;
+        { COVariant id;
 
-          if( versionsDoc.GetNodeValue(pNode,_T("./v:key/@hive"),hive) )
-          { COVariant key;
-            COVariant name;
-            COVariant value;
+          if( versionsDoc.GetAttribute(pNode,_T("id"),id) )
+          { COMPtr<IXMLDOMNodeList> pXMLDomNodeList1;
+            COMPtr<IXMLDOMNode>     pNode1;
 
-            versionsDoc.GetNodeValue(pNode,_T("./v:key/text()"),key,true);
-            versionsDoc.GetNodeValue(pNode,_T("./v:name/text()"),name,true);
-            versionsDoc.GetNodeValue(pNode,_T("./v:value/text()"),value,true);
+            THROW_COMEXCEPTION( pNode->selectNodes(_T("./v:registry"),&pXMLDomNodeList1) );
 
-            MSIId    uniqueId;
-            YAString regPath(V_BSTR(key));
+            for( HRESULT hr1 = pXMLDomNodeList1->nextNode(&pNode1);hr1==S_OK;hr1=pXMLDomNodeList1->nextNode(&pNode1) )
+            { COVariant hive;
 
-            if( !name.IsEmpty() )
-            { regPath.Append(_T("\\"));
-              regPath.Append(V_BSTR(name));
-            } // of if
+              if( versionsDoc.GetNodeValue(pNode1,_T("./v:key/@hive"),hive) )
+              { COVariant key;
+                COVariant name;
+                COVariant value;
 
-            idRegistry.GetUniqueId(_T("registry"),regPath.c_str(),uniqueId);
+                versionsDoc.GetNodeValue(pNode1,_T("./v:key/text()"),key,true);
+                versionsDoc.GetNodeValue(pNode1,_T("./v:name/text()"),name,true);
+                versionsDoc.GetNodeValue(pNode1,_T("./v:value/text()"),value,true);
 
-            YAString registryId;
-            registryId.Format(_T("R%08d"),uniqueId.id);
+                MSIId    uniqueId;
+                YAString regPath(V_BSTR(key));
 
-            if( m_lastRegistryentriesElement.IsNULL() )
-            { m_doc.CreateElement(_T("registryentries"),m_lastRegistryentriesElement);
-              m_doc.AppendChildToParent(m_lastRegistryentriesElement,m_rootElement,1);
-              m_doc.AppendNewline(m_lastRegistryentriesElement,2);
-            } // of if
+                if( !name.IsEmpty() )
+                { regPath.Append(_T("\\"));
+                  regPath.Append(V_BSTR(name));
+                } // of if
 
-            AddRegistryInfo(registryId.c_str(),uniqueId.guid,false,V_BSTR(hive),V_BSTR(key),!name.IsEmpty() ? V_BSTR(name) : NULL, V_BSTR(value));
-          } // of if
+                idRegistry.GetUniqueId(_T("registry"),regPath.c_str(),uniqueId);
+
+                YAString registryId;
+                registryId.Format(_T("R%08d"),uniqueId.id);
+
+                if( m_lastRegistryentriesElement.IsNULL() )
+                { m_doc.CreateElement(_T("registryentries"),m_lastRegistryentriesElement);
+                  m_doc.AddAttribute(m_lastRegistryentriesElement,_T("id"),V_BSTR(id));
+                  m_doc.AppendChildToParent(m_lastRegistryentriesElement,m_rootElement,1);
+                  m_doc.AppendNewline(m_lastRegistryentriesElement,2);
+
+                  COMPtr<IXMLDOMElement>             featuresElement;
+                  STR_TStringSet_Map::const_iterator it1 = m_comp2feature.find(V_BSTR(id));
+
+                  if( it1!=m_comp2feature.end() )
+                  { std::set<TString> features = it1->second;
+
+                    for( std::set<TString>::const_iterator it2=features.begin();it2!=features.end();it2++ )
+                    { if( featuresElement.IsNULL() )
+                      { m_doc.CreateElement(_T("features"),featuresElement);
+                        m_doc.AppendChildToParent(featuresElement,m_lastRegistryentriesElement,2);
+                      } // of if
+
+                      m_doc.AppendElement(featuresElement,_T("feature"),it2->c_str(),3);
+                    } // of for
+                  } // of if
+                } // of if
+
+                AddRegistryInfo(registryId.c_str(),uniqueId.guid,false,V_BSTR(hive),V_BSTR(key),!name.IsEmpty() ? V_BSTR(name) : NULL, V_BSTR(value));
+              } // of if
+            } // of for
+          } // of for
+  
+          m_lastRegistryentriesElement.Release();
         } // of for
-
-      m_lastRegistryentriesElement.Release();
+      } // of if
     } // of MSIPackage::LoadRegistryEntries()
 
     /**

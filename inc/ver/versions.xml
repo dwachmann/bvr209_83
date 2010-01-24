@@ -47,6 +47,7 @@
             <msicomponent compid="update"/>
             <msicomponent compid="doc"/>
             <msicomponent compid="globalregistryentries"/>
+            <msicomponent compid="reg1"/>
           </msifeature>
           <msifeature id="cc"         directory="TARGETDIR" level="1" attribute="0" title="Custom Control Library" description="A OCX Library with several controls">
             <msicomponent compid="cc"/>
@@ -55,6 +56,7 @@
             <msicomponent compid="update"/>
             <msicomponent compid="doc"/>
             <msicomponent compid="com"/>
+            <msicomponent compid="reg1"/>
           </msifeature>
 
           <msifeature id="demo"       directory="TARGETDIR" level="3" attribute="0" title="Demo"                   description="Demo Programs">
@@ -96,7 +98,6 @@
           <msiproperty key="ProductName">${../../../../../v:name/text()}</msiproperty>
           <msiproperty key="Manufacturer">${../../../../../v:company/text()}</msiproperty>
           <msiproperty key="ProductVersion">${../../../@major}.${../../../@minor}.0</msiproperty>
-          <msiproperty key="ProductId">#{UCase("${../../../../../@id}")}</msiproperty>
           <msiproperty key="ARPHELPLINK">http://#{LCase("${../../../../../@id}")}.berlios.de/</msiproperty>
           <msiproperty key="ARPURLINFOABOUT">http://developer.berlios.de/projects/#{LCase("${../../../../../@id}")}</msiproperty>
           <msiproperty key="ARPURLUPDATEINFO">http://#{LCase("${../../../../../@id}")}.berlios.de/msi/</msiproperty>
@@ -933,5 +934,14 @@
         <value>test</value>
       </registry>
     </registryentries>
+
+    <registryentries id="reg1">
+      <registry>
+        <key hive="HKEY_CURRENT_USER">Software\hugo\sc.xxx\test</key>
+        <name>tracelevel</name>
+        <value>debug</value>
+      </registry>
+    </registryentries>
+
   </product>
 </versions>
