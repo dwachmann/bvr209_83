@@ -230,6 +230,76 @@ namespace bvr20983
     /**
      *
      */
+    void MSIPackage::LoadShortcuts(util::XMLDocument versionsDoc)
+    { COMPtr<IXMLDOMElement>  shortcutsElement;
+      COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
+      COMPtr<IXMLDOMNode>     pNode;
+      int                     id=0;
+
+      versionsDoc.GetSelection(_T("//v:component[@type='exe']/v:shortcut"),pXMLDomNodeList);
+
+      if( !pXMLDomNodeList.IsNULL() )
+        for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
+        { COVariant name;
+          COVariant directoryid;
+          COVariant icon;
+          COVariant iconindex;
+
+          if( versionsDoc.GetAttribute(pNode,_T("name")       ,name       ) &&
+              versionsDoc.GetAttribute(pNode,_T("directoryid"),directoryid) &&
+              versionsDoc.GetAttribute(pNode,_T("icon")       ,icon       ) &&
+              versionsDoc.GetAttribute(pNode,_T("iconindex")  ,iconindex  )
+            )
+          { if( shortcutsElement.IsNULL() )
+            { versionsDoc.CreateElement(_T("shortcuts"),shortcutsElement);
+              versionsDoc.AppendChildToParent(shortcutsElement,m_rootElement,1);
+            } // of if
+
+            COMPtr<IXMLDOMNode> pParentNode;
+            COVariant           fileName;
+            COVariant           compType;
+
+            THROW_COMEXCEPTION( pNode->get_parentNode(&pParentNode) );
+
+            if( versionsDoc.GetNodeValue(pParentNode,_T("./v:filename/text()"),fileName,true) &&
+                versionsDoc.GetAttribute(pParentNode,_T("type"),compType)
+              )
+            { TString fullFilename(V_BSTR(fileName));
+
+              if( _tcscmp(V_BSTR(compType),_T("dll"))==0 || _tcscmp(V_BSTR(compType),_T("exe"))==0 )
+              { fullFilename += _T(".");
+                fullFilename += V_BSTR(compType);
+              } // of if
+
+              COVariant                   compId;
+              STR_STR_Map::const_iterator it0    = m_filename2compid.find(fullFilename);
+
+              if( it0!=m_filename2compid.end() )
+              { compId = it0->second;
+
+                COMPtr<IXMLDOMElement> shortcutElement;
+                versionsDoc.CreateElement(_T("shortcut"),shortcutElement);
+                versionsDoc.AppendChildToParent(shortcutElement,shortcutsElement,2);
+
+                YAString shortcutId;
+                shortcutId.Format(_T("S%d"),id++);
+
+                versionsDoc.AddAttribute(shortcutElement,_T("id"),shortcutId);
+                versionsDoc.AddAttribute(shortcutElement,_T("name"),V_BSTR(name));
+                versionsDoc.AddAttribute(shortcutElement,_T("icon"),V_BSTR(icon));
+                versionsDoc.AddAttribute(shortcutElement,_T("iconindex"),V_BSTR(iconindex));
+                versionsDoc.AddAttribute(shortcutElement,_T("directoryid"),V_BSTR(directoryid));
+                versionsDoc.AddAttribute(shortcutElement,_T("componentid"),V_BSTR(compId));
+              } // of if
+            } // of if
+          } // of if
+        } // of for
+    } // of MSIPackage::LoadShortcuts()
+
+
+    /**
+     *
+     */
     void MSIPackage::LoadRegistryEntries(util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry)
     { COMPtr<IXMLDOMNodeList> pXMLDomNodeList;
       COMPtr<IXMLDOMNode>     pNode;
@@ -498,6 +568,8 @@ namespace bvr20983
         if( NULL!=fileVersion )
           m_doc.AppendElement(m_lastFileElement,_T("version"),fileVersion,2);
 
+        m_filename2compid.insert( STR_STR_Pair(fileName,id) );
+
         result = true;
       }
      
@@ -528,10 +600,11 @@ namespace bvr20983
     /**
      *
      */
-    void MSIPackage::Save()
-    { m_doc.Save(m_fileName);
-    } // of MSIPackage::Save()
+    void MSIPackage::Save(util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry)
+    { LoadShortcuts(versionsDoc);
 
+      m_doc.Save(m_fileName);
+    } // of MSIPackage::Save()
   } // of namespace util
 } // of namespace bvr20983
 /*==========================END-OF-FILE===================================*/

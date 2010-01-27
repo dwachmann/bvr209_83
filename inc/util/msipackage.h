@@ -43,7 +43,7 @@ namespace bvr20983
         MSIPackage(LPCTSTR fileName,util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry);
         ~MSIPackage();
 
-        void Save();
+        void Save(util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry);
         void AddMedia(long seqNo,LPCTSTR cabName);
         void AddDirectoryInfo(VMSIDirInfoT& dirInfo);
         void StartRegistryInfo();
@@ -64,12 +64,14 @@ namespace bvr20983
         STR_TStringSet_Map     m_comp2feature;
         STR_STR_Map            m_filename2comp;
         STR_STR_Map            m_dirname2comp;
+        STR_STR_Map            m_filename2compid;
 
         void    LoadFeatures(util::XMLDocument versionsDoc);
         void    LoadFileNames(util::XMLDocument versionsDoc);
         void    LoadDirectoryNames(util::XMLDocument versionsDoc);
         void    LoadRegistryEntries(util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry);
         void    LoadProperties(util::XMLDocument versionsDoc);
+        void    LoadShortcuts(util::XMLDocument versionsDoc);
         bool    AddFeatures(COMPtr<IXMLDOMElement>& featuresElement,LPCTSTR strippedFilePath,LPCTSTR fileName);
         void    AddFeatureInfo(util::XMLDocument versionsDoc);
 	  }; // of class MSIPackage

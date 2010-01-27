@@ -525,6 +525,66 @@ Sub TransformMsiDirectoryInfo(xmlDoc,msidir,ByRef targetDirId)
 End Sub
 
 '
+' transform directory info in msipackage to idt file
+'
+Sub TransformMsiShortcutInfo(xmlDoc,msidir)
+  Dim objNodeList,o,idAttr,parentIdAttr,dirId,fileId,nameNode,parentNode,shortcutIdt
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/shortcuts/shortcut")
+  
+  If objNodeList.length>0 Then
+    Set shortcutIdt = fso.CreateTextFile(msidir&"\Shortcut.idt", True)
+
+    shortcutIdt.WriteLine("Shortcut"&vbTab&"Directory_"&vbTab&"Name"&vbTab&"Component_"&vbTab&"Target"&vbTab&"Arguments"&vbTab&"Description"&vbTab&"Hotkey"&vbTab&"Icon_"&vbTab&"IconIndex"&vbTab&"ShowCmd"&vbTab&"WkDir")
+    shortcutIdt.WriteLine("s72"&vbTab&"s72"&vbTab&"l128"&vbTab&"s72"&vbTab&"s72"&vbTab&"S255"&vbTab&"L255"&vbTab&"I2"&vbTab&"S72"&vbTab&"I2"&vbTab&"I2"&vbTab&"S72")
+    shortcutIdt.WriteLine("Shortcut"&vbTab&"Shortcut")
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        shortcutIdt.Write(o.GetAttributeNode("id").value)
+        shortcutIdt.Write(vbTab)
+
+        shortcutIdt.Write(o.GetAttributeNode("directoryid").value)
+        shortcutIdt.Write(vbTab)
+
+        shortcutIdt.Write(o.GetAttributeNode("name").value)
+        shortcutIdt.Write(vbTab)
+        
+        shortcutIdt.Write(o.GetAttributeNode("componentid").value)
+        shortcutIdt.Write(vbTab)
+        
+        shortcutIdt.Write("target")
+        shortcutIdt.Write(vbTab)
+
+        ' shortcutIdt.Write("Arguments")
+        shortcutIdt.Write(vbTab)
+
+        ' shortcutIdt.Write("Description")
+        shortcutIdt.Write(vbTab)
+
+        ' shortcutIdt.Write("hotkey")
+        shortcutIdt.Write(vbTab)
+
+        shortcutIdt.Write(o.GetAttributeNode("icon").value)
+        shortcutIdt.Write(vbTab)
+
+        shortcutIdt.Write(o.GetAttributeNode("iconindex").value)
+        shortcutIdt.Write(vbTab)
+
+        ' shortcutIdt.Write("ShowCmd")
+        shortcutIdt.Write(vbTab)
+
+        ' shortcutIdt.Write("WkDir")
+
+        shortcutIdt.WriteLine()
+        End If  
+    Next
+
+    shortcutIdt.Close
+  End If
+End Sub
+
+'
 ' transform file info in msipackage to idt file
 '
 Sub TransformMsiFileInfo(xmlDoc,msidir,targetDirId,componentIdt)
@@ -815,6 +875,7 @@ Sub TransformMsiPackageDescription(f,msidir)
     TransformMsiFeatureInfo xmlDoc,msidir
     TransformMsiFeature2ComponentInfo xmlDoc,msidir
     TransformMsiPropertyInfo xmlDoc,msidir
+    TransformMsiShortcutInfo xmlDoc,msidir
 
     componentIdt.Close
   End If

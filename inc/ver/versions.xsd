@@ -251,10 +251,8 @@
   </xs:simpleType>
 
   <xs:complexType name="shortcutType">
-    <xs:attribute name="id"          type="xs:string"             use="required"/>
     <xs:attribute name="name"        type="xs:string"             use="required"/>
     <xs:attribute name="directoryid" type="xs:string"             use="required"/>
-    <xs:attribute name="featureid"   type="xs:string"             use="required"/>
     <xs:attribute name="icon"        type="xs:string"             use="required"/>
     <xs:attribute name="iconindex"   type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>

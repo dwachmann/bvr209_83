@@ -684,9 +684,8 @@
 			<no>0006</no>
 			<filename>${filenamepattern}</filename>
 
-      <shortcut id="digiclock" name="Digiclck|The Digiclock" 
+      <shortcut name="The Digiclock" 
                 directoryid="StartupMenuFolder" 
-                featureid="digiclock" 
                 icon="bvr20983res.exe" iconindex="1"/>
       
 			<patch filename="digiclock-ver.h">
