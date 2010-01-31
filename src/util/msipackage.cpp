@@ -244,11 +244,13 @@ namespace bvr20983
           COVariant directoryid;
           COVariant icon;
           COVariant iconindex;
+          COVariant featureid;
 
           if( versionsDoc.GetAttribute(pNode,_T("name")       ,name       ) &&
               versionsDoc.GetAttribute(pNode,_T("directoryid"),directoryid) &&
               versionsDoc.GetAttribute(pNode,_T("icon")       ,icon       ) &&
-              versionsDoc.GetAttribute(pNode,_T("iconindex")  ,iconindex  )
+              versionsDoc.GetAttribute(pNode,_T("iconindex")  ,iconindex  ) &&
+              versionsDoc.GetAttribute(pNode,_T("featureid")  ,featureid  )
             )
           { if( shortcutsElement.IsNULL() )
             { versionsDoc.CreateElement(_T("shortcuts"),shortcutsElement);
@@ -285,6 +287,7 @@ namespace bvr20983
                 shortcutId.Format(_T("S%d"),id++);
 
                 versionsDoc.AddAttribute(shortcutElement,_T("id"),shortcutId);
+                versionsDoc.AddAttribute(shortcutElement,_T("feature"),V_BSTR(featureid));
                 versionsDoc.AddAttribute(shortcutElement,_T("name"),V_BSTR(name));
                 versionsDoc.AddAttribute(shortcutElement,_T("icon"),V_BSTR(icon));
                 versionsDoc.AddAttribute(shortcutElement,_T("iconindex"),V_BSTR(iconindex));

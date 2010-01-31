@@ -553,7 +553,7 @@ Sub TransformMsiShortcutInfo(xmlDoc,msidir)
         shortcutIdt.Write(o.GetAttributeNode("componentid").value)
         shortcutIdt.Write(vbTab)
         
-        shortcutIdt.Write("target")
+        shortcutIdt.Write(o.GetAttributeNode("feature").value)
         shortcutIdt.Write(vbTab)
 
         ' shortcutIdt.Write("Arguments")

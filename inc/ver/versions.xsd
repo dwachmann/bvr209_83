@@ -65,7 +65,7 @@
 
   <xs:complexType name="componentType">
     <xs:sequence>
-      <xs:element name="version"   type="versionType"/>
+      <xs:element name="version"   type="versionType"  minOccurs="0" />
       <xs:element name="name"      type="xs:string"/>
       <xs:element name="no"        type="xs:string"    minOccurs="0" />
       <xs:element name="filename"  type="xs:string"/>
@@ -251,6 +251,7 @@
   </xs:simpleType>
 
   <xs:complexType name="shortcutType">
+    <xs:attribute name="featureid"   type="xs:string"             use="required"/>
     <xs:attribute name="name"        type="xs:string"             use="required"/>
     <xs:attribute name="directoryid" type="xs:string"             use="required"/>
     <xs:attribute name="icon"        type="xs:string"             use="required"/>

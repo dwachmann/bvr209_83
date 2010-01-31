@@ -17,6 +17,7 @@
 
 !include <../../inc/Makefile.inc>
 
+signvars    = sign /f $(signkey) /d "$(BVR20983DESC)" /du "https://bvr20983.berlios.de/" /t http://timestamp.verisign.com/scripts/timstamp.dll
 msicab      = $(SLNDIR)\$(MSICAB_RESULT).exe
 msidb       = msidb
 msival      = msival2
@@ -38,8 +39,34 @@ distribute:
 msicab:
    @if not exist "$(MSIDIR)\$(NULL)"                  mkdir $(MSIDIR)
    $(msicab) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+
+msidistribute: $(DISTDIR) 
+  @echo signkey=$(signkey) 
+  @if not exist "$(signkey)" exit 1
+  @if "$(signpwd)"=="" exit 1
+  @if not exist "$(DISTDIR)\ProgramMenuFolder\$(NULL)"                    mkdir $(DISTDIR)\ProgramMenuFolder
+  @if not exist "$(DISTDIR)\ProgramMenuFolder\StartupMenuFolder\$(NULL)"  mkdir $(DISTDIR)\ProgramMenuFolder\StartupMenuFolder
+  @if not exist "$(DISTDIR)\ProgramFilesFolder\$(NULL)"                   mkdir $(DISTDIR)\ProgramFilesFolder
+  @if not exist "$(DISTDIR)\ProgramFilesFolder\BVRDIR\$(NULL)"            mkdir $(DISTDIR)\ProgramFilesFolder\BVRDIR
+  @if not exist "$(DISTDIR)\ProgramFilesFolder\BVRDIR\bin\$(NULL)"        mkdir $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @if not exist "$(DISTDIR)\ProgramFilesFolder\BVRDIR\samples\$(NULL)"    mkdir $(DISTDIR)\ProgramFilesFolder\BVRDIR\samples
+  @xcopy /Q /Y  $(HTMLDIR)\led.*                         $(DISTDIR)\ProgramFilesFolder\BVRDIR\samples
+  @xcopy /Q /Y  $(HTMLDIR)\*.jpg                         $(DISTDIR)\ProgramFilesFolder\BVRDIR\samples
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983MSGS_RESULT).dll    $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983UPDATE_RESULT).dll  $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983SC_RESULT).dll      $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983CC_RESULT).dll      $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(DIGICLOCK_RESULT).exe       $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(LSSTG_RESULT).exe           $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(LSTYPEINFO_RESULT).exe      $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
+  @xcopy /Q /Y $(DOCDIR)\gpl-3.0.*.htm                  $(DISTDIR)\ProgramFilesFolder\BVRDIR
+  $(SLNDIR)\$(MSICAB_RESULT).exe -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(DISTDIR) $(MSIDIR)\$(BVR20983_CABMSI)
+  @$(sign) $(signvars) /p $(signpwd) $(MSIDIR)\$(BVR20983_CABMSI)
  
 msitransform: 
+   @echo signkey=$(signkey) 
+   @if not exist "$(signkey)" exit 1
+   @if "$(signpwd)"=="" exit 1
    @if not exist "$(MSIDIR)\templates\$(NULL)"        mkdir $(MSIDIR)\templates
    @if not exist "$(MSIDIR)\templates\Binary\$(NULL)" mkdir $(MSIDIR)\templates\Binary
    @if not exist "$(MSIDIR)\templates\Icon\$(NULL)"   mkdir $(MSIDIR)\templates\Icon
@@ -63,6 +90,7 @@ msitransform:
              -N msidb \
              -U 0 \
              -L dw
+   @$(sign) $(signvars) /p $(signpwd) $(MSIDIR)\$(BVR20983_MSI)
 
 validate: 
    $(msival) $(MSIDIR)\$(BVR20983_MSI) "c:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\darice.cub" -f

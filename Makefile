@@ -36,19 +36,6 @@ comp\lstypeinfo\~   \
 comp\msicab\~       \
 comp\msi\~       
 
-CABCONTENT = \
-#$(INCDIR)\$(BVR20983_RESULT).inf \
-$(SIGNDIR)\$(BVR20983MSGS_RESULT).dll \
-$(SIGNDIR)\$(BVR20983UPDATE_RESULT).dll \
-$(SIGNDIR)\$(BVR20983SC_RESULT).dll \
-$(SIGNDIR)\$(BVR20983CC_RESULT).dll \
-$(SIGNDIR)\$(DIGICLOCK_RESULT).exe \
-$(SIGNDIR)\$(LSSTG_RESULT).exe \
-$(SIGNDIR)\$(BVR20983_MSI) \
-$(SIGNDIR)\$(LSTYPEINFO_RESULT).exe
-
-CABRESULT = $(SIGNDIR)\$(BVR20983_RESULT).cab
-
 !ifdef clean
 all: $(PROJECTS) fullclean
 !else
@@ -59,10 +46,7 @@ rebuildall: incbuild patch $(PROJECTS)
 
 projects: $(PROJECTS) 
 
-distribute: $(PROJECTS) $(SIGNDIR) $(DISTDIR) $(CABRESULT)
-  @copy $(HTMLDIR)\led.*                  $(DISTDIR)
-  @copy $(HTMLDIR)\*.jpg                  $(DISTDIR)
-  @copy $(SIGNDIR)\$(BVR20983_RESULT).cab $(DISTDIR)
+distribute: $(PROJECTS) comp\msi\~msidistribute
 
 patch:
   cscript //nologo //job:patch $(SCRIPTSDIR)\patch.wsf /file:$(INCDIR)\ver\versions.xml /select:"/v:versions//v:patch" 
@@ -97,15 +81,17 @@ comp\msi\~msicab:
   @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msicab
 <<
 
+comp\msi\~msidistribute:
+  @IF EXIST $(@D)\makefile <<nmaketmp.bat
+  @cd $(@D)
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) signkey=$(signkey) signpwd=$(signpwd) msidistribute
+<<
+
 comp\msi\~msitransform:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
-  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msitransform
+  @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) signkey=$(signkey) signpwd=$(signpwd) msitransform
 <<
-
-$(CABRESULT): $(CABCONTENT)
-	@$(cab) -s 6144 N $@ $**
-	@$(sign) $(signvars) /p $(signpwd) $@
 
 !include <./inc/Makefile.rule>
 !include <./inc/bvr.inc>

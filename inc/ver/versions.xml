@@ -45,7 +45,8 @@
             <msicomponent compid="msgs"/>
             <msicomponent compid="res"/>
             <msicomponent compid="update"/>
-            <msicomponent compid="doc"/>
+            <msicomponent compid="gplde"/>
+            <msicomponent compid="gplen"/>
             <msicomponent compid="globalregistryentries"/>
             <msicomponent compid="reg1"/>
           </msifeature>
@@ -54,8 +55,8 @@
             <msicomponent compid="msgs"/>
             <msicomponent compid="res"/>
             <msicomponent compid="update"/>
-            <msicomponent compid="doc"/>
-            <msicomponent compid="com"/>
+            <msicomponent compid="gplde"/>
+            <msicomponent compid="gplen"/>
             <msicomponent compid="reg1"/>
           </msifeature>
 
@@ -66,29 +67,32 @@
               <msicomponent compid="msgs"/>
               <msicomponent compid="res"/>
               <msicomponent compid="update"/>
-              <msicomponent compid="com"/>
+              <msicomponent compid="gplde"/>
+              <msicomponent compid="gplen"/>
             </msifeature>
             <msifeature id="samples"    directory="TARGETDIR" level="3" attribute="0" title="Samples"                description="Usage Samples">
               <msicomponent compid="sample"/>
-              <msicomponent compid="doc"/>
               <msicomponent compid="cc"/>
               <msicomponent compid="sc"/>
               <msicomponent compid="msgs"/>
               <msicomponent compid="res"/>
               <msicomponent compid="update"/>
-              <msicomponent compid="inc"/>
-              <msicomponent compid="lib"/>
+              <msicomponent compid="gplde"/>
+              <msicomponent compid="gplen"/>
             </msifeature>
           </msifeature>
 
           <msifeature id="tools"      directory="TARGETDIR" level="2" attribute="0" title="Tools"                  description="Tools">
             <msifeature id="lsstg"    directory="TARGETDIR"   level="2" attribute="0" title="lsstg"                  description="Display compound file structure">
               <msicomponent compid="lsstg"/>
-              <msicomponent compid="inc"/>
+              <msicomponent compid="gplde"/>
+              <msicomponent compid="gplen"/>
             </msifeature>
 
             <msifeature id="lstypeinfo" directory="TARGETDIR" level="2" attribute="0" title="lstypeinfo"             description="Display typelib information">
               <msicomponent compid="lstypeinfo"/>
+              <msicomponent compid="gplde"/>
+              <msicomponent compid="gplen"/>
             </msifeature>
           </msifeature>
         </msifeatures>
@@ -684,8 +688,9 @@
 			<no>0006</no>
 			<filename>${filenamepattern}</filename>
 
-      <shortcut name="The Digiclock" 
-                directoryid="StartupMenuFolder" 
+      <shortcut featureid="digiclock"
+                name="dgclock|The Digiclock"
+                directoryid="StartupMenuFolder"
                 icon="bvr20983res.exe" iconindex="1"/>
       
 			<patch filename="digiclock-ver.h">
@@ -875,35 +880,17 @@
 					<value>${msvcrtlib_pubtok}</value></pattern>
 			</patch>
 		</component>
-		<component id="doc" type="dir">
-			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
-			<name>documentation files</name>
-			<no>000A</no>
-			<filename>doc</filename>
-		</component>
 		<component id="sample" type="dir">
-			<version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
 			<name>sample files</name>
-			<no>000B</no>
-			<filename>sample</filename>
+			<filename>ProgramFilesFolder\BVRDIR\samples</filename>
 		</component>
-    <component id="com" type="dir">
-      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
-      <name>include files</name>
-      <no>000D</no>
-      <filename>inc\com</filename>
+    <component id="gplde" type="file">
+      <name>GPL german</name>
+      <filename>gpl-3.0.de.htm</filename>
     </component>
-    <component id="lib" type="file">
-      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
-      <name>Library file</name>
-      <no>000E</no>
-      <filename>libbvr20983xxx.lib</filename>
-    </component>
-    <component id="inc" type="dir">
-      <version major="1" minor="0" fix="0" build="${../../../v:versionhistory/v:version[1]/@build}"/>
-      <name>include files</name>
-      <no>000C</no>
-      <filename>inc</filename>
+    <component id="gplen" type="file">
+      <name>GP english</name>
+      <filename>gpl-3.0.en.htm</filename>
     </component>
 
     <registryentries id="globalregistryentries">
