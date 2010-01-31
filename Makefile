@@ -36,6 +36,15 @@ comp\lstypeinfo\~   \
 comp\msicab\~       \
 comp\msi\~       
 
+SIGNEDFILES = \
+$(SIGNDIR)\$(BVR20983MSGS_RESULT).dll \
+$(SIGNDIR)\$(BVR20983UPDATE_RESULT).dll \
+$(SIGNDIR)\$(BVR20983SC_RESULT).dll \
+$(SIGNDIR)\$(BVR20983CC_RESULT).dll \
+$(SIGNDIR)\$(DIGICLOCK_RESULT).exe \
+$(SIGNDIR)\$(LSSTG_RESULT).exe \
+$(SIGNDIR)\$(LSTYPEINFO_RESULT).exe
+
 !ifdef clean
 all: $(PROJECTS) fullclean
 !else
@@ -81,7 +90,7 @@ comp\msi\~msicab:
   @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) msicab
 <<
 
-comp\msi\~msidistribute:
+comp\msi\~msidistribute: $(SIGNDIR) $(SIGNEDFILES)
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)
   @$(MAKE) -nologo /$(MAKEFLAGS) $(makeopts) signkey=$(signkey) signpwd=$(signpwd) msidistribute

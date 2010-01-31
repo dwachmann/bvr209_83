@@ -176,7 +176,10 @@
 			<pattern><key>@bvr20983desc</key><value>${../../../../v:name/text()}</value></pattern>
 			<pattern><key>@bvr20983msipackagecode</key><value>${../../../../v:versionhistory/v:version[1]/v:msipackagecode/text()}</value></pattern>
 			<pattern><key>@bvr20983msicompany</key><value>${../../../../v:company/text()}</value></pattern>
-		</patch>
+			<pattern><key>@bvr20983msicompany</key><value>${../../../../v:company/text()}</value></pattern>
+			<pattern><key>@bvr20983msicompany</key><value>${../../../../v:company/text()}</value></pattern>
+      <pattern><key>@productid</key><value>#{LCase("${../../../../@id}")}.${../../../../v:versionhistory/v:version[1]/@major}</value></pattern>
+    </patch>
 		<patch template="bvr20983.inf.tmpl" filename="bvr20983.2.inf">
 			<pattern><key>@bvr20983msgsresult</key><value>${../../../../v:component[@id='msgs']/v:filename/text()}.dll</value></pattern>
 			<pattern><key>@bvr20983ccresult</key><value>${../../../../v:component[@id='cc']/v:filename/text()}.dll</value></pattern>
@@ -690,7 +693,7 @@
 
       <shortcut featureid="digiclock"
                 name="dgclock|The Digiclock"
-                directoryid="StartupMenuFolder"
+                directorypath='ProgramMenuFolder\#{LCase("${../../@id}")}.${../../v:versionhistory/v:version[1]/@major}'
                 icon="bvr20983res.exe" iconindex="1"/>
       
 			<patch filename="digiclock-ver.h">
@@ -882,7 +885,7 @@
 		</component>
 		<component id="sample" type="dir">
 			<name>sample files</name>
-			<filename>ProgramFilesFolder\BVRDIR\samples</filename>
+			<filename>ProgramFilesFolder\#{LCase("${../../../@id}")}.${../../../v:versionhistory/v:version[1]/@major}\samples</filename>
 		</component>
     <component id="gplde" type="file">
       <name>GPL german</name>

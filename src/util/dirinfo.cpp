@@ -143,8 +143,9 @@ namespace bvr20983
 
       ::wcscat_s(m_dirId,MAX_PATH,idBuffer);
 
-      if( wcscmp(m_dirName,L"ProgramFilesFolder")==0 )
-        ::wcscpy_s(m_dirId,MAX_PATH,L"ProgramFilesFolder");
+      // m_dirName endsWith Folder
+      if( wcsstr(m_dirName,L"Folder")-m_dirName==wcslen(m_dirName)-wcslen(L"Folder") && wcschr(m_dirName,L' ')==NULL )
+        ::wcscpy_s(m_dirId,MAX_PATH,m_dirName);
 
       m_hFind = ::FindFirstFileW(dir, &m_findData);
 

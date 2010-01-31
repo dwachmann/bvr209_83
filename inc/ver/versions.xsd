@@ -57,7 +57,7 @@
       <xs:element name="filename"        type="xs:string"/>
       <xs:element name="patch"           type="patchType"             minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="component"       type="componentType"         minOccurs="1" maxOccurs="unbounded"/>
-      <xs:element name="registryentries" type="registryEntriesType"   minOccurs="0" maxOccurs="1"/>
+      <xs:element name="registryentries" type="registryEntriesType"   minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="id"        type="xs:ID"      use="required"/>
     <xs:attribute name="commit"    type="xs:string"/>
@@ -251,11 +251,11 @@
   </xs:simpleType>
 
   <xs:complexType name="shortcutType">
-    <xs:attribute name="featureid"   type="xs:string"             use="required"/>
-    <xs:attribute name="name"        type="xs:string"             use="required"/>
-    <xs:attribute name="directoryid" type="xs:string"             use="required"/>
-    <xs:attribute name="icon"        type="xs:string"             use="required"/>
-    <xs:attribute name="iconindex"   type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="featureid"     type="xs:string"             use="required"/>
+    <xs:attribute name="name"          type="xs:string"             use="required"/>
+    <xs:attribute name="directorypath" type="xs:string"             use="required"/>
+    <xs:attribute name="icon"          type="xs:string"             use="required"/>
+    <xs:attribute name="iconindex"     type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
 
 </xs:schema>

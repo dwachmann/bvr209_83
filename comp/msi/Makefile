@@ -26,6 +26,8 @@ msiinfo     = msiinfo
 msiexec     = msiexec
 cscript     = cscript
 
+BVRDIR      = $(DISTDIR)\ProgramFilesFolder\$(PRODUCTID)
+
 !ifndef PROJECTDIR
 all: warning
 !elseifdef clean
@@ -40,26 +42,27 @@ msicab:
    @if not exist "$(MSIDIR)\$(NULL)"                  mkdir $(MSIDIR)
    $(msicab) -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(SLNDIR) $(MSIDIR)\$(BVR20983_CABMSI)
 
-msidistribute: $(DISTDIR) 
+msidistribute: $(DISTDIR)
   @echo signkey=$(signkey) 
   @if not exist "$(signkey)" exit 1
   @if "$(signpwd)"=="" exit 1
+  @if not exist "$(MSIDIR)\$(NULL)"                                       mkdir $(MSIDIR)
   @if not exist "$(DISTDIR)\ProgramMenuFolder\$(NULL)"                    mkdir $(DISTDIR)\ProgramMenuFolder
-  @if not exist "$(DISTDIR)\ProgramMenuFolder\StartupMenuFolder\$(NULL)"  mkdir $(DISTDIR)\ProgramMenuFolder\StartupMenuFolder
+  @if not exist "$(DISTDIR)\ProgramMenuFolder\$(PRODUCTID)\$(NULL)"       mkdir $(DISTDIR)\ProgramMenuFolder\$(PRODUCTID)
   @if not exist "$(DISTDIR)\ProgramFilesFolder\$(NULL)"                   mkdir $(DISTDIR)\ProgramFilesFolder
-  @if not exist "$(DISTDIR)\ProgramFilesFolder\BVRDIR\$(NULL)"            mkdir $(DISTDIR)\ProgramFilesFolder\BVRDIR
-  @if not exist "$(DISTDIR)\ProgramFilesFolder\BVRDIR\bin\$(NULL)"        mkdir $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @if not exist "$(DISTDIR)\ProgramFilesFolder\BVRDIR\samples\$(NULL)"    mkdir $(DISTDIR)\ProgramFilesFolder\BVRDIR\samples
-  @xcopy /Q /Y  $(HTMLDIR)\led.*                         $(DISTDIR)\ProgramFilesFolder\BVRDIR\samples
-  @xcopy /Q /Y  $(HTMLDIR)\*.jpg                         $(DISTDIR)\ProgramFilesFolder\BVRDIR\samples
-  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983MSGS_RESULT).dll    $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983UPDATE_RESULT).dll  $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983SC_RESULT).dll      $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983CC_RESULT).dll      $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @xcopy /Q /Y  $(SIGNDIR)\$(DIGICLOCK_RESULT).exe       $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @xcopy /Q /Y  $(SIGNDIR)\$(LSSTG_RESULT).exe           $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @xcopy /Q /Y  $(SIGNDIR)\$(LSTYPEINFO_RESULT).exe      $(DISTDIR)\ProgramFilesFolder\BVRDIR\bin
-  @xcopy /Q /Y $(DOCDIR)\gpl-3.0.*.htm                  $(DISTDIR)\ProgramFilesFolder\BVRDIR
+  @if not exist "$(BVRDIR)\$(NULL)"                                       mkdir $(BVRDIR)
+  @if not exist "$(BVRDIR)\bin\$(NULL)"                                   mkdir $(BVRDIR)\bin
+  @if not exist "$(BVRDIR)\samples\$(NULL)"                               mkdir $(BVRDIR)\samples
+  @xcopy /Q /Y  $(HTMLDIR)\led.*                         $(BVRDIR)\samples
+  @xcopy /Q /Y  $(HTMLDIR)\*.jpg                         $(BVRDIR)\samples
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983MSGS_RESULT).dll    $(BVRDIR)\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983UPDATE_RESULT).dll  $(BVRDIR)\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983SC_RESULT).dll      $(BVRDIR)\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(BVR20983CC_RESULT).dll      $(BVRDIR)\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(DIGICLOCK_RESULT).exe       $(BVRDIR)\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(LSSTG_RESULT).exe           $(BVRDIR)\bin
+  @xcopy /Q /Y  $(SIGNDIR)\$(LSTYPEINFO_RESULT).exe      $(BVRDIR)\bin
+  @xcopy /Q /Y $(DOCDIR)\gpl-3.0.*.htm                   $(BVRDIR)
   $(SLNDIR)\$(MSICAB_RESULT).exe -msicab $(INCDIR)\ver\versions.xml $(PROJECTDIR)\comp\msi\msiid.xml $(PROJECTDIR)\comp\msi\msipackage.xml $(DISTDIR) $(MSIDIR)\$(BVR20983_CABMSI)
   @$(sign) $(signvars) /p $(signpwd) $(MSIDIR)\$(BVR20983_CABMSI)
  

@@ -241,16 +241,16 @@ namespace bvr20983
       if( !pXMLDomNodeList.IsNULL() )
         for( HRESULT hr = pXMLDomNodeList->nextNode(&pNode);hr==S_OK;hr=pXMLDomNodeList->nextNode(&pNode) )
         { COVariant name;
-          COVariant directoryid;
+          COVariant directorypath;
           COVariant icon;
           COVariant iconindex;
           COVariant featureid;
 
-          if( versionsDoc.GetAttribute(pNode,_T("name")       ,name       ) &&
-              versionsDoc.GetAttribute(pNode,_T("directoryid"),directoryid) &&
-              versionsDoc.GetAttribute(pNode,_T("icon")       ,icon       ) &&
-              versionsDoc.GetAttribute(pNode,_T("iconindex")  ,iconindex  ) &&
-              versionsDoc.GetAttribute(pNode,_T("featureid")  ,featureid  )
+          if( versionsDoc.GetAttribute(pNode,_T("name")         ,name         ) &&
+              versionsDoc.GetAttribute(pNode,_T("directorypath"),directorypath) &&
+              versionsDoc.GetAttribute(pNode,_T("icon")         ,icon         ) &&
+              versionsDoc.GetAttribute(pNode,_T("iconindex")    ,iconindex    ) &&
+              versionsDoc.GetAttribute(pNode,_T("featureid")    ,featureid    )
             )
           { if( shortcutsElement.IsNULL() )
             { versionsDoc.CreateElement(_T("shortcuts"),shortcutsElement);
@@ -286,13 +286,19 @@ namespace bvr20983
                 YAString shortcutId;
                 shortcutId.Format(_T("S%d"),id++);
 
+                versionsDoc.GetProperty(pNode,directorypath);
+
                 versionsDoc.AddAttribute(shortcutElement,_T("id"),shortcutId);
                 versionsDoc.AddAttribute(shortcutElement,_T("feature"),V_BSTR(featureid));
                 versionsDoc.AddAttribute(shortcutElement,_T("name"),V_BSTR(name));
                 versionsDoc.AddAttribute(shortcutElement,_T("icon"),V_BSTR(icon));
                 versionsDoc.AddAttribute(shortcutElement,_T("iconindex"),V_BSTR(iconindex));
-                versionsDoc.AddAttribute(shortcutElement,_T("directoryid"),V_BSTR(directoryid));
                 versionsDoc.AddAttribute(shortcutElement,_T("componentid"),V_BSTR(compId));
+
+                STR_STR_Map::const_iterator iter = m_dirpath2dirid.find(V_BSTR(directorypath));
+
+                if( iter!=m_dirpath2dirid.end() )
+                  versionsDoc.AddAttribute(shortcutElement,_T("directoryid"),iter->second.c_str());
               } // of if
             } // of if
           } // of if
@@ -533,6 +539,8 @@ namespace bvr20983
           m_doc.AppendElement(directoryElement,_T("path"),iter->m_dirPath,3);
           m_doc.AppendElement(directoryElement,_T("name"),iter->m_dirName,3);
           m_doc.AppendElement(directoryElement,_T("shortname"),iter->m_dirShortName,3);
+
+          m_dirpath2dirid.insert( STR_STR_Pair(iter->m_dirPath.c_str(),iter->m_dirId.c_str()) );
         } // of for
 
         m_doc.AppendNewline(directoriesElement,1);

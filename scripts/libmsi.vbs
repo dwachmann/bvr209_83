@@ -499,7 +499,7 @@ Sub TransformMsiDirectoryInfo(xmlDoc,msidir,ByRef targetDirId)
 
             directoryIdt.Write(vbTab)
 
-            If idAttr.value="ProgramFilesFolder" Then
+            If Right(idAttr.value,6)="Folder" Then
               directoryIdt.Write(".")
             Else
               directoryIdt.Write(o.selectSingleNode("./shortname/text()").nodeValue)

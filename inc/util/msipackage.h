@@ -65,6 +65,7 @@ namespace bvr20983
         STR_STR_Map            m_filename2comp;
         STR_STR_Map            m_dirname2comp;
         STR_STR_Map            m_filename2compid;
+        STR_STR_Map            m_dirpath2dirid;
 
         void    LoadFeatures(util::XMLDocument versionsDoc);
         void    LoadFileNames(util::XMLDocument versionsDoc);

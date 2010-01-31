@@ -532,6 +532,7 @@ makeopts = $(makeopts) nodebug=1
 
 makeopts = $(makeopts) PROJECTDIR=$(PROJECTDIR)
 
+PRODUCTID=bvr20983.0
 BVR20983RES_RESULT=bvr20983.0.res.1
 BVR20983CC_RESULT=bvr20983.0.cc.1
 BVR20983SC_RESULT=bvr20983.0.sc.1
