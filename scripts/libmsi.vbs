@@ -850,6 +850,46 @@ Sub TransformMsiPropertyInfo(xmlDoc,msidir)
   End If
 End Sub
 
+'
+' transform media info in msipackage to idt file
+'
+Sub TransformMsiMediaInfo(xmlDoc,msidir)
+  Dim objNodeList,o,mediaIdt
+
+  Set objNodeList = xmlDoc.documentElement.selectNodes("/msipackage/media")
+  If objNodeList.length>0 Then
+    Set mediaIdt = fso.CreateTextFile(msidir&"\Media.idt", True)
+
+    mediaIdt.WriteLine("DiskId"&vbTab&"LastSequence"&vbTab&"DiskPrompt"&vbTab&"Cabinet"&vbTab&"VolumeLabel"&vbTab&"Source")
+    mediaIdt.WriteLine("i2"&vbTab&"i2"&vbTab&"L64"&vbTab&"S255"&vbTab&"S32"&vbTab&"S72")
+    mediaIdt.WriteLine("Media"&vbTab&"DiskId")
+
+    For Each o in objNodeList
+      If TypeName(o)="IXMLDOMElement" Then
+        mediaIdt.Write(o.GetAttributeNode("diskid").value)
+
+        mediaIdt.Write(vbTab)
+        mediaIdt.Write(o.GetAttributeNode("lastSequence").value)
+
+        mediaIdt.Write(vbTab)
+        mediaIdt.Write("1")
+
+        mediaIdt.Write(vbTab)
+        mediaIdt.Write("#")
+        mediaIdt.Write(o.selectSingleNode("./cabname/text()").nodeValue)
+
+        mediaIdt.Write(vbTab)
+        mediaIdt.Write("DISK1")
+
+        mediaIdt.Write(vbTab)
+        mediaIdt.WriteLine()
+      End If  
+    Next
+
+    mediaIdt.Close
+  End If
+End Sub
+
 
 '
 ' transform msipackage to idt files
@@ -876,6 +916,7 @@ Sub TransformMsiPackageDescription(f,msidir)
     TransformMsiFeature2ComponentInfo xmlDoc,msidir
     TransformMsiPropertyInfo xmlDoc,msidir
     TransformMsiShortcutInfo xmlDoc,msidir
+    TransformMsiMediaInfo xmlDoc,msidir
 
     componentIdt.Close
   End If

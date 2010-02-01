@@ -375,7 +375,9 @@ void msicab(LPTSTR versionFName,LPTSTR msiIdRegistryFName,LPTSTR msiPackageFName
           cabinet.AddFile(fullCompDir->c_str(),fullCompDir->c_str());
           addFileCB.DumpDirectoryInfo();
 
-          msiPackageDoc.AddMedia((long)cabinet.GetSequenceNo(),cabName);
+          FileInfo cabInfo(cabName);
+
+          msiPackageDoc.AddMedia((long)cabinet.GetSequenceNo(),cabInfo.GetName()->c_str());
           addFileCB.close();
 
           msiPackageDoc.Save(versionsDoc,msiIdRegistry);
