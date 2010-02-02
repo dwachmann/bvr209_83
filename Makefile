@@ -78,6 +78,8 @@ msipatch: comp\msi\~createpatch
 
 msitransform: comp\msi\~msitransform
 
+msidistribute: comp\msi\~msidistribute
+
 comp\msi\~createpatch:
   @IF EXIST $(@D)\makefile <<nmaketmp.bat
   @cd $(@D)

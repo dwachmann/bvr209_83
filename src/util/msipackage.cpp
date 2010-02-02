@@ -36,8 +36,6 @@ namespace bvr20983
       m_fileName(fileName)
     { m_doc.CreateXmlSkeleton(_T("msipackage"),m_rootElement);
 
-      AddFeatureInfo(versionsDoc);
-
       m_doc.CreateElement(_T("files"),m_filesElement);
       m_doc.AppendChildToParent(m_filesElement,m_rootElement,1);
       m_doc.AppendNewline(m_filesElement,1);
@@ -99,11 +97,17 @@ namespace bvr20983
             versionsDoc.AppendChildToParent(featureElement,featuresElement,2);
 
             versionsDoc.AddAttribute(featureElement,_T("id"),V_BSTR(id));
-            versionsDoc.AddAttribute(featureElement,_T("directory"),V_BSTR(directory));
+            
             versionsDoc.AddAttribute(featureElement,_T("level"),V_BSTR(level));
             versionsDoc.AddAttribute(featureElement,_T("attribute"),V_BSTR(attribute));
             versionsDoc.AddAttribute(featureElement,_T("title"),V_BSTR(title));
             versionsDoc.AddAttribute(featureElement,_T("description"),V_BSTR(description));
+
+            versionsDoc.GetProperty(pNode,directory);
+            STR_STR_Map::const_iterator iter = m_dirpath2dirid.find(V_BSTR(directory));
+
+            if( iter!=m_dirpath2dirid.end() )
+              versionsDoc.AddAttribute(featureElement,_T("directory"),iter->second.c_str());
 
             if( parentId.IsSet() )
               versionsDoc.AddAttribute(featureElement,_T("parentid"),V_BSTR(parentId));
@@ -612,7 +616,9 @@ namespace bvr20983
      *
      */
     void MSIPackage::Save(util::XMLDocument versionsDoc,MSIIdRegistry& idRegistry)
-    { LoadShortcuts(versionsDoc);
+    { 
+      AddFeatureInfo(versionsDoc);
+      LoadShortcuts(versionsDoc);
 
       m_doc.Save(m_fileName);
     } // of MSIPackage::Save()
